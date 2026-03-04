@@ -42,6 +42,11 @@ class PathDependencies:
 
 
 @dataclass
+class ProhibitedPaths:
+    prohibited_files: list[Path] = field(default_factory=list)
+
+
+@dataclass
 class NetworkRequirements:
     api_url: str
     always_requires_docker: bool = False

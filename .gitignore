@@ -56,6 +56,7 @@ venv.bak/
 
 # generated files
 out.json
+/migration-*.yaml
 /*id2iri_*.json
 **/~$*.*
 testdata/tmp/

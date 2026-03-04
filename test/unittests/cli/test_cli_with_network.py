@@ -7,6 +7,9 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.migration.models import MigrationConfig
+from dsp_tools.commands.migration.models import MigrationInfo
+from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -18,6 +21,9 @@ EXIT_CODE_TWO = 2
 PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
+MIGRATION_YAML_COMPLETE_PATH = "testdata/migration/migration-4125_complete.yaml"
+MIGRATION_EXPORT_PATH = Path("testdata/migration/export-4125.zip")
+MIGRATION_REFERENCE_PATH = Path("testdata/migration/migration-references-4125.json")
 
 
 def test_invalid_arguments() -> None:
@@ -841,6 +847,126 @@ class TestUpdatePromptFlag:
         entry_point.run(args)
         check_version.assert_not_called()
         xmlupload.assert_called_once()
+
+
+class TestMigrationExport:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.export")
+    def test_migration_export(self, mock_export: Mock, check_input_deps: Mock) -> None:
+        mock_export.return_value = True, None
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        args = f"migration export {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        mock_export.assert_called_once_with(source, config)
+
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.export")
+    def test_migration_export_keep_export(self, mock_export: Mock, check_input_deps: Mock) -> None:
+        mock_export.return_value = True, None
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=True,
+        )
+        args = "migration export testdata/migration/migration-4125_complete_keep_export.yaml".split()
+        entry_point.run(args)
+        mock_export.assert_called_once_with(source, config)
+
+    def test_migration_export_source_server_missing(self) -> None:
+        args = "migration export testdata/migration/migration-4125_target_only.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_export_config_file_not_found(self) -> None:
+        args = "migration export nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
+class TestMigrationDownload:
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.download")
+    def test_migration_download(self, mock_download: Mock, check_network: Mock) -> None:
+        mock_download.return_value = True, None
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        args = f"migration download {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        mock_download.assert_called_once_with(source, config)
+
+    def test_migration_download_source_server_missing(self) -> None:
+        args = "migration download testdata/migration/migration-4125_target_only.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_download_config_file_not_found(self) -> None:
+        args = "migration download nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
+class TestMigrationImport:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.import_zip")
+    def test_migration_import(self, mock_import_zip: Mock, check_input_deps: Mock) -> None:
+        mock_import_zip.return_value = True
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        args = "migration import testdata/migration/migration-4125_complete.yaml".split()
+        entry_point.run(args)
+        mock_import_zip.assert_called_once_with(target, config)
+
+    def test_migration_import_target_server_missing(self) -> None:
+        args = "migration import testdata/migration/migration-4125_source_only.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+    def test_migration_import_config_file_not_found(self) -> None:
+        args = "migration import nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+
+
+class TestMigrationCleanUp:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.clean_up")
+    def test_migration_import(self, clean_up: Mock, check_input_deps: Mock) -> None:
+        clean_up.return_value = True
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        info = MigrationInfo(config, source, target)
+        args = f"migration clean-up {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        clean_up.assert_called_once_with(info)
+
+    def test_migration_import_config_file_not_found(self) -> None:
+        args = "migration clean-up nonexistent-config.yaml".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
 
 
 if __name__ == "__main__":

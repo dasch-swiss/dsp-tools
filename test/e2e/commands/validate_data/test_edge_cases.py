@@ -167,10 +167,11 @@ def test_reformat_inheritance_violation(authentication) -> None:
     )
     assert not result.no_problems
     expected_results = [
-        ("ResourceSubCls1", {"onto:hasText0"}),
-        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
-        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
-        ("ResourceUnrelated", {"onto:hasText0"}),
+        ("ResourceInexistentLinkDuplicateReport", {"onto:hasLink"}, ProblemType.INEXISTENT_LINKED_RESOURCE),
+        ("ResourceSubCls1", {"onto:hasText0"}, ProblemType.NON_EXISTING_CARD),
+        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}, ProblemType.NON_EXISTING_CARD),
+        ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}, ProblemType.NON_EXISTING_CARD),
+        ("ResourceUnrelated", {"onto:hasText0"}, ProblemType.NON_EXISTING_CARD),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)
@@ -180,9 +181,9 @@ def test_reformat_inheritance_violation(authentication) -> None:
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected in zip(alphabetically_sorted, expected_results):
-        assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
         assert one_result.res_id == expected[0]
         assert one_result.prop_name in expected[1]
+        assert one_result.problem_type == expected[2]
 
 
 @pytest.mark.usefixtures("_create_projects_edge_cases")

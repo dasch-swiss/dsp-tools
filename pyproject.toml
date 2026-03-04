@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "18.6.1"
+version = "18.6.3"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
@@ -38,6 +38,7 @@ dependencies = [
     "rustworkx~=0.17.1", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
     "tqdm",
     "typing-extensions",
+    "yaspin",
 ]
 
 

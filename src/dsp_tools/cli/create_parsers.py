@@ -69,6 +69,8 @@ def make_parser(
 
     _add_update_legal(subparsers)
 
+    _add_migration(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -477,3 +479,36 @@ def _add_update_legal(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         help="Treat invalid licenses as 'unknown' instead of creating FIXME entries",
     )
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
+
+
+def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    migration_parser = subparsers.add_parser(name="migration", help="Migrate a project between DSP servers")
+    migration_parser.set_defaults(action="migration")
+    migration_subparsers = migration_parser.add_subparsers(title="Subcommands", dest="migration_subcommand")
+
+    # config
+    config_parser = migration_subparsers.add_parser(name="config", help="Create a migration config file")
+    config_parser.set_defaults(action="migration config")
+    config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")
+
+    # export
+    export_parser = migration_subparsers.add_parser(name="export", help="Export a project from a DSP server")
+    export_parser.set_defaults(action="migration export")
+    export_parser.add_argument("config_file", help="path to the migration config YAML file")
+
+    # download
+    download_parser = migration_subparsers.add_parser(name="download", help="Download a project zip from a DSP server")
+    download_parser.set_defaults(action="migration download")
+    download_parser.add_argument("config_file", help="path to the migration config YAML file")
+
+    # import
+    import_parser = migration_subparsers.add_parser(name="import", help="Import a project from another DSP server")
+    import_parser.set_defaults(action="migration import")
+    import_parser.add_argument("config_file", help="path to the migration config YAML file")
+
+    # clean-up
+    clean_up_parser = migration_subparsers.add_parser(
+        name="clean-up", help="Clean up the leftovers of the export and import on servers, and local files"
+    )
+    clean_up_parser.set_defaults(action="migration clean-up")
+    clean_up_parser.add_argument("config_file", help="path to the migration config YAML file")

@@ -69,6 +69,17 @@ class UserFilepathNotFoundError(UserError):
         super().__init__(msg)
 
 
+class UserFilepathMustNotExistError(UserError):
+    """This error is raised if a filepath from the user already exists (but should not)."""
+
+    def __init__(self, filepath: str | Path) -> None:
+        msg = (
+            f"It is not allowed to continue while a file at this path exists: {filepath}. "
+            f"Please delete or rename it to continue."
+        )
+        super().__init__(msg)
+
+
 class UserDirectoryNotFoundError(UserError):
     """This error is raised if a directory from the user does not exist."""
 

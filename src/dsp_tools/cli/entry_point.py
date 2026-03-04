@@ -16,7 +16,7 @@ from packaging.version import parse
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.cli.exceptions import CliUserError
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.setup.ansi_colors import BOLD_RED
@@ -232,55 +232,6 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     logger.info("*" * asterisk_count)
 
 
-def _get_canonical_server_and_dsp_ingest_url(
-    server: str,
-    default_dsp_api_url: str,
-    default_dsp_ingest_url: str,
-) -> tuple[str, str]:
-    """
-    Based on the DSP server URL passed by the user,
-    transform it to its canonical form,
-    and derive the ingest server URL from it.
-
-    If the DSP server URL points to port 3333 on localhost,
-    the ingest server will point to port 3340 on localhost.
-
-    If the DSP server URL points to a remote server ending in "dasch.swiss",
-    modify it (if necessary) to point to the "api" subdomain of that server,
-    and add a new "dsp_ingest_url" argument pointing to the "ingest" subdomain of that server.
-
-    Args:
-        server: DSP server URL passed by the user
-        default_dsp_api_url: default DSP server on localhost
-        default_dsp_ingest_url: default ingest server on localhost
-
-    Raises:
-        CliUserError: if the DSP server URL passed by the user is invalid
-
-    Returns:
-        canonical DSP URL and ingest server URL
-    """
-    localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", server)
-    remote_url_match = regex.search(
-        r"^(?:https?:\/\/)?(?:admin\.|api\.|ingest\.|app\.)?((?:.+\.)?dasch)\.swiss", server
-    )
-
-    if localhost_match:
-        server = default_dsp_api_url
-        dsp_ingest_url = default_dsp_ingest_url
-    elif remote_url_match:
-        server = f"https://api.{remote_url_match.group(1)}.swiss"
-        dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
-    else:
-        logger.error(f"Invalid DSP server URL '{server}'")
-        raise CliUserError(f"ERROR: Invalid DSP server URL '{server}'")
-
-    logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
-    print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
-
-    return server, dsp_ingest_url
-
-
 def _derive_dsp_ingest_url(
     parsed_arguments: argparse.Namespace,
     default_dsp_api_url: str,
@@ -307,7 +258,7 @@ def _derive_dsp_ingest_url(
         # some CLI actions (like excel2json, excel2xml, start-stack, ...) don't have a server at all
         return parsed_arguments
 
-    server, dsp_ingest_url = _get_canonical_server_and_dsp_ingest_url(
+    server, dsp_ingest_url = get_canonical_server_and_dsp_ingest_url(
         server=parsed_arguments.server,
         default_dsp_api_url=default_dsp_api_url,
         default_dsp_ingest_url=default_dsp_ingest_url,

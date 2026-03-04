@@ -54,7 +54,7 @@ def _get_unknown_ontos_msg(unknown: UnknownClassesInData) -> str | None:
     def split_prefix(relative_iri: str) -> str | None:
         if ":" not in relative_iri:
             return None
-        return relative_iri.split(":")[0]
+        return relative_iri.split(":", maxsplit=1)[0]
 
     used_ontos = set(not_knora for x in unknown.unknown_classes if (not_knora := split_prefix(x)))
     exising_ontos = set(not_knora for x in unknown.defined_classes if (not_knora := split_prefix(x)))

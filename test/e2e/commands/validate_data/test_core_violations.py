@@ -180,7 +180,6 @@ class TestWithReportGraphs:
             ("card_inexistent_for_prop", ProblemType.NON_EXISTING_CARD),
             ("card_max_violation", ProblemType.MAX_CARD),
             ("date_month_does_not_exist", ProblemType.GENERIC),
-            ("date_month_does_not_exist", ProblemType.GENERIC),
             ("date_range_first_is_ce_second_bce", ProblemType.GENERIC),
             ("date_range_wrong_yyyy", ProblemType.GENERIC),
             ("file_value_missing", ProblemType.FILE_VALUE_MISSING),
@@ -288,11 +287,6 @@ def test_reformat_content_violation(authentication) -> None:
         ("date_range_wrong_year_month_good_day_wrong", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_yyyy", "onto:testSubDate1", msg_end_date_larger_than_start),
         ("date_range_wrong_yyyy_mm", "onto:testSubDate1", msg_end_date_larger_than_start),
-        (
-            "date_single_month_does_not_exist",
-            "onto:testSubDate1",
-            "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
-        ),
         (
             "date_single_month_does_not_exist",
             "onto:testSubDate1",

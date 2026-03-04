@@ -7,6 +7,7 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
@@ -847,6 +848,35 @@ class TestUpdatePromptFlag:
         entry_point.run(args)
         check_version.assert_not_called()
         xmlupload.assert_called_once()
+
+
+class TestMigration:
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.migration")
+    def test_good(self, mock_migration: Mock, check_input_deps: Mock) -> None:
+        mock_migration.return_value = True
+        source = ServerInfo(server="http://0.0.0.0:3333", user="root@example.com", password="test")
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        config = MigrationConfig(
+            shortcode="4125",
+            export_savepath=MIGRATION_EXPORT_PATH,
+            reference_savepath=MIGRATION_REFERENCE_PATH,
+            keep_local_export=False,
+        )
+        migration_info = MigrationInfo(config, source, target)
+        args = f"migration {MIGRATION_YAML_COMPLETE_PATH}".split()
+        entry_point.run(args)
+        mock_migration.assert_called_once_with(migration_info)
+
+    def test_migration_export_source_server_missing(self) -> None:
+        args = "migration export testdata/migration/migration-4125_target_only.yaml".split()
+        with pytest.raises(InvalidMigrationConfigFile):
+            entry_point.run(args)
+
+    def test_migration_import_target_server_missing(self) -> None:
+        args = "migration import testdata/migration/migration-4125_source_only.yaml".split()
+        with pytest.raises(InvalidMigrationConfigFile):
+            entry_point.run(args)
 
 
 class TestMigrationExport:

@@ -1,5 +1,29 @@
 # Decision Log
 
+## Simplification of legacy models and the `get` command
+
+[PR: https://github.com/dasch-swiss/dsp-tools/pull/2161](https://github.com/dasch-swiss/dsp-tools/pull/2161)
+
+The `get` command and its underlying legacy models
+(`src/dsp_tools/legacy_models/`) were inherited from early versions of DSP-TOOLS.
+They contained a lot of unnecessary complexity:
+deep class hierarchies, a custom base model with request logic,
+and tight coupling between data representation and API communication.
+
+This PR simplified the legacy models by:
+
+- Removing the custom base model and dead code
+- Converting classes to plain dataclasses
+- Decoupling `projectContext` (used by `xmlupload`) from the legacy `get` models
+- Removing linting exclusions that were in place for the legacy code
+- Removing the legacy e2e tests that tested the old models against a running stack
+
+Unit tests for the simplified legacy models were generated with AI assistance
+and received only minimal human review.
+The e2e test `test/e2e/commands/test_create_get_xmlupload.py`
+serves as the main safety net to verify that `create` and `get` produce consistent results.
+
+
 ## Future considerations for `validate-data`
 
 - Validate data is not feature complete.

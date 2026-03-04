@@ -7,7 +7,6 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
@@ -868,14 +867,14 @@ class TestMigration:
         entry_point.run(args)
         mock_migration.assert_called_once_with(migration_info)
 
-    def test_migration_export_source_server_missing(self) -> None:
-        args = "migration export testdata/migration/migration-4125_target_only.yaml".split()
-        with pytest.raises(InvalidMigrationConfigFile):
+    def test_migration_source_server_missing(self) -> None:
+        args = "migration testdata/migration/migration-4125_target_only.yaml".split()
+        with pytest.raises(SystemExit):
             entry_point.run(args)
 
-    def test_migration_import_target_server_missing(self) -> None:
-        args = "migration import testdata/migration/migration-4125_source_only.yaml".split()
-        with pytest.raises(InvalidMigrationConfigFile):
+    def test_migration_target_server_missing(self) -> None:
+        args = "migration testdata/migration/migration-4125_source_only.yaml".split()
+        with pytest.raises(SystemExit):
             entry_point.run(args)
 
 

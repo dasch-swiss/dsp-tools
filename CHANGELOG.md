@@ -1,5 +1,25 @@
 # Changelog
 
+## [18.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.3...v18.7.0) (2026-03-04)
+
+
+### Enhancements
+
+* **migration:** add CLI command `clean-up` (DEV-5912) ([#2200](https://github.com/dasch-swiss/dsp-tools/issues/2200)) ([b08d2d1](https://github.com/dasch-swiss/dsp-tools/commit/b08d2d16e3bf91944159199184b1adab7ac982e9))
+* **migration:** add CLI command to create config file (DEV-5908) ([#2192](https://github.com/dasch-swiss/dsp-tools/issues/2192)) ([183cdf4](https://github.com/dasch-swiss/dsp-tools/commit/183cdf4d2d6fc4d8a803e33c5f14786bd16c69e3))
+* **migration:** create migraion export and import clients (DEV-5905) ([#2191](https://github.com/dasch-swiss/dsp-tools/issues/2191)) ([05a9d07](https://github.com/dasch-swiss/dsp-tools/commit/05a9d07fcee63da37ef93ffd813f08d299503fc6))
+* **migration:** fine-tune error messages and improve handling of common errors (DEV-5932) ([#2201](https://github.com/dasch-swiss/dsp-tools/issues/2201)) ([025afab](https://github.com/dasch-swiss/dsp-tools/commit/025afab8e41d1c1391f5a16f93e57accb4ba8b19))
+* **migration:** implement CLI `import` (DEV-5911) ([#2197](https://github.com/dasch-swiss/dsp-tools/issues/2197)) ([eec3b91](https://github.com/dasch-swiss/dsp-tools/commit/eec3b919e723e1b93fd6eaef4d5122d3277f517c))
+* **migration:** implement CLI `migration export` (DEV-5909) ([#2193](https://github.com/dasch-swiss/dsp-tools/issues/2193)) ([dea32b3](https://github.com/dasch-swiss/dsp-tools/commit/dea32b3c39984135ccc42e4134225de886a89ec3))
+* **migration:** implement CLI command `download` (DEV-5910) ([#2196](https://github.com/dasch-swiss/dsp-tools/issues/2196)) ([50987e0](https://github.com/dasch-swiss/dsp-tools/commit/50987e0d6ba62f9fdfa06f66e923384e701399a3))
+* **migration:** write export/import IDs to file for future reference (DEV-5936) ([#2198](https://github.com/dasch-swiss/dsp-tools/issues/2198)) ([3bfea4b](https://github.com/dasch-swiss/dsp-tools/commit/3bfea4bbcfe82560ac58e74cf42463883e3782f2))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.03.01 ([#2204](https://github.com/dasch-swiss/dsp-tools/issues/2204)) ([250e935](https://github.com/dasch-swiss/dsp-tools/commit/250e93568eb2ac1f5481176ee421eb483b6ce45e))
+* **validate-data:** check if project exists before starting validation ([#2188](https://github.com/dasch-swiss/dsp-tools/issues/2188)) ([ee8c11d](https://github.com/dasch-swiss/dsp-tools/commit/ee8c11d6c13680986855644cf0993de57b4c9e70))
+
 ## [18.6.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.2...v18.6.3) (2026-02-19)
 
 

@@ -121,6 +121,7 @@ def write_or_update_reference_json(
     if json_path.exists():
         reference_info = parse_json_file(json_path)
     else:
+        json_path.parent.mkdir(exist_ok=True, parents=True)
         reference_info = {}
     if export_id:
         reference_info["export_id"] = export_id.id_

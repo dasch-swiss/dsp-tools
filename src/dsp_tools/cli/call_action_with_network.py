@@ -60,7 +60,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
     image_dir = Path(args.imgdir)
     network_requirements = NetworkRequirements(api_url=args.server)
     path_requirements = PathDependencies([xml_path], required_directories=[image_dir])
-    check_input_dependencies(path_requirements, network_requirements)
+    check_input_dependencies(path_requirements, [network_requirements])
 
     return upload_files(
         xml_file=xml_path,
@@ -83,7 +83,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files)
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
@@ -106,7 +106,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     if args.validate_only:
         if parse_and_validate_xml_file(xml_path):
@@ -150,7 +150,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
     path_deps = PathDependencies(required_files)
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     return validate_data(
         filepath=xml_path,
@@ -175,7 +175,7 @@ def call_resume_xmlupload(args: argparse.Namespace) -> bool:
 def call_get(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies(required_directories=[Path(args.project_definition).parent])
-    check_input_dependencies(path_dependencies, network_dependencies)
+    check_input_dependencies(path_dependencies, [network_dependencies])
 
     return get_project(
         project_identifier=args.project,
@@ -188,7 +188,7 @@ def call_get(args: argparse.Namespace) -> bool:
 def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies([Path(args.project_definition)])
-    check_input_dependencies(path_dependencies, network_dependencies)
+    check_input_dependencies(path_dependencies, [network_dependencies])
     project_file = Path(args.project_definition)
     creds = get_creds(args)
 
@@ -217,7 +217,7 @@ def call_migration(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
-    if not all([migration_info.source, migration_info.target]):
+    if migration_info.source is None or migration_info.target is None:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
             f"for the `migration` command."

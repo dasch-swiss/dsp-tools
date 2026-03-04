@@ -213,7 +213,7 @@ def call_create(args: argparse.Namespace) -> bool:
     return success
 
 
-def call_migration(args: argparse.Namespace) -> bool:
+def call_migration_complete(args: argparse.Namespace) -> bool:
     config_path = Path(args.config_file)
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)

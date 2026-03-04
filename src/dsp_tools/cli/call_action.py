@@ -15,8 +15,8 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
-from dsp_tools.cli.call_action_with_network import call_migration
 from dsp_tools.cli.call_action_with_network import call_migration_clean_up
+from dsp_tools.cli.call_action_with_network import call_migration_complete
 from dsp_tools.cli.call_action_with_network import call_migration_download
 from dsp_tools.cli.call_action_with_network import call_migration_export
 from dsp_tools.cli.call_action_with_network import call_migration_import
@@ -84,10 +84,10 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             result = call_id2iri(args)
         case "update-legal":
             result = call_update_legal(args)
-        case "migration":
-            result = call_migration(args)
         case "migration config":
             result = call_migration_config(args)
+        case "migration complete":
+            result = call_migration_complete(args)
         case "migration export":
             result = call_migration_export(args)
         case "migration download":

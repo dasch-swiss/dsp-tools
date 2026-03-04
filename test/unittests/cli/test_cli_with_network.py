@@ -849,7 +849,7 @@ class TestUpdatePromptFlag:
         xmlupload.assert_called_once()
 
 
-class TestMigration:
+class TestMigrationComplete:
     @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.migration")
     def test_good(self, mock_migration: Mock, check_input_deps: Mock) -> None:
@@ -863,17 +863,17 @@ class TestMigration:
             keep_local_export=False,
         )
         migration_info = MigrationInfo(config, source, target)
-        args = f"migration {MIGRATION_YAML_COMPLETE_PATH}".split()
+        args = f"migration complete {MIGRATION_YAML_COMPLETE_PATH}".split()
         entry_point.run(args)
         mock_migration.assert_called_once_with(migration_info)
 
     def test_migration_source_server_missing(self) -> None:
-        args = "migration testdata/migration/migration-4125_target_only.yaml".split()
+        args = "migration complete testdata/migration/migration-4125_target_only.yaml".split()
         with pytest.raises(SystemExit):
             entry_point.run(args)
 
     def test_migration_target_server_missing(self) -> None:
-        args = "migration testdata/migration/migration-4125_source_only.yaml".split()
+        args = "migration complete testdata/migration/migration-4125_source_only.yaml".split()
         with pytest.raises(SystemExit):
             entry_point.run(args)
 

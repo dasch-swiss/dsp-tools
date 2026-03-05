@@ -46,23 +46,23 @@ class TestExportDownload:
 
         patches = {
             "auth_cls": patch(
-                "dsp_tools.commands.migration.migration.AuthenticationClientLive",
+                "dsp_tools.commands.migration.export_download.AuthenticationClientLive",
                 return_value=mock_auth,
             ),
             "project_cls": patch(
-                "dsp_tools.commands.migration.migration.ProjectClientLive",
+                "dsp_tools.commands.migration.export_download.ProjectClientLive",
                 return_value=mock_project_client,
             ),
             "export_cls": patch(
-                "dsp_tools.commands.migration.migration.MigrationExportClientLive",
+                "dsp_tools.commands.migration.export_download.MigrationExportClientLive",
                 return_value=mock_export_client,
             ),
-            "execute_export": patch(
-                "dsp_tools.commands.migration.migration.execute_export",
+            "_execute_export": patch(
+                "dsp_tools.commands.migration.export_download._execute_export",
                 return_value=export_result,
             ),
-            "execute_download": patch(
-                "dsp_tools.commands.migration.migration.execute_download",
+            "_execute_download": patch(
+                "dsp_tools.commands.migration.export_download._execute_download",
                 return_value=download_result,
             ),
         }
@@ -74,8 +74,8 @@ class TestExportDownload:
             patches["auth_cls"],
             patches["project_cls"],
             patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
+            patches["_execute_export"],
+            patches["_execute_download"],
         ):
             result = export_and_download(migration_info)
 
@@ -88,8 +88,8 @@ class TestExportDownload:
             patches["auth_cls"],
             patches["project_cls"],
             patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"] as mock_download,
+            patches["_execute_export"],
+            patches["_execute_download"] as mock_download,
         ):
             with pytest.raises(MigrationExportFailureError):
                 export_and_download(migration_info)
@@ -102,8 +102,8 @@ class TestExportDownload:
             patches["auth_cls"],
             patches["project_cls"],
             patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
+            patches["_execute_export"],
+            patches["_execute_download"],
         ):
             with pytest.raises(MigrationExportFailureError):
                 export_and_download(migration_info)
@@ -116,8 +116,8 @@ class TestExportDownload:
             patches["auth_cls"],
             patches["project_cls"],
             patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
+            patches["_execute_export"],
+            patches["_execute_download"],
         ):
             with pytest.raises(MigrationDownloadFailureError):
                 export_and_download(migration_info)

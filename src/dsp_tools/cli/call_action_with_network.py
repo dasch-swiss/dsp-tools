@@ -19,9 +19,9 @@ from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.migration.clean_up import clean_up
 from dsp_tools.commands.migration.config_file import parse_config_file
-from dsp_tools.commands.migration.download import download
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
-from dsp_tools.commands.migration.export import export
+from dsp_tools.commands.migration.export_download import download
+from dsp_tools.commands.migration.export_download import export
 from dsp_tools.commands.migration.import_zip import import_zip
 from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload

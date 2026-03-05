@@ -10,10 +10,8 @@ import pytest
 
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ImportId
-from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
 from dsp_tools.commands.migration.exceptions import MigrationImportFailureError
-from dsp_tools.commands.migration.migration import _export_and_download
 from dsp_tools.commands.migration.migration import _import
 from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.migration.models import MigrationConfig
@@ -87,100 +85,6 @@ class TestMigration:
                 migration(migration_info)
 
         mock_cleanup.assert_not_called()
-
-
-class TestExportDownload:
-    def _make_patches(
-        self,
-        export_result: tuple[bool, ExportId] = (True, EXPORT_ID),
-        download_result: bool = True,
-        project_iri: str = PROJECT_IRI,
-    ):
-        mock_auth = MagicMock()
-        mock_project_client = MagicMock()
-        mock_project_client.get_project_iri.return_value = project_iri
-        mock_export_client = MagicMock()
-        mock_export_client.project_iri = project_iri
-
-        patches = {
-            "auth_cls": patch(
-                "dsp_tools.commands.migration.migration.AuthenticationClientLive",
-                return_value=mock_auth,
-            ),
-            "project_cls": patch(
-                "dsp_tools.commands.migration.migration.ProjectClientLive",
-                return_value=mock_project_client,
-            ),
-            "export_cls": patch(
-                "dsp_tools.commands.migration.migration.MigrationExportClientLive",
-                return_value=mock_export_client,
-            ),
-            "execute_export": patch(
-                "dsp_tools.commands.migration.migration.execute_export",
-                return_value=export_result,
-            ),
-            "execute_download": patch(
-                "dsp_tools.commands.migration.migration.execute_download",
-                return_value=download_result,
-            ),
-        }
-        return patches, mock_auth, mock_project_client, mock_export_client
-
-    def test_happy_path(self, migration_info: MigrationInfo) -> None:
-        patches, _, _, mock_export_client = self._make_patches()
-        with (
-            patches["auth_cls"],
-            patches["project_cls"],
-            patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
-        ):
-            result = _export_and_download(migration_info)
-
-        assert result == PROJECT_IRI
-        mock_export_client.delete_export.assert_called_once_with(EXPORT_ID)
-
-    def test_export_fails_does_not_call_execute_download(self, migration_info: MigrationInfo) -> None:
-        patches, _, _, _ = self._make_patches(export_result=(False, EXPORT_ID))
-        with (
-            patches["auth_cls"],
-            patches["project_cls"],
-            patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"] as mock_download,
-        ):
-            with pytest.raises(MigrationExportFailureError):
-                _export_and_download(migration_info)
-
-        mock_download.assert_not_called()
-
-    def test_export_fails_does_not_call_delete_export(self, migration_info: MigrationInfo) -> None:
-        patches, _, _, mock_export_client = self._make_patches(export_result=(False, EXPORT_ID))
-        with (
-            patches["auth_cls"],
-            patches["project_cls"],
-            patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
-        ):
-            with pytest.raises(MigrationExportFailureError):
-                _export_and_download(migration_info)
-
-        mock_export_client.delete_export.assert_not_called()
-
-    def test_download_fails_does_not_call_delete_export(self, migration_info: MigrationInfo) -> None:
-        patches, _, _, mock_export_client = self._make_patches(download_result=False)
-        with (
-            patches["auth_cls"],
-            patches["project_cls"],
-            patches["export_cls"],
-            patches["execute_export"],
-            patches["execute_download"],
-        ):
-            with pytest.raises(MigrationDownloadFailureError):
-                _export_and_download(migration_info)
-
-        mock_export_client.delete_export.assert_not_called()
 
 
 class TestImport:

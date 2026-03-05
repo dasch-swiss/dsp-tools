@@ -27,11 +27,11 @@ def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
         raise MigrationReferenceInfoIncomplete("project_iri")
     auth = AuthenticationClientLive(target_info.server, target_info.user, target_info.password)
     client = MigrationImportClientLive(target_info.server, reference_info.project_iri, auth)
-    success, _ = _execute_import(client, config)
+    success, _ = execute_import(client, config)
     return success
 
 
-def _execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
+def execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
     logger.debug("Starting Import of Project")
     import_id = client.post_import(config.export_savepath)
     write_or_update_reference_json(config.reference_savepath, import_id=import_id)

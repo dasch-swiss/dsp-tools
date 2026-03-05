@@ -21,10 +21,10 @@ def download(source_info: ServerInfo, config: MigrationConfig) -> bool:
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
     client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    return _execute_download(client, reference_info.export_id, config)
+    return execute_download(client, reference_info.export_id, config)
 
 
-def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
+def execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:
     write_or_update_reference_json(config.reference_savepath, project_iri=client.project_iri)
     with yaspin(
         Spinners.bouncingBall,

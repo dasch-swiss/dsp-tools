@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.import_zip import _check_import_progress
-from dsp_tools.commands.migration.import_zip import _execute_import
+from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
 
 TEST_SLEEP = 0
@@ -24,7 +24,7 @@ class TestExecuteImport:
         client = MagicMock()
         client.post_import.return_value = import_id
         client.get_status.return_value = ExportImportStatus.COMPLETED
-        success, returned_id = _execute_import(client, config)
+        success, returned_id = execute_import(client, config)
         assert success is True
         assert returned_id == import_id
 

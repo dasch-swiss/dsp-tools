@@ -41,7 +41,7 @@ def _execute_clean_up(info: MigrationInfo, reference_info: ReferenceInfo) -> boo
         sp.text = start_msg
         _handle_source_server_clean_up(info.source, reference_info)
         _handle_target_server_clean_up(info.target, reference_info)
-        _handle_local_clean_up(info.config)
+        handle_local_clean_up(info.config)
         logger.info("Clean-up finished")
         sp.ok("✔")
     return True
@@ -91,7 +91,7 @@ def _clean_up_target_server(target_info: ServerInfo, import_id: ImportId, projec
     client.delete_import(import_id)
 
 
-def _handle_local_clean_up(config: MigrationConfig) -> None:
+def handle_local_clean_up(config: MigrationConfig) -> None:
     if config.keep_local_export:
         logger.debug("Local clean-up is skipped because the user configured to keep the files.")
         return

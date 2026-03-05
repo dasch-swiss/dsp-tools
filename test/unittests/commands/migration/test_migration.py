@@ -45,7 +45,7 @@ class TestMigration:
     def test_happy_path(self, migration_info: MigrationInfo) -> None:
         with (
             patch(
-                "dsp_tools.commands.migration.migration._export_and_download", return_value=PROJECT_IRI
+                "dsp_tools.commands.migration.migration.export_and_download", return_value=PROJECT_IRI
             ) as mock_export,
             patch("dsp_tools.commands.migration.migration._import") as mock_import,
             patch("dsp_tools.commands.migration.migration.handle_local_clean_up") as mock_cleanup,
@@ -60,7 +60,7 @@ class TestMigration:
     def test_export_and_download_raises_propagates(self, migration_info: MigrationInfo) -> None:
         with (
             patch(
-                "dsp_tools.commands.migration.migration._export_and_download",
+                "dsp_tools.commands.migration.migration.export_and_download",
                 side_effect=MigrationExportFailureError(),
             ),
             patch("dsp_tools.commands.migration.migration._import") as mock_import,
@@ -74,7 +74,7 @@ class TestMigration:
 
     def test_import_raises_propagates(self, migration_info: MigrationInfo) -> None:
         with (
-            patch("dsp_tools.commands.migration.migration._export_and_download", return_value=PROJECT_IRI),
+            patch("dsp_tools.commands.migration.migration.export_and_download", return_value=PROJECT_IRI),
             patch(
                 "dsp_tools.commands.migration.migration._import",
                 side_effect=MigrationImportFailureError(),

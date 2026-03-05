@@ -16,7 +16,7 @@ from dsp_tools.commands.migration.models import ServerInfo
 
 
 def migration(migration_info: MigrationInfo) -> bool:
-    project_iri = _export_download(migration_info)
+    project_iri = _export_and_download(migration_info)
 
     _import(migration_info, project_iri)
 
@@ -24,7 +24,7 @@ def migration(migration_info: MigrationInfo) -> bool:
     return True
 
 
-def _export_download(migration_info: MigrationInfo) -> str:
+def _export_and_download(migration_info: MigrationInfo) -> str:
     source_server = cast(ServerInfo, migration_info.source)
     auth = AuthenticationClientLive(source_server.server, source_server.user, source_server.password)
     project_iri = ProjectClientLive(source_server.server, auth).get_project_iri(migration_info.config.shortcode)

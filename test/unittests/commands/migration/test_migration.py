@@ -1,3 +1,7 @@
+"""
+This purposefully only tests the orchestration, no detailed failure is tested because that is covered in other tests.
+"""
+
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -9,7 +13,7 @@ from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
 from dsp_tools.commands.migration.exceptions import MigrationImportFailureError
-from dsp_tools.commands.migration.migration import _export_download
+from dsp_tools.commands.migration.migration import _export_and_download
 from dsp_tools.commands.migration.migration import _import
 from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.migration.models import MigrationConfig
@@ -129,7 +133,7 @@ class TestExportDownload:
             patches["execute_export"],
             patches["execute_download"],
         ):
-            result = _export_download(migration_info)
+            result = _export_and_download(migration_info)
 
         assert result == PROJECT_IRI
         mock_export_client.delete_export.assert_called_once_with(EXPORT_ID)
@@ -144,7 +148,7 @@ class TestExportDownload:
             patches["execute_download"] as mock_download,
         ):
             with pytest.raises(MigrationExportFailureError):
-                _export_download(migration_info)
+                _export_and_download(migration_info)
 
         mock_download.assert_not_called()
 
@@ -158,7 +162,7 @@ class TestExportDownload:
             patches["execute_download"],
         ):
             with pytest.raises(MigrationExportFailureError):
-                _export_download(migration_info)
+                _export_and_download(migration_info)
 
         mock_export_client.delete_export.assert_not_called()
 
@@ -172,7 +176,7 @@ class TestExportDownload:
             patches["execute_download"],
         ):
             with pytest.raises(MigrationDownloadFailureError):
-                _export_download(migration_info)
+                _export_and_download(migration_info)
 
         mock_export_client.delete_export.assert_not_called()
 

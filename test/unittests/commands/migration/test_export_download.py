@@ -14,6 +14,7 @@ from dsp_tools.commands.migration.export_download import _execute_export
 from dsp_tools.commands.migration.export_download import export_and_download
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
+from dsp_tools.commands.migration.models import ServerInfo
 
 TEST_SLEEP = 0
 
@@ -29,6 +30,15 @@ def _make_config(tmp_path: Path) -> MigrationConfig:
 
 PROJECT_IRI = "http://rdfh.ch/projects/0001"
 EXPORT_ID = ExportId("export-abc")
+
+
+@pytest.fixture
+def migration_info(tmp_path: Path) -> MigrationInfo:
+    return MigrationInfo(
+        config=_make_config(tmp_path),
+        source=ServerInfo(server="https://src.example.com", user="src-admin", password="src-secret"),
+        target=None,
+    )
 
 
 class TestExportDownload:

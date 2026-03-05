@@ -44,3 +44,7 @@ class DspApiNotReachableError(UserError):
         self.is_localhost = is_localhost
         self.status_code = status_code
         self.response_text = response_text
+
+
+class CliCommandNotInvokableError(CliUserError):
+    """When the user calls a command that is not usable with this configuration."""

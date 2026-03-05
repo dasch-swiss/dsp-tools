@@ -26,6 +26,7 @@ from dsp_tools.cli.call_action_with_network import call_stop_stack
 from dsp_tools.cli.call_action_with_network import call_upload_files
 from dsp_tools.cli.call_action_with_network import call_validate_data
 from dsp_tools.cli.call_action_with_network import call_xmlupload
+from dsp_tools.cli.exceptions import CliCommandNotInvokableError
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PLR0915 (too many branches & too many statements)
@@ -84,6 +85,12 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             result = call_id2iri(args)
         case "update-legal":
             result = call_update_legal(args)
+        case "migration":
+            raise CliCommandNotInvokableError(
+                "The command `migration` cannot be used as a stand-alone command. "
+                "It can only be used with one of its subcommands. "
+                "Type `dsp-tools migration --help` for a list of options."
+            )
         case "migration config":
             result = call_migration_config(args)
         case "migration complete":

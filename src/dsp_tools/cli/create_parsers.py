@@ -502,11 +502,7 @@ def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     export_parser = migration_subparsers.add_parser(name="export", help="Export a project from a DSP server")
     export_parser.set_defaults(action="migration export")
     export_parser.add_argument("config_file", help="path to the migration config YAML file")
-
-    # download
-    download_parser = migration_subparsers.add_parser(name="download", help="Download a project zip from a DSP server")
-    download_parser.set_defaults(action="migration download")
-    download_parser.add_argument("config_file", help="path to the migration config YAML file")
+    export_parser.add_argument("--download-only", action="store_true", help="download an existing export from a server")
 
     # import
     import_parser = migration_subparsers.add_parser(name="import", help="Import a project from another DSP server")

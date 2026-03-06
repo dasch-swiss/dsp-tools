@@ -21,7 +21,7 @@ from dsp_tools.commands.migration.clean_up import clean_up
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
 from dsp_tools.commands.migration.export_download import download
-from dsp_tools.commands.migration.export_download import export
+from dsp_tools.commands.migration.export_download import export_and_download
 from dsp_tools.commands.migration.import_zip import import_zip
 from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
@@ -251,29 +251,24 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         )
     server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
+
+    prohibited_paths = [migration_info.config.export_savepath]
+    required_paths = None
+    download_only = bool(args.download_only)
+    if download_only:
+        required_paths = PathDependencies([migration_info.config.reference_savepath])
+    else:
+        prohibited_paths.append(migration_info.config.reference_savepath)
+
     check_input_dependencies(
         network_dependencies=[NetworkRequirements(migration_info.source.server)],
-        prohibited_paths=ProhibitedPaths([migration_info.config.reference_savepath]),
+        required_paths=required_paths,
+        prohibited_paths=ProhibitedPaths(prohibited_paths),
     )
-    return export(migration_info.source, migration_info.config)
-
-
-def call_migration_download(args: argparse.Namespace) -> bool:
-    config_path = Path(args.config_file)
-    check_input_dependencies(required_paths=PathDependencies([config_path]))
-    migration_info = parse_config_file(config_path)
-    if migration_info.source is None:
-        raise InvalidMigrationConfigFile(
-            f"The config file '{config_path}' must contain a 'source-server' section for the download command."
-        )
-    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
-    migration_info.source.server = server
-    check_input_dependencies(
-        network_dependencies=[NetworkRequirements(migration_info.source.server)],
-        required_paths=PathDependencies([migration_info.config.reference_savepath]),
-        prohibited_paths=ProhibitedPaths([migration_info.config.export_savepath]),
-    )
-    return download(migration_info.source, migration_info.config)
+    if download_only:
+        return download(migration_info.source, migration_info.config)
+    _ = export_and_download(migration_info)
+    return True
 
 
 def call_migration_import(args: argparse.Namespace) -> bool:

@@ -1,5 +1,18 @@
 # Changelog
 
+## [18.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.7.0...v18.8.0) (2026-03-06)
+
+
+### Enhancements
+
+* **migration:** implement all-in-one `migration` command (DEV-5945) ([#2205](https://github.com/dasch-swiss/dsp-tools/issues/2205)) ([a3b774c](https://github.com/dasch-swiss/dsp-tools/commit/a3b774cb50d4ef5575e5f6c18957867f488f7a1d))
+* **migration:** merge `export` and `download` commands (DEV-5974) ([#2209](https://github.com/dasch-swiss/dsp-tools/issues/2209)) ([ae5ffa4](https://github.com/dasch-swiss/dsp-tools/commit/ae5ffa46229d203e2a5267360559d6cded096864))
+
+
+### Maintenance
+
+* **migration:** merge the export and download files ([#2208](https://github.com/dasch-swiss/dsp-tools/issues/2208)) ([4b491f8](https://github.com/dasch-swiss/dsp-tools/commit/4b491f8f120b1cfcf14b1d5e9777eec46b20c809))
+
 ## [18.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.3...v18.7.0) (2026-03-04)
 
 

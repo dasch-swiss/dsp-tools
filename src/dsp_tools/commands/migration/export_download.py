@@ -101,12 +101,13 @@ def _check_export_progress(
 
 def download(source_info: ServerInfo, config: MigrationConfig) -> bool:
     reference_info = parse_reference_json(config.reference_savepath)
-    if not reference_info.export_id:
-        raise MigrationReferenceInfoIncomplete("export_id")
+    if not reference_info.export_id and not reference_info.project_iri:
+        raise MigrationReferenceInfoIncomplete("export_id and project_iri")
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
-    project_iri = ProjectClientLive(source_info.server, auth).get_project_iri(config.shortcode)
-    client = MigrationExportClientLive(source_info.server, project_iri, auth)
-    return _execute_download(client, reference_info.export_id, config)
+    client = MigrationExportClientLive(source_info.server, reference_info.project_iri, auth)
+    success = _execute_download(client, reference_info.export_id, config)
+    client.delete_export(reference_info.export_id)
+    return success
 
 
 def _execute_download(client: MigrationExportClient, export_id: ExportId, config: MigrationConfig) -> bool:

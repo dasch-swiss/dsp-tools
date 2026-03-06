@@ -916,7 +916,7 @@ class TestMigrationExport:
     def test_migration_export_keep_export(self, mock_export_and_download: Mock, check_input_deps: Mock) -> None:
         mock_export_and_download.return_value = True, None
         source = ServerInfo(server="http://0.0.0.0:3333", user="root1@example.com", password="test1")
-        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test")
+        target = ServerInfo(server="https://api.some-project.dasch.swiss", user="root@example.com", password="test2")
         config = MigrationConfig(
             shortcode="4125",
             export_savepath=MIGRATION_EXPORT_PATH,

@@ -12,6 +12,9 @@ At the moment only projects smaller than 200 GB are supported.
 If your project is larger, then the export will fail and you will get notified.
 If that is the case, please contact Infrastructure and DaSCH Engineering to help migrate it with another workflow.
 
+It is only possible to do 1 export on a server (both for export and import).
+If there are conflicts dsp-tools will stop and print a message.
+
 ## Step 1: Create a Config File
 
 Run the following command to generate a config file for your project:
@@ -50,7 +53,9 @@ export-savepath: ~/.dsp-tools/migration/
 
 ## Local Export Files
 
-During the migration, two files are created locally in the `export-savepath` directory:
+During the migration, two files are created locally in the `export-savepath` directory.
+
+Unless you specified to keep the files after the import, both of these will be removed.
 
 - `export-0806.zip` — the project export downloaded from the source server
 - `migration-references-0806.json` — internal reference data used across migration steps

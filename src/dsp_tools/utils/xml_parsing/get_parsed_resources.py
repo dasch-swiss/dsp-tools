@@ -319,6 +319,8 @@ def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noq
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             return KnoraValueType.STILL_IMAGE_FILE
+        case "svg":
+            return KnoraValueType.STILL_IMAGE_SVG
         case "odd" | "rng" | "txt" | "xml" | "htm" | "html" | "xsd" | "xsl" | "csv" | "json":
             return KnoraValueType.TEXT_FILE
         case _:

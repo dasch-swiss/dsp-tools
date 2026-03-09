@@ -40,13 +40,25 @@ keep-local-export: false
 export-savepath: ~/.dsp-tools/migration/
 ```
 
-| Field               | Description                                                                                    |
-|---------------------|------------------------------------------------------------------------------------------------|
-| `shortcode`         | shortcode of the project (e.g. `0806`)                                                         |
-| `source-server`     | Credentials for the server to migrate **from**                                                 |
-| `target-server`     | Credentials for the server to migrate **to**                                                   |
-| `keep-local-export` | If `true`, the local export ZIP is not deleted after migration. These files can be very large. |
-| `export-savepath`   | Directory where the export ZIP is saved locally. We recommend keeping the default.             |
+| Field               | Description                                                                                       |
+|---------------------|---------------------------------------------------------------------------------------------------|
+| `shortcode`         | Shortcode of the project (e.g. `0806`)                                                            |
+| `source-server`     | Credentials for the server to migrate **from**                                                    |
+| `target-server`     | Credentials for the server to migrate **to**                                                      |
+| `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large. |
+| `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.             |
+
+## Local Export Files
+
+During the migration, two files are created locally in the `export-savepath` directory:
+
+- `export-0806.zip` — the project export downloaded from the source server
+- `migration-references-0806.json` — internal reference data used across migration steps
+
+!!! Warning
+
+    Do not rename, move, or modify these files.
+    The migration commands rely on fixed filenames and will fail if the files have been changed.
 
 ## Step 2: Run the Migration
 
@@ -63,10 +75,10 @@ imports it into the target server, and cleans up afterwards.
 
 ### Step by Step
 
-Use the individual subcommands if you want to keep the local export, for example to re-import it later without
-re-exporting.
+Use the individual subcommands if you need more control, for example to import a project into
+multiple target servers, or to keep the local export for archiving.
 
-**Export from the source server:**
+**Export from the source server and download locally:**
 
 ```bash
 dsp-tools migration export migration-0806.yaml
@@ -78,12 +90,19 @@ dsp-tools migration export migration-0806.yaml
 dsp-tools migration import migration-0806.yaml
 ```
 
+You can run the import command multiple times with different `target-server` credentials
+to import the same export into multiple servers.
+
 **Clean up leftovers on both servers and locally:**
 
 ```bash
 dsp-tools migration clean-up migration-0806.yaml
 ```
 
+Run this once you are done with all imports.
+It removes the temporary export from the source server, the temporary import from the target server,
+and the local export files (unless `keep-local-export` is set to `true`).
+
 ## If Something Goes Wrong
 
-If the migration fails, contact the DaSCH Engineering Team for help to diagnose the problem.
+If the export or import fails, contact the DaSCH Engineering Team for help to diagnose the problem.

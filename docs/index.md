@@ -125,26 +125,40 @@ Click [here](./special-workflows/workflow-xmlupload.md#ingest-xmlupload) for mor
 Used to migrate one project from one server to another.
 This process can be invoked by the following sub-commands.
 
+Please note, that only DaSCH employees have the required permissions to execute these commands.
+
+Click [here](./special-workflows/migration.md) for more information.
+
 #### `migration config`
 
 Create a config YAML file, that contains all the necessary information for a migration.
 This step is mandatory for all other commands.
 
+Click [here](./special-workflows/migration.md#step-1-create-a-config-file) for more information.
+
 #### `migration complete`
 
 Execute a complete migration from one server to another.
+
+Click [here](./special-workflows/migration.md#all-in-one) for more information.
 
 #### `migration export`
 
 Download the migration information from the source server.
 
+Click [here](./special-workflows/migration.md#step-by-step) for more information.
+
 #### `migration import`
 
 Import the previously downloaded export to another server.
 
+Click [here](./special-workflows/migration.md#step-by-step) for more information.
+
 #### `migration clean-up`
 
 Clean-up locally created files and references to the migration on the servers.
+
+Click [here](./special-workflows/migration.md#step-by-step) for more information.
 
 ### `old-excel2json`
 

@@ -6,14 +6,14 @@
 
 A migration moves a full project — ontology, data, and all multimedia files — from one DSP server to another.
 
-Please note, that the entire workflow may take up to 6 hours for large projects.
+Please note that the entire workflow may take several hours for large projects.
 
 At the moment only projects smaller than 200 GB are supported.
 If your project is larger, then the export will fail and you will get notified.
-If that is the case, please contact Infrastructure and DaSCH Engineering to help migrate it with another workflow.
+If that is the case, please contact the DaSCH Infrastructure and/or Engineering teams to find another solution.
 
 It is only possible to do 1 export on a server (both for export and import).
-If there are conflicts dsp-tools will stop and print a message.
+If there are conflicts, dsp-tools will stop and print a message.
 
 ## Step 1: Create a Config File
 
@@ -33,11 +33,11 @@ Open the generated file and fill in the server details:
 shortcode: "0806"
 source-server:
   - server: https://source.dasch.swiss
-  - user: admin@example.com
+  - user: system-admin@example.com
   - password: secret
 target-server:
   - server: https://target.dasch.swiss
-  - user: admin@example.com
+  - user: system-admin@example.com
   - password: secret
 keep-local-export: false
 export-savepath: ~/.dsp-tools/migration/

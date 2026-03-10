@@ -59,84 +59,114 @@ The following CLI Commands are available, listed here in alphabetical order.
 
 ### `create`
 
+Create a project on the server using the project definition JSON file.
 
 ### `excel2json`
 
+Create the project definition JSON file using pre-defined Excel files.
+
+The following commands can be used to only create a section of the project definition.
 
 #### `excel2lists`
 
+Create the list section of the project JSON file.
+
 #### `excel2properties`
+
+Create the properties section within one ontology of the JSON file.
 
 #### `excel2resources`
 
+Create the resource section within one ontology of the JSON file.
 
 ### `get`
 
+Get the complete project definition JSON from a server.
 
 ### `id2iri`
 
+This command replaces internal IDs of an XML file (`<resptr>` tags and salsah-links inside `<text>` tags)
+by IRIs provided in a mapping file.
 
 ### `ingest-files`
 
+Part of the special xmlupload workflow that uploads the file before creating the data.
+
+This command kicks off the ingest process on the server, and waits until it has completed.
+Then, it saves the mapping CSV in the current working directory.
 
 ### `ingest-xmlupload`
 
+Part of the special xmlupload workflow that uploads the file before creating the data.
 
+This command creates all resources defined in an XML file on a DSP server.
+Pre-requisite is that the files are already uploaded on the server.
 
 ### `migration`
 
+Used to migrate one project from one server to another.
+This process can be invoked by the following sub-commands.
+
 #### `migration config`
 
+Create a config YAML file, that contains all the necessary information for a migration.
+This step is mandatory for all other commands.
 
 #### `migration complete`
 
+Execute a complete migration from one server to another.
 
 #### `migration export`
 
+Download the migration information from the source server.
 
 #### `migration import`
 
+Import the previously downloaded export to another server.
 
 #### `migration clean-up`
 
+Clean-up locally created files and references to the migration on the servers.
+
 ### `old-excel2json`
+
+Create the project definition JSON file using the old format of pre-defined Excel files.
 
 #### `old-excel2lists`
 
+Create the list section of the project JSON file using the old format of the pre-defined Excel files.
 
 ### `resume-xmlupload`
 
+Resume a previously interrupted xmlupload.
 
 ### `start-stack`
 
+Start a local stack of the DaSCH Service Platform, this requires the installation of Docker Desktop.
 
 ### `stop-stack`
 
-
-
+Stop the local stack of the DaSCH Service Platform.
 
 ### `update-legal`
 
+If an XML file contains multimedia files, they must be accompanied by legal metadata.
+Older XML files may contain legal metadata as text properties.
+This document guides you through the process of updating them to the new format.
 
 ### `upload-files`
 
+Part of the special xmlupload workflow that uploads the file before creating the data.
+
+This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
+(without any processing/ingesting).
 
 ### `validate-data`
 
+Execute a complete Schema validation of the data XML. This requires that the project exists locally or on a server.
 
 ### `xmlupload`
 
-
-### ``
-
-
-### ``
-
-
-### ``
-
-
-### ``
-
+Execute an upload of the data XML. This requires that the project exists locally or on a server.
 
 

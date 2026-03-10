@@ -67,28 +67,40 @@ Click [here](./data-model/data-model-cli.md#create) for more information.
 
 Create the project definition JSON file using pre-defined Excel files.
 
+Click [here](./data-model/excel2json.md#excel2json) for more information.
+
 The following commands can be used to only create a section of the project definition.
 
 #### `excel2lists`
 
 Create the list section of the project JSON file.
 
+Click [here](./data-model/excel2json.md#excel2lists) for more information.
+
 #### `excel2properties`
 
 Create the properties section within one ontology of the JSON file.
+
+Click [here](./data-model/excel2json.md#excel2properties) for more information.
 
 #### `excel2resources`
 
 Create the resource section within one ontology of the JSON file.
 
+Click [here](./data-model/excel2json.md#excel2resources) for more information.
+
 ### `get`
 
 Get the complete project definition JSON from a server.
+
+Click [here](./data-model/data-model-cli.md#get) for more information.
 
 ### `id2iri`
 
 This command replaces internal IDs of an XML file (`<resptr>` tags and salsah-links inside `<text>` tags)
 by IRIs provided in a mapping file.
+
+Click [here](./data-file/data-file-commands.md#id2iri) for more information.
 
 ### `ingest-files`
 
@@ -97,12 +109,16 @@ Part of the special xmlupload workflow that uploads the file before creating the
 This command kicks off the ingest process on the server, and waits until it has completed.
 Then, it saves the mapping CSV in the current working directory.
 
+Click [here](./special-workflows/workflow-xmlupload.md#ingest-files) for more information.
+
 ### `ingest-xmlupload`
 
 Part of the special xmlupload workflow that uploads the file before creating the data.
 
 This command creates all resources defined in an XML file on a DSP server.
 Pre-requisite is that the files are already uploaded on the server.
+
+Click [here](./special-workflows/workflow-xmlupload.md#ingest-xmlupload) for more information.
 
 ### `migration`
 
@@ -134,27 +150,39 @@ Clean-up locally created files and references to the migration on the servers.
 
 Create the project definition JSON file using the old format of pre-defined Excel files.
 
+Click [here](./data-model/excel2json.md#old-excel2json) for more information.
+
 #### `old-excel2lists`
 
 Create the list section of the project JSON file using the old format of the pre-defined Excel files.
+
+Click [here](./data-model/excel2json.md#old-excel2lists) for more information.
 
 ### `resume-xmlupload`
 
 Resume a previously interrupted xmlupload.
 
+Click [here](./data-file/data-file-commands.md#resume-xmlupload) for more information.
+
 ### `start-stack`
 
 Start a local stack of the DaSCH Service Platform, this requires the installation of Docker Desktop.
 
+Click [here](./local-stack.md#start-stack) for more information.
+
 ### `stop-stack`
 
 Stop the local stack of the DaSCH Service Platform.
+
+Click [here](./local-stack.md#stop-stack) for more information.
 
 ### `update-legal`
 
 If an XML file contains multimedia files, they must be accompanied by legal metadata.
 Older XML files may contain legal metadata as text properties.
 This document guides you through the process of updating them to the new format.
+
+Click [here](./special-workflows/update-legal.md) for more information.
 
 ### `upload-files`
 
@@ -163,12 +191,18 @@ Part of the special xmlupload workflow that uploads the file before creating the
 This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
 (without any processing/ingesting).
 
+Click [here](./special-workflows/workflow-xmlupload.md#upload-files) for more information.
+
 ### `validate-data`
 
 Execute a complete Schema validation of the data XML. This requires that the project exists locally or on a server.
 
+Click [here](./data-file/data-file-commands.md#validate-data) for more information.
+
 ### `xmlupload`
 
 Execute an upload of the data XML. This requires that the project exists locally or on a server.
+
+Click [here](./data-file/data-file-commands.md#xmlupload) for more information.
 
 

@@ -32,15 +32,24 @@ Open the generated file and fill in the server details:
 ```yaml
 shortcode: "0806"
 source-server:
-  - server: https://source.dasch.swiss
+  - server: https://api.source.dasch.swiss
   - user: system-admin@example.com
   - password: secret
 target-server:
-  - server: https://target.dasch.swiss
+  - server: https://api.target.dasch.swiss
   - user: system-admin@example.com
   - password: secret
 keep-local-export: false
 export-savepath: ~/.dsp-tools/migration/
+```
+
+In case you are using localhost as the source-server you can copy this section into the file:
+
+```yaml
+source-server:
+  - server: http://0.0.0.0:3333
+  - user: root@example.com
+  - password: test
 ```
 
 | Field               | Description                                                                                       |

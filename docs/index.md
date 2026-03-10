@@ -61,6 +61,8 @@ The following CLI Commands are available, listed here in alphabetical order.
 
 Create a project on the server using the project definition JSON file.
 
+Click [here](./data-model/data-model-cli.md#create) for more information.
+
 ### `excel2json`
 
 Create the project definition JSON file using pre-defined Excel files.

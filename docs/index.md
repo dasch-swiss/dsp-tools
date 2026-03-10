@@ -59,7 +59,7 @@ The following CLI Commands are available, listed here in alphabetical order.
 
 ### `create`
 
-Create a project on the server using the project definition JSON file.
+Create a project on a server (or localhost) using a project definition JSON file.
 
 Click [here](./data-model/data-model-cli.md#create) for more information.
 
@@ -91,7 +91,7 @@ Click [here](./data-model/excel2json.md#excel2resources) for more information.
 
 ### `get`
 
-Get the complete project definition JSON from a server.
+Retrieve the complete project definition JSON from a server (or localhost).
 
 Click [here](./data-model/data-model-cli.md#get) for more information.
 
@@ -104,7 +104,7 @@ Click [here](./data-file/data-file-commands.md#id2iri) for more information.
 
 ### `ingest-files`
 
-Part of the special xmlupload workflow that uploads the file before creating the data.
+Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
 
 This command kicks off the ingest process on the server, and waits until it has completed.
 Then, it saves the mapping CSV in the current working directory.
@@ -113,10 +113,10 @@ Click [here](./special-workflows/workflow-xmlupload.md#ingest-files) for more in
 
 ### `ingest-xmlupload`
 
-Part of the special xmlupload workflow that uploads the file before creating the data.
+Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
 
 This command creates all resources defined in an XML file on a DSP server.
-Pre-requisite is that the files are already uploaded on the server.
+Pre-requisite is that the files are already uploaded and ingested on the server.
 
 Click [here](./special-workflows/workflow-xmlupload.md#ingest-xmlupload) for more information.
 
@@ -131,8 +131,8 @@ Click [here](./special-workflows/migration.md) for more information.
 
 **`migration config`**
 
-Create a config YAML file, that contains all the necessary information for a migration.
-This step is mandatory for all other commands.
+Create a config YAML file with all the necessary information for a migration.
+This step is a prerequisite for the other commands.
 
 Click [here](./special-workflows/migration.md#step-1-create-a-config-file) for more information.
 
@@ -144,7 +144,7 @@ Click [here](./special-workflows/migration.md#all-in-one) for more information.
 
 **`migration export`**
 
-Download the migration information from the source server.
+Download the project data from the source server.
 
 Click [here](./special-workflows/migration.md#step-by-step) for more information.
 
@@ -194,13 +194,13 @@ Click [here](./local-stack.md#stop-stack) for more information.
 
 If an XML file contains multimedia files, they must be accompanied by legal metadata.
 Older XML files may contain legal metadata as text properties.
-This document guides you through the process of updating them to the new format.
+This command assists you in updating them to the new format.
 
 Click [here](./special-workflows/update-legal.md) for more information.
 
 ### `upload-files`
 
-Part of the special xmlupload workflow that uploads the file before creating the data.
+Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
 
 This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
 (without any processing/ingesting).
@@ -209,12 +209,14 @@ Click [here](./special-workflows/workflow-xmlupload.md#upload-files) for more in
 
 ### `validate-data`
 
-Execute a complete Schema validation of the data XML. This requires that the project exists locally or on a server.
+Validate the resources in a data XML file against a data model on a server (or on localhost).
+Prerequisite: The project exists on the server (or on localhost).
 
 Click [here](./data-file/data-file-commands.md#validate-data) for more information.
 
 ### `xmlupload`
 
-Execute an upload of the data XML. This requires that the project exists locally or on a server.
+Create the resources defined in a data XML file on a server (or on localhost).
+Prerequisite: The project exists on the server (or on localhost).
 
 Click [here](./data-file/data-file-commands.md#xmlupload) for more information.

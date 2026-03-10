@@ -12,7 +12,7 @@ At the moment only projects smaller than 200 GB are supported.
 If your project is larger, then the export will fail and you will get notified.
 If that is the case, please contact the DaSCH Infrastructure and/or Engineering teams to find another solution.
 
-It is only possible to do 1 export on a server (both for export and import).
+One server can only do 1 export or import at a time.
 If there are conflicts, dsp-tools will stop and print a message.
 
 ## Step 1: Create a Config File

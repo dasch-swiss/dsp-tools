@@ -57,193 +57,29 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
 
 The following CLI Commands are available, listed here in alphabetical order.
 
-| Command              | Description                                               | Documentation                                                     |
-|----------------------|-----------------------------------------------------------|-------------------------------------------------------------------|
-| `create`             | Create a project on a server from a JSON file             | [→](./data-model/data-model-cli.md#create)                        |
-| `excel2json`         | Create the project definition JSON from Excel files       | [→](./data-model/excel2json.md#excel2json)                        |
-| `excel2lists`        | Create the list section of the project JSON               | [→](./data-model/excel2json.md#excel2lists)                       |
-| `excel2properties`   | Create the properties section of the JSON                 | [→](./data-model/excel2json.md#excel2properties)                  |
-| `excel2resources`    | Create the resource section of the JSON                   | [→](./data-model/excel2json.md#excel2resources)                   |
-| `get`                | Retrieve a project definition JSON from a server          | [→](./data-model/data-model-cli.md#get)                           |
-| `id2iri`             | Replace internal IDs with IRIs in an XML file             | [→](./data-file/data-file-commands.md#id2iri)                     |
-| `ingest-files`       | Kick off the ingest process and save the mapping CSV      | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
-| `ingest-xmlupload`   | Create resources from XML after files are ingested        | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
-| `migration`          | Migrate a project between servers                         | [→](./special-workflows/migration.md)                             |
-| `migration config`   | Create a migration config YAML file                       | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
-| `migration complete` | Execute a complete migration                              | [→](./special-workflows/migration.md#all-in-one)                  |
-| `migration export`   | Download project data from the source server              | [→](./special-workflows/migration.md#step-by-step)                |
-| `migration import`   | Import a downloaded export to another server              | [→](./special-workflows/migration.md#step-by-step)                |
-| `migration clean-up` | Clean up local files and server references                | [→](./special-workflows/migration.md#step-by-step)                |
-| `old-excel2json`     | Create project definition JSON using the old Excel format | [→](./data-model/excel2json.md#old-excel2json)                    |
-| `old-excel2lists`    | Create the list section using the old Excel format        | [→](./data-model/excel2json.md#old-excel2lists)                   |
-| `resume-xmlupload`   | Resume a previously interrupted xmlupload                 | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
-| `start-stack`        | Start a local DSP stack                                   | [→](./local-stack.md#start-stack)                                 |
-| `stop-stack`         | Stop the local DSP stack                                  | [→](./local-stack.md#stop-stack)                                  |
-| `update-legal`       | Update legal metadata in XML files to the new format      | [→](./special-workflows/update-legal.md)                          |
-| `upload-files`       | Upload multimedia files referenced in an XML file         | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
-| `validate-data`      | Validate XML data against a data model on a server        | [→](./data-file/data-file-commands.md#validate-data)              |
-| `xmlupload`          | Create resources from an XML file on a server             | [→](./data-file/data-file-commands.md#xmlupload)                  |
-
-### `create`
-
-Create a project on a server (or localhost) using a project definition JSON file.
-
-Click [here](./data-model/data-model-cli.md#create) for more information.
-
-### `excel2json`
-
-Create the project definition JSON file using pre-defined Excel files.
-
-Click [here](./data-model/excel2json.md#excel2json) for more information.
-
-The following commands can be used to only create a section of the project definition.
-
-**`excel2lists`**
-
-Create the list section of the project JSON file.
-
-Click [here](./data-model/excel2json.md#excel2lists) for more information.
-
-**`excel2properties`**
-
-Create the properties section within one ontology of the JSON file.
-
-Click [here](./data-model/excel2json.md#excel2properties) for more information.
-
-**`excel2resources`**
-
-Create the resource section within one ontology of the JSON file.
-
-Click [here](./data-model/excel2json.md#excel2resources) for more information.
-
-### `get`
-
-Retrieve the complete project definition JSON from a server (or localhost).
-
-Click [here](./data-model/data-model-cli.md#get) for more information.
-
-### `id2iri`
-
-This command replaces internal IDs of an XML file (`<resptr>` tags and salsah-links inside `<text>` tags)
-by IRIs provided in a mapping file.
-
-Click [here](./data-file/data-file-commands.md#id2iri) for more information.
-
-### `ingest-files`
-
-Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
-
-This command kicks off the ingest process on the server, and waits until it has completed.
-Then, it saves the mapping CSV in the current working directory.
-
-Click [here](./special-workflows/workflow-xmlupload.md#ingest-files) for more information.
-
-### `ingest-xmlupload`
-
-Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
-
-This command creates all resources defined in an XML file on a DSP server.
-Pre-requisite is that the files are already uploaded and ingested on the server.
-
-Click [here](./special-workflows/workflow-xmlupload.md#ingest-xmlupload) for more information.
-
-### `migration`
-
-Used to migrate one project from one server to another.
-This process can be invoked by the following sub-commands.
-
-Please note, that only DaSCH employees have the required permissions to execute these commands.
-
-Click [here](./special-workflows/migration.md) for more information.
-
-**`migration config`**
-
-Create a config YAML file with all the necessary information for a migration.
-This step is a prerequisite for the other commands.
-
-Click [here](./special-workflows/migration.md#step-1-create-a-config-file) for more information.
-
-**`migration complete`**
-
-Execute a complete migration from one server to another.
-
-Click [here](./special-workflows/migration.md#all-in-one) for more information.
-
-**`migration export`**
-
-Download the project data from the source server.
-
-Click [here](./special-workflows/migration.md#step-by-step) for more information.
-
-**`migration import`**
-
-Import the previously downloaded export to another server.
-
-Click [here](./special-workflows/migration.md#step-by-step) for more information.
-
-**`migration clean-up`**
-
-Clean-up locally created files and references to the migration on the servers.
-
-Click [here](./special-workflows/migration.md#step-by-step) for more information.
-
-### `old-excel2json`
-
-Create the project definition JSON file using the old format of pre-defined Excel files.
-
-Click [here](./data-model/excel2json.md#old-excel2json) for more information.
-
-**`old-excel2lists`**
-
-Create the list section of the project JSON file using the old format of the pre-defined Excel files.
-
-Click [here](./data-model/excel2json.md#old-excel2lists) for more information.
-
-### `resume-xmlupload`
-
-Resume a previously interrupted xmlupload.
-
-Click [here](./data-file/data-file-commands.md#resume-xmlupload) for more information.
-
-### `start-stack`
-
-Start a local stack of the DaSCH Service Platform, this requires the installation of Docker Desktop.
-
-Click [here](./local-stack.md#start-stack) for more information.
-
-### `stop-stack`
-
-Stop the local stack of the DaSCH Service Platform.
-
-Click [here](./local-stack.md#stop-stack) for more information.
-
-### `update-legal`
-
-If an XML file contains multimedia files, they must be accompanied by legal metadata.
-Older XML files may contain legal metadata as text properties.
-This command assists you in updating them to the new format.
-
-Click [here](./special-workflows/update-legal.md) for more information.
-
-### `upload-files`
-
-Part of the special xmlupload workflow that uploads all multimedia files before creating the resources.
-
-This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
-(without any processing/ingesting).
-
-Click [here](./special-workflows/workflow-xmlupload.md#upload-files) for more information.
-
-### `validate-data`
-
-Validate the resources in a data XML file against a data model on a server (or on localhost).
-Prerequisite: The project exists on the server (or on localhost).
-
-Click [here](./data-file/data-file-commands.md#validate-data) for more information.
-
-### `xmlupload`
-
-Create the resources defined in a data XML file on a server (or on localhost).
-Prerequisite: The project exists on the server (or on localhost).
-
-Click [here](./data-file/data-file-commands.md#xmlupload) for more information.
+| Command              | Description                                                                                                      | Documentation                                                     |
+|----------------------|------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| `create`             | Create a project on a server from a JSON file<br>`dsp-tools create datamodel.json`                               | [→](./data-model/data-model-cli.md#create)                        |
+| `excel2json`         | Create the project definition JSON from Excel files<br>`dsp-tools excel2json excelfolder project.json`           | [→](./data-model/excel2json.md#excel2json)                        |
+| `excel2lists`        | Create the list section of the project JSON<br>`dsp-tools excel2lists excelfolder lists.json`                    | [→](./data-model/excel2json.md#excel2lists)                       |
+| `excel2properties`   | Create the properties section of the JSON<br>`dsp-tools excel2properties properties.xlsx properties.json`        | [→](./data-model/excel2json.md#excel2properties)                  |
+| `excel2resources`    | Create the resource section of the JSON<br>`dsp-tools excel2resources resources.xlsx resources.json`             | [→](./data-model/excel2json.md#excel2resources)                   |
+| `get`                | Retrieve a project definition JSON from a server<br>`dsp-tools get -P 0XXX datamodel.json`                       | [→](./data-model/data-model-cli.md#get)                           |
+| `id2iri`             | Replace internal IDs with IRIs in an XML file<br>`dsp-tools id2iri new_data.xml id2iri_mapping.json`             | [→](./data-file/data-file-commands.md#id2iri)                     |
+| `ingest-files`       | Kick off the ingest process and save the mapping CSV<br>`dsp-tools ingest-files 0XXX`                            | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
+| `ingest-xmlupload`   | Create resources from XML after files are ingested<br>`dsp-tools ingest-xmlupload data.xml`                      | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
+| `migration`          | Migrate a project between servers<br>`dsp-tools migration`                                                       | [→](./special-workflows/migration.md)                             |
+| `migration config`   | Create a migration config YAML file<br>`dsp-tools migration config -P 0XXX`                                      | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
+| `migration complete` | Execute a complete migration<br>`dsp-tools migration complete migration-0XXX.yaml`                               | [→](./special-workflows/migration.md#all-in-one)                  |
+| `migration export`   | Download project data from the source server<br>`dsp-tools migration export migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| `migration import`   | Import a downloaded export to another server<br>`dsp-tools migration import migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| `migration clean-up` | Clean up local files and server references<br>`dsp-tools migration clean-up migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| `old-excel2json`     | Create project definition JSON using the old Excel format<br>`dsp-tools old-excel2json excelfolder project.json` | [→](./data-model/excel2json.md#old-excel2json)                    |
+| `old-excel2lists`    | Create the list section using the old Excel format<br>`dsp-tools old-excel2lists excelfolder lists.json`         | [→](./data-model/excel2json.md#old-excel2lists)                   |
+| `resume-xmlupload`   | Resume a previously interrupted xmlupload<br>`dsp-tools resume-xmlupload`                                        | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
+| `start-stack`        | Start a local DSP stack<br>`dsp-tools start-stack`                                                               | [→](./local-stack.md#start-stack)                                 |
+| `stop-stack`         | Stop the local DSP stack<br>`dsp-tools stop-stack`                                                               | [→](./local-stack.md#stop-stack)                                  |
+| `update-legal`       | Update legal metadata in XML files to the new format<br>`dsp-tools update-legal data.xml`                        | [→](./special-workflows/update-legal.md)                          |
+| `upload-files`       | Upload multimedia files referenced in an XML file<br>`dsp-tools upload-files data.xml`                           | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
+| `validate-data`      | Validate XML data against a data model on a server<br>`dsp-tools validate-data data.xml`                         | [→](./data-file/data-file-commands.md#validate-data)              |
+| `xmlupload`          | Create resources from an XML file on a server<br>`dsp-tools xmlupload data.xml`                                  | [→](./data-file/data-file-commands.md#xmlupload)                  |

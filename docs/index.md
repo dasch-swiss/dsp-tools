@@ -71,19 +71,19 @@ Click [here](./data-model/excel2json.md#excel2json) for more information.
 
 The following commands can be used to only create a section of the project definition.
 
-#### `excel2lists`
+**`excel2lists`**
 
 Create the list section of the project JSON file.
 
 Click [here](./data-model/excel2json.md#excel2lists) for more information.
 
-#### `excel2properties`
+**`excel2properties`**
 
 Create the properties section within one ontology of the JSON file.
 
 Click [here](./data-model/excel2json.md#excel2properties) for more information.
 
-#### `excel2resources`
+**`excel2resources`**
 
 Create the resource section within one ontology of the JSON file.
 
@@ -129,32 +129,32 @@ Please note, that only DaSCH employees have the required permissions to execute 
 
 Click [here](./special-workflows/migration.md) for more information.
 
-#### `migration config`
+**`migration config`**
 
 Create a config YAML file, that contains all the necessary information for a migration.
 This step is mandatory for all other commands.
 
 Click [here](./special-workflows/migration.md#step-1-create-a-config-file) for more information.
 
-#### `migration complete`
+**`migration complete`**
 
 Execute a complete migration from one server to another.
 
 Click [here](./special-workflows/migration.md#all-in-one) for more information.
 
-#### `migration export`
+**`migration export`**
 
 Download the migration information from the source server.
 
 Click [here](./special-workflows/migration.md#step-by-step) for more information.
 
-#### `migration import`
+**`migration import`**
 
 Import the previously downloaded export to another server.
 
 Click [here](./special-workflows/migration.md#step-by-step) for more information.
 
-#### `migration clean-up`
+**`migration clean-up`**
 
 Clean-up locally created files and references to the migration on the servers.
 
@@ -166,7 +166,7 @@ Create the project definition JSON file using the old format of pre-defined Exce
 
 Click [here](./data-model/excel2json.md#old-excel2json) for more information.
 
-#### `old-excel2lists`
+**`old-excel2lists`**
 
 Create the list section of the project JSON file using the old format of the pre-defined Excel files.
 

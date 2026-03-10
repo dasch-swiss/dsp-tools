@@ -218,5 +218,3 @@ Click [here](./data-file/data-file-commands.md#validate-data) for more informati
 Execute an upload of the data XML. This requires that the project exists locally or on a server.
 
 Click [here](./data-file/data-file-commands.md#xmlupload) for more information.
-
-

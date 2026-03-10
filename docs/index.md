@@ -57,6 +57,33 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
 
 The following CLI Commands are available, listed here in alphabetical order.
 
+| Command              | Description                                               | Documentation                                                     |
+|----------------------|-----------------------------------------------------------|-------------------------------------------------------------------|
+| `create`             | Create a project on a server from a JSON file             | [→](./data-model/data-model-cli.md#create)                        |
+| `excel2json`         | Create the project definition JSON from Excel files       | [→](./data-model/excel2json.md#excel2json)                        |
+| `excel2lists`        | Create the list section of the project JSON               | [→](./data-model/excel2json.md#excel2lists)                       |
+| `excel2properties`   | Create the properties section of the JSON                 | [→](./data-model/excel2json.md#excel2properties)                  |
+| `excel2resources`    | Create the resource section of the JSON                   | [→](./data-model/excel2json.md#excel2resources)                   |
+| `get`                | Retrieve a project definition JSON from a server          | [→](./data-model/data-model-cli.md#get)                           |
+| `id2iri`             | Replace internal IDs with IRIs in an XML file             | [→](./data-file/data-file-commands.md#id2iri)                     |
+| `ingest-files`       | Kick off the ingest process and save the mapping CSV      | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
+| `ingest-xmlupload`   | Create resources from XML after files are ingested        | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
+| `migration`          | Migrate a project between servers                         | [→](./special-workflows/migration.md)                             |
+| `migration config`   | Create a migration config YAML file                       | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
+| `migration complete` | Execute a complete migration                              | [→](./special-workflows/migration.md#all-in-one)                  |
+| `migration export`   | Download project data from the source server              | [→](./special-workflows/migration.md#step-by-step)                |
+| `migration import`   | Import a downloaded export to another server              | [→](./special-workflows/migration.md#step-by-step)                |
+| `migration clean-up` | Clean up local files and server references                | [→](./special-workflows/migration.md#step-by-step)                |
+| `old-excel2json`     | Create project definition JSON using the old Excel format | [→](./data-model/excel2json.md#old-excel2json)                    |
+| `old-excel2lists`    | Create the list section using the old Excel format        | [→](./data-model/excel2json.md#old-excel2lists)                   |
+| `resume-xmlupload`   | Resume a previously interrupted xmlupload                 | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
+| `start-stack`        | Start a local DSP stack                                   | [→](./local-stack.md#start-stack)                                 |
+| `stop-stack`         | Stop the local DSP stack                                  | [→](./local-stack.md#stop-stack)                                  |
+| `update-legal`       | Update legal metadata in XML files to the new format      | [→](./special-workflows/update-legal.md)                          |
+| `upload-files`       | Upload multimedia files referenced in an XML file         | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
+| `validate-data`      | Validate XML data against a data model on a server        | [→](./data-file/data-file-commands.md#validate-data)              |
+| `xmlupload`          | Create resources from an XML file on a server             | [→](./data-file/data-file-commands.md#xmlupload)                  |
+
 ### `create`
 
 Create a project on a server (or localhost) using a project definition JSON file.

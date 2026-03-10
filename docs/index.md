@@ -53,59 +53,90 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
     - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
       Please note, that only DaSCH employees are permitted to upload data on a production server.
 
-### List of CLI Commands
+## List of CLI Commands
 
 The following CLI Commands are available, listed here in alphabetical order.
 
-#### `create`
+### `create`
 
 
-#### ``
+### `excel2json`
 
 
-#### ``
+#### `excel2lists`
+
+#### `excel2properties`
+
+#### `excel2resources`
 
 
-#### ``
+### `get`
 
 
-#### ``
+### `id2iri`
 
 
-#### ``
+### `ingest-files`
 
 
-#### ``
+### `ingest-xmlupload`
 
 
-#### ``
+
+### `migration`
+
+#### `migration config`
 
 
-#### ``
+#### `migration complete`
 
 
-#### ``
+#### `migration export`
 
 
-#### ``
+#### `migration import`
 
 
-#### ``
+#### `migration clean-up`
+
+### `old-excel2json`
+
+#### `old-excel2lists`
 
 
-#### ``
+### `resume-xmlupload`
 
 
-#### ``
+### `start-stack`
 
 
-#### ``
+### `stop-stack`
 
 
-#### ``
 
 
-#### ``
+### `update-legal`
+
+
+### `upload-files`
+
+
+### `validate-data`
+
+
+### `xmlupload`
+
+
+### ``
+
+
+### ``
+
+
+### ``
+
+
+### ``
 
 
 

@@ -23,7 +23,9 @@ AUDIO_FILE_VALUE = RDFPropTypeInfo(KNORA_API.AudioFileValue, KNORA_API.fileValue
 DOCUMENT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.DocumentFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 MOVING_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.MovingImageFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 STILL_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.StillImageFileValue, KNORA_API.fileValueHasFilename, XSD.string)
-STILL_IMAGE_SVG_FILE_VALUE = RDFPropTypeInfo(KNORA_API.StillImageSVGFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+STILL_IMAGE_SVG_FILE_VALUE = RDFPropTypeInfo(
+    KNORA_API.StillImageSVGFileValue, KNORA_API.fileValueHasFilename, XSD.string
+)
 TEXT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.TextFileValue, KNORA_API.fileValueHasFilename, XSD.string)
 IIIF_URI_VALUE = RDFPropTypeInfo(
     KNORA_API.StillImageExternalFileValue, KNORA_API.stillImageFileValueHasExternalUrl, XSD.anyURI

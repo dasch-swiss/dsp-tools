@@ -56,7 +56,7 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
-            result = export_client.post_export()
+            result = export_client.post_export(False)
         assert result == ExportId("export-123")
         assert "http%3A%2F%2Frdfh.ch%2Fprojects%2F0001" in mock_post.call_args.kwargs["url"]
 
@@ -65,28 +65,28 @@ class TestMigrationExportClientLive:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
-                export_client.post_export()
+                export_client.post_export(False)
 
     def test_post_export_conflict(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(MigrationExportExistsError):
-                export_client.post_export()
+                export_client.post_export(False)
 
     def test_post_export_server_error(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCode):
-                export_client.post_export()
+                export_client.post_export(False)
 
     def test_post_export_request_exception(self, export_client: MigrationExportClientLive) -> None:
         with patch(
             "dsp_tools.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspToolsRequestException):
-                export_client.post_export()
+                export_client.post_export(False)
 
     def test_get_status_success(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})

@@ -54,14 +54,14 @@ source-server:
   - password: test
 ```
 
-| Field               | Description                                                                                                                                                |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `shortcode`         | Shortcode of the project (e.g. `0806`)                                                                                                                     |
-| `source-server`     | Credentials for the server to migrate **from**                                                                                                             |
-| `target-server`     | Credentials for the server to migrate **to**                                                                                                               |
-| `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large.                                                          |
+| Field               | Description                                                                                                                                                                |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `shortcode`         | Shortcode of the project (e.g. `0806`)                                                                                                                                     |
+| `source-server`     | Credentials for the server to migrate **from**                                                                                                                             |
+| `target-server`     | Credentials for the server to migrate **to**                                                                                                                               |
+| `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large.                                                                          |
 | `skip-assets`       | If `true`, only the data will be exported, without any multimedia files.<br>The resources connected to the assets will still be unchanged, but no files will be displayed. |
-| `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.                                                                      |
+| `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.                                                                                      |
 
 ## Local Export Files
 

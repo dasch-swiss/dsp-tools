@@ -29,7 +29,7 @@ class TestPostResource:
     def test_ok_returns_iri(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True)
         mock_response.json.return_value = {"@id": "http://rdfh.ch/resource/1"}
-        with patch("dsp_tools.clients.resource_client_live.requests.post", return_value=mock_response):
+        with patch.object(client._session, "post", return_value=mock_response):
             result = client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
         assert result == "http://rdfh.ch/resource/1"
 
@@ -37,7 +37,7 @@ class TestPostResource:
     @patch("dsp_tools.clients.resource_client_live.log_request")
     def test_forbidden_raises_bad_credentials(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False)
-        with patch("dsp_tools.clients.resource_client_live.requests.post", return_value=mock_response):
+        with patch.object(client._session, "post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
@@ -47,7 +47,7 @@ class TestPostResource:
         self, log_req: Mock, log_resp: Mock, client: ResourceClientLive
     ) -> None:
         mock_response = Mock(status_code=500, ok=False, text="Internal Server Error")
-        with patch("dsp_tools.clients.resource_client_live.requests.post", return_value=mock_response):
+        with patch.object(client._session, "post", return_value=mock_response):
             result = client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
         assert isinstance(result, ResponseCodeAndText)
         assert result.status_code == 500
@@ -58,10 +58,7 @@ class TestPostResource:
     def test_request_exception_raises_dsp_tools_exception(
         self, log_req: Mock, log_resp: Mock, client: ResourceClientLive
     ) -> None:
-        with patch(
-            "dsp_tools.clients.resource_client_live.requests.post",
-            side_effect=RequestException("Connection refused"),
-        ):
+        with patch.object(client._session, "post", side_effect=RequestException("Connection refused")):
             with pytest.raises(DspToolsRequestException):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
@@ -70,7 +67,7 @@ class TestPostResource:
     def test_bitstream_true_adds_header(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True)
         mock_response.json.return_value = {"@id": "http://rdfh.ch/resource/1"}
-        with patch("dsp_tools.clients.resource_client_live.requests.post", return_value=mock_response) as post_mock:
+        with patch.object(client._session, "post", return_value=mock_response) as post_mock:
             client.post_resource(RESOURCE_JSON, resource_has_bitstream=True)
         called_headers = post_mock.call_args.kwargs["headers"]
         assert called_headers.get("X-Asset-Ingested") == "true"
@@ -80,7 +77,7 @@ class TestPostResource:
     def test_bitstream_false_omits_header(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True)
         mock_response.json.return_value = {"@id": "http://rdfh.ch/resource/1"}
-        with patch("dsp_tools.clients.resource_client_live.requests.post", return_value=mock_response) as post_mock:
+        with patch.object(client._session, "post", return_value=mock_response) as post_mock:
             client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
         called_headers = post_mock.call_args.kwargs["headers"]
         assert "X-Asset-Ingested" not in called_headers

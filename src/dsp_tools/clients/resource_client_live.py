@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from dataclasses import field
 from http import HTTPStatus
+from importlib.metadata import version
 from typing import Any
 from typing import cast
 
-import requests
 from requests import RequestException
+from requests import Session
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.resource_client import ResourceClient
@@ -22,6 +24,10 @@ TIMEOUT_1800 = 1800
 class ResourceClientLive(ResourceClient):
     server: str
     auth: AuthenticationClient
+    _session: Session = field(init=False, default_factory=Session)
+
+    def __post_init__(self) -> None:
+        self._session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
 
     def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: bool) -> str | ResponseCodeAndText:
         url = f"{self.server}/v2/resources"
@@ -35,7 +41,7 @@ class ResourceClientLive(ResourceClient):
 
         log_request(params)
         try:
-            response = requests.post(
+            response = self._session.post(
                 url=params.url,
                 headers=params.headers,
                 data=params.data_serialized,

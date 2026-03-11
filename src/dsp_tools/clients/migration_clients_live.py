@@ -43,7 +43,7 @@ class MigrationExportClientLive(MigrationExportClient):
 
     def post_export(self, skip_assets: bool) -> ExportId:
         encoded_iri = quote(self.project_iri, safe="")
-        url = f"{self.server}/v3/projects/{encoded_iri}/exports?skipAssets={skip_assets}"
+        url = f"{self.server}/v3/projects/{encoded_iri}/exports?skipAssets={str(skip_assets).lower()}"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("POST", url, TIMEOUT_60, headers=headers)
         log_request(params)

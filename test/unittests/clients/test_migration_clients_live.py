@@ -52,13 +52,23 @@ def import_client(api_url: str, project_iri: str, mock_auth_client: Mock) -> Mig
 
 
 class TestMigrationExportClientLive:
-    def test_post_export_success(self, export_client: MigrationExportClientLive) -> None:
+    def test_post_export_success_do_not_skip_assets(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
+        expected_url = "http://0.0.0.0:3333/v3/projects/http%3A%2F%2Frdfh.ch%2Fprojects%2F0001/exports?skipAssets=false"
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = export_client.post_export(False)
         assert result == ExportId("export-123")
-        assert "http%3A%2F%2Frdfh.ch%2Fprojects%2F0001" in mock_post.call_args.kwargs["url"]
+        assert mock_post.call_args.kwargs["url"] == expected_url
+
+    def test_post_export_success_skip_assets(self, export_client: MigrationExportClientLive) -> None:
+        mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
+        mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
+        expected_url = "http://0.0.0.0:3333/v3/projects/http%3A%2F%2Frdfh.ch%2Fprojects%2F0001/exports?skipAssets=true"
+        with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
+            result = export_client.post_export(True)
+        assert result == ExportId("export-123")
+        assert mock_post.call_args.kwargs["url"] == expected_url
 
     def test_post_export_forbidden(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")

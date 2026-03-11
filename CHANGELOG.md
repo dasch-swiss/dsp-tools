@@ -1,5 +1,26 @@
 # Changelog
 
+## [18.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.7.0...v18.8.0) (2026-03-11)
+
+
+### Enhancements
+
+* **migration:** add option to exclude assets in the export (DEV-5958) ([#2213](https://github.com/dasch-swiss/dsp-tools/issues/2213)) ([3fd5713](https://github.com/dasch-swiss/dsp-tools/commit/3fd57137d621b0325abe1193c004125ee315fe69))
+* **migration:** implement all-in-one `migration` command (DEV-5945) ([#2205](https://github.com/dasch-swiss/dsp-tools/issues/2205)) ([a3b774c](https://github.com/dasch-swiss/dsp-tools/commit/a3b774cb50d4ef5575e5f6c18957867f488f7a1d))
+* **migration:** merge `export` and `download` commands (DEV-5974) ([#2209](https://github.com/dasch-swiss/dsp-tools/issues/2209)) ([ae5ffa4](https://github.com/dasch-swiss/dsp-tools/commit/ae5ffa46229d203e2a5267360559d6cded096864))
+
+
+### Maintenance
+
+* **migration:** merge the export and download files ([#2208](https://github.com/dasch-swiss/dsp-tools/issues/2208)) ([4b491f8](https://github.com/dasch-swiss/dsp-tools/commit/4b491f8f120b1cfcf14b1d5e9777eec46b20c809))
+* **start-stack:** bump versions to 2026.03.02 ([#2214](https://github.com/dasch-swiss/dsp-tools/issues/2214)) ([0efe709](https://github.com/dasch-swiss/dsp-tools/commit/0efe709abe7adbd1f3344ee2a82b5b67720e8613))
+
+
+### Documentation
+
+* **CLI:** list all existing commands in the documentation overview (DEV-5998) ([#2212](https://github.com/dasch-swiss/dsp-tools/issues/2212)) ([33d3ba6](https://github.com/dasch-swiss/dsp-tools/commit/33d3ba660c2bf70dcf7e4b6747c2f03b0bd45d0f))
+* **migration:** add user documentation (DEV-5993) ([#2211](https://github.com/dasch-swiss/dsp-tools/issues/2211)) ([010a94d](https://github.com/dasch-swiss/dsp-tools/commit/010a94ddde8d3eea47c1f5b624e451d02f5b9369))
+
 ## [18.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.3...v18.7.0) (2026-03-04)
 
 

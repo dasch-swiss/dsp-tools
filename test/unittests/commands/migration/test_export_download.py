@@ -25,6 +25,7 @@ def _make_config(tmp_path: Path) -> MigrationConfig:
         export_savepath=tmp_path / "export-0001.zip",
         reference_savepath=tmp_path / "migration-references-0001.json",
         keep_local_export=False,
+        skip_assets=False,
     )
 
 
@@ -144,11 +145,21 @@ class TestExecuteExport:
         client.post_export.return_value = export_id
         # since this is immediately completed we do not need to mock the sleep time
         client.get_status.return_value = ExportImportStatus.COMPLETED
-        success, returned_id = _execute_export(client, reference_path)
-        client.post_export.assert_called_once()
+        success, returned_id = _execute_export(client, reference_path, skip_assets=False)
+        client.post_export.assert_called_once_with(False)
         client.get_status.assert_called_once()
         assert success is True
         assert returned_id == export_id
+
+    def test_skip_assets_true_is_passed_to_post_export(self, tmp_path: Path) -> None:
+        reference_path = tmp_path / "migration-references.json"
+        export_id = ExportId("test-id-123")
+        client = MagicMock()
+        client.project_iri = PROJECT_IRI
+        client.post_export.return_value = export_id
+        client.get_status.return_value = ExportImportStatus.COMPLETED
+        _execute_export(client, reference_path, skip_assets=True)
+        client.post_export.assert_called_once_with(True)
 
 
 class TestCheckExportProgress:

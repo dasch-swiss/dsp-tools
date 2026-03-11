@@ -55,6 +55,7 @@ class TestParseConfigFile:
         result = parse_config_file(filepath)
         assert result.config.shortcode == "0806"
         assert result.config.keep_local_export is False
+        assert result.config.skip_assets is False
         assert result.config.export_savepath == tmp_path / "export-0806.zip"
         assert result.config.reference_savepath == tmp_path / "migration-references-0806.json"
         assert result.source is not None
@@ -86,6 +87,17 @@ class TestParseConfigFile:
         )
         result = parse_config_file(filepath)
         assert result.config.keep_local_export is True
+
+    def test_skip_assets_true(self, tmp_path: Path) -> None:
+        filepath = self._write_yaml(
+            tmp_path,
+            {
+                "shortcode": "0806",
+                "skip-assets": True,
+            },
+        )
+        result = parse_config_file(filepath)
+        assert result.config.skip_assets is True
 
     def test_server_sections_absent(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(tmp_path, {"shortcode": "0806"})

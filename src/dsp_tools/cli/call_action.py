@@ -16,7 +16,7 @@ from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
 from dsp_tools.cli.call_action_with_network import call_migration_clean_up
-from dsp_tools.cli.call_action_with_network import call_migration_download
+from dsp_tools.cli.call_action_with_network import call_migration_complete
 from dsp_tools.cli.call_action_with_network import call_migration_export
 from dsp_tools.cli.call_action_with_network import call_migration_import
 from dsp_tools.cli.call_action_with_network import call_resume_xmlupload
@@ -25,7 +25,7 @@ from dsp_tools.cli.call_action_with_network import call_stop_stack
 from dsp_tools.cli.call_action_with_network import call_upload_files
 from dsp_tools.cli.call_action_with_network import call_validate_data
 from dsp_tools.cli.call_action_with_network import call_xmlupload
-from dsp_tools.cli.exceptions import CliCommandNotImplementedError
+from dsp_tools.cli.exceptions import CliCommandNotInvokableError
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PLR0915 (too many branches & too many statements)
@@ -85,16 +85,17 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
         case "update-legal":
             result = call_update_legal(args)
         case "migration":
-            raise CliCommandNotImplementedError(
-                "The 'migration' command is not completely implemented, it requires a sub-command. "
-                "Enter 'dsp-tools migration --help' for more information."
+            raise CliCommandNotInvokableError(
+                "The command `migration` cannot be used as a stand-alone command. "
+                "It can only be used with one of its subcommands. "
+                "Type `dsp-tools migration --help` for a list of options."
             )
         case "migration config":
             result = call_migration_config(args)
+        case "migration complete":
+            result = call_migration_complete(args)
         case "migration export":
             result = call_migration_export(args)
-        case "migration download":
-            result = call_migration_download(args)
         case "migration import":
             result = call_migration_import(args)
         case "migration clean-up":

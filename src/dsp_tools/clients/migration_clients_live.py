@@ -175,7 +175,7 @@ def _make_status_check_call(params: RequestParameters) -> ExportImportStatus:
             raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
 
 
-def _make_delete_call(params: RequestParameters, process: Literal["import" | "export"]) -> None:
+def _make_delete_call(params: RequestParameters, process: Literal["import", "export"]) -> None:
     log_request(params)
     try:
         response = requests.delete(url=params.url, headers=params.headers, timeout=params.timeout)

@@ -9,9 +9,9 @@ from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.clean_up import _clean_up_source_server
 from dsp_tools.commands.migration.clean_up import _clean_up_target_server
-from dsp_tools.commands.migration.clean_up import _handle_local_clean_up
 from dsp_tools.commands.migration.clean_up import _handle_source_server_clean_up
 from dsp_tools.commands.migration.clean_up import _handle_target_server_clean_up
+from dsp_tools.commands.migration.clean_up import handle_local_clean_up
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
@@ -38,7 +38,7 @@ class TestHandleLocalCleanUp:
         config = _make_config(tmp_path, keep_local_export=True)
         config.export_savepath.touch()
         config.reference_savepath.touch()
-        _handle_local_clean_up(config)
+        handle_local_clean_up(config)
         assert config.export_savepath.exists()
         assert config.reference_savepath.exists()
 
@@ -46,7 +46,7 @@ class TestHandleLocalCleanUp:
         config = _make_config(tmp_path)
         config.export_savepath.touch()
         config.reference_savepath.touch()
-        _handle_local_clean_up(config)
+        handle_local_clean_up(config)
         assert not config.export_savepath.exists()
         assert not config.reference_savepath.exists()
 
@@ -54,7 +54,7 @@ class TestHandleLocalCleanUp:
         config = _make_config(tmp_path)
         config.reference_savepath.touch()
         with caplog.at_level(logging.WARNING):
-            _handle_local_clean_up(config)
+            handle_local_clean_up(config)
         assert not config.reference_savepath.exists()
         assert str(config.export_savepath) in caplog.text
 
@@ -62,14 +62,14 @@ class TestHandleLocalCleanUp:
         config = _make_config(tmp_path)
         config.export_savepath.touch()
         with caplog.at_level(logging.WARNING):
-            _handle_local_clean_up(config)
+            handle_local_clean_up(config)
         assert not config.export_savepath.exists()
         assert str(config.reference_savepath) in caplog.text
 
     def test_both_missing_logs_two_warnings(self, tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
         config = _make_config(tmp_path)
         with caplog.at_level(logging.WARNING):
-            _handle_local_clean_up(config)
+            handle_local_clean_up(config)
         assert str(config.export_savepath) in caplog.text
         assert str(config.reference_savepath) in caplog.text
 

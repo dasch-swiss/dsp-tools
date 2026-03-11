@@ -33,7 +33,9 @@ def export_and_download(migration_info: MigrationInfo) -> str:
     project_iri = ProjectClientLive(source_server.server, auth).get_project_iri(migration_info.config.shortcode)
     export_client = MigrationExportClientLive(source_server.server, project_iri, auth)
 
-    export_success, export_id = _execute_export(export_client, migration_info.config.reference_savepath, migration_info.config.skip_assets)
+    export_success, export_id = _execute_export(
+        export_client, migration_info.config.reference_savepath, migration_info.config.skip_assets
+    )
     if not export_success:
         raise MigrationExportFailureError()
 

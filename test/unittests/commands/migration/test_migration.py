@@ -33,6 +33,7 @@ def config(tmp_path: Path) -> MigrationConfig:
         export_savepath=tmp_path / "export-0001.zip",
         reference_savepath=tmp_path / "migration-references-0001.json",
         keep_local_export=False,
+        skip_assets=False,
     )
 
 

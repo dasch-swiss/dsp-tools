@@ -25,15 +25,16 @@ def create_migration_config(shortcode: str, cwd: Path) -> bool:
         return False
     template = f"""---
 shortcode: "{shortcode}"
-source-server:
-  - server:
-  - user:
-  - password:
-target-server:
-  - server:
-  - user:
-  - password:
+source-server: 
+  - server: 
+  - user: 
+  - password: 
+target-server: 
+  - server: 
+  - user: 
+  - password: 
 keep-local-export: false  # If set to true, you must manually remove the zip. Please note, that they may be very large.
+skip-assets: false  # If set to true, no files will be included in the export, only data.
 export-savepath: {_DEFAULT_EXPORT_SAVEPATH}  # We recommend to keep the default path.
 """
     output_path.write_text(template, encoding="utf-8")
@@ -79,11 +80,13 @@ def _parse_config_info(data: dict[str, Any], filepath: Path) -> MigrationConfig:
     export_savepath = export_base_path / f"export-{shortcode_str}.zip"
     reference_savepath = export_base_path / f"migration-references-{shortcode_str}.json"
     keep_local_export = bool(data.get("keep-local-export", False))
+    skip_assets = bool(data.get("skip-assets", False))
     config = MigrationConfig(
         shortcode=shortcode_str,
         export_savepath=export_savepath,
         reference_savepath=reference_savepath,
         keep_local_export=keep_local_export,
+        skip_assets=skip_assets,
     )
     return config
 

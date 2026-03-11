@@ -9,4 +9,5 @@ target-server:
   - user: root2@example.com
   - password: test2
 keep-local-export: true  # If set to true, you must manually remove the zip. Please note that they may be very large.
+skip-assets: true  # If set to true, no files will be included in the export, only data.
 export-savepath: testdata/migration/  # We recommend to keep the default path.

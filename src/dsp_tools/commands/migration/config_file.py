@@ -34,7 +34,7 @@ target-server:
   - user: 
   - password: 
 keep-local-export: false  # If set to true, you must manually remove the zip. Please note, that they may be very large.
-skip-assets: false  # If set to true, no files will be included in the export, only data.
+skip-assets: false  # If set to true, no multimedia files will be included in the export.
 export-savepath: {_DEFAULT_EXPORT_SAVEPATH}  # We recommend to keep the default path.
 """
     output_path.write_text(template, encoding="utf-8")

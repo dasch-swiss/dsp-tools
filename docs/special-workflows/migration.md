@@ -5,7 +5,7 @@
     Only DaSCH system administrators are allowed to migrate projects.
 
 A migration moves a full project — ontology, data, project member accounts — from one DSP server to another.
-The assets are included by default, but can be excluded if so desired.
+The assets (multimedia files) are included by default, but can be excluded.
 
 Please note that the entire workflow may take several hours for large projects.
 
@@ -60,7 +60,7 @@ source-server:
 | `source-server`     | Credentials for the server to migrate **from**                                                                                                             |
 | `target-server`     | Credentials for the server to migrate **to**                                                                                                               |
 | `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large.                                                          |
-| `skip-assets`       | If `true`, only the data will be exported without any assets.<br>The data connected to the assets will still be unchanged, but no files will be displayed. |
+| `skip-assets`       | If `true`, only the data will be exported, without any multimedia files.<br>The resources connected to the assets will still be unchanged, but no files will be displayed. |
 | `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.                                                                      |
 
 ## Local Export Files

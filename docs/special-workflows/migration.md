@@ -4,7 +4,8 @@
 
     Only DaSCH system administrators are allowed to migrate projects.
 
-A migration moves a full project — ontology, data, and all multimedia files — from one DSP server to another.
+A migration moves a full project — ontology, data, project member accounts — from one DSP server to another.
+The assets are included by default, but can be excluded if so desired.
 
 Please note that the entire workflow may take several hours for large projects.
 
@@ -40,6 +41,7 @@ target-server:
   - user: system-admin@example.com
   - password: secret
 keep-local-export: false
+skip-assets: false
 export-savepath: ~/.dsp-tools/migration/
 ```
 
@@ -52,13 +54,14 @@ source-server:
   - password: test
 ```
 
-| Field               | Description                                                                                       |
-|---------------------|---------------------------------------------------------------------------------------------------|
-| `shortcode`         | Shortcode of the project (e.g. `0806`)                                                            |
-| `source-server`     | Credentials for the server to migrate **from**                                                    |
-| `target-server`     | Credentials for the server to migrate **to**                                                      |
-| `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large. |
-| `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.             |
+| Field               | Description                                                                                                                                                |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `shortcode`         | Shortcode of the project (e.g. `0806`)                                                                                                                     |
+| `source-server`     | Credentials for the server to migrate **from**                                                                                                             |
+| `target-server`     | Credentials for the server to migrate **to**                                                                                                               |
+| `keep-local-export` | If `true`, the local export files are not deleted after migration. These files can be very large.                                                          |
+| `skip-assets`       | If `true`, only the data will be exported without any assets.<br>The data connected to the assets will still be unchanged, but no files will be displayed. |
+| `export-savepath`   | Directory where the export files are saved locally. We recommend keeping the default.                                                                      |
 
 ## Local Export Files
 

@@ -11,6 +11,7 @@ class MigrationConfig:
     export_savepath: Path
     reference_savepath: Path
     keep_local_export: bool
+    skip_assets: bool
 
 
 @dataclass

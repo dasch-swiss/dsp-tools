@@ -33,7 +33,9 @@ def export_and_download(migration_info: MigrationInfo) -> str:
     project_iri = ProjectClientLive(source_server.server, auth).get_project_iri(migration_info.config.shortcode)
     export_client = MigrationExportClientLive(source_server.server, project_iri, auth)
 
-    export_success, export_id = _execute_export(export_client, migration_info.config.reference_savepath)
+    export_success, export_id = _execute_export(
+        export_client, migration_info.config.reference_savepath, migration_info.config.skip_assets
+    )
     if not export_success:
         raise MigrationExportFailureError()
 
@@ -46,9 +48,9 @@ def export_and_download(migration_info: MigrationInfo) -> str:
     return project_iri
 
 
-def _execute_export(client: MigrationExportClient, reference_path: Path) -> tuple[bool, ExportId]:
+def _execute_export(client: MigrationExportClient, reference_path: Path, skip_assets: bool) -> tuple[bool, ExportId]:
     logger.debug("Starting Export of Project")
-    export_id = client.post_export()
+    export_id = client.post_export(skip_assets)
     logger.info(f"Export ID of project: {export_id.id_}")
     write_or_update_reference_json(reference_path, export_id=export_id, project_iri=client.project_iri)
     return _check_export_progress(client, export_id), export_id

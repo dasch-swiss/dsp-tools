@@ -20,6 +20,7 @@ class TestExecuteImport:
             export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
             reference_savepath=tmp_path / "migration-references-0099.json",
             keep_local_export=False,
+            skip_assets=False,
         )
         client = MagicMock()
         client.post_import.return_value = import_id

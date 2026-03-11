@@ -30,6 +30,7 @@ def _make_config(tmp_path: Path, keep_local_export: bool = False) -> MigrationCo
         export_savepath=tmp_path / "export-0001.zip",
         reference_savepath=tmp_path / "migration-references-0001.json",
         keep_local_export=keep_local_export,
+        skip_assets=False,
     )
 
 

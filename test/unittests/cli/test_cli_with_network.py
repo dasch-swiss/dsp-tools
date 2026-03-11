@@ -861,6 +861,7 @@ class TestMigrationComplete:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
+            skip_assets=False,
         )
         migration_info = MigrationInfo(config, source, target)
         args = f"migration complete {MIGRATION_YAML_COMPLETE_PATH}".split()
@@ -890,6 +891,7 @@ class TestMigrationExport:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
+            skip_assets=False,
         )
         migration_info = MigrationInfo(config, source, target)
         args = f"migration export {MIGRATION_YAML_COMPLETE_PATH}".split()
@@ -906,6 +908,7 @@ class TestMigrationExport:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
+            skip_assets=False,
         )
         args = f"migration export {MIGRATION_YAML_COMPLETE_PATH} --download-only".split()
         entry_point.run(args)
@@ -922,6 +925,7 @@ class TestMigrationExport:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=True,
+            skip_assets=True,
         )
         migration_info = MigrationInfo(config, source, target)
         args = "migration export testdata/migration/migration-4125_complete_keep_export.yaml".split()
@@ -950,6 +954,7 @@ class TestMigrationImport:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
+            skip_assets=False,
         )
         args = "migration import testdata/migration/migration-4125_complete.yaml".split()
         entry_point.run(args)
@@ -978,6 +983,7 @@ class TestMigrationCleanUp:
             export_savepath=MIGRATION_EXPORT_PATH,
             reference_savepath=MIGRATION_REFERENCE_PATH,
             keep_local_export=False,
+            skip_assets=False,
         )
         info = MigrationInfo(config, source, target)
         args = f"migration clean-up {MIGRATION_YAML_COMPLETE_PATH}".split()

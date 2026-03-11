@@ -27,7 +27,7 @@ class MigrationExportClient(Protocol):
     def get_status(self, export_id: ExportId) -> ExportImportStatus:
         """Get the export status."""
 
-    def post_export(self) -> ExportId:
+    def post_export(self, skip_assets: bool) -> ExportId:
         """Start an export."""
 
     def get_download(self, export_id: ExportId, destination: Path) -> None:

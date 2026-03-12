@@ -1,5 +1,12 @@
 # Changelog
 
+## [18.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.8.0...v18.9.0) (2026-03-12)
+
+
+### Enhancements
+
+* **clients:** implement new `ResourceClient` (DEV-6005) ([#2216](https://github.com/dasch-swiss/dsp-tools/issues/2216)) ([0773094](https://github.com/dasch-swiss/dsp-tools/commit/07730949ee058082255efa623362d7d2d3943347))
+
 ## [18.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.7.0...v18.8.0) (2026-03-11)
 
 

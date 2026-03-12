@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pickle
 from datetime import datetime
 from pathlib import Path
 
@@ -31,6 +30,7 @@ from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout_
 from dsp_tools.commands.xmlupload.handle_errors import handle_upload_error
 from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_creation_failure
 from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
+from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
 from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -292,7 +292,7 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
             print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
             print(f"See {WARNINGS_SAVEPATH} for more information\n")
             logger.warning(stash_msg)
-        msg = _save_upload_state(upload_state)
+        msg = save_upload_state(upload_state)
         print(msg)
 
     upload_state.config.diagnostics.save_location.unlink(missing_ok=True)
@@ -395,13 +395,3 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         handle_keyboard_interrupt()
-
-
-def _save_upload_state(upload_state: UploadState) -> str:
-    save_location = upload_state.config.diagnostics.save_location
-    save_location.unlink(missing_ok=True)
-    save_location.touch(exist_ok=True)
-    with open(save_location, "wb") as file:
-        pickle.dump(upload_state, file)
-    logger.info(f"Saved the current upload state to {save_location}")
-    return f"Saved the current upload state to {save_location}.\n"

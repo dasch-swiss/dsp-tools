@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 import sys
 import warnings
 from datetime import datetime
@@ -10,7 +11,6 @@ from loguru import logger
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.xmlupload import _save_upload_state
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
@@ -113,7 +113,7 @@ def handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
         )
         exit_code = 1
 
-    msg += _save_upload_state(upload_state)
+    msg += save_upload_state(upload_state)
 
     if failed := upload_state.failed_uploads:
         msg += f"Independently from this, there were some resources that could not be uploaded: {failed}\n"
@@ -125,3 +125,13 @@ def handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
     print(msg)
 
     sys.exit(exit_code)
+
+
+def save_upload_state(upload_state: UploadState) -> str:
+    save_location = upload_state.config.diagnostics.save_location
+    save_location.unlink(missing_ok=True)
+    save_location.touch(exist_ok=True)
+    with open(save_location, "wb") as file:
+        pickle.dump(upload_state, file)
+    logger.info(f"Saved the current upload state to {save_location}")
+    return f"Saved the current upload state to {save_location}.\n"

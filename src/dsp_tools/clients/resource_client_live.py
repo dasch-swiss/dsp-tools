@@ -5,6 +5,7 @@ from importlib.metadata import version
 from typing import Any
 from typing import cast
 
+from requests import ReadTimeout
 from requests import RequestException
 from requests import Session
 
@@ -14,6 +15,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
+from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -47,6 +49,8 @@ class ResourceClientLive(ResourceClient):
                 data=params.data_serialized,
                 timeout=params.timeout,
             )
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)

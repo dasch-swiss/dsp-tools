@@ -237,3 +237,14 @@ def is_server_error(response: ResponseCodeAndText) -> bool:
     if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
         return True
     return False
+
+
+def should_retry_resource_upload(response: ResponseCodeAndText) -> bool:
+    """Returns whether a failed resource upload response should be retried."""
+    in_500_range = (
+        HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
+    )
+    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+    try_again_later = "try again later" in response.text.lower()
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"
+    return (in_500_range or rate_limiting or try_again_later) and not in_testing_env

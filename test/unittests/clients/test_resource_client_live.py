@@ -5,10 +5,12 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
@@ -60,6 +62,12 @@ class TestPostResource:
     ) -> None:
         with patch.object(client._session, "post", side_effect=RequestException("Connection refused")):
             with pytest.raises(DspToolsRequestException):
+                client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
+
+    @patch("dsp_tools.clients.resource_client_live.log_request")
+    def test_read_timeout_raises_permanent_timeout_error(self, log_req: Mock, client: ResourceClientLive) -> None:
+        with patch.object(client._session, "post", side_effect=ReadTimeout()):
+            with pytest.raises(PermanentTimeOutError):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_response")

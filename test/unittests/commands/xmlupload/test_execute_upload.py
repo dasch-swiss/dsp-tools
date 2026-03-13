@@ -1,3 +1,4 @@
+import os
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -17,6 +18,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -178,6 +180,18 @@ class TestExecuteOneUpload:
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
 
+    def test_upload_bad_credentials_stops_upload(
+        self,
+        resource: ProcessedResource,
+        upload_state: UploadState,
+        resource_client: MagicMock,
+        ingest_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = BadCredentialsError("Forbidden")
+        with pytest.raises(XmlUploadInterruptedError):
+            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+
     def test_upload_keyboard_interrupt_in_tidy_up(
         self,
         resource: ProcessedResource,
@@ -240,3 +254,37 @@ class TestResourceDataUpload:
         with pytest.raises(PermanentConnectionError):
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert resource_client.post_resource.call_count == 24
+
+    def test_data_upload_429_is_retried(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = [ResponseCodeAndText(429, "rate limited"), RES_IRI]
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        assert result == RES_IRI
+        assert resource_client.post_resource.call_count == 2
+
+    def test_data_upload_try_again_later_is_retried(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        assert result == RES_IRI
+        assert resource_client.post_resource.call_count == 2
+
+    def test_data_upload_server_error_suppressed_in_testing_env(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "true"}):
+            resource_client.post_resource.return_value = ResponseCodeAndText(500, "server error")
+            result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        assert result is None
+        assert resource_client.post_resource.call_count == 1

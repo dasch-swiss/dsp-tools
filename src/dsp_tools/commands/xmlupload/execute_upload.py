@@ -46,7 +46,7 @@ def _execute_one_resource_upload(
 
     iri = None
     try:
-        iri = _handle_one_resource_upload(resource, media_info, resource_client, iri_lookups)
+        iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
@@ -63,7 +63,7 @@ def _execute_one_resource_upload(
         handle_keyboard_interrupt()
 
 
-def _handle_one_resource_upload(
+def _execute_one_resource_data_upload(
     resource: ProcessedResource,
     media_info: BitstreamInfo | None,
     resource_client: ResourceClient,

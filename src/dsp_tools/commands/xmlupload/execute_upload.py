@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 from loguru import logger
 
 from dsp_tools.clients.ingest import AssetClient
@@ -19,6 +17,10 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.request_utils import is_server_error
+from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 
 
 def _execute_one_resource_upload(
@@ -44,7 +46,7 @@ def _execute_one_resource_upload(
 
     iri = None
     try:
-        iri = _handle_one_resource_upload(resource, media_info, resource_client, iri_lookups, retry_count=0)
+        iri = _handle_one_resource_upload(resource, media_info, resource_client, iri_lookups)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
@@ -66,7 +68,6 @@ def _handle_one_resource_upload(
     media_info: BitstreamInfo | None,
     resource_client: ResourceClient,
     iri_lookups: IRILookups,
-    retry_count: int,
 ) -> str | None:
     resource_graph = create_resource_with_values(
         resource=resource,
@@ -75,15 +76,18 @@ def _handle_one_resource_upload(
     )
     resource_dict = serialise_jsonld_for_resource(resource_graph)
     logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
-    creation_result = resource_client.post_resource(resource_dict, bool(media_info))
-    if isinstance(creation_result, str):
-        return creation_result
-
-    match creation_result.status_code:
-        case HTTPStatus.INTERNAL_SERVER_ERROR | HTTPStatus.SERVICE_UNAVAILABLE | HTTPStatus.GATEWAY_TIMEOUT:
-            if retry_count < 25:
-                pass
-                # TODO: here we must call itself again
-        case _:
-            # in any other cases we do not retry
-            return None
+    num_of_retries = 24
+    for retry_counter in range(num_of_retries):
+        try:
+            creation_result = resource_client.post_resource(resource_dict, bool(media_info))
+        except DspToolsRequestException:
+            log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=True)
+            continue
+        if isinstance(creation_result, str):
+            return creation_result
+        if is_server_error(creation_result):
+            log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
+            continue
+        return None  # non-retryable error (4xx etc.)
+    msg = f"Permanently unable to execute the network action. See {WARNINGS_SAVEPATH} for more information."
+    raise PermanentConnectionError(msg)

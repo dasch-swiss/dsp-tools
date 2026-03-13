@@ -187,15 +187,13 @@ class TestExecuteOneUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = RES_IRI
-        module = "dsp_tools.commands.xmlupload.execute_upload"
         with patch(
-            f"{module}.tidy_up_resource_creation_idempotent",
+            "dsp_tools.commands.xmlupload.execute_upload.tidy_up_resource_creation_idempotent",
             side_effect=[KeyboardInterrupt(), None],
         ) as mock_tidy:
             with pytest.raises(XmlUploadInterruptedError):
                 _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
         assert mock_tidy.call_count == 2
-        # TODO: assert where the IRI is
 
 
 class TestResourceDataUpload:

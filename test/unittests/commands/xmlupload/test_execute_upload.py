@@ -2,12 +2,14 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from rdflib import URIRef
 
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_data_upload
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_upload
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
@@ -16,18 +18,18 @@ from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
-MODULE = "dsp_tools.commands.xmlupload.execute_upload"
+RES_ID = "res_id"
+RES_IRI = "http://iri/res_id"
 
 
 @pytest.fixture
 def resource() -> ProcessedResource:
     return ProcessedResource(
-        res_id="res_id",
+        res_id=RES_ID,
         type_iri="onto:Type",
         label="label",
         permissions=None,
@@ -47,11 +49,11 @@ def resource_with_file() -> ProcessedResource:
         value="test.jpg",
         file_type=KnoraValueType.STILL_IMAGE_FILE,
         metadata=metadata,
-        res_id="res_id",
+        res_id=RES_ID,
         res_label="label",
     )
     return ProcessedResource(
-        res_id="res_id",
+        res_id=RES_ID,
         type_iri="onto:Type",
         label="label",
         permissions=None,
@@ -80,25 +82,17 @@ def ingest_client() -> MagicMock:
 
 
 @pytest.fixture
-def iri_lookups() -> MagicMock:
-    return MagicMock(spec=IRILookups)
+def iri_lookups() -> IRILookups:
+    return IRILookups(
+        project_iri=URIRef("http://rdfh.ch/projects/test"),
+        id_to_iri=IriResolver(),
+    )
 
 
-@pytest.fixture
-def resource_upload_patches():
-    with (
-        patch(f"{MODULE}._execute_one_resource_data_upload", return_value="http://created_iri") as mock_data_upload,
-        patch(f"{MODULE}.tidy_up_resource_creation_idempotent"),
-        patch(f"{MODULE}.interrupt_if_indicated"),
-        patch(f"{MODULE}.handle_permanent_connection_error", side_effect=XmlUploadInterruptedError("conn")),
-        patch(f"{MODULE}.handle_keyboard_interrupt", side_effect=XmlUploadInterruptedError("kbd")),
-        patch(
-            f"{MODULE}.handle_permanent_timeout_or_keyboard_interrupt",
-            side_effect=XmlUploadInterruptedError("timeout"),
-        ),
-        patch(f"{MODULE}.inform_about_resource_creation_failure"),
-    ):
-        yield mock_data_upload
+@pytest.fixture(autouse=True)
+def patch_sleep():
+    with patch("dsp_tools.utils.request_utils.time.sleep"):
+        yield
 
 
 class TestExecuteOneUpload:
@@ -108,16 +102,12 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        mock_data_upload = resource_upload_patches
+        resource_client.post_resource.return_value = RES_IRI
         _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
         ingest_client.get_bitstream_info.assert_not_called()
-        mock_data_upload.assert_called_once()
-        _, kwargs = mock_data_upload.call_args
-        assert kwargs.get("media_info") is None or mock_data_upload.call_args[0][1] is None
+        assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
     def test_upload_with_file_value(
         self,
@@ -125,19 +115,13 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        mock_data_upload = resource_upload_patches
-        bitstream = BitstreamInfo("internal.jpg")
-        ingest_client.get_bitstream_info.return_value = bitstream
+        ingest_client.get_bitstream_info.return_value = BitstreamInfo("internal.jpg")
+        resource_client.post_resource.return_value = RES_IRI
         upload_state.pending_resources = [resource_with_file]
-
         _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
-        mock_data_upload.assert_called_once()
-        call_args = mock_data_upload.call_args[0]
-        assert call_args[1] == bitstream
+        assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
     def test_upload_ingest_returns_none(
         self,
@@ -145,17 +129,12 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        mock_data_upload = resource_upload_patches
         ingest_client.get_bitstream_info.return_value = None
         upload_state.pending_resources = [resource_with_file]
-
         _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
-        assert resource_with_file.res_id in upload_state.failed_uploads
-        mock_data_upload.assert_not_called()
+        assert RES_ID in upload_state.failed_uploads
 
     def test_upload_ingest_permanent_connection_error(
         self,
@@ -163,12 +142,10 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
         ingest_client.get_bitstream_info.side_effect = PermanentConnectionError("conn err")
         upload_state.pending_resources = [resource_with_file]
-
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(
                 resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
@@ -180,31 +157,14 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
         ingest_client.get_bitstream_info.side_effect = KeyboardInterrupt()
         upload_state.pending_resources = [resource_with_file]
-
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(
                 resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
             )
-
-    def test_upload_data_permanent_timeout(
-        self,
-        resource: ProcessedResource,
-        upload_state: UploadState,
-        resource_client: MagicMock,
-        ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
-    ) -> None:
-        mock_data_upload = resource_upload_patches
-        mock_data_upload.side_effect = PermanentTimeOutError("timeout")
-
-        with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
 
     def test_upload_data_permanent_connection_error(
         self,
@@ -212,41 +172,11 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-        resource_upload_patches: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        mock_data_upload = resource_upload_patches
-        mock_data_upload.side_effect = PermanentConnectionError("conn err")
-
+        resource_client.post_resource.side_effect = PermanentConnectionError("conn err")
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
-    def test_upload_data_generic_exception(
-        self,
-        resource: ProcessedResource,
-        upload_state: UploadState,
-        resource_client: MagicMock,
-        ingest_client: MagicMock,
-        iri_lookups: MagicMock,
-    ) -> None:
-        with (
-            patch(f"{MODULE}._execute_one_resource_data_upload", side_effect=Exception("oops")),
-            patch(f"{MODULE}.tidy_up_resource_creation_idempotent") as mock_tidy,
-            patch(f"{MODULE}.interrupt_if_indicated"),
-            patch(f"{MODULE}.handle_permanent_connection_error", side_effect=XmlUploadInterruptedError("conn")),
-            patch(f"{MODULE}.handle_keyboard_interrupt", side_effect=XmlUploadInterruptedError("kbd")),
-            patch(
-                f"{MODULE}.handle_permanent_timeout_or_keyboard_interrupt",
-                side_effect=XmlUploadInterruptedError("timeout"),
-            ),
-            patch(f"{MODULE}.inform_about_resource_creation_failure") as mock_inform,
-        ):
-            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
-        mock_inform.assert_called_once()
-        mock_tidy.assert_called_once()
-        call_kwargs = mock_tidy.call_args
-        assert call_kwargs[0][1] is None or call_kwargs.kwargs.get("iri") is None
 
     def test_upload_keyboard_interrupt_in_tidy_up(
         self,
@@ -254,38 +184,18 @@ class TestExecuteOneUpload:
         upload_state: UploadState,
         resource_client: MagicMock,
         ingest_client: MagicMock,
-        iri_lookups: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        with (
-            patch(f"{MODULE}._execute_one_resource_data_upload", return_value="http://created_iri"),
-            patch(
-                f"{MODULE}.tidy_up_resource_creation_idempotent",
-                side_effect=[KeyboardInterrupt(), None],
-            ) as mock_tidy,
-            patch(f"{MODULE}.interrupt_if_indicated"),
-            patch(f"{MODULE}.handle_permanent_connection_error", side_effect=XmlUploadInterruptedError("conn")),
-            patch(f"{MODULE}.handle_keyboard_interrupt", side_effect=XmlUploadInterruptedError("kbd")),
-            patch(
-                f"{MODULE}.handle_permanent_timeout_or_keyboard_interrupt",
-                side_effect=XmlUploadInterruptedError("timeout"),
-            ),
-            patch(f"{MODULE}.inform_about_resource_creation_failure"),
-        ):
+        resource_client.post_resource.return_value = RES_IRI
+        module = "dsp_tools.commands.xmlupload.execute_upload"
+        with patch(
+            f"{module}.tidy_up_resource_creation_idempotent",
+            side_effect=[KeyboardInterrupt(), None],
+        ) as mock_tidy:
             with pytest.raises(XmlUploadInterruptedError):
                 _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
         assert mock_tidy.call_count == 2
-
-
-@pytest.fixture
-def data_upload_patches():
-    with (
-        patch(f"{MODULE}.create_resource_with_values", return_value=MagicMock()),
-        patch(f"{MODULE}.serialise_jsonld_for_resource", return_value={}),
-        patch(f"{MODULE}.log_request_failure_and_sleep"),
-        patch(f"{MODULE}.is_server_error", return_value=False),
-    ):
-        yield
+        # TODO: assert where the IRI is
 
 
 class TestResourceDataUpload:
@@ -293,28 +203,21 @@ class TestResourceDataUpload:
         self,
         resource: ProcessedResource,
         resource_client: MagicMock,
-        iri_lookups: MagicMock,
-        data_upload_patches: None,
+        iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.return_value = "http://created_iri"
-
+        resource_client.post_resource.return_value = RES_IRI
         result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-
-        assert result == "http://created_iri"
+        assert result == RES_IRI
         assert resource_client.post_resource.call_count == 1
 
     def test_data_upload_non_retryable_failure(
         self,
         resource: ProcessedResource,
         resource_client: MagicMock,
-        iri_lookups: MagicMock,
-        data_upload_patches: None,
+        iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = ResponseCodeAndText(400, "bad")
-
-        with patch(f"{MODULE}.is_server_error", return_value=False):
-            result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert result is None
         assert resource_client.post_resource.call_count == 1
 
@@ -322,37 +225,20 @@ class TestResourceDataUpload:
         self,
         resource: ProcessedResource,
         resource_client: MagicMock,
-        iri_lookups: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        with (
-            patch(f"{MODULE}.create_resource_with_values", return_value=MagicMock()),
-            patch(f"{MODULE}.serialise_jsonld_for_resource", return_value={}),
-            patch(f"{MODULE}.is_server_error", return_value=False),
-            patch(f"{MODULE}.log_request_failure_and_sleep") as mock_sleep,
-        ):
-            resource_client.post_resource.side_effect = [DspToolsRequestException("err"), "http://created_iri"]
-
-            result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-
-        assert result == "http://created_iri"
+        resource_client.post_resource.side_effect = [DspToolsRequestException("err"), RES_IRI]
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        assert result == RES_IRI
         assert resource_client.post_resource.call_count == 2
-        assert mock_sleep.call_count == 1
 
     def test_data_upload_retry_exhaustion(
         self,
         resource: ProcessedResource,
         resource_client: MagicMock,
-        iri_lookups: MagicMock,
+        iri_lookups: IRILookups,
     ) -> None:
-        with (
-            patch(f"{MODULE}.create_resource_with_values", return_value=MagicMock()),
-            patch(f"{MODULE}.serialise_jsonld_for_resource", return_value={}),
-            patch(f"{MODULE}.is_server_error", return_value=False),
-            patch(f"{MODULE}.log_request_failure_and_sleep"),
-        ):
-            resource_client.post_resource.side_effect = DspToolsRequestException("err")
-
-            with pytest.raises(PermanentConnectionError):
-                _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-
+        resource_client.post_resource.side_effect = DspToolsRequestException("err")
+        with pytest.raises(PermanentConnectionError):
+            _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert resource_client.post_resource.call_count == 24

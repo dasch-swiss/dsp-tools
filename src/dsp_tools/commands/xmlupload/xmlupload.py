@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-import pickle
-import sys
-import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Never
 
 from loguru import logger
 from rdflib import URIRef
@@ -28,6 +24,14 @@ from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
+from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
+from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_connection_error
+from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout_or_keyboard_interrupt
+from dsp_tools.commands.xmlupload.handle_errors import handle_upload_error
+from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_creation_failure
+from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
+from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
+from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
@@ -44,7 +48,6 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import uploa
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
@@ -289,7 +292,7 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
             print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
             print(f"See {WARNINGS_SAVEPATH} for more information\n")
             logger.warning(stash_msg)
-        msg = _save_upload_state(upload_state)
+        msg = save_upload_state(upload_state)
         print(msg)
 
     upload_state.config.diagnostics.save_location.unlink(missing_ok=True)
@@ -337,7 +340,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         if upload_state.pending_stash:
             _upload_stash(upload_state, con)
     except XmlUploadInterruptedError as err:
-        _handle_upload_error(err, upload_state)
+        handle_upload_error(err, upload_state)
 
 
 def _upload_stash(
@@ -363,9 +366,9 @@ def _upload_one_resource(
         try:
             ingest_result = ingest_client.get_bitstream_info(resource.file_value)
         except PermanentConnectionError as err:
-            _handle_permanent_connection_error(err)
+            handle_permanent_connection_error(err)
         except KeyboardInterrupt:
-            _handle_keyboard_interrupt()
+            handle_keyboard_interrupt()
         if not ingest_result:
             upload_state.failed_uploads.append(resource.res_id)
             return
@@ -379,136 +382,16 @@ def _upload_one_resource(
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, resource_has_bitstream=bool(media_info))
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
-        _handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
+        handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
-        _handle_permanent_connection_error(err)
+        handle_permanent_connection_error(err)
     except Exception as err:  # noqa: BLE001 (blind-except)
         err_msg = err.message if isinstance(err, BaseError) else None
-        _inform_about_resource_creation_failure(resource, err_msg)
+        inform_about_resource_creation_failure(resource, err_msg)
 
     try:
-        _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
+        tidy_up_resource_creation_idempotent(upload_state, iri, resource)
+        interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
-        _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        _handle_keyboard_interrupt()
-
-
-def _handle_permanent_connection_error(err: PermanentConnectionError) -> Never:
-    msg = "Lost connection to DSP server, probably because the server is down. "
-    msg += f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
-    logger.error(msg)
-    msg += f"\nSee {WARNINGS_SAVEPATH} for more information."
-    raise XmlUploadInterruptedError(msg) from None
-
-
-def _handle_keyboard_interrupt() -> Never:
-    warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
-    msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
-    raise XmlUploadInterruptedError(msg) from None
-
-
-def _handle_permanent_timeout_or_keyboard_interrupt(
-    err: PermanentTimeOutError | KeyboardInterrupt, res_id: str
-) -> Never:
-    warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
-    msg = (
-        f"There was a {type(err).__name__} while trying to create resource '{res_id}'.\n"
-        f"It is unclear if the resource '{res_id}' was created successfully or not.\n"
-        f"Please check manually in the DSP-APP or DB.\n"
-        f"In case of successful creation, call 'resume-xmlupload' with the flag "
-        f"'--skip-first-resource' to prevent duplication.\n"
-        f"If not, a normal 'resume-xmlupload' can be started."
-    )
-    logger.error(msg)
-    raise XmlUploadInterruptedError(msg) from None
-
-
-def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:
-    # if the interrupt_after value is not set, the upload will not be interrupted
-    interrupt_after = upload_state.config.interrupt_after or 999_999_999
-    if creation_attempts_of_this_round + 1 >= interrupt_after:
-        msg = f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
-        raise XmlUploadInterruptedError(msg)
-
-
-def _tidy_up_resource_creation_idempotent(
-    upload_state: UploadState,
-    iri: str | None,
-    resource: ProcessedResource,
-) -> None:
-    previous_successful = len(upload_state.iri_resolver.lookup)
-    previous_failed = len(upload_state.failed_uploads)
-    upcoming = len(upload_state.pending_resources)
-    current_res = previous_successful + previous_failed + 1
-    total_res = previous_successful + previous_failed + upcoming
-    if iri:
-        # resource creation succeeded: update the iri_resolver
-        upload_state.iri_resolver.lookup[resource.res_id] = iri
-        msg = f"Created resource {current_res}/{total_res}: '{resource.label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-        logger.info(msg)
-    else:  # noqa: PLR5501
-        # resource creation failed gracefully: register it as failed
-        if resource.res_id not in upload_state.failed_uploads:
-            upload_state.failed_uploads.append(resource.res_id)
-
-    if resource in upload_state.pending_resources:
-        upload_state.pending_resources.remove(resource)
-
-
-def _inform_about_resource_creation_failure(resource: ProcessedResource, err_msg: str | None) -> None:
-    log_msg = f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
-    if err_msg:
-        log_msg += err_msg
-    logger.exception(log_msg)
-
-
-def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
-    """
-    In case the xmlupload must be interrupted,
-    e.g. because of an error that could not be handled,
-    or due to keyboard interrupt,
-    this method ensures
-    that all information about what is already in DSP
-    is written into diagnostic files.
-
-    It then quits the Python interpreter with exit code 1.
-
-    Args:
-        err: the error that was the cause of the abort
-        upload_state: the current state of the upload
-    """
-    if isinstance(err, XmlUploadInterruptedError):
-        msg = "\n==========================================\n" + err.message + "\n"
-        exit_code = 0
-    else:
-        msg = (
-            f"\n==========================================\n"
-            f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
-            f"Error message: '{err}'\n"
-            f"See {WARNINGS_SAVEPATH} for more information\n"
-        )
-        exit_code = 1
-
-    msg += _save_upload_state(upload_state)
-
-    if failed := upload_state.failed_uploads:
-        msg += f"Independently from this, there were some resources that could not be uploaded: {failed}\n"
-
-    if exit_code == 1:
-        logger.error(msg)
-    else:
-        logger.info(msg)
-    print(msg)
-
-    sys.exit(exit_code)
-
-
-def _save_upload_state(upload_state: UploadState) -> str:
-    save_location = upload_state.config.diagnostics.save_location
-    save_location.unlink(missing_ok=True)
-    save_location.touch(exist_ok=True)
-    with open(save_location, "wb") as file:
-        pickle.dump(upload_state, file)
-    logger.info(f"Saved the current upload state to {save_location}")
-    return f"Saved the current upload state to {save_location}.\n"
+        tidy_up_resource_creation_idempotent(upload_state, iri, resource)
+        handle_keyboard_interrupt()

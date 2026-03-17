@@ -5,8 +5,8 @@ import argparse
 import pytest
 
 from dsp_tools.cli.entry_point import _derive_dsp_ingest_url
-from dsp_tools.cli.entry_point import _get_canonical_server_and_dsp_ingest_url
 from dsp_tools.cli.exceptions import CliUserError
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 
 DEFAULT_DSP_API_URL = "http://0.0.0.0:3333"
 DEFAULT_DSP_INGEST_URL = "http://0.0.0.0:3340"
@@ -124,7 +124,7 @@ def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url
     """
     Test the method that canonicalizes the DSP URL and derives the SIPI URL from it.
     """
-    api_url_returned, dsp_ingest_url_returned = _get_canonical_server_and_dsp_ingest_url(
+    api_url_returned, dsp_ingest_url_returned = get_canonical_server_and_dsp_ingest_url(
         server=api_url_orig,
         default_dsp_api_url=DEFAULT_DSP_API_URL,
         default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
@@ -139,7 +139,7 @@ def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url
 )
 def test_unsupported_cases(unsupported_url: str) -> None:
     with pytest.raises(CliUserError, match=r"Invalid DSP server URL"):
-        _ = _get_canonical_server_and_dsp_ingest_url(
+        _ = get_canonical_server_and_dsp_ingest_url(
             server=unsupported_url,
             default_dsp_api_url=DEFAULT_DSP_API_URL,
             default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,

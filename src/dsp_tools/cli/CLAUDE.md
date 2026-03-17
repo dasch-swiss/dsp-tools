@@ -173,10 +173,10 @@ from dsp_tools.cli.utils import check_input_dependencies
 
 # Validate that required files exist
 check_input_dependencies(
-    paths=PathDependencies(
-        required_files=[Path("data.xml"), Path("config.json")],
-        required_directories=[Path("assets/")],
-    )
+  required_paths=PathDependencies(
+    required_files=[Path("data.xml"), Path("config.json")],
+    required_directories=[Path("assets/")],
+  )
 )
 ```
 

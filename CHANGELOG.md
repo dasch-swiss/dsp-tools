@@ -1,5 +1,73 @@
 # Changelog
 
+## [18.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.7.0...v18.8.0) (2026-03-11)
+
+
+### Enhancements
+
+* **migration:** add option to exclude assets in the export (DEV-5958) ([#2213](https://github.com/dasch-swiss/dsp-tools/issues/2213)) ([3fd5713](https://github.com/dasch-swiss/dsp-tools/commit/3fd57137d621b0325abe1193c004125ee315fe69))
+* **migration:** implement all-in-one `migration` command (DEV-5945) ([#2205](https://github.com/dasch-swiss/dsp-tools/issues/2205)) ([a3b774c](https://github.com/dasch-swiss/dsp-tools/commit/a3b774cb50d4ef5575e5f6c18957867f488f7a1d))
+* **migration:** merge `export` and `download` commands (DEV-5974) ([#2209](https://github.com/dasch-swiss/dsp-tools/issues/2209)) ([ae5ffa4](https://github.com/dasch-swiss/dsp-tools/commit/ae5ffa46229d203e2a5267360559d6cded096864))
+
+
+### Maintenance
+
+* **migration:** merge the export and download files ([#2208](https://github.com/dasch-swiss/dsp-tools/issues/2208)) ([4b491f8](https://github.com/dasch-swiss/dsp-tools/commit/4b491f8f120b1cfcf14b1d5e9777eec46b20c809))
+* **start-stack:** bump versions to 2026.03.02 ([#2214](https://github.com/dasch-swiss/dsp-tools/issues/2214)) ([0efe709](https://github.com/dasch-swiss/dsp-tools/commit/0efe709abe7adbd1f3344ee2a82b5b67720e8613))
+
+
+### Documentation
+
+* **CLI:** list all existing commands in the documentation overview (DEV-5998) ([#2212](https://github.com/dasch-swiss/dsp-tools/issues/2212)) ([33d3ba6](https://github.com/dasch-swiss/dsp-tools/commit/33d3ba660c2bf70dcf7e4b6747c2f03b0bd45d0f))
+* **migration:** add user documentation (DEV-5993) ([#2211](https://github.com/dasch-swiss/dsp-tools/issues/2211)) ([010a94d](https://github.com/dasch-swiss/dsp-tools/commit/010a94ddde8d3eea47c1f5b624e451d02f5b9369))
+
+## [18.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.3...v18.7.0) (2026-03-04)
+
+
+### Enhancements
+
+* **migration:** add CLI command `clean-up` (DEV-5912) ([#2200](https://github.com/dasch-swiss/dsp-tools/issues/2200)) ([b08d2d1](https://github.com/dasch-swiss/dsp-tools/commit/b08d2d16e3bf91944159199184b1adab7ac982e9))
+* **migration:** add CLI command to create config file (DEV-5908) ([#2192](https://github.com/dasch-swiss/dsp-tools/issues/2192)) ([183cdf4](https://github.com/dasch-swiss/dsp-tools/commit/183cdf4d2d6fc4d8a803e33c5f14786bd16c69e3))
+* **migration:** create migraion export and import clients (DEV-5905) ([#2191](https://github.com/dasch-swiss/dsp-tools/issues/2191)) ([05a9d07](https://github.com/dasch-swiss/dsp-tools/commit/05a9d07fcee63da37ef93ffd813f08d299503fc6))
+* **migration:** fine-tune error messages and improve handling of common errors (DEV-5932) ([#2201](https://github.com/dasch-swiss/dsp-tools/issues/2201)) ([025afab](https://github.com/dasch-swiss/dsp-tools/commit/025afab8e41d1c1391f5a16f93e57accb4ba8b19))
+* **migration:** implement CLI `import` (DEV-5911) ([#2197](https://github.com/dasch-swiss/dsp-tools/issues/2197)) ([eec3b91](https://github.com/dasch-swiss/dsp-tools/commit/eec3b919e723e1b93fd6eaef4d5122d3277f517c))
+* **migration:** implement CLI `migration export` (DEV-5909) ([#2193](https://github.com/dasch-swiss/dsp-tools/issues/2193)) ([dea32b3](https://github.com/dasch-swiss/dsp-tools/commit/dea32b3c39984135ccc42e4134225de886a89ec3))
+* **migration:** implement CLI command `download` (DEV-5910) ([#2196](https://github.com/dasch-swiss/dsp-tools/issues/2196)) ([50987e0](https://github.com/dasch-swiss/dsp-tools/commit/50987e0d6ba62f9fdfa06f66e923384e701399a3))
+* **migration:** write export/import IDs to file for future reference (DEV-5936) ([#2198](https://github.com/dasch-swiss/dsp-tools/issues/2198)) ([3bfea4b](https://github.com/dasch-swiss/dsp-tools/commit/3bfea4bbcfe82560ac58e74cf42463883e3782f2))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.03.01 ([#2204](https://github.com/dasch-swiss/dsp-tools/issues/2204)) ([250e935](https://github.com/dasch-swiss/dsp-tools/commit/250e93568eb2ac1f5481176ee421eb483b6ce45e))
+* **validate-data:** check if project exists before starting validation ([#2188](https://github.com/dasch-swiss/dsp-tools/issues/2188)) ([ee8c11d](https://github.com/dasch-swiss/dsp-tools/commit/ee8c11d6c13680986855644cf0993de57b4c9e70))
+
+## [18.6.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.2...v18.6.3) (2026-02-19)
+
+
+### Bug Fixes
+
+* **validate-data:** remove duplicate violation messages (DEV-5894) ([#2185](https://github.com/dasch-swiss/dsp-tools/issues/2185)) ([9b8ddec](https://github.com/dasch-swiss/dsp-tools/commit/9b8ddec34d7415d778cb6efe5ade4e482b4f66d1))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.02.02 ([#2187](https://github.com/dasch-swiss/dsp-tools/issues/2187)) ([c9da3a1](https://github.com/dasch-swiss/dsp-tools/commit/c9da3a10a62b9404effd1bd845590e44a490aa64))
+
+
+### Documentation
+
+* **project-migration:** create architectural overview (DEV-5892) ([#2184](https://github.com/dasch-swiss/dsp-tools/issues/2184)) ([a133e84](https://github.com/dasch-swiss/dsp-tools/commit/a133e8407670ab0d87b5e788e85d5d8e2c895fd1))
+
+## [18.6.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.1...v18.6.2) (2026-02-11)
+
+
+### Maintenance
+
+* improve DspApiNotReachableError ([#2176](https://github.com/dasch-swiss/dsp-tools/issues/2176)) ([1be847f](https://github.com/dasch-swiss/dsp-tools/commit/1be847fc125ceb129350928e4d547f39aae9fb7f))
+* improve error handling of ShaclCliValidator ([#2174](https://github.com/dasch-swiss/dsp-tools/issues/2174)) ([a2ffa15](https://github.com/dasch-swiss/dsp-tools/commit/a2ffa1593e550724a3210bef888536a8776147c7))
+* **start-stack:** bump versions to 2026.02.01 ([#2181](https://github.com/dasch-swiss/dsp-tools/issues/2181)) ([7dc2302](https://github.com/dasch-swiss/dsp-tools/commit/7dc2302a02b55fdb327383fd03637ccf218a232a))
+* update dependencies ([#2182](https://github.com/dasch-swiss/dsp-tools/issues/2182)) ([be12fca](https://github.com/dasch-swiss/dsp-tools/commit/be12fca106164056b780e53b587978b938a2e550))
+
 ## [18.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.6.0...v18.6.1) (2026-01-29)
 
 

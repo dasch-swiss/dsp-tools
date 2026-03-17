@@ -495,7 +495,7 @@ def excel2xml(
     dataframe = _read_cli_input_file(datafile)
     dataframe = _validate_and_prepare_cli_input_file(dataframe)
     last_column_title = str(list(dataframe)[-1])  # last column title, in the format "i_comment"
-    max_num_of_props = int(last_column_title.split("_")[0])
+    max_num_of_props = int(last_column_title.split("_", maxsplit=1)[0])
     output_file = Path(f"{default_ontology}-data.xml")
 
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)

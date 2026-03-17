@@ -3,9 +3,11 @@ from pathlib import Path
 
 from dsp_tools.cli.args import NetworkRequirements
 from dsp_tools.cli.args import PathDependencies
+from dsp_tools.cli.args import ProhibitedPaths
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
 from dsp_tools.cli.utils import check_input_dependencies
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.cli.utils import get_creds
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.create.lists_only import create_lists_only
@@ -15,6 +17,13 @@ from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
+from dsp_tools.commands.migration.clean_up import clean_up
+from dsp_tools.commands.migration.config_file import parse_config_file
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+from dsp_tools.commands.migration.export_download import download
+from dsp_tools.commands.migration.export_download import export_and_download
+from dsp_tools.commands.migration.import_zip import import_zip
+from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
@@ -51,7 +60,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
     image_dir = Path(args.imgdir)
     network_requirements = NetworkRequirements(api_url=args.server)
     path_requirements = PathDependencies([xml_path], required_directories=[image_dir])
-    check_input_dependencies(path_requirements, network_requirements)
+    check_input_dependencies(path_requirements, [network_requirements])
 
     return upload_files(
         xml_file=xml_path,
@@ -61,7 +70,7 @@ def call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def call_ingest_files(args: argparse.Namespace) -> bool:
-    check_input_dependencies(network_dependencies=NetworkRequirements(api_url=args.server))
+    check_input_dependencies(network_dependencies=[NetworkRequirements(api_url=args.server)])
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
@@ -74,7 +83,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files)
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
@@ -97,7 +106,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     if args.validate_only:
         if parse_and_validate_xml_file(xml_path):
@@ -141,7 +150,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
         required_files.append(Path(id2iri_file))
     network_requirements = NetworkRequirements(args.server, always_requires_docker=True)
     path_deps = PathDependencies(required_files)
-    check_input_dependencies(path_deps, network_requirements)
+    check_input_dependencies(path_deps, [network_requirements])
 
     return validate_data(
         filepath=xml_path,
@@ -156,7 +165,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
 
 def call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    check_input_dependencies(network_dependencies=NetworkRequirements(args.server))
+    check_input_dependencies(network_dependencies=[NetworkRequirements(args.server)])
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,
@@ -166,7 +175,7 @@ def call_resume_xmlupload(args: argparse.Namespace) -> bool:
 def call_get(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies(required_directories=[Path(args.project_definition).parent])
-    check_input_dependencies(path_dependencies, network_dependencies)
+    check_input_dependencies(path_dependencies, [network_dependencies])
 
     return get_project(
         project_identifier=args.project,
@@ -179,7 +188,7 @@ def call_get(args: argparse.Namespace) -> bool:
 def call_create(args: argparse.Namespace) -> bool:
     network_dependencies = NetworkRequirements(args.server)
     path_dependencies = PathDependencies([Path(args.project_definition)])
-    check_input_dependencies(path_dependencies, network_dependencies)
+    check_input_dependencies(path_dependencies, [network_dependencies])
     project_file = Path(args.project_definition)
     creds = get_creds(args)
 
@@ -202,3 +211,100 @@ def call_create(args: argparse.Namespace) -> bool:
                 exit_if_exists=args.exit_if_exists,
             )
     return success
+
+
+def call_migration_complete(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.source is None or migration_info.target is None:
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
+            f"for the `migration` command."
+        )
+    source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    migration_info.source.server = source_server
+    target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    migration_info.target.server = target_server
+    check_input_dependencies(
+        network_dependencies=[
+            NetworkRequirements(migration_info.source.server),
+            NetworkRequirements(migration_info.target.server),
+        ],
+        prohibited_paths=ProhibitedPaths(
+            [
+                migration_info.config.export_savepath,
+                migration_info.config.reference_savepath,
+            ]
+        ),
+    )
+    return migration(migration_info)
+
+
+def call_migration_export(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.source is None:
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'source-server' section for the export command."
+        )
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    migration_info.source.server = server
+
+    prohibited_paths = [migration_info.config.export_savepath]
+    required_paths = None
+    download_only = bool(args.download_only)
+    if download_only:
+        required_paths = PathDependencies([migration_info.config.reference_savepath])
+    else:
+        prohibited_paths.append(migration_info.config.reference_savepath)
+
+    check_input_dependencies(
+        network_dependencies=[NetworkRequirements(migration_info.source.server)],
+        required_paths=required_paths,
+        prohibited_paths=ProhibitedPaths(prohibited_paths),
+    )
+    if download_only:
+        return download(migration_info.source, migration_info.config)
+    _ = export_and_download(migration_info)
+    return True
+
+
+def call_migration_import(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    if migration_info.target is None:
+        raise InvalidMigrationConfigFile(
+            f"The config file '{config_path}' must contain a 'target-server' section for the import command."
+        )
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    migration_info.target.server = server
+    check_input_dependencies(
+        network_dependencies=[NetworkRequirements(migration_info.target.server)],
+        required_paths=PathDependencies(
+            [migration_info.config.reference_savepath, migration_info.config.export_savepath]
+        ),
+    )
+    return import_zip(migration_info.target, migration_info.config)
+
+
+def call_migration_clean_up(args: argparse.Namespace) -> bool:
+    config_path = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies([config_path]))
+    migration_info = parse_config_file(config_path)
+    networks = []
+    if migration_info.source:
+        source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+        migration_info.source.server = source_server
+        networks.append(NetworkRequirements(migration_info.source.server))
+    if migration_info.target:
+        target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+        migration_info.target.server = target_server
+        networks.append(NetworkRequirements(migration_info.target.server))
+    check_input_dependencies(
+        network_dependencies=networks,
+        required_paths=PathDependencies([migration_info.config.reference_savepath]),
+    )
+    return clean_up(migration_info)

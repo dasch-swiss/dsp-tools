@@ -76,8 +76,7 @@ Live clients typically include:
 
 ### Request Workflow
 
-There are two main patterns, in some cases the code cannot continue if a request is not successful, see pattern 1.
-If the code may continue even if the request is not successful, then `None` will be returned, see pattern 2.
+There are three main patterns for handling non-ok API responses.
 
 In most cases `HTTPStatus.FORBIDDEN` will mean that a `BadCredentialsError` will be raised
 
@@ -122,7 +121,7 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```
 
-Pattern 2: If the request is not successful, then the user is warned and `None` is returned
+Pattern 2: If the request is not successful, then the user is warned and `None` is returned (non-fatal failure)
 
 ```python
 def create_resource(self, resource_data: dict[str, Any]) -> str | None:
@@ -164,6 +163,37 @@ def create_resource(self, resource_data: dict[str, Any]) -> str | None:
     # 7. Handle unexpected errors non-fatally
     log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
     return None
+```
+
+Pattern 3: If the request is not successful, return a `ResponseCodeAndText` so the caller can decide how to handle it.
+Use this when the caller needs to inspect the status code and response text to apply retry logic or other strategies.
+
+```python
+def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: bool) -> str | ResponseCodeAndText:
+    url = f"{self.server}/v2/resources"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.auth.get_token()}",
+    }
+    params = RequestParameters("POST", url, TIMEOUT_1800, resource_json, headers)
+    log_request(params)
+    try:
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+    log_response(response)
+    match response.status_code:
+        case HTTPStatus.OK:
+            return cast(str, response.json()["@id"])
+        case HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to create resources in this project.")
+        case _:
+            return ResponseCodeAndText(response.status_code, response.text)
 ```
 
 ### Key Steps

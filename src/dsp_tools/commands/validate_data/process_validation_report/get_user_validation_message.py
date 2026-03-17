@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import astuple
 
 import pandas as pd
 
@@ -112,7 +113,8 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[InputPr
     grouped, without_res_id = _group_problems_by_resource(problems)
     filtered = without_res_id
     for problems_per_resource in grouped.values():
-        text_value_filtered = _filter_out_duplicate_text_value_problem(problems_per_resource)
+        deduplicated_problems = _filter_out_exact_duplicates(problems_per_resource)
+        text_value_filtered = _filter_out_duplicate_text_value_problem(deduplicated_problems)
         file_value_corrected = _filter_out_duplicate_wrong_file_type_problems(text_value_filtered)
         filtered.extend(file_value_corrected)
     return filtered
@@ -143,6 +145,17 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
         filtered_problems.extend(problem_list)
 
     return filtered_problems
+
+
+def _filter_out_exact_duplicates(problems: list[InputProblem]) -> list[InputProblem]:
+    # due to inheritance it is possible that some problems are completely identical.
+    seen = set()
+    unique = []
+    for problem in problems:
+        if (key := astuple(problem)) not in seen:
+            seen.add(key)
+            unique.append(problem)
+    return unique
 
 
 def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem]) -> list[InputProblem]:

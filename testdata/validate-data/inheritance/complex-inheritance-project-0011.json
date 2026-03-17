@@ -60,6 +60,17 @@
               "en": "Other Text"
             },
             "gui_element": "SimpleText"
+          },
+          {
+            "name": "hasLink",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": "Resource",
+            "labels": {
+              "en": "Link"
+            },
+            "gui_element": "Searchbox"
           }
         ],
         "resources": [
@@ -123,6 +134,27 @@
                 "cardinality": "1"
               }
             ]
+          },
+          {
+            "name": "SuperClassLinkProp",
+            "super": "Resource",
+            "labels": {
+              "en": "Super for Link Prop"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasLink",
+                "gui_order": 1,
+                "cardinality": "0-n"
+              }
+            ]
+          },
+          {
+            "name": "SubClassLinkProp",
+            "super": ":SuperClassLinkProp",
+            "labels": {
+              "en": "Sub for Link Prop"
+            }
           }
         ]
       }

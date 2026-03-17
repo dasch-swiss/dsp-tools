@@ -128,7 +128,7 @@ def _check_for_duplicate_custom_id_all_excels(sheet_list: list[ExcelSheet]) -> D
                 )
     id_df = pd.DataFrame.from_records(id_list)
     if (duplicate_ids := id_df.duplicated("id", keep=False)).any():
-        problems: dict[str, DuplicateIDProblem] = defaultdict(lambda: DuplicateIDProblem())
+        problems: dict[str, DuplicateIDProblem] = defaultdict(DuplicateIDProblem)
         for i, row in id_df[duplicate_ids].iterrows():
             problems[row["id"]].custom_id = row["id"]
             problems[row["id"]].excel_locations.append(

@@ -19,13 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: ingest-xmlupload
         run: just e2e-test-ingest-xmlupload
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-ingest-xmlupload-logging.log
@@ -36,13 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: validate-data
         run: just e2e-test-validate-data
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-validate-data-logging.log
@@ -53,13 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: xmlupload
         run: just e2e-test-xmlupload
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-xmlupload-logging.log
@@ -70,13 +70,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: project
         run: just e2e-test-project
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-project-logging.log
@@ -87,13 +87,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: create-get-xmlupload
         run: just e2e-test-create-get-xmlupload
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-create-get-xmlupload-logging.log
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: start stack
@@ -114,7 +114,7 @@ jobs:
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: uv run dsp-tools stop-stack
       - name: make logging file available
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-legacy-logging.log

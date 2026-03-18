@@ -63,10 +63,10 @@ mypy:
 
 
 # Check that there are no dead links in the docs
-# links to w3.org are ignored, because for unknown reasons, they are always reported as invalid
+# links to w3.org and docutils.sourceforge.io are ignored because they block automated requests and are always reported as invalid
 [no-exit-message]
 check-links:
-    markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/
+    markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/ -i https://docutils.sourceforge.io/
 
 
 # Check that docstring links in xmllib are valid

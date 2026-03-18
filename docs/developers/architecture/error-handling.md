@@ -28,7 +28,7 @@ Commands: `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`,
 
 ## Exception Hierarchy
 
-The base classes are in [`src/dsp_tools/error/exceptions.py`](../../../src/dsp_tools/error/exceptions.py).
+The base classes are in `src/dsp_tools/error/exceptions.py`.
 Each command module has its own `exceptions.py` with command-specific subclasses.
 
 ```text

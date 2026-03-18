@@ -144,7 +144,7 @@ from the user-facing error:
 ```python
 except SomeLowLevelError as err:
     logger.exception(err)   # preserve in logs
-    raise UserError("Plain message the user can act on.") from None  # clean chain for user
+    raise UserErrorSubclass("Plain message the user can act on.") from None  # clean chain for user
 ```
 
 ## Anti-patterns

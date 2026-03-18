@@ -1,5 +1,22 @@
 # Changelog
 
+## [18.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.8.0...v18.9.0) (2026-03-18)
+
+
+### Enhancements
+
+* **clients:** implement new `ResourceClient` (DEV-6005) ([#2216](https://github.com/dasch-swiss/dsp-tools/issues/2216)) ([0773094](https://github.com/dasch-swiss/dsp-tools/commit/07730949ee058082255efa623362d7d2d3943347))
+
+
+### Bug Fixes
+
+* **ci:** workaround for markdown-link-validator ([#2221](https://github.com/dasch-swiss/dsp-tools/issues/2221)) ([5bda90b](https://github.com/dasch-swiss/dsp-tools/commit/5bda90bfcf22e60326fcce7d910ffcab9153d5c6))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.03.03 ([#2220](https://github.com/dasch-swiss/dsp-tools/issues/2220)) ([7f957a8](https://github.com/dasch-swiss/dsp-tools/commit/7f957a8d26bd977fde3d0c8a84b283430a9459c3))
+
 ## [18.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.7.0...v18.8.0) (2026-03-11)
 
 

@@ -29,6 +29,7 @@ Commands: `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`,
 ## Exception Hierarchy
 
 The base classes are in `src/dsp_tools/error/exceptions.py`.
+Some subclasses that are used by several commands also live there.
 Each command module has its own `exceptions.py` with command-specific subclasses.
 
 ```text
@@ -48,11 +49,10 @@ BaseError                               # Root. Dataclass with message: str attr
 
 - `UserError`: the user made a mistake (wrong file, bad format, invalid input).
   The message must tell them how to fix it.
-  Always raise a specific subclass — create one if none exists yet.
 - `InternalError`: the user cannot fix this. The message instructs them to contact the development team.
-  Always raise a specific subclass — create one if none exists yet.
 - Do **not** raise `BaseError`, `UserError`, or `InternalError` directly —
-  always use the most specific subclass available.
+  always use the most specific subclass available,
+  or create a new one if no appropriate one exists yet.
 - `UserError` and `InternalError` are the **only** allowed direct subclasses of `BaseError`.
   All new exception classes must inherit from one of them, never from `BaseError` itself.
 
@@ -69,7 +69,9 @@ failed assertions, or logic mistakes. Let them crash immediately:
 
 ### DO catch
 
-Catch exceptions when failure is **expected** and **external** to your logic:
+Catch exceptions when failure is **expected** and **external** to your logic - 
+but only if you have a recovery strategy. If not, let it escalate.
+Examples when you should catch:
 
 - File I/O (file not found, permission denied)
 - Network requests (connection failures, timeouts)
@@ -88,14 +90,14 @@ Catch exceptions when failure is **expected** and **external** to your logic:
 
 ```mermaid
 flowchart TD
-    A[An exception may be raised] --> B{"Is this an external operation?\ne.g. file I/O, network, API call"}
-    B -- No --> C["Let it fail.\nYour own bugs should crash loudly."]
-    B -- Yes --> D{"Is this failure expected\nand recoverable?"}
+    A[An exception may be raised] --> B{"Is this an external operation? e.g. file I/O, network, API call"}
+    B -- No --> C["Let it fail. Your own bugs should crash loudly."]
+    B -- Yes --> D{"Is this failure expected and recoverable?"}
     D -- No --> E["Let it fail or wrap as an InternalError subclass"]
-    D -- Yes --> F{"Do you have a recovery strategy?\nretry / skip / user message"}
+    D -- Yes --> F{"Do you have a recovery strategy? (retry / skip / user message)"}
     F -- No --> G["Let it fail"]
-    F -- Yes --> H{"Can the user fix this\nwithout developer help?"}
-    H -- Yes --> I["Catch → raise a UserError subclass\nwith actionable message"]
+    F -- Yes --> H{"Can the user fix this without developer help?"}
+    H -- Yes --> I["Catch → raise a UserError subclass with actionable message"]
     H -- No --> J["Catch → raise an InternalError subclass"]
 ```
 
@@ -151,8 +153,8 @@ except SomeLowLevelError as err:
 
 | Anti-pattern                                             | Problem                                                  | Fix                                                 |
 | -------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                             |
 | `class FooError(BaseError)`                              | Bypasses the two-branch hierarchy                        | Inherit from `UserError` or `InternalError` instead |
+| `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                             |
 | `raise UserError("...")` or `raise InternalError("...")` | Too broad; callers cannot catch specifically             | Use a specific subclass; create one if none exists  |
 | `raise FooError("ERROR: ...")`                           | Redundant prefix; the handler adds context               | Remove the `"ERROR:"` prefix from the message       |
 | `raise X from None` (DSP→DSP)                            | Drops the exception chain, loses the traceback           | Use `raise X from e`                                |

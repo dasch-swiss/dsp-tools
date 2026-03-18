@@ -1,4 +1,4 @@
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -21,5 +21,5 @@ class MalformedPrefixedIriError(UserError):
     """If the input prefixed IRI is malformed"""
 
 
-class DspToolsRequestException(BaseError):
+class DspToolsRequestException(InternalError):
     """Class for errors that are raised if any request exceptions happens."""

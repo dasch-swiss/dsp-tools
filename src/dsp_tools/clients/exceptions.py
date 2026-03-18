@@ -1,9 +1,9 @@
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 
 
-class FatalNonOkApiResponseCode(BaseError):
+class FatalNonOkApiResponseCode(InternalError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
 
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:

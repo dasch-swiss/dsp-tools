@@ -110,8 +110,8 @@ flowchart TD
 - Extract the message from the original exception: `err.msg` / `err.message`
 - Use `logger.exception(err.msg)` — this preserves the original stack trace in the logs.
   `logger.error()` does not preserve the stack trace.
-- Do **not** use `raise X from None` when converting between DSP-TOOLS exceptions —
-  this removes the original traceback from the exception chain.
+- When converting between DSP-TOOLS exceptions, only use `raise X from None`
+if the original traceback has already been logged with `logger.exception()`.
 
 ### Compose messages in the exception class
 
@@ -139,14 +139,15 @@ class JSONFileParsingError(UserError):
 Let exceptions bubble up and log once in `entry_point.py`.
 Intermediate handlers should **not** log before re-raising — this causes duplicate log entries.
 
-The one exception: when converting a low-level exception to a user-friendly message,
-use `logger.exception()` to preserve context in the logs, then `from None` to drop the chain
-from the user-facing error:
+The one exception: when an intermediate handler converts a low-level exception to a DSP-TOOLS exception,
+use `logger.exception()` to preserve the original traceback in the logs,
+then `from None` when re-raising to prevent that traceback from appearing a second time
+via `entry_point.py`'s `logger.exception()`:
 
 ```python
 except SomeLowLevelError as err:
     logger.exception(err)   # preserve in logs
-    raise UserErrorSubclass("Plain message the user can act on.") from None  # clean chain for user
+    raise DSPErrorSubclass("Message for the user or contact info.") from None  # prevent duplicate traceback in logs
 ```
 
 ## Anti-patterns
@@ -157,7 +158,7 @@ except SomeLowLevelError as err:
 | `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                             |
 | `raise UserError("...")` or `raise InternalError("...")` | Too broad; callers cannot catch specifically             | Use a specific subclass; create one if none exists  |
 | `raise FooError("ERROR: ...")`                           | Redundant prefix; the handler adds context               | Remove the `"ERROR:"` prefix from the message       |
-| `raise X from None` (DSP→DSP)                            | Drops the exception chain, loses the traceback           | Use `raise X from e`                                |
+| `raise X from None` (DSP→DSP)                            | Drops the exception chain, loses the traceback           | Use `raise X from e`; only use `from None` when the original traceback was already logged above with `logger.exception()` |
 | `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                         |
 | `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                   |
 | Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                        |

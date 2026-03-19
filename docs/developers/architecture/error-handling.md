@@ -150,13 +150,13 @@ except SomeLowLevelError as err:
 
 ## Anti-patterns
 
-| Anti-pattern                                             | Problem                                                  | Fix                                                 |
-| -------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| `class FooError(BaseError)`                              | Bypasses the two-branch hierarchy                        | Inherit from `UserError` or `InternalError` instead |
-| `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                             |
-| `raise UserError("...")` or `raise InternalError("...")` | Too broad; callers cannot catch specifically             | Use a specific subclass; create one if none exists  |
-| `raise FooError("ERROR: ...")`                           | Redundant prefix; the handler adds context               | Remove the `"ERROR:"` prefix from the message       |
+| Anti-pattern                                             | Problem                                                  | Fix                                                                                                       |
+| -------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `class FooError(BaseError)`                              | Bypasses the two-branch hierarchy                        | Inherit from `UserError` or `InternalError` instead                                                       |
+| `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                                                                                   |
+| `raise UserError("...")` or `raise InternalError("...")` | Too broad; callers cannot catch specifically             | Use a specific subclass; create one if none exists                                                        |
+| `raise FooError("ERROR: ...")`                           | Redundant prefix; the handler adds context               | Remove the `"ERROR:"` prefix from the message                                                             |
 | `raise X from None` without logging first                | Drops the exception chain, loses the traceback           | Use `raise X from e`; only use `from None` after logging the original traceback with `logger.exception()` |
-| `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                         |
-| `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                   |
-| Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                        |
+| `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                                                                               |
+| `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                                                                         |
+| Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                                                                              |

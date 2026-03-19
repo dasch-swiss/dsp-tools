@@ -24,7 +24,55 @@ Users must be able to resolve all problems without contacting developers.
 All problems must be reported in an aggregated, user-friendly way.
 
 Commands: `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`,
-`old-excel2json`, `old-excel2lists`, `id2iri`, `update-legal`, `validate-data`, `xmllib`, `start-stack`, `stop-stack`
+`old-excel2json`, `old-excel2lists`, `id2iri`, `update-legal`, `validate-data`, `start-stack`, `stop-stack`
+
+**`xmllib`** is also in Group B, but it is a **library**, not a CLI command.
+Its errors surface in user scripts rather than in a CLI entry point.
+The aggregated reporting requirement applies to `xmllib`'s validation helpers,
+which collect all problems before raising a single `UserError` at the end of a call.
+
+**`start-stack` / `stop-stack`** can also fail for reasons outside the user's control
+(Docker daemon not running, port conflicts, system resource exhaustion).
+These failures present as `InternalError`-grade messages that instruct the user to contact the development team.
+
+### Aggregated error reporting (Group B)
+
+Group B commands must not raise on the first problem — they must collect all problems
+and report them together so the user can fix everything in one pass.
+
+Pattern:
+
+1. Represent each problem as a frozen dataclass with an `execute_error_protocol() -> str` method
+   that returns a formatted, human-readable description.
+2. Collect all problem instances into a list during processing (do not raise immediately).
+3. After processing, if the list is non-empty, aggregate the messages into a single `UserError`
+   subclass and raise it once.
+
+```python
+@dataclass(frozen=True)
+class SheetProblem:
+    sheet_name: str
+    row: int
+    message: str
+
+    def execute_error_protocol(self) -> str:
+        return f"Sheet '{self.sheet_name}', row {self.row}: {self.message}"
+
+
+def process_sheet(sheet: Sheet) -> list[SheetProblem]:
+    problems: list[SheetProblem] = []
+    for row in sheet.rows:
+        if not row.is_valid():
+            problems.append(SheetProblem(sheet.name, row.index, "Invalid value"))
+    return problems
+
+
+def run(sheets: list[Sheet]) -> None:
+    problems = [p for sheet in sheets for p in process_sheet(sheet)]
+    if problems:
+        msg = "\n".join(p.execute_error_protocol() for p in problems)
+        raise InvalidInputError(msg)
+```
 
 ## Exception Hierarchy
 
@@ -78,6 +126,11 @@ Examples when you should catch:
 - External API or library calls that fail in predictable ways
 - User input that may be invalid
 
+Catching bare `Exception` is acceptable **only** at top-level boundaries (e.g. `entry_point.py`)
+or when wrapping a genuinely unpredictable external library where no specific exception type is documented.
+It must be tagged `# noqa: BLE001`.
+Anywhere else, catching `Exception` masks real bugs — let them escalate instead.
+
 ### Only catch when you have a recovery strategy
 
 - Adding diagnostic context that is not in the traceback
@@ -107,9 +160,10 @@ flowchart TD
 
 ### Preserve context
 
-- Extract the message from the original exception: `err.msg` / `err.message`
-- Use `logger.exception(err.msg)` — this preserves the original stack trace in the logs.
+- Use `logger.exception(err)` — this preserves the original stack trace in the logs.
   `logger.error()` does not preserve the stack trace.
+- To extract the message text: use `str(err)` for standard Python or third-party exceptions.
+  DSP-TOOLS exceptions expose a `.message` attribute.
 
 ### Compose messages in the exception class
 
@@ -119,8 +173,8 @@ Put message composition in the `__str__` method of the exception class, not at t
 try:
     return json.load(filepath)
 except json.JSONDecodeError as err:
-    logger.exception(err.msg)  # preserve stack trace in logs
-    raise JSONFileParsingError(filepath, err.msg) from None  # prevent duplicate traceback in logs
+    logger.exception(err)  # preserve stack trace in logs
+    raise JSONFileParsingError(filepath, str(err)) from None  # prevent duplicate traceback in logs
 
 
 @dataclass
@@ -135,18 +189,29 @@ class JSONFileParsingError(UserError):
 ### Log at the highest level only
 
 Let exceptions bubble up and log once in `entry_point.py`.
-Intermediate handlers should **not** log before re-raising — this causes duplicate log entries.
+The two cases below look similar but have opposite rules — this is an important nuance:
 
-The one exception: when an intermediate handler converts a low-level exception to a DSP-TOOLS exception,
-use `logger.exception()` to preserve the original traceback in the logs,
-then `from None` when re-raising to prevent that traceback from appearing a second time
-via `entry_point.py`'s `logger.exception()`:
+**Converting** — an intermediate handler catches a low-level exception and raises a *different* DSP-TOOLS exception.
+Log here to preserve the original traceback; use `from None` to prevent a duplicate when
+`entry_point.py` logs it again:
 
 ```python
 except SomeLowLevelError as err:
-    logger.exception(err)   # preserve in logs
-    raise DSPErrorSubclass("Message for the user or contact info.") from None  # prevent duplicate traceback in logs
+    logger.exception(err)                                            # preserve original traceback in logs
+    raise DSPErrorSubclass("Message for the user.") from None        # prevent duplicate traceback in entry_point.py
 ```
+
+**Propagating** — an intermediate handler catches a DSP-TOOLS exception and re-raises the *same* exception.
+Do **not** log here; `entry_point.py` will log it exactly once:
+
+```python
+except SomeDSPError:
+    # add context if needed, but do NOT log
+    raise
+```
+
+Intermediate handlers should **not** log before re-raising the same exception —
+this causes duplicate log entries.
 
 ## Anti-patterns
 
@@ -160,3 +225,13 @@ except SomeLowLevelError as err:
 | `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                                                                               |
 | `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                                                                         |
 | Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                                                                              |
+| `except Exception` in an intermediate handler            | Masks bugs; catches more than intended                   | Let it escalate; only use `except Exception` at top-level boundaries, tagged `# noqa: BLE001`            |
+
+## Applying this guideline to the codebase
+
+New code and all actively maintained modules must follow this guideline.
+
+Legacy and deprecated modules (e.g. `excel2xml`, `langstring.py`, `datetimestamp.py`, `date_util.py`)
+contain `raise BaseError(...)` violations of the hierarchy rule.
+These modules are in maintenance mode and are exempt from immediate remediation.
+Do not feel obligated to touch stable legacy code solely to bring it into compliance.

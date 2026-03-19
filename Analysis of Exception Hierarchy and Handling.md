@@ -63,11 +63,14 @@ The following items in **Section 3 (Concrete Issues)** and **Section 4 (Error Me
 - Section 3.3: UnknownDOAPException misuse of exceptions for control flow
 - Section 3.4: Inconsistent message formatting ("ERROR:" prefixes)
 - Section 3.5: Meta-tests for exception hierarchy
-- Section 3.6: Bare BaseError raises (21 files)
-- Section 3.7: Entry point exception handling improvements
-- Section 3.8: Exception chain suppression (`from None` usage - 44 occurrences)
+- Section 3.6: Bare BaseError / UserError / InternalError raises
+- Section 3.7: Entry point exception handling improvements (missing KeyboardInterrupt handler)
+- Section 3.8: Exception chain — converting vs. propagating (`from None` usage - 31 occurrences across 17 files)
 - Section 3.9: Duplicate error logging
 - Section 3.10: PermanentTimeOutError cleanup
+- Section 3.11: Hierarchy violations — exceptions inheriting directly from `BaseError` (guideline violation)
+- Section 2 hierarchy update: Move `UnreachableCodeError`, `PermanentConnectionError`, `PermanentTimeOutError`
+  under `InternalError`; fix `XmllibInternalError(UserError)` naming/classification
 - Section 4: Error message quality improvements
 
 ---
@@ -246,6 +249,97 @@ MigrationDownloadFailureError(BaseError)        # Download of migration zip fail
 MigrationImportFailureError(BaseError)          # Import of migration zip failed
 ```
 
+### ⚠️ Hierarchy Drift: Guideline vs. Implementation
+
+The published guideline requires that `UserError` and `InternalError` are the **only** allowed
+direct subclasses of `BaseError`. All new exception classes must inherit from one of them, never
+from `BaseError` itself.
+
+**The guideline's intended hierarchy at the base level:**
+
+```text
+BaseError
+├── UserError
+│   ├── UserFilepathNotFoundError
+│   ├── UserFilepathMustNotExistError
+│   ├── UserDirectoryNotFoundError
+│   └── BadCredentialsError
+└── InternalError
+    ├── UnreachableCodeError
+    ├── PermanentConnectionError
+    └── PermanentTimeOutError
+```
+
+**Violations in `src/dsp_tools/error/exceptions.py`** (currently direct `BaseError` subclasses):
+
+- `UnreachableCodeError` → should be `UnreachableCodeError(InternalError)`
+- `PermanentConnectionError` → should be `PermanentConnectionError(InternalError)`
+- `PermanentTimeOutError` → should be `PermanentTimeOutError(InternalError)`
+
+**Violations in command-specific exception files:**
+
+- `FatalNonOkApiResponseCode(BaseError)` in `clients/exceptions.py` → classify as `InternalError`
+- `DspToolsRequestException(BaseError)` in `utils/exceptions.py` → classify as `InternalError`
+- `UnableToRetrieveProjectInfoError(BaseError)` in `xmlupload/exceptions.py` → classify as `InternalError`
+- `XmlUploadError(BaseError)` in `xmlupload/exceptions.py` → classify as `InternalError`
+  (`XmlUploadInterruptedError(XmlUploadError)` becomes compliant transitively)
+- `MigrationExportFailureError(BaseError)` → classify as `InternalError`
+- `MigrationDownloadFailureError(BaseError)` → classify as `InternalError`
+- `MigrationImportFailureError(BaseError)` → classify as `InternalError`
+
+**Naming bug:**
+
+- `XmllibInternalError(UserError)` in `xmllib/internal/exceptions.py`:
+  the name implies `InternalError` classification but the type is `UserError`.
+  Either rename it to match the `UserError` semantics, or reclassify it as `InternalError`.
+
+These violations are tracked as **Section 3.11**.
+
+---
+
+## 2b. Command Groups
+
+The guideline classifies all commands into two groups with different error handling requirements.
+
+### Group A — Fail-fast acceptable
+
+Commands: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `resume-xmlupload`
+
+These commands run in controlled environments. Developer assistance is acceptable when something goes wrong.
+Errors may escalate with a full traceback.
+
+### Group B — Must be fixable by the user
+
+Commands: `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`, `old-excel2json`,
+`old-excel2lists`, `id2iri`, `update-legal`, `validate-data`, `start-stack`, `stop-stack`
+
+`xmllib` is also Group B, but as a **library**, not a CLI command. Its aggregated reporting requirement
+applies to validation helpers, which collect all problems before raising a single `UserError`.
+
+`start-stack` / `stop-stack` can fail for reasons outside the user's control (Docker not running,
+port conflicts). Those failures present as `InternalError`-grade messages instructing the user to
+contact the development team.
+
+All problems must be reported in an aggregated, user-friendly way.
+Users must be able to resolve everything without contacting developers.
+
+**Aggregated error reporting (Group B):**
+
+Group B commands must not raise on the first problem — they must collect all problems and report them together.
+
+Pattern:
+
+1. Represent each problem as a `@dataclass(frozen=True)` with an `execute_error_protocol() -> str` method
+   that returns a formatted, human-readable description.
+2. Collect all problem instances into a list during processing (do not raise immediately).
+3. After processing, aggregate the messages into a single `UserError` subclass and raise it once.
+
+**Implications for open issues:**
+
+- Section 3.3 (UnknownDOAPException): `get` is Group A — fail-fast is acceptable.
+  But exception-as-control-flow is still wrong when a sensible fallback exists, regardless of group.
+- Section 3.7 (entry point): `entry_point.py` `run()` is the top-level handler for both groups.
+
 ---
 
 ## 3. Concrete issues in error handling (easily fixable in 1 PR each)
@@ -384,20 +478,35 @@ def test_exception_messages_dont_have_error_prefix():
         pass
 ```
 
-### 3.6. Do Not Raise Bare BaseError
+### 3.6. Do Not Raise Bare BaseError, UserError, or InternalError
 
-Multiple locations raise raw `BaseError`. Most occurrences are in `legacy_models/` and the deprecated
-`commands/excel2xml/` module — these are low priority. The remaining non-legacy, non-deprecated occurrences are:
+The guideline extends the rule beyond `BaseError`: **never raise any of the three base classes directly** —
+not `BaseError`, not `UserError`, not `InternalError`.
+Callers cannot catch specifically, and the type carries no semantic information about the actual problem.
+
+**Bare `BaseError` raises** (non-legacy, non-deprecated):
 
 - [date_util.py](src/dsp_tools/utils/data_formats/date_util.py) — multiple bare `raise BaseError(...)` calls
+  (legacy-mode, low priority per guideline)
 - [make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
 
-**Problem:** Raising raw `BaseError` defeats the purpose of having a hierarchy. Cannot catch specific exception types.
+**Direct `UserError` or `InternalError` raises:**
 
-**Recommendation:** Use specific exceptions
+Search the codebase for `raise UserError(` and `raise InternalError(` to find occurrences
+where a specific subclass should be used or created instead.
+
+**Recommendation:** Use specific subclasses; create a new one if no appropriate one exists yet.
+Legacy and deprecated modules (`excel2xml`, `langstring.py`, `datetimestamp.py`, `date_util.py`)
+are exempt per the guideline.
 
 
 ### 3.7. Improve Entry Point Exception Handling
+
+**Current state of `entry_point.py`:**
+
+The entry point catches `BaseError` and bare `Exception`. `KeyboardInterrupt` is not handled
+explicitly — it falls into `except Exception`, which logs it as an internal error and prints the
+`InternalError` contact message. This is incorrect: Ctrl+C is not a bug.
 
 Update `entry_point.py` > `run()`:
 
@@ -407,7 +516,7 @@ try:
     success = call_requested_action(parsed_arguments)
 except KeyboardInterrupt:
     logger.info("User interrupted execution")
-    sys.exit(130)  # Standard exit code for SIGINT
+    sys.exit(130)  # Standard POSIX exit code for SIGINT
 except UserError as err:
     logger.exception(f"User error: {err.message}")
     print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
@@ -425,34 +534,41 @@ Key improvements:
 3. **Catch broad `Exception`**: Converts all unexpected exceptions to `InternalError`
 
 
-### 3.8. Do Not Suppress Exception Chain
+### 3.8. Exception Chain — Converting vs. Propagating
 
-Found extensive use of `from None`:
+The guideline distinguishes two cases for exception chaining. The current codebase mixes them.
+
+**Converting** — catching a low-level exception, raising a *different* DSP-TOOLS exception:
 
 ```python
-except PermanentConnectionError as e:
-    raise UserError(e.message) from None  # Suppresses traceback chain
+except SomeLowLevelError as err:
+    logger.exception(err)                              # preserve original traceback in logs
+    raise DSPErrorSubclass("User message.") from None  # prevent duplicate traceback in entry_point.py
 ```
 
-**Locations:** 20+ across the codebase
+- Log first with `logger.exception()` (not `logger.error()` — `error()` drops the stack trace)
+- Then use `from None` to prevent a duplicate traceback when `entry_point.py` logs the new exception
 
-**Problem:** Using `from None` suppresses exception chains, losing valuable debugging information.
+**Propagating** — catching a DSP-TOOLS exception and re-raising the *same* exception:
 
-**When appropriate:**
+```python
+except SomeDSPError:
+    raise  # do NOT log here; entry_point.py logs exactly once
+```
 
-- Converting low-level exceptions to user-friendly messages where technical details aren't relevant
-- After using `logger.exception()` to preserve context in logs
+- Do **not** log before re-raising
+- Do **not** use `from None`
 
-**When problematic:**
+**Current violations (31 `from None` usages across 17 files):**
 
-- Converting between DSP-TOOLS exceptions
-- In development/debugging scenarios
+Many usages are in "converting" scenarios but lack the required prior `logger.exception()` call.
+The old guidance to "use `from e` for DSP-TOOLS-to-DSP-TOOLS conversions" is superseded by the
+propagating rule: just `raise` (no `from e` needed when re-raising the same exception unchanged).
 
-**Recommendation:**
+**Specific violation — `src/dsp_tools/utils/request_utils.py` `log_and_raise_timeouts()`:**
 
-- Use `from e` for DSP-TOOLS-to-DSP-TOOLS conversions
-- Use `logger.exception()` + `from None` when presenting clean user errors but preserving log context
-- Reserve `from None` alone for converting third-party exceptions to user messages
+- Uses `logger.error(msg)` before `from None` — this loses the stack trace of the original exception
+- Must use `logger.exception(error)` to capture the traceback in logs before suppressing the chain
 
 
 
@@ -495,18 +611,18 @@ This creates duplicate log entries that clutter logs and make debugging harder.
      - Returns failure status that may trigger additional logging
    - Similar pattern in [upload_stashed_xml_texts.py:120-124](_upload_stash_item())
 
+**Root cause:** Duplicate logging arises from violating the converting/propagating distinction:
+
+- **Propagating** (re-raising the same exception): never log — `entry_point.py` handles it once.
+- **Converting** (raising a different exception): log once with `logger.exception()`, then `from None`.
+
 **Recommendation:**
 
-Follow a consistent pattern:
+- **Log at the highest level only:** Let exceptions bubble up to `entry_point.py` where they are logged once.
+- **Intermediate handlers must NOT log before re-raising:** If re-raising the same exception, just `raise`.
+- **When converting:** Use `logger.exception()` + `raise NewError(...) from None`.
 
-- **Log at the highest level only:** Let exceptions bubble up to `entry_point.py` where they are logged once
-- **Intermediate handlers should NOT log:** If catching and re-raising, don't log—just transform the exception if needed
-- **Use `from e` for chaining:** Preserve the exception chain instead of using `from None`
-
-**Exception:** Only log at intermediate levels when:
-
-- Converting to user-friendly error and using `logger.exception()` + `from None` pattern
-- The intermediate handler truly has additional context worth logging
+Check all `logger.error()` + re-raise patterns in the codebase against these rules.
 
 
 
@@ -515,6 +631,40 @@ Follow a consistent pattern:
 In the Connection class, the builtins TimeoutError and ReadTimeout are logged and converted into PermanentTimeOutError.
 The xmlupload code adds some text, and then exits Python via a XmlUploadInterruptedError.
 For this, we don't need an own class. The xmlupload can also catch and handle the builtins directly.
+
+### 3.11 Exceptions Inheriting Directly from BaseError (Guideline Violation)
+
+The guideline states: *"`UserError` and `InternalError` are the only allowed direct subclasses of `BaseError`."*
+
+All exceptions below violate this rule and must be reclassified.
+
+**Base exceptions file** (`src/dsp_tools/error/exceptions.py`):
+
+- `UnreachableCodeError` → reclassify as `UnreachableCodeError(InternalError)`
+- `PermanentConnectionError` → reclassify as `PermanentConnectionError(InternalError)`
+- `PermanentTimeOutError` → reclassify as `PermanentTimeOutError(InternalError)`
+  (related to Section 3.10; if the class is removed there, this is moot)
+
+**Command modules:**
+
+- `FatalNonOkApiResponseCode(BaseError)` in `clients/exceptions.py` → `InternalError`
+- `DspToolsRequestException(BaseError)` in `utils/exceptions.py` → `InternalError`
+- `UnableToRetrieveProjectInfoError(BaseError)` in `xmlupload/exceptions.py` → `InternalError`
+- `XmlUploadError(BaseError)` in `xmlupload/exceptions.py` → `InternalError`
+  (`XmlUploadInterruptedError(XmlUploadError)` becomes compliant transitively)
+- `MigrationExportFailureError(BaseError)` → `InternalError`
+- `MigrationDownloadFailureError(BaseError)` → `InternalError`
+- `MigrationImportFailureError(BaseError)` → `InternalError`
+
+**Naming bug:**
+
+- `XmllibInternalError(UserError)` in `xmllib/internal/exceptions.py`: name implies `InternalError`
+  classification but the type inherits `UserError`. Either rename it to reflect its actual semantics,
+  or reclassify it as `InternalError`.
+
+**Note:** After reclassifying `PermanentConnectionError` and `PermanentTimeOutError`,
+the entry point's `except BaseError` still catches them (since `InternalError` extends `BaseError`).
+No change to `entry_point.py` is needed for this fix alone.
 
 ---
 

@@ -110,8 +110,6 @@ flowchart TD
 - Extract the message from the original exception: `err.msg` / `err.message`
 - Use `logger.exception(err.msg)` — this preserves the original stack trace in the logs.
   `logger.error()` does not preserve the stack trace.
-- When converting between DSP-TOOLS exceptions, only use `raise X from None`
-if the original traceback has already been logged with `logger.exception()`.
 
 ### Compose messages in the exception class
 
@@ -122,7 +120,7 @@ try:
     return json.load(filepath)
 except json.JSONDecodeError as err:
     logger.exception(err.msg)  # preserve stack trace in logs
-    raise JSONFileParsingError(filepath, err.msg)
+    raise JSONFileParsingError(filepath, err.msg) from None  # prevent duplicate traceback in logs
 
 
 @dataclass
@@ -158,7 +156,7 @@ except SomeLowLevelError as err:
 | `raise BaseError("...")`                                 | Defeats the hierarchy; callers cannot catch specifically | Use a specific subclass                             |
 | `raise UserError("...")` or `raise InternalError("...")` | Too broad; callers cannot catch specifically             | Use a specific subclass; create one if none exists  |
 | `raise FooError("ERROR: ...")`                           | Redundant prefix; the handler adds context               | Remove the `"ERROR:"` prefix from the message       |
-| `raise X from None` (DSP→DSP)                            | Drops the exception chain, loses the traceback           | Use `raise X from e`; only use `from None` when the original traceback was already logged above with `logger.exception()` |
+| `raise X from None` without logging first                | Drops the exception chain, loses the traceback           | Use `raise X from e`; only use `from None` after logging the original traceback with `logger.exception()` |
 | `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                         |
 | `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                   |
 | Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                        |

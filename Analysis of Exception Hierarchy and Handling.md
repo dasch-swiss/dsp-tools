@@ -1,7 +1,7 @@
 # Analysis of Exception Hierarchy and Handling
 
 **Date:** 2025-11-07
-**Updated:** 2026-01-29
+**Updated:** 2026-03-19
 **Scope:** Analysis of exception handling across DSP-TOOLS codebase with improvement recommendations
 
 ## Proposed Steps
@@ -115,8 +115,9 @@ BaseError                               # Root exception (dataclass with message
 ├── UserError                           # User can fix it themselves (renamed from InputError)
 ├── InternalError                       # Developer necessary to fix it
 ├── UnreachableCodeError                # For code paths that should never execute
-├── UserFilepathNotFoundError(UserError)    # Generic file not found
-├── UserDirectoryNotFoundError(UserError)   # Generic directory not found
+├── UserFilepathNotFoundError(UserError)        # Generic file not found
+├── UserFilepathMustNotExistError(UserError)    # Filepath already exists (but shouldn't)
+├── UserDirectoryNotFoundError(UserError)       # Generic directory not found
 ├── PermanentConnectionError            # All reconnection attempts failed
 ├── PermanentTimeOutError               # Timeout from DSP-API
 └── BadCredentialsError(UserError)      # Authentication failure
@@ -137,9 +138,10 @@ DspToolsRequestException(BaseError)             # Request exception wrapper
 **CLI exceptions** ([src/dsp_tools/cli/exceptions.py](src/dsp_tools/cli/exceptions.py)):
 
 ```text
-CliUserError(UserError)                 # Invalid CLI input
-DockerNotReachableError(UserError)      # Docker not running
-DspApiNotReachableError(UserError)      # API unreachable on localhost
+CliUserError(UserError)                             # Invalid CLI input
+├── CliCommandNotInvokableError(CliUserError)       # Command not usable with this configuration
+DockerNotReachableError(UserError)                  # Docker not running
+DspApiNotReachableError(UserError)                  # API unreachable on localhost
 ```
 
 **Note:** `UserDirectoryNotFoundError` is in the base exceptions file, not CLI.
@@ -147,10 +149,13 @@ DspApiNotReachableError(UserError)      # API unreachable on localhost
 **Clients exceptions** ([src/dsp_tools/clients/exceptions.py](src/dsp_tools/clients/exceptions.py)):
 
 ```text
-FatalNonOkApiResponseCode(BaseError)    # Unexpected API response
-InvalidInputError(UserError)            # API rejected input data
-ProjectOntologyNotFound(UserError)      # No ontologies in project
-ProjectNotFoundError(UserError)         # Project doesn't exist
+FatalNonOkApiResponseCode(BaseError)                # Unexpected API response
+InvalidInputError(UserError)                        # API rejected input data
+ProjectOntologyNotFound(UserError)                  # No ontologies in project
+ProjectNotFoundError(UserError)                     # Project doesn't exist
+MigrationExportExistsError(UserError)               # Export for project already exists
+MigrationImportExistsError(UserError)               # Import for project already exists
+MigrationExportImportInProgressError(UserError)     # Export or import is in progress
 ```
 
 **Create command** ([src/dsp_tools/commands/create/exceptions.py](src/dsp_tools/commands/create/exceptions.py)):
@@ -231,7 +236,15 @@ XmllibFileNotFoundError(UserError)          # File doesn't exist
 XmllibInternalError(UserError)              # Internal xmllib error
 ```
 
+**Migration command** ([src/dsp_tools/commands/migration/exceptions.py](src/dsp_tools/commands/migration/exceptions.py)):
 
+```text
+InvalidMigrationConfigFile(UserError)           # Provided config file is invalid
+MigrationReferenceInfoIncomplete(UserError)     # Required field in migration reference file is missing
+MigrationExportFailureError(BaseError)          # Migration export failed
+MigrationDownloadFailureError(BaseError)        # Download of migration zip failed
+MigrationImportFailureError(BaseError)          # Import of migration zip failed
+```
 
 ---
 
@@ -373,10 +386,10 @@ def test_exception_messages_dont_have_error_prefix():
 
 ### 3.6. Do Not Raise Bare BaseError
 
-Multiple locations raise raw `BaseError`:
+Multiple locations raise raw `BaseError`. Most occurrences are in `legacy_models/` and the deprecated
+`commands/excel2xml/` module — these are low priority. The remaining non-legacy, non-deprecated occurrences are:
 
-- [date_util.py:46](src/dsp_tools/utils/data_formats/date_util.py#L46): `raise BaseError(f"Invalid calendar type: {s}")`
-- [json_parsing.py:33](src/dsp_tools/utils/json_parsing.py#L33): `raise BaseError("Invalid input: ...")`
+- [date_util.py](src/dsp_tools/utils/data_formats/date_util.py) — multiple bare `raise BaseError(...)` calls
 - [make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
 
 **Problem:** Raising raw `BaseError` defeats the purpose of having a hierarchy. Cannot catch specific exception types.

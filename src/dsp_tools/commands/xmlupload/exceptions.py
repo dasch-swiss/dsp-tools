@@ -1,13 +1,12 @@
 from dsp_tools.clients.exceptions import InvalidInputError
 from dsp_tools.commands.xmlupload.models.input_problems import MultimediaFileNotFoundProblem
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 LIST_SEPARATOR = "\n   - "
 
 
-class UnableToRetrieveProjectInfoError(BaseError):
+class UnableToRetrieveProjectInfoError(InternalError):
     """When the project information could not be retrieved."""
 
 
@@ -25,7 +24,7 @@ class InvalidIngestFileNameError(InvalidInputError):
     """This error is raised if INGEST rejects a file due to its name."""
 
 
-class XmlUploadError(BaseError):
+class XmlUploadError(InternalError):
     """Represents an error raised in the context of the xmlupload."""
 
 

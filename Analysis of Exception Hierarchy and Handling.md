@@ -1,7 +1,7 @@
 # Analysis of Exception Hierarchy and Handling
 
 **Date:** 2025-11-07
-**Updated:** 2026-03-19
+**Updated:** 2026-03-24
 **Scope:** Analysis of exception handling across DSP-TOOLS codebase with improvement recommendations
 
 ## Proposed Steps
@@ -14,7 +14,7 @@
     - Implementation order:
         - ✅ Hierarchy redesign (InputError→UserError, exception separation)
         - Concrete issues in error handling (easily fixable in 1 PR each)
-        - Add Architecture Documentation
+        - ✅ Add Architecture Documentation
         - Error Message Quality - More Involved
 
 ---
@@ -54,6 +54,27 @@ The following major changes from Section 2 have been **successfully implemented*
    - `InternalError(BaseError)` for errors requiring developer assistance
    - Additional base exceptions: `UnreachableCodeError`, `UserFilepathNotFoundError`, `UserDirectoryNotFoundError`, etc.
 
+### Further Changes (March 2026)
+
+4. **✅ Error Handling Guideline published** (PR #2225, March 2026)
+   - Published at [docs/developers/architecture/error-handling.md](docs/developers/architecture/error-handling.md)
+   - Referenced in CLAUDE.md
+
+5. **✅ Section 3.11: BaseError hierarchy violations resolved** (PR #2224, March 2026)
+   - `UnreachableCodeError` → reclassified as `UnreachableCodeError(InternalError)`
+   - `PermanentConnectionError` → reclassified as `PermanentConnectionError(InternalError)`
+   - `PermanentTimeOutError` → reclassified as `PermanentTimeOutError(InternalError)`
+   - `FatalNonOkApiResponseCode` → reclassified as `FatalNonOkApiResponseCode(InternalError)` in `clients/`
+   - `DspToolsRequestException` → reclassified as `DspToolsRequestException(InternalError)` in `utils/`
+   - `UnableToRetrieveProjectInfoError`, `XmlUploadError` → reclassified as `InternalError` in `xmlupload/`
+   - `MigrationExportFailureError`, `MigrationDownloadFailureError`, `MigrationImportFailureError`
+     → reclassified as `InternalError` in `commands/migration/`
+
+6. **✅ Section 3.6 (partial): Bare `InternalError`/`UserError` raises removed from active code** (PR #2226, March 2026)
+   - `create.py`: `raise InternalError(...)` → `raise UnreachableCodeError(...)`
+   - `server_project_info.py`: three bare `raise InternalError(...)` → `raise UnableToCreateProjectError(...)`
+   - `shacl_cli_validator.py`: three bare `raise InternalError(...)` → `raise ShaclValidationError(...)`
+
 ### Remaining Work
 
 The following items in **Section 3 (Concrete Issues)** and **Section 4 (Error Message Quality)** remain to be implemented:
@@ -63,37 +84,36 @@ The following items in **Section 3 (Concrete Issues)** and **Section 4 (Error Me
 - Section 3.3: UnknownDOAPException misuse of exceptions for control flow
 - Section 3.4: Inconsistent message formatting ("ERROR:" prefixes)
 - Section 3.5: Meta-tests for exception hierarchy
-- Section 3.6: Bare BaseError / UserError / InternalError raises
+- Section 3.6: Bare `BaseError` raises in non-legacy, actively maintained code (remaining after PR #2226):
+    - `ark2iri.py` (3 occurrences)
+    - `make_values.py:191`
+    - `get.py:96`
+    - `reformat_validation_results.py:62`
+    - `excel2json/project.py:252`
 - Section 3.7: Entry point exception handling improvements (missing KeyboardInterrupt handler)
-- Section 3.8: Exception chain — converting vs. propagating (`from None` usage - 31 occurrences across 17 files)
+- Section 3.8: Exception chain — converting vs. propagating (`from None` usage - ~30 occurrences across ~17 files)
 - Section 3.9: Duplicate error logging
 - Section 3.10: PermanentTimeOutError cleanup
-- Section 3.11: Hierarchy violations — exceptions inheriting directly from `BaseError` (guideline violation)
-- Section 2 hierarchy update: Move `UnreachableCodeError`, `PermanentConnectionError`, `PermanentTimeOutError`
-  under `InternalError`; fix `XmllibInternalError(UserError)` naming/classification
+- ✅ Section 3.11: Hierarchy violations (**COMPLETED** - PR #2224, March 2026)
+- ✅ Section 2 hierarchy update: BaseError violations resolved (PR #2224);
+  `XmllibInternalError(UserError)` naming bug in `xmllib/internal/exceptions.py` still remains
 - Section 4: Error message quality improvements
 
 ---
 
-## 1. Missing Architecture Documentation
+## 1. Architecture Documentation
 
-**Current state:** No centralized documentation explaining:
+**✅ COMPLETED (March 2026)** — The guideline has been published at
+[docs/developers/architecture/error-handling.md](docs/developers/architecture/error-handling.md).
 
-- When to use exceptions vs Problem protocol
-- How to choose between exception types
-- Exception conversion patterns
-- The two command groups and their error handling needs
-
-**Recommendation:** Create guideline with:
+It covers:
 
 1. Command grouping and error handling requirements
 2. Decision tree for choosing exception types
 3. When to catch vs. let fail
 4. Standard patterns for exception conversion and logging
 5. Guidelines for user-friendly error messages
-6. Examples of good and bad error handling
-
---> **See the separate file `Draft for Error Handling Guideline.md`**
+6. Anti-patterns table with fixes
 
 ---
 
@@ -116,14 +136,14 @@ The grouping by commands is achieved by the location of the file, not by inherit
 ```text
 BaseError                               # Root exception (dataclass with message attribute)
 ├── UserError                           # User can fix it themselves (renamed from InputError)
-├── InternalError                       # Developer necessary to fix it
-├── UnreachableCodeError                # For code paths that should never execute
-├── UserFilepathNotFoundError(UserError)        # Generic file not found
-├── UserFilepathMustNotExistError(UserError)    # Filepath already exists (but shouldn't)
-├── UserDirectoryNotFoundError(UserError)       # Generic directory not found
-├── PermanentConnectionError            # All reconnection attempts failed
-├── PermanentTimeOutError               # Timeout from DSP-API
-└── BadCredentialsError(UserError)      # Authentication failure
+│   ├── UserFilepathNotFoundError       # Generic file not found
+│   ├── UserFilepathMustNotExistError   # Filepath already exists (but shouldn't)
+│   ├── UserDirectoryNotFoundError      # Generic directory not found
+│   └── BadCredentialsError            # Authentication failure
+└── InternalError                       # Developer necessary to fix it
+    ├── UnreachableCodeError            # For code paths that should never execute
+    ├── PermanentConnectionError        # All reconnection attempts failed
+    └── PermanentTimeOutError           # Timeout from DSP-API
 ```
 
 **Utils exceptions** ([src/dsp_tools/utils/exceptions.py](src/dsp_tools/utils/exceptions.py)):
@@ -133,7 +153,7 @@ JSONFileParsingError(UserError)                 # Cannot parse JSON file
 XsdValidationError(UserError)                   # XML validation failure
 DuplicateIdsInXmlAndId2IriMapping(UserError)    # ID collision in mapping
 MalformedPrefixedIriError(UserError)            # Invalid IRI format
-DspToolsRequestException(BaseError)             # Request exception wrapper
+DspToolsRequestException(InternalError)         # Request exception wrapper
 ```
 
 **Note:** `UserFilepathNotFoundError` and `BadCredentialsError` are in the base exceptions file, not utils.
@@ -152,7 +172,7 @@ DspApiNotReachableError(UserError)                  # API unreachable on localho
 **Clients exceptions** ([src/dsp_tools/clients/exceptions.py](src/dsp_tools/clients/exceptions.py)):
 
 ```text
-FatalNonOkApiResponseCode(BaseError)                # Unexpected API response
+FatalNonOkApiResponseCode(InternalError)            # Unexpected API response
 InvalidInputError(UserError)                        # API rejected input data
 ProjectOntologyNotFound(UserError)                  # No ontologies in project
 ProjectNotFoundError(UserError)                     # Project doesn't exist
@@ -219,10 +239,10 @@ ShaclValidationError(InternalError)         # Unexpected validation error
 **XMLUpload command** ([src/dsp_tools/commands/xmlupload/exceptions.py](src/dsp_tools/commands/xmlupload/exceptions.py)):
 
 ```text
-UnableToRetrieveProjectInfoError(BaseError)         # Cannot get project info
+UnableToRetrieveProjectInfoError(InternalError)     # Cannot get project info
 MultimediaFileNotFound(UserError)                   # Referenced files don't exist
 InvalidIngestFileNameError(InvalidInputError)       # INGEST rejected filename
-XmlUploadError(BaseError)                           # General xmlupload error
+XmlUploadError(InternalError)                       # General xmlupload error
 XmlUploadInterruptedError(XmlUploadError)           # Upload interrupted
 XmlInputConversionError(InternalError)              # XML conversion failed
 Id2IriReplacementError(UserError)                   # ID not found in mapping
@@ -242,58 +262,25 @@ XmllibInternalError(UserError)              # Internal xmllib error
 **Migration command** ([src/dsp_tools/commands/migration/exceptions.py](src/dsp_tools/commands/migration/exceptions.py)):
 
 ```text
-InvalidMigrationConfigFile(UserError)           # Provided config file is invalid
-MigrationReferenceInfoIncomplete(UserError)     # Required field in migration reference file is missing
-MigrationExportFailureError(BaseError)          # Migration export failed
-MigrationDownloadFailureError(BaseError)        # Download of migration zip failed
-MigrationImportFailureError(BaseError)          # Import of migration zip failed
+InvalidMigrationConfigFile(UserError)               # Provided config file is invalid
+MigrationReferenceInfoIncomplete(UserError)         # Required field in migration reference file is missing
+MigrationExportFailureError(InternalError)          # Migration export failed
+MigrationDownloadFailureError(InternalError)        # Download of migration zip failed
+MigrationImportFailureError(InternalError)          # Import of migration zip failed
 ```
 
-### ⚠️ Hierarchy Drift: Guideline vs. Implementation
+### ✅ Hierarchy Drift: Resolved (PR #2224, March 2026)
 
-The published guideline requires that `UserError` and `InternalError` are the **only** allowed
-direct subclasses of `BaseError`. All new exception classes must inherit from one of them, never
-from `BaseError` itself.
+All direct `BaseError` subclasses that violated the guideline have been reclassified
+(see Implementation Status item 5). The hierarchy in `src/dsp_tools/error/exceptions.py`
+now matches the guideline exactly.
 
-**The guideline's intended hierarchy at the base level:**
-
-```text
-BaseError
-├── UserError
-│   ├── UserFilepathNotFoundError
-│   ├── UserFilepathMustNotExistError
-│   ├── UserDirectoryNotFoundError
-│   └── BadCredentialsError
-└── InternalError
-    ├── UnreachableCodeError
-    ├── PermanentConnectionError
-    └── PermanentTimeOutError
-```
-
-**Violations in `src/dsp_tools/error/exceptions.py`** (currently direct `BaseError` subclasses):
-
-- `UnreachableCodeError` → should be `UnreachableCodeError(InternalError)`
-- `PermanentConnectionError` → should be `PermanentConnectionError(InternalError)`
-- `PermanentTimeOutError` → should be `PermanentTimeOutError(InternalError)`
-
-**Violations in command-specific exception files:**
-
-- `FatalNonOkApiResponseCode(BaseError)` in `clients/exceptions.py` → classify as `InternalError`
-- `DspToolsRequestException(BaseError)` in `utils/exceptions.py` → classify as `InternalError`
-- `UnableToRetrieveProjectInfoError(BaseError)` in `xmlupload/exceptions.py` → classify as `InternalError`
-- `XmlUploadError(BaseError)` in `xmlupload/exceptions.py` → classify as `InternalError`
-  (`XmlUploadInterruptedError(XmlUploadError)` becomes compliant transitively)
-- `MigrationExportFailureError(BaseError)` → classify as `InternalError`
-- `MigrationDownloadFailureError(BaseError)` → classify as `InternalError`
-- `MigrationImportFailureError(BaseError)` → classify as `InternalError`
-
-**Naming bug:**
+**Remaining naming bug (open):**
 
 - `XmllibInternalError(UserError)` in `xmllib/internal/exceptions.py`:
-  the name implies `InternalError` classification but the type is `UserError`.
+  the name implies `InternalError` classification but the type inherits `UserError`.
   Either rename it to match the `UserError` semantics, or reclassify it as `InternalError`.
-
-These violations are tracked as **Section 3.11**.
+  Tracked as part of Section 3.11 in the Remaining Work list above.
 
 ---
 
@@ -484,20 +471,21 @@ The guideline extends the rule beyond `BaseError`: **never raise any of the thre
 not `BaseError`, not `UserError`, not `InternalError`.
 Callers cannot catch specifically, and the type carries no semantic information about the actual problem.
 
-**Bare `BaseError` raises** (non-legacy, non-deprecated):
+**✅ Bare `UserError` / `InternalError` raises in active code: resolved** (PR #2226, March 2026) —
+no bare `raise UserError(...)` or `raise InternalError(...)` remain outside legacy/deprecated modules.
 
-- [date_util.py](src/dsp_tools/utils/data_formats/date_util.py) — multiple bare `raise BaseError(...)` calls
-  (legacy-mode, low priority per guideline)
+**Bare `BaseError` raises in non-legacy, actively maintained code (still open):**
+
+- [ark2iri.py](src/dsp_tools/commands/xmlupload/prepare_xml_input/ark2iri.py) — 3 occurrences
 - [make_values.py:191](src/dsp_tools/commands/xmlupload/make_rdf_graph/make_values.py#L191)
+- [get.py:96](src/dsp_tools/commands/get/get.py#L96)
+- [reformat_validation_results.py:62](src/dsp_tools/commands/validate_data/process_validation_report/reformat_validation_results.py#L62)
+- [excel2json/project.py:252](src/dsp_tools/commands/excel2json/project.py#L252)
 
-**Direct `UserError` or `InternalError` raises:**
-
-Search the codebase for `raise UserError(` and `raise InternalError(` to find occurrences
-where a specific subclass should be used or created instead.
+Legacy and deprecated modules (`excel2xml`, `langstring.py`, `datetimestamp.py`, `date_util.py`,
+`get/legacy_models/`) are exempt per the guideline.
 
 **Recommendation:** Use specific subclasses; create a new one if no appropriate one exists yet.
-Legacy and deprecated modules (`excel2xml`, `langstring.py`, `datetimestamp.py`, `date_util.py`)
-are exempt per the guideline.
 
 
 ### 3.7. Improve Entry Point Exception Handling
@@ -634,37 +622,14 @@ For this, we don't need an own class. The xmlupload can also catch and handle th
 
 ### 3.11 Exceptions Inheriting Directly from BaseError (Guideline Violation)
 
-The guideline states: *"`UserError` and `InternalError` are the only allowed direct subclasses of `BaseError`."*
+**✅ COMPLETED (PR #2224, March 2026)** — All direct `BaseError` subclasses that violated the guideline
+have been reclassified. See Implementation Status item 5 for the full list.
 
-All exceptions below violate this rule and must be reclassified.
-
-**Base exceptions file** (`src/dsp_tools/error/exceptions.py`):
-
-- `UnreachableCodeError` → reclassify as `UnreachableCodeError(InternalError)`
-- `PermanentConnectionError` → reclassify as `PermanentConnectionError(InternalError)`
-- `PermanentTimeOutError` → reclassify as `PermanentTimeOutError(InternalError)`
-  (related to Section 3.10; if the class is removed there, this is moot)
-
-**Command modules:**
-
-- `FatalNonOkApiResponseCode(BaseError)` in `clients/exceptions.py` → `InternalError`
-- `DspToolsRequestException(BaseError)` in `utils/exceptions.py` → `InternalError`
-- `UnableToRetrieveProjectInfoError(BaseError)` in `xmlupload/exceptions.py` → `InternalError`
-- `XmlUploadError(BaseError)` in `xmlupload/exceptions.py` → `InternalError`
-  (`XmlUploadInterruptedError(XmlUploadError)` becomes compliant transitively)
-- `MigrationExportFailureError(BaseError)` → `InternalError`
-- `MigrationDownloadFailureError(BaseError)` → `InternalError`
-- `MigrationImportFailureError(BaseError)` → `InternalError`
-
-**Naming bug:**
+**Remaining naming bug (open):**
 
 - `XmllibInternalError(UserError)` in `xmllib/internal/exceptions.py`: name implies `InternalError`
   classification but the type inherits `UserError`. Either rename it to reflect its actual semantics,
   or reclassify it as `InternalError`.
-
-**Note:** After reclassifying `PermanentConnectionError` and `PermanentTimeOutError`,
-the entry point's `except BaseError` still catches them (since `InternalError` extends `BaseError`).
-No change to `entry_point.py` is needed for this fix alone.
 
 ---
 

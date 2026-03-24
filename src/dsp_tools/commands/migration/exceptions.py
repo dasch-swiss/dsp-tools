@@ -1,4 +1,4 @@
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -16,7 +16,7 @@ class MigrationReferenceInfoIncomplete(UserError):
         super().__init__(msg)
 
 
-class MigrationExportFailureError(BaseError):
+class MigrationExportFailureError(InternalError):
     def __init__(self) -> None:
         msg = (
             "The migration export failed, it is not possible to continue with the process."
@@ -25,7 +25,7 @@ class MigrationExportFailureError(BaseError):
         super().__init__(msg)
 
 
-class MigrationDownloadFailureError(BaseError):
+class MigrationDownloadFailureError(InternalError):
     def __init__(self) -> None:
         msg = (
             "The download of the migration zip failed, it is not possible to continue with the process."
@@ -34,7 +34,7 @@ class MigrationDownloadFailureError(BaseError):
         super().__init__(msg)
 
 
-class MigrationImportFailureError(BaseError):
+class MigrationImportFailureError(InternalError):
     def __init__(self) -> None:
         msg = (
             "The import of the migration zip failed, it is not possible to continue with the process."

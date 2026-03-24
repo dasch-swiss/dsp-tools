@@ -64,7 +64,7 @@ def old_excel2json(
 
 def _old_validate_folder_structure_and_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
-        raise UserDirectoryNotFoundError(f"ERROR: {data_model_files} is not a directory.")
+        raise UserDirectoryNotFoundError(f"{data_model_files} is not a directory.")
     sub_folders = [x for x in Path(data_model_files).glob("*") if _non_hidden(x) and x.is_dir()]
     files_to_process = []
     onto_folders, onto_files_to_process = _get_and_validate_onto_folder(Path(data_model_files), sub_folders)
@@ -144,7 +144,7 @@ def excel2json(
 
 def _validate_folder_structure_and_get_filenames(data_model_files: Path) -> tuple[Path | None, list[Path]]:
     if not data_model_files.is_dir():
-        raise UserDirectoryNotFoundError(f"ERROR: {data_model_files} is not a directory.")
+        raise UserDirectoryNotFoundError(f"{data_model_files} is not a directory.")
     folder = [x for x in data_model_files.glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_and_validate_onto_folder(data_model_files, folder)
@@ -167,7 +167,7 @@ def _get_and_validate_onto_folder(data_model_files: Path, folder: list[Path]) ->
         contents = sorted([x.name for x in Path(onto_folder).glob("*") if _non_hidden(x)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
             raise InvalidFolderStructureError(
-                f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
+                f"'{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
                 "and one file 'resources.xlsx', but nothing else."
             )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])

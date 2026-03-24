@@ -140,7 +140,7 @@ def get_canonical_server_and_dsp_ingest_url(
         dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
         logger.error(f"Invalid DSP server URL '{server}'")
-        raise CliUserError(f"ERROR: Invalid DSP server URL '{server}'")
+        raise CliUserError(f"Invalid DSP server URL '{server}'")
 
     logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")

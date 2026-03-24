@@ -157,6 +157,8 @@ The system follows this general flow for XML processing:
 - **Pipeline Pattern**: XML processing follows a multi-stage pipeline with clear transformations
 - **Model-Based**: Heavy use of dataclass models for type safety
 - **Client Abstraction**: Separate client classes for different API endpoints
+- **Error Handling**: See `docs/developers/architecture/error-handling.md` for the exception hierarchy,
+  when to catch vs. let fail, and how to handle caught exceptions
 
 ### Testing Strategy
 

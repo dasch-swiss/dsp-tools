@@ -8,9 +8,9 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
-from dsp_tools.error.exceptions import InternalError
 
 
 class ShaclCliValidator:
@@ -24,9 +24,9 @@ class ShaclCliValidator:
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:
         if not (file_paths.directory / file_paths.shacl_file).exists():
-            raise InternalError(f"SHACL file not found: {file_paths.shacl_file}")
+            raise ShaclValidationError(f"SHACL file not found: {file_paths.shacl_file}")
         if not (file_paths.directory / file_paths.data_file).exists():
-            raise InternalError(f"Data file not found: {file_paths.data_file}")
+            raise ShaclValidationError(f"Data file not found: {file_paths.data_file}")
 
         # Get relative paths within the container
         shacl_path = f"/data/{file_paths.shacl_file}"
@@ -55,7 +55,7 @@ class ShaclCliValidator:
 
     def _parse_validation_result(self, filepath: Path) -> SHACLValidationReport:
         if not filepath.exists():
-            raise InternalError(f"SHACL file not found: {filepath}")
+            raise ShaclValidationError(f"SHACL file not found: {filepath}")
         logger.debug(f"Parse validation response: {filepath}.")
         graph = Graph()
         graph.parse(filepath)

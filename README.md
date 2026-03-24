@@ -294,7 +294,7 @@ but before the first use, the hooks must be installed with `pre-commit install`.
 
 
 
-## Contributing to the Documentation
+## Documentation
 
 The documentation is a collection of [Markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
 They are converted to HTML with [MkDocs](https://pypi.org/project/mkdocs/).

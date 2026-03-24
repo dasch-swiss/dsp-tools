@@ -4,7 +4,7 @@ from dataclasses import field
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.error.exceptions import InternalError
+from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 
 
@@ -43,7 +43,7 @@ class GroupNameToIriLookup:
 
     def add_iri(self, name: str, iri: str) -> None:
         if self.check_exists(name):
-            raise InternalError(f"Group with the name '{name}' already exists in the lookup.")
+            raise UnableToCreateProjectError(f"Group with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
         self.name2iri[f"{self.shortname}:{name}"] = iri
 
@@ -60,7 +60,7 @@ class UserNameToIriLookup:
 
     def add_iri(self, name: str, iri: str) -> None:
         if self.check_exists(name):
-            raise InternalError(f"User with the name '{name}' already exists in the lookup.")
+            raise UnableToCreateProjectError(f"User with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
 
     def get_iri(self, name: str) -> str | None:
@@ -93,7 +93,7 @@ class ListNameToIriLookup:
 
     def add_iri(self, name: str, iri: str) -> None:
         if self.check_list_exists(name):
-            raise InternalError(f"List with the name '{name}' already exists in the lookup.")
+            raise UnableToCreateProjectError(f"List with the name '{name}' already exists in the lookup.")
         self.name2iri[name] = iri
 
     def get_iri(self, name: str) -> str | None:

@@ -10,13 +10,11 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-import regex
 from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
@@ -203,8 +201,7 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
     session_mock = SessionMock(responses, headers={})
     con.session = session_mock  # type: ignore[assignment]
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
-    expected_msg = regex.escape("A 'TimeoutError' occurred during the connection to the DSP server.")
-    with pytest.raises(PermanentTimeOutError, match=expected_msg):
+    with pytest.raises(TimeoutError):
         con._try_network_action(params)
 
 

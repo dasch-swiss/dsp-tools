@@ -89,8 +89,7 @@ BaseError                               # Root. Dataclass with message: str attr
 │   └── BadCredentialsError             # DSP-API rejected credentials.
 └── InternalError                       # Requires developer assistance. Prints contact info + log file path.
     ├── UnreachableCodeError            # Code path that must never execute.
-    ├── PermanentConnectionError        # All reconnection attempts failed.
-    └── PermanentTimeOutError           # DSP-API timed out.
+    └── PermanentConnectionError        # All reconnection attempts failed.
 ```
 
 **Choosing the right class:**

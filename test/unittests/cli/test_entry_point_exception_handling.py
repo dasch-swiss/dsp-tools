@@ -26,7 +26,7 @@ def test_keyboard_interrupt_exits_130() -> None:
     with patch("dsp_tools.cli.entry_point.call_requested_action", side_effect=KeyboardInterrupt):
         exc = _run_catching_interrupts(["excel2json", "some/path", "out.json"])
     assert isinstance(exc, SystemExit), f"Expected SystemExit, got {type(exc).__name__}"
-    assert exc.code == 130  # noqa: PLR2004 (POSIX convention: exit with 128 + signal number; Ctrl+C=SIGINT=2)
+    assert exc.code == 130  # POSIX convention: exit with 128 + signal number; Ctrl+C=SIGINT=2
 
 
 def test_keyboard_interrupt_logs_info() -> None:

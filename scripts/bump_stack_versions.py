@@ -18,9 +18,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
-from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
-
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
 
 # Each entry maps a regex pattern (capturing the image prefix up to and including the colon)
@@ -52,7 +49,7 @@ def main() -> None:
     DOCKER_COMPOSE_PATH.write_text(new_content, encoding="utf-8")
 
     if not _has_diff():
-        print(f"{BACKGROUND_BOLD_RED}docker-compose.yml is already up to date. Nothing to do.{RESET_TO_DEFAULT}")
+        print("docker-compose.yml is already up to date. Nothing to do.")
         sys.exit(1)
 
     git_msg = f"bump versions to {version_key}"

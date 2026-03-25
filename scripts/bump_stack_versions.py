@@ -127,7 +127,7 @@ def _check_github_pat() -> None:
 
 
 def _fetch_release_json() -> dict[str, dict[str, str]]:
-    pat = os.environ["GITHUB_PAT"]
+    pat = os.environ["READ_ACCESS_TO_DSP_REPOS"]
     url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
     headers = {
         "Authorization": f"Bearer {pat}",
@@ -141,8 +141,8 @@ def _fetch_release_json() -> dict[str, dict[str, str]]:
             return res_json
         case HTTPStatus.UNAUTHORIZED:
             msg = (
-                "Authorisation was rejected, the repository secret: 'READ_ACCESS_TO_DSP_REPOS' "
-                "may need to be updated as it is only valid for 1 year. Original message\n"
+                "Authorisation was rejected. The repository secret 'READ_ACCESS_TO_DSP_REPOS' "
+                "may need to be updated as it is only valid for 1 year. Original message:\n"
                 f"{response.text}"
             )
             print(msg)

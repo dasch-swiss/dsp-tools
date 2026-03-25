@@ -7,13 +7,13 @@ from datetime import datetime
 from typing import Never
 
 from loguru import logger
+from requests import ReadTimeout
 
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 
 
@@ -32,7 +32,7 @@ def handle_keyboard_interrupt() -> Never:
 
 
 def handle_permanent_timeout_or_keyboard_interrupt(
-    err: PermanentTimeOutError | KeyboardInterrupt, res_id: str
+    err: TimeoutError | ReadTimeout | KeyboardInterrupt, res_id: str
 ) -> Never:
     warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
     msg = (

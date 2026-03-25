@@ -58,6 +58,10 @@ class ResourceClientLive(ResourceClient):
         match response.status_code:
             case HTTPStatus.OK:
                 return cast(str, response.json()["@id"])
+            case HTTPStatus.UNAUTHORIZED:
+                raise BadCredentialsError(
+                    "Authentication failed. Your credentials may be invalid or your token may have expired."
+                )
             case HTTPStatus.FORBIDDEN:
                 raise BadCredentialsError("You don't have permission to create resources in this project.")
             case _:

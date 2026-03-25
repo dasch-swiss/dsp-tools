@@ -10,7 +10,6 @@ from requests import RequestException
 
 from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
@@ -34,6 +33,16 @@ class TestPostResource:
         with patch.object(client._session, "post", return_value=mock_response):
             result = client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
         assert result == "http://rdfh.ch/resource/1"
+
+    @patch("dsp_tools.clients.resource_client_live.log_response")
+    @patch("dsp_tools.clients.resource_client_live.log_request")
+    def test_unauthorized_raises_bad_credentials(
+        self, log_req: Mock, log_resp: Mock, client: ResourceClientLive
+    ) -> None:
+        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED, ok=False)
+        with patch.object(client._session, "post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_response")
     @patch("dsp_tools.clients.resource_client_live.log_request")
@@ -65,9 +74,9 @@ class TestPostResource:
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_request")
-    def test_read_timeout_raises_permanent_timeout_error(self, log_req: Mock, client: ResourceClientLive) -> None:
+    def test_read_timeout_raises_read_timeout(self, log_req: Mock, client: ResourceClientLive) -> None:
         with patch.object(client._session, "post", side_effect=ReadTimeout()):
-            with pytest.raises(PermanentTimeOutError):
+            with pytest.raises(ReadTimeout):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_response")

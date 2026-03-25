@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
@@ -125,22 +126,17 @@ def _check_github_pat() -> None:
 
 
 def _fetch_release_json() -> dict[str, dict[str, str]]:
-    env = os.environ.copy()
-    env["GH_TOKEN"] = os.environ["GITHUB_PAT"]
-    result = subprocess.run(
-        [
-            "gh",
-            "api",
-            "repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json",
-            "--header",
-            "Accept: application/vnd.github.raw+json",
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-        env=env,
+    pat = os.environ["GITHUB_PAT"]
+    url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {pat}",
+            "Accept": "application/vnd.github.raw+json",
+        },
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
+    with urllib.request.urlopen(req) as response:  # noqa: S310
+        return json.loads(response.read())  # type: ignore[no-any-return]
 
 
 def _get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:

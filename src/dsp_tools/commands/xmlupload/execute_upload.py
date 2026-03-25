@@ -1,4 +1,5 @@
 from loguru import logger
+from requests import ReadTimeout
 
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.resource_client import ResourceClient
@@ -17,7 +18,6 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
@@ -48,7 +48,7 @@ def _execute_one_resource_upload(
     iri = None
     try:
         iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups)
-    except (PermanentTimeOutError, KeyboardInterrupt) as err:
+    except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except BadCredentialsError as err:
         handle_permanent_connection_error(PermanentConnectionError(err.message))

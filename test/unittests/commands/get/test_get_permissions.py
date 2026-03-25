@@ -3,7 +3,6 @@ from typing import Any
 import pytest
 import regex
 
-from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions import _categorize_doaps
 from dsp_tools.commands.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.get.get_permissions import _convert_prefixes
@@ -98,27 +97,31 @@ def public_perms() -> dict[str, Any]:
 
 
 def test_parse_default_permissions_private(private_perms: dict[str, Any]) -> None:
-    assert _parse_default_permissions([private_perms]) == "private"
+    result = _parse_default_permissions([private_perms])
+    assert result.value == "private"
+    assert result.error is None
 
 
 def test_parse_default_permissions_public(public_perms: dict[str, Any]) -> None:
-    assert _parse_default_permissions([public_perms]) == "public"
+    result = _parse_default_permissions([public_perms])
+    assert result.value == "public"
+    assert result.error is None
 
 
 def test_parse_default_permissions_wrong_target(public_perms: dict[str, Any]) -> None:
     public_perms["forGroup"] = f"{USER_IRI_PREFIX}SystemAdmin"
-    with pytest.raises(UnknownDOAPException, match=regex.escape("supported target group for DOAPs is ProjectMember")):
-        _parse_default_permissions([public_perms])
+    result = _parse_default_permissions([public_perms])
+    assert result.error is not None
+    assert regex.search("supported target group for DOAPs is ProjectMember", result.error)
 
 
 def test_parse_default_permissions_with_creator(public_perms: dict[str, Any]) -> None:
     public_perms["hasPermissions"].append(
         {"additionalInformation": f"{USER_IRI_PREFIX}Creator", "name": "CR", "permissionCode": 16}
     )
-    with pytest.raises(
-        UnknownDOAPException, match=regex.escape("'private' (with 2 elements), and 'limited_view' (with 4 elements)")
-    ):
-        _parse_default_permissions([public_perms])
+    result = _parse_default_permissions([public_perms])
+    assert result.error is not None
+    assert regex.search(r"'private' \(with 2 elements\), and 'limited_view' \(with 4 elements\)", result.error)
 
 
 @pytest.mark.parametrize(
@@ -157,12 +160,14 @@ def test_categorize_doaps_valid_cases(
     img_specific_doap: dict[str, Any],
 ) -> None:
     result = _categorize_doaps([class_doap_private, prop_doap_private, img_all_doap])
+    assert result is not None
     assert result.class_doaps == [class_doap_private]
     assert result.prop_doaps == [prop_doap_private]
     assert result.has_img_all_classes_doaps == [img_all_doap]
     assert result.has_img_specific_class_doaps == []
 
     result2 = _categorize_doaps([class_doap_private, img_specific_doap])
+    assert result2 is not None
     assert result2.class_doaps == [class_doap_private]
     assert result2.prop_doaps == []
     assert result2.has_img_all_classes_doaps == []
@@ -171,6 +176,7 @@ def test_categorize_doaps_valid_cases(
 
 def test_categorize_doaps_empty() -> None:
     result = _categorize_doaps([])
+    assert result is not None
     assert len(result.class_doaps) == 0
     assert len(result.prop_doaps) == 0
     assert len(result.has_img_all_classes_doaps) == 0
@@ -209,8 +215,7 @@ def test_categorize_doaps_empty() -> None:
     ],
 )
 def test_categorize_doaps_invalid_doap(invalid_doap: dict[str, Any]) -> None:
-    with pytest.raises(UnknownDOAPException):
-        _categorize_doaps([invalid_doap])
+    assert _categorize_doaps([invalid_doap]) is None
 
 
 def test_categorize_doaps_mixed_valid_and_invalid(class_doap_private: dict[str, Any]) -> None:
@@ -220,8 +225,7 @@ def test_categorize_doaps_mixed_valid_and_invalid(class_doap_private: dict[str, 
         "forProject": PROJ_IRI,
         "hasPermissions": [],
     }
-    with pytest.raises(UnknownDOAPException):
-        _categorize_doaps([class_doap_private, invalid_doap])
+    assert _categorize_doaps([class_doap_private, invalid_doap]) is None
 
 
 def test_validate_doap_categories_valid_all_images(
@@ -233,7 +237,7 @@ def test_validate_doap_categories_valid_all_images(
         has_img_all_classes_doaps=[img_all_doap],
         has_img_specific_class_doaps=[],
     )
-    _validate_doap_categories(categories)
+    assert _validate_doap_categories(categories)
 
 
 def test_validate_doap_categories_valid_specific_images(
@@ -245,7 +249,7 @@ def test_validate_doap_categories_valid_specific_images(
         has_img_all_classes_doaps=[],
         has_img_specific_class_doaps=[img_specific_doap],
     )
-    _validate_doap_categories(categories)
+    assert _validate_doap_categories(categories)
 
 
 def test_validate_doap_categories_invalid_private_wrong_count() -> None:
@@ -261,8 +265,7 @@ def test_validate_doap_categories_invalid_private_wrong_count() -> None:
         has_img_all_classes_doaps=[],
         has_img_specific_class_doaps=[],
     )
-    with pytest.raises(UnknownDOAPException, match=r"'private' is defined as CR ProjectAdmin\|D ProjectMember"):
-        _validate_doap_categories(categories)
+    assert not _validate_doap_categories(categories)
 
 
 def test_validate_doap_categories_invalid_private_wrong_names() -> None:
@@ -279,8 +282,7 @@ def test_validate_doap_categories_invalid_private_wrong_names() -> None:
         has_img_all_classes_doaps=[],
         has_img_specific_class_doaps=[],
     )
-    with pytest.raises(UnknownDOAPException, match=r"'private' is defined as CR ProjectAdmin\|D ProjectMember"):
-        _validate_doap_categories(categories)
+    assert not _validate_doap_categories(categories)
 
 
 def test_validate_doap_categories_invalid_limited_view_wrong_count() -> None:
@@ -297,11 +299,7 @@ def test_validate_doap_categories_invalid_limited_view_wrong_count() -> None:
         has_img_all_classes_doaps=[img_doap],
         has_img_specific_class_doaps=[],
     )
-    with pytest.raises(
-        UnknownDOAPException,
-        match=r"'limited_view' is defined as CR ProjectAdmin\|D ProjectMember\|RV KnownUser\|RV UnknownUser",
-    ):
-        _validate_doap_categories(categories)
+    assert not _validate_doap_categories(categories)
 
 
 def test_construct_overrule_object_private_only() -> None:
@@ -412,8 +410,7 @@ def test_construct_overrule_object_invalid_multiple_all_images() -> None:
         has_img_all_classes_doaps=[img_doap1, img_doap2],
         has_img_specific_class_doaps=[],
     )
-    with pytest.raises(UnknownDOAPException, match="There can only be 1 all-images DOAP"):
-        _construct_overrule_object(categories, {})
+    assert _construct_overrule_object(categories, {}) is None
 
 
 def test_construct_overrule_object_invalid_mixed_image_types() -> None:
@@ -432,8 +429,7 @@ def test_construct_overrule_object_invalid_mixed_image_types() -> None:
         has_img_all_classes_doaps=[all_img_doap],
         has_img_specific_class_doaps=[specific_img_doap],
     )
-    with pytest.raises(UnknownDOAPException, match="If there is a DOAP for all images, there cannot be DOAPs"):
-        _construct_overrule_object(categories, {})
+    assert _construct_overrule_object(categories, {}) is None
 
 
 @pytest.mark.parametrize(

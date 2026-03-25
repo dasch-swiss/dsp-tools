@@ -2,7 +2,6 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 
@@ -119,5 +118,5 @@ def test_parse_default_permissions_invalid_legacy_falls_back() -> None:
             {"additionalInformation": f"{USER_IRI_PREFIX}WrongGroup", "name": "CR", "permissionCode": 16},
         ],
     }
-    with pytest.raises(UnknownDOAPException):
-        _parse_default_permissions([invalid_legacy])
+    result = _parse_default_permissions([invalid_legacy])
+    assert result.error is not None

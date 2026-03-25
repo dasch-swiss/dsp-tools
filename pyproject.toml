@@ -171,6 +171,9 @@ extend-select = [  # this is for preview (beta) features
 
 
 [tool.ruff.lint.per-file-ignores]
+"scripts/**" = [
+    "S607", # flake8-bandit: start-process-with-partial-path  # scripts invoke git/gh by name intentionally
+]
 "__init__.py" = [
     "F401",    # unused-import
     "F403",    # undefined-local-with-import-star

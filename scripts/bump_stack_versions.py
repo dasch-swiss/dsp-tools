@@ -138,7 +138,7 @@ def _fetch_release_json() -> dict[str, dict[str, str]]:
 
     match response.status_code:
         case HTTPStatus.OK:
-            return json.loads(response.read())  # type: ignore[no-any-return]
+            return json.loads(response.json())
         case HTTPStatus.UNAUTHORIZED:
             msg = (
                 "Authorisation was rejected, the repository secret: 'READ_ACCESS_TO_DSP_REPOS' "

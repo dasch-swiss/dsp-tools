@@ -38,7 +38,7 @@ def get_default_permissions(
     if isinstance(project_doaps, ResponseCodeAndText):
         return fallback_text, None
     default_permissions_result = _parse_default_permissions(project_doaps)
-    default_permissions = default_permissions_result if default_permissions_result is not None else fallback_text
+    default_permissions = default_permissions_result or fallback_text
     default_permissions_overrule = _parse_default_permissions_overrule(project_doaps, prefixes)
     return default_permissions, default_permissions_overrule
 
@@ -66,7 +66,7 @@ def _parse_new_style_permissions(project_doaps: list[dict[str, Any]]) -> str | N
     return _parse_project_member_perms(proj_member_doaps[0]["hasPermissions"])
 
 
-def _parse_project_member_perms(perms: list[dict[str, Any]]) -> str | None:
+def _parse_project_member_perms(perms: list[dict[str, Any]]) -> str | None:  # noqa: PLR0911 (too many return statements)
     if len(perms) not in [2, 4]:
         err_msg = "The only allowed permissions are 'private' (with 2 elements), and 'limited_view' (with 4 elements)"
         logger.warning(err_msg)
@@ -75,23 +75,19 @@ def _parse_project_member_perms(perms: list[dict[str, Any]]) -> str | None:
     proj_mem_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectMember")]
     knwn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("KnownUser")]
     unkn_usr_perms = [x for x in perms if x["additionalInformation"].endswith("UnknownUser")]
-    valid_adm_mem = (
-        len(proj_adm_perms) == len(proj_mem_perms) == 1
-        and proj_adm_perms[0]["name"] == "CR"
-        and proj_mem_perms[0]["name"] == "D"
-    )
-    if not valid_adm_mem:
-        logger.warning("ProjectAdmin must have 1 CR permission and ProjectMember must have 1 D permission")
+    if not (len(proj_adm_perms) == len(proj_mem_perms) == 1):
+        logger.warning("There must be always 1 permission for ProjectAdmin and 1 for ProjectMember")
+        return None
+    if proj_adm_perms[0]["name"] != "CR" or proj_mem_perms[0]["name"] != "D":
+        logger.warning("ProjectAdmin must always have CR and ProjectMember must always have D")
         return None
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
         return "private"
-    if (
-        len(knwn_usr_perms) != 1
-        or len(unkn_usr_perms) != 1
-        or knwn_usr_perms[0]["name"] != "V"
-        or unkn_usr_perms[0]["name"] != "V"
-    ):
-        logger.warning("In case of 'public', there must be exactly 1 V permission each for KnownUser and UnknownUser")
+    if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
+        logger.warning("In case of 'limited_view', there must be 1 for KnownUser and 1 for UnknownUser")
+        return None
+    if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
+        logger.warning("In case of 'public', KnownUser and UnknownUser must always have V")
         return None
     return "public"
 

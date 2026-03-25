@@ -40,7 +40,7 @@ def main() -> None:
     _check_on_main_branch()
     _check_working_tree_clean()
 
-    print("Bumping version ...")
+    print("Bumping versions ...")
 
     subprocess.run(["git", "pull"], check=True)
 
@@ -53,17 +53,14 @@ def main() -> None:
 
     if not _has_diff():
         print(f"{BACKGROUND_BOLD_RED}docker-compose.yml is already up to date. Nothing to do.{RESET_TO_DEFAULT}")
-        sys.exit(0)
+        sys.exit(1)
 
     git_msg = f"bump versions to {version_key}"
 
     branch_name = f"chore/bump-version-{version_key}"
     subprocess.run(["git", "checkout", "-b", branch_name], check=True)
     subprocess.run(["git", "add", str(DOCKER_COMPOSE_PATH)], check=True)
-    subprocess.run(
-        ["git", "commit", "-m", git_msg],
-        check=True,
-    )
+    subprocess.run(["git", "commit", "-m", git_msg], check=True)
     subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
 
     subprocess.run(

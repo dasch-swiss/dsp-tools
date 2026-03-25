@@ -1,0 +1,238 @@
+"""Script to automate bumping the Docker image versions of DSP components.
+
+Fetches the latest version from dasch-swiss/ops-deploy/versions/RELEASE.json,
+updates src/dsp_tools/resources/start-stack/docker-compose.yml,
+creates a branch, commits, pushes, and opens a pull request.
+
+Prerequisites:
+- git must be installed and the working tree must be on a clean main branch
+- gh CLI must be installed and authenticated (gh auth login)
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
+from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
+from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+
+DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
+
+# Each entry maps a regex pattern (capturing the image prefix up to and including the colon)
+# to the corresponding key in RELEASE.json.
+IMAGE_SUBSTITUTIONS: list[tuple[str, str]] = [
+    (r"(daschswiss/knora-api:)[^\s]+", "api"),
+    (r"(daschswiss/knora-sipi:)[^\s]+", "api"),
+    (r"(daschswiss/dsp-ingest:)[^\s]+", "api"),
+    (r"(daschswiss/dsp-app:)[^\s]+", "app"),
+    (r"(daschswiss/apache-jena-fuseki:)[^\s]+", "db"),
+]
+
+
+def main() -> None:
+    _check_gh_installed()
+    _check_gh_authenticated()
+    _check_on_main_branch()
+    _check_working_tree_clean()
+
+    with yaspin(
+        Spinners.bouncingBall,
+        color="light_green",
+        on_color="on_black",
+        attrs=["bold", "blink"],
+    ) as sp:
+        status_start_msg = "Bumping version ..."
+        sp.text = status_start_msg
+
+        subprocess.run(["git", "pull"], check=True)
+
+        release_data = _fetch_release_json()
+        version_key, versions = get_latest_release(release_data)
+
+        old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
+        old_versions = _extract_current_versions(old_content)
+        new_content = update_compose_content(old_content, versions)
+        DOCKER_COMPOSE_PATH.write_text(new_content, encoding="utf-8")
+
+        if not _has_diff():
+            sp.text = f"{BACKGROUND_BOLD_RED}docker-compose.yml is already up to date. Nothing to do.{RESET_TO_DEFAULT}"
+            sys.exit(0)
+
+        git_msg = f"bump versions to {version_key}"
+
+        branch_name = f"chore/bump-version-{version_key}"
+        subprocess.run(["git", "checkout", "-b", branch_name], check=True)
+        subprocess.run(["git", "add", str(DOCKER_COMPOSE_PATH)], check=True)
+        subprocess.run(
+            ["git", "commit", "-m", git_msg],
+            check=True,
+        )
+        # subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
+        #
+        # pr_body = build_pr_body(version_key, old_versions, versions)
+        # subprocess.run(
+        #     [
+        #         "gh",
+        #         "pr",
+        #         "create",
+        #         "--title",
+        #         f"chore(start-stack): {git_msg}",
+        #         "--body",
+        #         pr_body,
+        #         "--base",
+        #         "main",
+        #     ],
+        #     check=True,
+        # )
+        sp.text = f"Pull request created for branch '{branch_name}'."
+        sp.ok("✔")
+
+
+def get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:
+    """Return the key and values of the most recent release entry.
+
+    Args:
+        data: The full RELEASE.json content, keyed by date strings in YYYY.MM.DD format.
+
+    Returns:
+        A tuple of (version_key, versions_dict) for the latest entry.
+    """
+    latest_key = max(data.keys())
+    return latest_key, data[latest_key]
+
+
+def update_compose_content(content: str, versions: dict[str, str]) -> str:
+    """Replace all image version tags in the docker-compose content.
+
+    Args:
+        content: Raw text content of docker-compose.yml.
+        versions: Version strings keyed by component name (api, app, db).
+
+    Returns:
+        Updated content with all image tags replaced.
+    """
+    for pattern, version_key in IMAGE_SUBSTITUTIONS:
+        content = re.sub(pattern, r"\g<1>" + versions[version_key], content)
+    return content
+
+
+def build_pr_body(version_key: str, old_versions: dict[str, str], new_versions: dict[str, str]) -> str:
+    """Build the markdown body for the version bump pull request.
+
+    Args:
+        version_key: The release date key, e.g. "2026.03.04".
+        old_versions: Current version tags keyed by component (api, app, db).
+        new_versions: New version tags keyed by component (api, app, db).
+
+    Returns:
+        Markdown-formatted PR body string.
+    """
+    lines = [
+        f"Bumps Docker stack component versions to the `{version_key}` deployment.",
+        "",
+        "| Service | Old | New |",
+        "| --- | --- | --- |",
+    ]
+    service_map = [
+        ("api (knora-api, knora-sipi, dsp-ingest)", "api"),
+        ("app (dsp-app)", "app"),
+        ("db (apache-jena-fuseki)", "db"),
+    ]
+    for label, key in service_map:
+        old = old_versions.get(key, "unknown")
+        new = new_versions.get(key, "unknown")
+        lines.append(f"| {label} | `{old}` | `{new}` |")
+    lines += [
+        "",
+        "Source: https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json",
+    ]
+    return "\n".join(lines)
+
+
+def _check_gh_installed() -> None:
+    if shutil.which("gh") is None:
+        print("ERROR: 'gh' CLI is not installed. Install it from https://cli.github.com/")
+        sys.exit(1)
+
+
+def _check_gh_authenticated() -> None:
+    result = subprocess.run(["gh", "auth", "status"], capture_output=True, check=False)
+    if result.returncode != 0:
+        print("ERROR: Not authenticated with GitHub. Run 'gh auth login' first.")
+        sys.exit(1)
+
+
+def _check_on_main_branch() -> None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    branch = result.stdout.strip()
+    if branch != "main":
+        print(f"ERROR: Must be on the 'main' branch, but currently on '{branch}'.")
+        sys.exit(1)
+
+
+def _check_working_tree_clean() -> None:
+    result = subprocess.run(
+        ["git", "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    if result.stdout.strip():
+        print("ERROR: Working tree is not clean. Please commit or stash your changes first.")
+        print(result.stdout)
+        sys.exit(1)
+
+
+def _fetch_release_json() -> dict[str, dict[str, str]]:
+    result = subprocess.run(
+        [
+            "gh",
+            "api",
+            "repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json",
+            "--header",
+            "Accept: application/vnd.github.raw+json",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return json.loads(result.stdout)  # type: ignore[no-any-return]
+
+
+def _has_diff() -> bool:
+    result = subprocess.run(
+        ["git", "diff", "--quiet", str(DOCKER_COMPOSE_PATH)],
+        check=False,
+    )
+    return result.returncode != 0
+
+
+def _extract_current_versions(content: str) -> dict[str, str]:
+    versions: dict[str, str] = {}
+    api_match = re.search(r"daschswiss/knora-api:([^\s]+)", content)
+    if api_match:
+        versions["api"] = api_match.group(1)
+    app_match = re.search(r"daschswiss/dsp-app:([^\s]+)", content)
+    if app_match:
+        versions["app"] = app_match.group(1)
+    db_match = re.search(r"daschswiss/apache-jena-fuseki:([^\s]+)", content)
+    if db_match:
+        versions["db"] = db_match.group(1)
+    return versions
+
+
+if __name__ == "__main__":
+    main()

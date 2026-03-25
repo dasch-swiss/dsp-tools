@@ -94,6 +94,12 @@ vulture:
     uv run vulture
 
 
+# Bump start-stack versions in docker compose
+[no-exit-message]
+bump-start-stack:
+    uv run python scripts/bump_stack_versions.py
+
+
 # Run the unit tests
 [no-exit-message]
 unittests *FLAGS:

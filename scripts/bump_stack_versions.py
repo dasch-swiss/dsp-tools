@@ -11,7 +11,6 @@ Prerequisites:
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import shutil
@@ -138,7 +137,8 @@ def _fetch_release_json() -> dict[str, dict[str, str]]:
 
     match response.status_code:
         case HTTPStatus.OK:
-            return json.loads(response.json())
+            res_json: dict[str, dict[str, str]] = response.json()
+            return res_json
         case HTTPStatus.UNAUTHORIZED:
             msg = (
                 "Authorisation was rejected, the repository secret: 'READ_ACCESS_TO_DSP_REPOS' "

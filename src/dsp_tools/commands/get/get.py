@@ -95,7 +95,7 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         return Project(con=con, shortname=project_identifier)
     else:
         raise InvalidProjectIdentifierError(
-            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
+            f"Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
         )
 
 

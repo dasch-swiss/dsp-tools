@@ -225,7 +225,7 @@ def _validate_limited_view_doap(doap: dict[str, Any]) -> bool:
     if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
         logger.warning(err_msg)
         return False
-    if RV1["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+    if RV1["name"] != "RV" or not RV1["additionalInformation"].endswith("nownUser"):
         logger.warning(err_msg)
         return False
     if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):

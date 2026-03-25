@@ -8,6 +8,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.commands.get.exceptions import InvalidProjectIdentifierError
 from dsp_tools.commands.get.get_permissions import get_default_permissions
 from dsp_tools.commands.get.legacy_models.group import Group
 from dsp_tools.commands.get.legacy_models.listnode import ListNode
@@ -93,7 +94,7 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
     elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         return Project(con=con, shortname=project_identifier)
     else:
-        raise BaseError(
+        raise InvalidProjectIdentifierError(
             f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
         )
 

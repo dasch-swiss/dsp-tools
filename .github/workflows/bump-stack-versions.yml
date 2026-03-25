@@ -27,3 +27,4 @@ jobs:
         run: python scripts/bump_stack_versions.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}

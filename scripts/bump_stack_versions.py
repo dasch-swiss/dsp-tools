@@ -12,6 +12,7 @@ Prerequisites:
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -50,7 +51,7 @@ def main() -> None:
 
     if not _has_diff():
         print("docker-compose.yml is already up to date. Nothing to do.")
-        sys.exit(1)
+        sys.exit(0)
 
     git_msg = f"bump versions to {version_key}"
 
@@ -69,6 +70,8 @@ def main() -> None:
             f"chore(start-stack): {git_msg}",
             "--base",
             "main",
+            "--body",
+            "",
         ],
         check=True,
     )
@@ -115,6 +118,10 @@ def _check_working_tree_clean() -> None:
 
 
 def _fetch_release_json() -> dict[str, dict[str, str]]:
+    env = os.environ.copy()
+    github_pat = os.environ.get("GITHUB_PAT")
+    if github_pat:
+        env["GH_TOKEN"] = github_pat
     result = subprocess.run(
         [
             "gh",
@@ -126,6 +133,7 @@ def _fetch_release_json() -> dict[str, dict[str, str]]:
         capture_output=True,
         text=True,
         check=True,
+        env=env,
     )
     return json.loads(result.stdout)  # type: ignore[no-any-return]
 

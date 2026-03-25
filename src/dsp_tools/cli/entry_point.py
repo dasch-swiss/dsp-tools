@@ -76,7 +76,7 @@ def run(args: Sequence[str]) -> None:
         success = False
     except Exception as err:  # noqa: BLE001 (blind-except)
         logger.exception("Internal error occurred")
-        print(InternalError(custom_msg=str(err) if not isinstance(err, InternalError) else None))
+        print(err if isinstance(err, InternalError) else InternalError(custom_msg=str(err)))
         success = False
 
     if not success:

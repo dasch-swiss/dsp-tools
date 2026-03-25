@@ -1,5 +1,3 @@
-"""Unit tests for exception handling in entry_point.run()."""
-
 from collections.abc import Iterator
 from unittest.mock import patch
 
@@ -17,12 +15,6 @@ def skip_version_check() -> Iterator[None]:
 
 
 def _run_catching_interrupts(args: list[str]) -> BaseException:
-    """Run entry_point.run() and catch both SystemExit and KeyboardInterrupt.
-
-    Before the KeyboardInterrupt fix, run() lets KeyboardInterrupt propagate (caught here as
-    KeyboardInterrupt). After the fix, run() converts it to SystemExit(130).
-    Either way, pytest is not exposed to a raw KeyboardInterrupt.
-    """
     try:
         entry_point.run(args)
     except (SystemExit, KeyboardInterrupt) as exc:
@@ -34,7 +26,7 @@ def test_keyboard_interrupt_exits_130() -> None:
     with patch("dsp_tools.cli.entry_point.call_requested_action", side_effect=KeyboardInterrupt):
         exc = _run_catching_interrupts(["excel2json", "some/path", "out.json"])
     assert isinstance(exc, SystemExit), f"Expected SystemExit, got {type(exc).__name__}"
-    assert exc.code == 130
+    assert exc.code == 130  # noqa: PLR2004 (POSIX convention: exit with 128 + signal number; Ctrl+C=SIGINT=2)
 
 
 def test_keyboard_interrupt_logs_info() -> None:
@@ -89,6 +81,7 @@ def test_internal_error_prints_internal_error_message(capsys: pytest.CaptureFixt
             entry_point.run(["excel2json", "some/path", "out.json"])
     captured = capsys.readouterr()
     assert "internal error" in captured.out.lower()
+    assert "something broke" in captured.out
 
 
 def test_plain_exception_exits_1() -> None:

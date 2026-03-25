@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import pickle
+import sys
+import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Never
 
 from loguru import logger
 from rdflib import URIRef
+from requests import ReadTimeout
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
@@ -50,7 +55,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -381,7 +385,7 @@ def _upload_one_resource(
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, resource_has_bitstream=bool(media_info))
-    except (PermanentTimeOutError, KeyboardInterrupt) as err:
+    except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
         handle_permanent_connection_error(err)

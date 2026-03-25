@@ -347,8 +347,7 @@ class Project(Model):
             return Project.fromJsonObj(self._con, result["project"])
         else:
             raise BaseError(
-                f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} "
-                f"from DSP server."
+                f"Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} from DSP server."
             )
 
     @staticmethod

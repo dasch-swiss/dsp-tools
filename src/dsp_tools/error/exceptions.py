@@ -52,7 +52,7 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
-class UnreachableCodeError(BaseError):
+class UnreachableCodeError(InternalError):
     """Class that is raised if certain code is not reachable."""
 
     def __init__(self, msg: str | None = None) -> None:
@@ -88,12 +88,8 @@ class UserDirectoryNotFoundError(UserError):
         super().__init__(msg)
 
 
-class PermanentConnectionError(BaseError):
+class PermanentConnectionError(InternalError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
-
-
-class PermanentTimeOutError(BaseError):
-    """This error is raised when python throws a timeout due to no response from the DSP-API."""
 
 
 class BadCredentialsError(UserError):

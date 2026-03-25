@@ -98,7 +98,7 @@ def _get_values_from_excel(
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
             raise InvalidFileFormatError(
-                f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
+                f"Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
                 f"All other cells of row 1 must be empty.\nInstead, found the following:\n"
                 f" - Cell A1: '{excelfile['A1'].value}'\n"
                 f" - Cell B1: '{excelfile['B1'].value}'"
@@ -150,7 +150,7 @@ def _check_if_predecessors_in_row_are_consistent_with_preval(
     for idx, val in enumerate(preval[:-1]):
         if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
             raise InvalidFileFormatError(
-                "ERROR: Inconsistency in Excel list: "
+                "Inconsistency in Excel list: "
                 f"{val} not equal to {str(base_file_ws.cell(column=idx + 1, row=row).value).strip()}"
             )
 
@@ -192,7 +192,7 @@ def _check_if_duplicate_nodes_exist(cell: Cell, list_node_names: ListNodeNames, 
         for x in list_node_names.lists_with_previous_cell_values
     ):
         raise InvalidFileContentError(
-            f"ERROR: There is at least one duplicate node in the list. "
+            f"There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
         )
 
@@ -203,7 +203,7 @@ def _get_all_languages_of_node(excelfiles: dict[str, Worksheet], col: int, row: 
         cell_value = ws_other_lang.cell(column=col, row=row).value
         if not (isinstance(cell_value, str) and len(cell_value) > 0):
             raise InvalidFileFormatError(
-                "ERROR: Malformed Excel file: The Excel file with the language code "
+                "Malformed Excel file: The Excel file with the language code "
                 f"'{other_lang}' should have a value in row {row}, column {col}"
             )
         else:
@@ -320,7 +320,7 @@ def _extract_excel_file_paths(excelfolder: str) -> list[Path]:
         list of the Excel file paths to process
     """
     if not Path(excelfolder).is_dir():
-        raise UserDirectoryNotFoundError(f"ERROR: {excelfolder} is not a directory.")
+        raise UserDirectoryNotFoundError(f"{excelfolder} is not a directory.")
 
     supported_files = ["en.xlsx", "de.xlsx", "fr.xlsx", "it.xlsx", "rm.xlsx"]
     excel_file_paths = [x for x in Path(excelfolder).glob("*.xlsx") if x.is_file() and not x.name.startswith("~$")]

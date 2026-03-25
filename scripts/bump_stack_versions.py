@@ -37,6 +37,7 @@ def main() -> None:
     _check_gh_authenticated()
     _check_on_main_branch()
     _check_working_tree_clean()
+    _check_github_pat()
 
     print("Bumping versions ...")
 
@@ -117,11 +118,15 @@ def _check_working_tree_clean() -> None:
         sys.exit(1)
 
 
+def _check_github_pat() -> None:
+    if not os.environ.get("GITHUB_PAT"):
+        print("ERROR: GITHUB_PAT is not set. Provide a PAT with read access to dasch-swiss/ops-deploy.")
+        sys.exit(1)
+
+
 def _fetch_release_json() -> dict[str, dict[str, str]]:
     env = os.environ.copy()
-    github_pat = os.environ.get("GITHUB_PAT")
-    if github_pat:
-        env["GH_TOKEN"] = github_pat
+    env["GH_TOKEN"] = os.environ["GITHUB_PAT"]
     result = subprocess.run(
         [
             "gh",

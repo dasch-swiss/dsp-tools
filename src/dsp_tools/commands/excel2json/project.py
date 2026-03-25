@@ -13,7 +13,7 @@ from dsp_tools.commands.excel2json.models.json_header import PermissionsOverrule
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 
 
@@ -249,7 +249,7 @@ def _sort_project_dict(unsorted_project_dict: dict[str, Any]) -> dict[str, Any]:
     ordered_keys = [key for key in ordered_keys if key in unsorted_project_dict]
     # important - if in the future, more keys are added, they must be added to the list above
     if any(forgotten_keys := [key for key in unsorted_project_dict if key not in ordered_keys]):
-        raise BaseError(
+        raise UnreachableCodeError(
             "The list of keys is outdated. During sorting, the following keys would be discarded: "
             + ", ".join(forgotten_keys)
         )

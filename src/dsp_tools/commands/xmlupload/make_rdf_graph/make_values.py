@@ -7,6 +7,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
@@ -31,7 +32,6 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.richtext_id2iri import prepare_richtext_string_for_upload
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
@@ -188,7 +188,7 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
         f"This is probably because the resource '{value}' could not be created. "
         f"See {WARNINGS_SAVEPATH} for more information."
     )
-    raise BaseError(msg)
+    raise Id2IriReplacementError(msg)
 
 
 def _make_date_value_graph(

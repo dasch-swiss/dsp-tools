@@ -17,8 +17,10 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib.request
+from http import HTTPStatus
 from pathlib import Path
+
+import requests
 
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
 
@@ -128,15 +130,26 @@ def _check_github_pat() -> None:
 def _fetch_release_json() -> dict[str, dict[str, str]]:
     pat = os.environ["GITHUB_PAT"]
     url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": f"Bearer {pat}",
-            "Accept": "application/vnd.github.raw+json",
-        },
-    )
-    with urllib.request.urlopen(req) as response:  # noqa: S310
-        return json.loads(response.read())  # type: ignore[no-any-return]
+    headers = {
+        "Authorization": f"Bearer {pat}",
+        "Accept": "application/vnd.github.raw+json",
+    }
+    response = requests.get(url, headers=headers, timeout=10)
+
+    match response.status_code:
+        case HTTPStatus.OK:
+            return json.loads(response.read())  # type: ignore[no-any-return]
+        case HTTPStatus.UNAUTHORIZED:
+            msg = (
+                "Authorisation was rejected, the repository secret: 'READ_ACCESS_TO_DSP_REPOS' "
+                "may need to be updated as it is only valid for 1 year. Original message\n"
+                f"{response.text}"
+            )
+            print(msg)
+            sys.exit(1)
+        case _:
+            print(response.text)
+            sys.exit(1)
 
 
 def _get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:

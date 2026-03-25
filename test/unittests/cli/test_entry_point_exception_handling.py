@@ -1,0 +1,119 @@
+"""Unit tests for exception handling in entry_point.run()."""
+
+from collections.abc import Iterator
+from unittest.mock import patch
+
+import pytest
+
+from dsp_tools.cli import entry_point
+from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import UserError
+
+_PATCH_CALL_ACTION = "dsp_tools.cli.entry_point.call_requested_action"
+_PATCH_LOGGER_INFO = "dsp_tools.cli.entry_point.logger.info"
+_PATCH_LOGGER_EXCEPTION = "dsp_tools.cli.entry_point.logger.exception"
+_PATCH_CHECK_VERSION = "dsp_tools.cli.entry_point._check_version"
+
+
+@pytest.fixture(autouse=True)
+def skip_version_check() -> Iterator[None]:
+    with patch(_PATCH_CHECK_VERSION):
+        yield
+
+
+def _run_catching_interrupts(args: list[str]) -> BaseException:
+    """Run entry_point.run() and catch both SystemExit and KeyboardInterrupt.
+
+    Before the KeyboardInterrupt fix, run() lets KeyboardInterrupt propagate (caught here as
+    KeyboardInterrupt). After the fix, run() converts it to SystemExit(130).
+    Either way, pytest is not exposed to a raw KeyboardInterrupt.
+    """
+    try:
+        entry_point.run(args)
+    except (SystemExit, KeyboardInterrupt) as exc:
+        return exc
+    raise AssertionError("Expected SystemExit or KeyboardInterrupt, but run() returned normally")
+
+
+def test_keyboard_interrupt_exits_130() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=KeyboardInterrupt):
+        exc = _run_catching_interrupts(["excel2json", "some/path", "out.json"])
+    assert isinstance(exc, SystemExit), f"Expected SystemExit, got {type(exc).__name__}"
+    assert exc.code == 130
+
+
+def test_keyboard_interrupt_logs_info() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=KeyboardInterrupt):
+        with patch(_PATCH_LOGGER_INFO) as mock_info:
+            _run_catching_interrupts(["excel2json", "some/path", "out.json"])
+    calls = [str(c) for c in mock_info.call_args_list]
+    assert any("User interrupted execution" in c for c in calls)
+
+
+def test_user_error_exits_1() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=UserError("bad input")):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    assert exc_info.value.code == 1
+
+
+def test_user_error_logs_exception() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=UserError("bad input")):
+        with patch(_PATCH_LOGGER_EXCEPTION) as mock_exc:
+            with pytest.raises(SystemExit):
+                entry_point.run(["excel2json", "some/path", "out.json"])
+    assert mock_exc.called
+
+
+def test_user_error_prints_message(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=UserError("bad input")):
+        with pytest.raises(SystemExit):
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    captured = capsys.readouterr()
+    assert "bad input" in captured.out
+
+
+def test_internal_error_exits_1() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=InternalError("something broke")):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    assert exc_info.value.code == 1
+
+
+def test_internal_error_logs_exception() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=InternalError("something broke")):
+        with patch(_PATCH_LOGGER_EXCEPTION) as mock_exc:
+            with pytest.raises(SystemExit):
+                entry_point.run(["excel2json", "some/path", "out.json"])
+    assert mock_exc.called
+
+
+def test_internal_error_prints_internal_error_message(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=InternalError("something broke")):
+        with pytest.raises(SystemExit):
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    captured = capsys.readouterr()
+    assert "internal error" in captured.out.lower()
+
+
+def test_plain_exception_exits_1() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=RuntimeError("unexpected")):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    assert exc_info.value.code == 1
+
+
+def test_plain_exception_logs_exception() -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=RuntimeError("unexpected")):
+        with patch(_PATCH_LOGGER_EXCEPTION) as mock_exc:
+            with pytest.raises(SystemExit):
+                entry_point.run(["excel2json", "some/path", "out.json"])
+    assert mock_exc.called
+
+
+def test_plain_exception_prints_internal_error_with_message(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch(_PATCH_CALL_ACTION, side_effect=RuntimeError("unexpected boom")):
+        with pytest.raises(SystemExit):
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    captured = capsys.readouterr()
+    assert "unexpected boom" in captured.out

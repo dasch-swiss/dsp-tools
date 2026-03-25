@@ -17,8 +17,8 @@ from packaging.version import parse
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import UserError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import logger_config
@@ -40,10 +40,6 @@ def run(args: Sequence[str]) -> None:
     Args:
         args: a list of arguments passed by the user from the command line,
             excluding the leading "dsp-tools" command.
-
-    Raises:
-        CliUserError: if user input was wrong
-        InternalError: if the user cannot fix it
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_dsp_ingest_url = "http://0.0.0.0:3340"
@@ -71,13 +67,16 @@ def run(args: Sequence[str]) -> None:
             default_dsp_ingest_url=default_dsp_ingest_url,
         )
         success = call_requested_action(parsed_arguments)
-    except BaseError as err:
-        logger.exception(f"The process was terminated because of an Error: {err.message}")
-        print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
+    except KeyboardInterrupt:
+        logger.info("User interrupted execution")
+        sys.exit(130)
+    except UserError as err:
+        logger.exception(f"User error: {err.message}")
+        print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
         success = False
     except Exception as err:  # noqa: BLE001 (blind-except)
-        logger.exception(err)
-        print(InternalError())
+        logger.exception("Internal error occurred")
+        print(InternalError(custom_msg=str(err) if not isinstance(err, InternalError) else None))
         success = False
 
     if not success:

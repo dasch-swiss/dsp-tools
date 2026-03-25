@@ -22,7 +22,6 @@ from requests import Response
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.exceptions import DspToolsRequestException
 
@@ -191,11 +190,10 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
 
 
 def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
-    """Log a timeout error raised by a request and raise our own PermanentTimeOutError"""
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
     logger.error(msg)
-    raise PermanentTimeOutError(msg) from None
+    raise error
 
 
 def should_retry(response: Response) -> bool:

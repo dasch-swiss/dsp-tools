@@ -18,9 +18,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from yaspin import yaspin
-from yaspin.spinners import Spinners
-
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 
@@ -43,53 +40,45 @@ def main() -> None:
     _check_on_main_branch()
     _check_working_tree_clean()
 
-    with yaspin(
-        Spinners.bouncingBall,
-        color="light_green",
-        on_color="on_black",
-        attrs=["bold", "blink"],
-    ) as sp:
-        status_start_msg = "Bumping version ..."
-        sp.text = status_start_msg
+    print("Bumping version ...")
 
-        subprocess.run(["git", "pull"], check=True)
+    subprocess.run(["git", "pull"], check=True)
 
-        release_data = _fetch_release_json()
-        version_key, versions = _get_latest_release(release_data)
+    release_data = _fetch_release_json()
+    version_key, versions = _get_latest_release(release_data)
 
-        old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
-        new_content = _update_compose_content(old_content, versions)
-        DOCKER_COMPOSE_PATH.write_text(new_content, encoding="utf-8")
+    old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
+    new_content = _update_compose_content(old_content, versions)
+    DOCKER_COMPOSE_PATH.write_text(new_content, encoding="utf-8")
 
-        if not _has_diff():
-            sp.text = f"{BACKGROUND_BOLD_RED}docker-compose.yml is already up to date. Nothing to do.{RESET_TO_DEFAULT}"
-            sys.exit(0)
+    if not _has_diff():
+        print(f"{BACKGROUND_BOLD_RED}docker-compose.yml is already up to date. Nothing to do.{RESET_TO_DEFAULT}")
+        sys.exit(0)
 
-        git_msg = f"bump versions to {version_key}"
+    git_msg = f"bump versions to {version_key}"
 
-        branch_name = f"chore/bump-version-{version_key}"
-        subprocess.run(["git", "checkout", "-b", branch_name], check=True)
-        subprocess.run(["git", "add", str(DOCKER_COMPOSE_PATH)], check=True)
-        subprocess.run(
-            ["git", "commit", "-m", git_msg],
-            check=True,
-        )
-        subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
+    branch_name = f"chore/bump-version-{version_key}"
+    subprocess.run(["git", "checkout", "-b", branch_name], check=True)
+    subprocess.run(["git", "add", str(DOCKER_COMPOSE_PATH)], check=True)
+    subprocess.run(
+        ["git", "commit", "-m", git_msg],
+        check=True,
+    )
+    subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
 
-        subprocess.run(
-            [
-                "gh",
-                "pr",
-                "create",
-                "--title",
-                f"chore(start-stack): {git_msg}",
-                "--base",
-                "main",
-            ],
-            check=True,
-        )
-        sp.text = f"Pull request created for branch '{branch_name}'."
-        sp.ok("✔")
+    subprocess.run(
+        [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            f"chore(start-stack): {git_msg}",
+            "--base",
+            "main",
+        ],
+        check=True,
+    )
+    print(f"Pull request created for branch '{branch_name}'.")
 
 
 def _check_gh_installed() -> None:

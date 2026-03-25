@@ -16,7 +16,7 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
@@ -59,7 +59,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
         case _:
-            raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
+            raise UnreachableCodeError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
 def _reformat_min_card(result: ValidationResult) -> InputProblem:

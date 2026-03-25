@@ -5,7 +5,7 @@ import uuid
 
 import regex
 
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.commands.xmlupload.exceptions import InvalidArkError
 
 
 def convert_ark_v0_to_resource_iri(ark: str) -> str:
@@ -26,7 +26,7 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
             '6e' being check digits
 
     Raises:
-        BaseError: if the ARK is invalid
+        InvalidArkError: if the ARK is invalid
 
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -37,14 +37,14 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
 
     # get the salsah resource ID from the ARK and convert it to a UUID version 5 (base64 encoded)
     if ark.count("-") != 2:
-        raise BaseError(f"Error while converting ARK '{ark}'. The ARK seems to be invalid")
+        raise InvalidArkError(f"Error while converting ARK '{ark}'. The ARK seems to be invalid")
     project_id, resource_id, _ = ark.split("-")
     _, project_id = project_id.rsplit("/", 1)
     project_id = project_id.upper()
     if not regex.match("^[0-9a-fA-F]{4}$", project_id):
-        raise BaseError(f"Error while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
+        raise InvalidArkError(f"Error while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
     if not regex.match("^[0-9A-Za-z]+$", resource_id):
-        raise BaseError(f"Error while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
+        raise InvalidArkError(f"Error while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
     # make a UUID v5 from the namespace created above (which is a UUID itself) and the resource ID
     # and encode it to base64

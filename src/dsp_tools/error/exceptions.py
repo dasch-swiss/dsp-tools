@@ -92,9 +92,5 @@ class PermanentConnectionError(InternalError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
-class PermanentTimeOutError(InternalError):
-    """This error is raised when python throws a timeout due to no response from the DSP-API."""
-
-
 class BadCredentialsError(UserError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""

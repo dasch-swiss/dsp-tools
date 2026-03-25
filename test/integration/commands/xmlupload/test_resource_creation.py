@@ -26,7 +26,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_resources
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import PermanentTimeOutError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 from test.integration.commands.xmlupload.legal_info_client_mock import LegalInfoClientMockBase
 
@@ -230,8 +229,8 @@ def test_2_resources_with_stash_interrupted_by_timeout(
 ) -> None:
     _2_resources_with_stash_interrupted_by_error(
         link_val_stash_lookup_two_items,
-        PermanentTimeOutError(""),
-        "PermanentTimeOutError",
+        TimeoutError(),
+        "TimeoutError",
         ingest_client_mock,
         legal_info_client_mock,
         list_client_mock,

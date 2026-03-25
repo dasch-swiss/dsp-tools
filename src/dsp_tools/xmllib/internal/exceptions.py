@@ -1,3 +1,4 @@
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -14,7 +15,7 @@ class XmllibFileNotFoundError(UserError):
     """
 
 
-class XmllibInternalError(UserError):
+class XmllibInternalError(InternalError):
     """
     This error is raised if an internal error, i.e. an error on which the user has no influence, is found in the xmllib.
     """

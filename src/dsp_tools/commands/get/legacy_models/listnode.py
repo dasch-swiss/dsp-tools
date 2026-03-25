@@ -152,11 +152,11 @@ class ListNode(Model):
             if isinstance(children, list) and len(children) > 0 and isinstance(children[0], ListNode):
                 self._children = children
             else:
-                raise BaseError("ERROR Children must be list of ListNodes!")
+                raise BaseError("Children must be list of ListNodes!")
         else:
             self._children = None
         if not isinstance(rootNodeIri, str) and rootNodeIri:
-            raise BaseError("ERROR rootNodeIri must be of type string")
+            raise BaseError("rootNodeIri must be of type string")
         self._rootNodeIri = rootNodeIri
 
     @property

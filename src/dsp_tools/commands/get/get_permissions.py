@@ -201,7 +201,7 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> None:
             raise UnknownDOAPException(err_msg)
         if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
             raise UnknownDOAPException(err_msg)
-        if RV1["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+        if RV1["name"] != "RV" or not RV1["additionalInformation"].endswith("nownUser"):
             raise UnknownDOAPException(err_msg)
         if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
             raise UnknownDOAPException(err_msg)

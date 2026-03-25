@@ -12,10 +12,12 @@ Prerequisites:
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
@@ -36,6 +38,7 @@ def main() -> None:
     _check_gh_authenticated()
     _check_on_main_branch()
     _check_working_tree_clean()
+    _check_github_pat()
 
     print("Bumping versions ...")
 
@@ -50,7 +53,7 @@ def main() -> None:
 
     if not _has_diff():
         print("docker-compose.yml is already up to date. Nothing to do.")
-        sys.exit(1)
+        sys.exit(0)
 
     git_msg = f"bump versions to {version_key}"
 
@@ -69,6 +72,8 @@ def main() -> None:
             f"chore(start-stack): {git_msg}",
             "--base",
             "main",
+            "--body",
+            "",
         ],
         check=True,
     )
@@ -114,20 +119,24 @@ def _check_working_tree_clean() -> None:
         sys.exit(1)
 
 
+def _check_github_pat() -> None:
+    if not os.environ.get("GITHUB_PAT"):
+        print("ERROR: GITHUB_PAT is not set. Provide a PAT with read access to dasch-swiss/ops-deploy.")
+        sys.exit(1)
+
+
 def _fetch_release_json() -> dict[str, dict[str, str]]:
-    result = subprocess.run(
-        [
-            "gh",
-            "api",
-            "repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json",
-            "--header",
-            "Accept: application/vnd.github.raw+json",
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
+    pat = os.environ["GITHUB_PAT"]
+    url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {pat}",
+            "Accept": "application/vnd.github.raw+json",
+        },
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
+    with urllib.request.urlopen(req) as response:  # noqa: S310
+        return json.loads(response.read())  # type: ignore[no-any-return]
 
 
 def _get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:

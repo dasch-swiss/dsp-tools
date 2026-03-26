@@ -1,5 +1,6 @@
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.resource_client_live import ResourceClientLive
+from dsp_tools.commands.mapping.models import PrefixResolutionProblem
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
@@ -27,3 +28,5 @@ validate_root_emit_user_message()
 
 ResourceClient().post_resource()
 ResourceClientLive().post_resource()
+
+PrefixResolutionProblem("", "", "").raw_value

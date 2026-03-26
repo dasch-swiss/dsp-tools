@@ -17,6 +17,8 @@ from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
+from dsp_tools.commands.mapping.config_file import parse_mapping_config
+from dsp_tools.commands.mapping.mapping_add import mapping_add
 from dsp_tools.commands.migration.clean_up import clean_up
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
@@ -211,6 +213,17 @@ def call_create(args: argparse.Namespace) -> bool:
                 exit_if_exists=args.exit_if_exists,
             )
     return success
+
+
+def call_mapping_add(args: argparse.Namespace) -> bool:
+    config_file = Path(args.config_file)
+    check_input_dependencies(required_paths=PathDependencies(required_files=[config_file]))
+    info = parse_mapping_config(config_file)
+    check_input_dependencies(
+        required_paths=PathDependencies(required_files=[info.config.excel_file]),
+        network_dependencies=[NetworkRequirements(api_url=info.server.server)],
+    )
+    return mapping_add(info)
 
 
 def call_migration_complete(args: argparse.Namespace) -> bool:

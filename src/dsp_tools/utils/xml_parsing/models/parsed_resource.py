@@ -73,4 +73,5 @@ class KnoraValueType(Enum):
     MOVING_IMAGE_FILE = auto()
     STILL_IMAGE_FILE = auto()
     STILL_IMAGE_IIIF = auto()
+    STILL_IMAGE_SVG = auto()
     TEXT_FILE = auto()

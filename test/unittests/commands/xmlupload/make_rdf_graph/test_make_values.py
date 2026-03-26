@@ -31,7 +31,6 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichte
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
-from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
@@ -325,7 +324,7 @@ def test_link_target_not_found(lookups: IRILookups) -> None:
         "This is probably because the resource 'non_existing' could not be created. "
         "See warnings.log for more information."
     )
-    with pytest.raises(BaseError, match=err_str):
+    with pytest.raises(Id2IriReplacementError, match=err_str):
         _make_one_value_graph(prop, res_bn, lookups)
 
 

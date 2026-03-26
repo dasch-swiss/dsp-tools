@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "18.9.0"
+version = "18.10.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
@@ -171,6 +171,9 @@ extend-select = [  # this is for preview (beta) features
 
 
 [tool.ruff.lint.per-file-ignores]
+"scripts/**" = [
+    "S607", # flake8-bandit: start-process-with-partial-path  # scripts invoke git/gh by name intentionally
+]
 "__init__.py" = [
     "F401",    # unused-import
     "F403",    # undefined-local-with-import-star

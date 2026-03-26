@@ -309,7 +309,7 @@ Supported file extensions:
 | `AudioRepresentation`       | MP3, WAV                                           |
 | `DocumentRepresentation`    | PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, EPUB         |
 | `MovingImageRepresentation` | MP4                                                |
-| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2                     |
+| `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2, SVG                |
 | `TextRepresentation`        | TXT, CSV, XML, HTM, HTML, XSL, XSD, ODD, RNG, JSON |
 
 For more details, please consult the [API docs](https://docs.dasch.swiss/latest/DSP-API/01-introduction/file-formats/).

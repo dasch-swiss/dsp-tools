@@ -8,6 +8,7 @@ from dsp_tools.commands.validate_data.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import IIIF_URI_VALUE
 from dsp_tools.commands.validate_data.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.validate_data.constants import STILL_IMAGE_VECTOR_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
@@ -36,6 +37,7 @@ FILE_TYPE_TO_PROP = {
     KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_PREFIX}hasMovingImageFileValue",
     KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_PREFIX}hasStillImageFileValue",
     KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraValueType.STILL_IMAGE_SVG: f"{KNORA_API_PREFIX}hasStillImageFileValue",
     KnoraValueType.TEXT_FILE: f"{KNORA_API_PREFIX}hasTextFileValue",
 }
 
@@ -90,6 +92,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
     KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
     KnoraValueType.STILL_IMAGE_IIIF: IIIF_URI_VALUE,
+    KnoraValueType.STILL_IMAGE_SVG: STILL_IMAGE_VECTOR_FILE_VALUE,
     KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
 }
 
@@ -113,6 +116,7 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.MOVING_IMAGE_FILE: TripleObjectType.STRING,
     KnoraValueType.STILL_IMAGE_FILE: TripleObjectType.STRING,
     KnoraValueType.STILL_IMAGE_IIIF: TripleObjectType.URI,
+    KnoraValueType.STILL_IMAGE_SVG: TripleObjectType.STRING,
     KnoraValueType.TEXT_FILE: TripleObjectType.STRING,
 }
 

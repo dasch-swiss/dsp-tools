@@ -1,8 +1,8 @@
+import logging
 from typing import Any
 
 import pytest
 
-from dsp_tools.commands.get.exceptions import UnknownDOAPException
 from dsp_tools.commands.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 
@@ -107,7 +107,7 @@ def test_is_legacy_pattern_wrong_count() -> None:
     assert parse_legacy_doaps([single_member_doap, single_member_doap, single_member_doap]) is None
 
 
-def test_parse_default_permissions_invalid_legacy_falls_back() -> None:
+def test_parse_default_permissions_invalid_legacy_falls_back(caplog: pytest.LogCaptureFixture) -> None:
     """
     Patterns which are neither valid legacy nor valid new-style should first fall back to new-style parsing,
     and then fail during new-style parsing
@@ -119,5 +119,7 @@ def test_parse_default_permissions_invalid_legacy_falls_back() -> None:
             {"additionalInformation": f"{USER_IRI_PREFIX}WrongGroup", "name": "CR", "permissionCode": 16},
         ],
     }
-    with pytest.raises(UnknownDOAPException):
-        _parse_default_permissions([invalid_legacy])
+    with caplog.at_level(logging.WARNING):
+        result = _parse_default_permissions([invalid_legacy])
+    assert result is None
+    assert caplog.text

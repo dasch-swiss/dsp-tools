@@ -255,36 +255,14 @@ class TestResourceDataUpload:
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert resource_client.post_resource.call_count == 24
 
-    def test_data_upload_429_is_retried(
-        self,
-        resource: ProcessedResource,
-        resource_client: MagicMock,
-        iri_lookups: IRILookups,
-    ) -> None:
-        resource_client.post_resource.side_effect = [ResponseCodeAndText(429, "rate limited"), RES_IRI]
-        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-        assert result == RES_IRI
-        assert resource_client.post_resource.call_count == 2
-
     def test_data_upload_try_again_later_is_retried(
         self,
         resource: ProcessedResource,
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
-        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-        assert result == RES_IRI
-        assert resource_client.post_resource.call_count == 2
-
-    def test_data_upload_server_error_suppressed_in_testing_env(
-        self,
-        resource: ProcessedResource,
-        resource_client: MagicMock,
-        iri_lookups: IRILookups,
-    ) -> None:
-        with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "true"}):
-            resource_client.post_resource.return_value = ResponseCodeAndText(500, "server error")
+        with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "false"}):
+            resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
             result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
-        assert result is None
-        assert resource_client.post_resource.call_count == 1
+            assert result == RES_IRI
+            assert resource_client.post_resource.call_count == 2

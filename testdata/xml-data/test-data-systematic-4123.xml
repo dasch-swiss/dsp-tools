@@ -457,6 +457,18 @@
         </text-prop>
     </resource>
 
+    <resource label="Imagething-svg"
+              restype=":ImageThing"
+              id="image_thing_svg"
+              permissions="public">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            testdata/bitstreams/test.svg
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is an SVG image</text>
+        </text-prop>
+    </resource>
+
     <resource label="Test Link to special characters"
               restype=":TestThing"
               id="test_link_to_special_chars">

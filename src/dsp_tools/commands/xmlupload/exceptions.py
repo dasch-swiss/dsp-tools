@@ -50,3 +50,7 @@ class XmlUploadAuthorshipsNotFoundError(UserError):
 
 class XmlUploadListNodeNotFoundError(UserError):
     """Class for errors that are raised when a list node does not exist."""
+
+
+class InvalidArkError(UserError):
+    """This error is raised when an ARK URL cannot be parsed or converted."""

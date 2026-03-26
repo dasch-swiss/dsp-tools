@@ -1,5 +1,34 @@
 # Changelog
 
+## [18.10.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.9.0...v18.10.0) (2026-03-26)
+
+
+### Enhancements
+
+* **data types:** add support for importing svg files (DEV-5966) ([#2217](https://github.com/dasch-swiss/dsp-tools/issues/2217)) ([f5e15cc](https://github.com/dasch-swiss/dsp-tools/commit/f5e15ccdfb87ace2f36d07393331112ee5f72666))
+
+
+### Maintenance
+
+* **ci:** bump versions of github actions ([#2222](https://github.com/dasch-swiss/dsp-tools/issues/2222)) ([7360a8d](https://github.com/dasch-swiss/dsp-tools/commit/7360a8d299008bf7dff3a0a14ce1eaf43434dbee))
+* create script to automate version bumping ([#2236](https://github.com/dasch-swiss/dsp-tools/issues/2236)) ([34a7373](https://github.com/dasch-swiss/dsp-tools/commit/34a737306ff37615988fadc5b6d0bc2ca2748c57))
+* **exceptions:** add KeyboardInterrupt handler to entry point (DEV-6165) ([#2232](https://github.com/dasch-swiss/dsp-tools/issues/2232)) ([3b23150](https://github.com/dasch-swiss/dsp-tools/commit/3b231506109288bef47cc05acbc32aaf415a4ec2))
+* **exceptions:** do not call `InternalError` or `UserError` directly ([#2226](https://github.com/dasch-swiss/dsp-tools/issues/2226)) ([0071a32](https://github.com/dasch-swiss/dsp-tools/commit/0071a322ee40918adb2a50679b0431ce49be8fca))
+* **exceptions:** finalize error guideline document (DEV-5833) ([#2225](https://github.com/dasch-swiss/dsp-tools/issues/2225)) ([bb6bb95](https://github.com/dasch-swiss/dsp-tools/commit/bb6bb95dd0a57ebe941ffe98eb0e6b1a464cfe70))
+* **exceptions:** make `InternalError` and `UserError` the only allowed subclasses of `BaseError` ([#2224](https://github.com/dasch-swiss/dsp-tools/issues/2224)) ([0667e86](https://github.com/dasch-swiss/dsp-tools/commit/0667e8674feb737f42459d60e396ad4c062a319f))
+* **exceptions:** reclassify XmllibInternalError as InternalError (DEV-6169) ([#2230](https://github.com/dasch-swiss/dsp-tools/issues/2230)) ([e8af3c3](https://github.com/dasch-swiss/dsp-tools/commit/e8af3c3f2224d7aa389698bf2f413cee0e7142ab))
+* **exceptions:** replace bare BaseError raises with specific subclasses (DEV-6164) ([#2233](https://github.com/dasch-swiss/dsp-tools/issues/2233)) ([2522599](https://github.com/dasch-swiss/dsp-tools/commit/2522599aa5b0393174c5fe7bd112bbec8e09ea49))
+* fix small errors ([#2239](https://github.com/dasch-swiss/dsp-tools/issues/2239)) ([12c5336](https://github.com/dasch-swiss/dsp-tools/commit/12c5336208135a935887ba0d809fb1dbb6a524e0))
+* remove PermanentTimeOutError class (DEV-6168) ([#2231](https://github.com/dasch-swiss/dsp-tools/issues/2231)) ([669e26e](https://github.com/dasch-swiss/dsp-tools/commit/669e26ed604703f77f48e33a9c115c1b5af05fa3))
+* remove redundant "ERROR:" prefix from exception messages ([#2229](https://github.com/dasch-swiss/dsp-tools/issues/2229)) ([bd57cb6](https://github.com/dasch-swiss/dsp-tools/commit/bd57cb6681083262f277ec2cb1589da407c9b246))
+* **start-stack:** bump version to 2026.03.04 ([#2242](https://github.com/dasch-swiss/dsp-tools/issues/2242)) ([4e09289](https://github.com/dasch-swiss/dsp-tools/commit/4e0928909814e22819f10fd2fab9164f77fbdd84))
+* **workflows:** fix permission handling in automated bump versions ([#2238](https://github.com/dasch-swiss/dsp-tools/issues/2238)) ([bfa1fe1](https://github.com/dasch-swiss/dsp-tools/commit/bfa1fe1855c9c0185a7790bbf0a12ee5c645d422))
+
+
+### Documentation
+
+* rename Contributing to Documentation section heading ([#2227](https://github.com/dasch-swiss/dsp-tools/issues/2227)) ([c4e394e](https://github.com/dasch-swiss/dsp-tools/commit/c4e394e524dd8f4792814801da6569f97017301d))
+
 ## [18.9.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.8.0...v18.9.0) (2026-03-18)
 
 

@@ -624,6 +624,9 @@ class TestFileTypeInfo:
     def test_still_image(self, file_name: str):
         assert _get_file_value_type(file_name) == KnoraValueType.STILL_IMAGE_FILE
 
+    def test_svg_image(self):
+        assert _get_file_value_type("test.svg") == KnoraValueType.STILL_IMAGE_SVG
+
     @pytest.mark.parametrize(
         "file_name",
         [

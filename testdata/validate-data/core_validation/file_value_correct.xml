@@ -246,6 +246,13 @@
         </iiif-uri>
     </resource>
 
+    <resource label="TestStillImageRepresentation SVG" restype=":TestStillImageRepresentation" id="id_still_image_svg">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.svg</bitstream>
+    </resource>
+
     <!-- TextRepresentation -->
 
     <resource label="TestTextRepresentation odd" restype=":TestTextRepresentation" id="id_text_odd">

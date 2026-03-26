@@ -68,7 +68,9 @@ def _parse_new_style_permissions(project_doaps: list[dict[str, Any]]) -> str | N
 
 def _parse_project_member_perms(perms: list[dict[str, Any]]) -> str | None:  # noqa: PLR0911 (too many return statements)
     if len(perms) not in [2, 4]:
-        err_msg = "The only allowed permissions are 'private' (with 2 elements), and 'limited_view' (with 4 elements)"
+        err_msg = (
+            "The only allowed permissions are 'private' (with 2 elements), 'limited_view' or 'public' (with 4 elements)"
+        )
         logger.warning(err_msg)
         return None
     proj_adm_perms = [x for x in perms if x["additionalInformation"].endswith("ProjectAdmin")]
@@ -84,12 +86,16 @@ def _parse_project_member_perms(perms: list[dict[str, Any]]) -> str | None:  # n
     if len(knwn_usr_perms) == len(unkn_usr_perms) == 0:
         return "private"
     if not (len(knwn_usr_perms) == len(unkn_usr_perms) == 1):
-        logger.warning("In case of 'limited_view', there must be 1 for KnownUser and 1 for UnknownUser")
+        logger.warning(
+            "In case of 'limited_view' or 'public', there must be 1 permission for KnownUser and 1 for UnknownUser"
+        )
         return None
-    if knwn_usr_perms[0]["name"] != "V" or unkn_usr_perms[0]["name"] != "V":
-        logger.warning("In case of 'public', KnownUser and UnknownUser must always have V")
-        return None
-    return "public"
+    if knwn_usr_perms[0]["name"] == "RV" and unkn_usr_perms[0]["name"] == "RV":
+        return "limited_view"
+    if knwn_usr_perms[0]["name"] == "V" and unkn_usr_perms[0]["name"] == "V":
+        return "public"
+    logger.warning("KnownUser and UnknownUser must both have RV (limited_view) or both have V (public)")
+    return None
 
 
 def _parse_default_permissions_overrule(
@@ -184,12 +190,12 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
 
 
 def _validate_doap_categories(doap_categories: DoapCategories) -> bool:
-    privates_valid = all(_validate_private_doap(d) for d in doap_categories.class_doaps + doap_categories.prop_doaps)
-    limited_views_valid = all(
+    privates_valid = [_validate_private_doap(d) for d in doap_categories.class_doaps + doap_categories.prop_doaps]
+    limited_views_valid = [
         _validate_limited_view_doap(d)
         for d in doap_categories.has_img_all_classes_doaps + doap_categories.has_img_specific_class_doaps
-    )
-    return privates_valid and limited_views_valid
+    ]
+    return all(privates_valid) and all(limited_views_valid)
 
 
 def _validate_private_doap(doap: dict[str, Any]) -> bool:
@@ -221,10 +227,8 @@ def _validate_limited_view_doap(doap: dict[str, Any]) -> bool:
     if D["name"] != "D" or not D["additionalInformation"].endswith("ProjectMember"):
         logger.warning(err_msg)
         return False
-    if RV1["name"] != "RV" or not RV1["additionalInformation"].endswith("nownUser"):
-        logger.warning(err_msg)
-        return False
-    if RV2["name"] != "RV" or not RV2["additionalInformation"].endswith("nownUser"):
+    rv_groups = {RV1["additionalInformation"].split("#")[-1], RV2["additionalInformation"].split("#")[-1]}
+    if RV1["name"] != "RV" or RV2["name"] != "RV" or rv_groups != {"KnownUser", "UnknownUser"}:
         logger.warning(err_msg)
         return False
     return True

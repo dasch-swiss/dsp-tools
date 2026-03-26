@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 import pytest
+import regex
 
 from dsp_tools.commands.get.get_permissions import _parse_default_permissions
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
@@ -122,4 +123,4 @@ def test_parse_default_permissions_invalid_legacy_falls_back(caplog: pytest.LogC
     with caplog.at_level(logging.WARNING):
         result = _parse_default_permissions([invalid_legacy])
     assert result is None
-    assert caplog.text
+    assert regex.search(r"supported target group for DOAPs is ProjectMember", caplog.text)

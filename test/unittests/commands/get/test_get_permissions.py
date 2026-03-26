@@ -9,7 +9,11 @@ from dsp_tools.commands.get.get_permissions import _construct_overrule_object
 from dsp_tools.commands.get.get_permissions import _convert_prefixes
 from dsp_tools.commands.get.get_permissions import _get_prefixed_iri
 from dsp_tools.commands.get.get_permissions import _parse_default_permissions
+from dsp_tools.commands.get.get_permissions import _parse_new_style_permissions
+from dsp_tools.commands.get.get_permissions import _parse_project_member_perms
 from dsp_tools.commands.get.get_permissions import _validate_doap_categories
+from dsp_tools.commands.get.get_permissions import _validate_limited_view_doap
+from dsp_tools.commands.get.get_permissions import _validate_private_doap
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
 
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
@@ -120,7 +124,7 @@ def test_parse_default_permissions_with_creator(public_perms: dict[str, Any], ca
     with caplog.at_level(logging.WARNING):
         result = _parse_default_permissions([public_perms])
     assert result is None
-    assert "'private' (with 2 elements), and 'limited_view' (with 4 elements)" in caplog.text
+    assert regex.search(r"'private' \(with 2 elements\), 'limited_view' or 'public' \(with 4 elements\)", caplog.text)
 
 
 @pytest.mark.parametrize(
@@ -494,3 +498,213 @@ def test_get_prefixed_iri_no_hash_separator() -> None:
     prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
     with pytest.raises(ValueError, match="is not a valid full IRI"):
         _get_prefixed_iri(full_iri, prefixes_inverted)
+
+
+# --- _parse_project_member_perms ---
+
+
+def test_parse_project_member_perms_private() -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+    ]
+    assert _parse_project_member_perms(perms) == "private"
+
+
+def test_parse_project_member_perms_limited_view() -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+    ]
+    assert _parse_project_member_perms(perms) == "limited_view"
+
+
+def test_parse_project_member_perms_public() -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
+    ]
+    assert _parse_project_member_perms(perms) == "public"
+
+
+def test_parse_project_member_perms_wrong_count(caplog: pytest.LogCaptureFixture) -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "V", "permissionCode": 2},
+    ]
+    with caplog.at_level(logging.WARNING):
+        result = _parse_project_member_perms(perms)
+    assert result is None
+    assert regex.search(r"'private' \(with 2 elements\), 'limited_view' or 'public' \(with 4 elements\)", caplog.text)
+
+
+def test_parse_project_member_perms_wrong_admin_or_member(caplog: pytest.LogCaptureFixture) -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "D", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+    ]
+    with caplog.at_level(logging.WARNING):
+        result = _parse_project_member_perms(perms)
+    assert result is None
+    assert regex.search(r"ProjectAdmin must always have CR and ProjectMember must always have D", caplog.text)
+
+
+def test_parse_project_member_perms_mixed_rv_and_v(caplog: pytest.LogCaptureFixture) -> None:
+    perms = [
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "V", "permissionCode": 2},
+    ]
+    with caplog.at_level(logging.WARNING):
+        result = _parse_project_member_perms(perms)
+    assert result is None
+    assert regex.search(r"KnownUser and UnknownUser must both have RV.*or both have V", caplog.text)
+
+
+# --- _validate_private_doap ---
+
+
+def test_validate_private_doap_valid() -> None:
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        ]
+    }
+    assert _validate_private_doap(doap) is True
+
+
+def test_validate_private_doap_wrong_count(caplog: pytest.LogCaptureFixture) -> None:
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+        ]
+    }
+    with caplog.at_level(logging.WARNING):
+        result = _validate_private_doap(doap)
+    assert result is False
+    assert regex.search(r"'private' is defined as CR ProjectAdmin\|D ProjectMember", caplog.text)
+
+
+def test_validate_private_doap_wrong_names(caplog: pytest.LogCaptureFixture) -> None:
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        ]
+    }
+    with caplog.at_level(logging.WARNING):
+        result = _validate_private_doap(doap)
+    assert result is False
+    assert regex.search(r"'private' is defined as CR ProjectAdmin\|D ProjectMember", caplog.text)
+
+
+# --- _validate_limited_view_doap ---
+
+
+def test_validate_limited_view_doap_valid() -> None:
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+        ]
+    }
+    assert _validate_limited_view_doap(doap) is True
+
+
+def test_validate_limited_view_doap_wrong_count(caplog: pytest.LogCaptureFixture) -> None:
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        ]
+    }
+    with caplog.at_level(logging.WARNING):
+        result = _validate_limited_view_doap(doap)
+    assert result is False
+    limited_view_err = r"'limited_view' is defined as CR ProjectAdmin\|D ProjectMember\|RV KnownUser\|RV UnknownUser"
+    assert regex.search(limited_view_err, caplog.text)
+
+
+def test_validate_limited_view_doap_both_rv_same_group(caplog: pytest.LogCaptureFixture) -> None:
+    """Two KnownUser RV entries (no UnknownUser) must be rejected."""
+    doap = {
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+        ]
+    }
+    with caplog.at_level(logging.WARNING):
+        result = _validate_limited_view_doap(doap)
+    assert result is False
+    limited_view_err = r"'limited_view' is defined as CR ProjectAdmin\|D ProjectMember\|RV KnownUser\|RV UnknownUser"
+    assert regex.search(limited_view_err, caplog.text)
+
+
+def test_validate_doap_categories_logs_all_invalid(caplog: pytest.LogCaptureFixture) -> None:
+    """All invalid DOAPs must each log a warning, not just the first one."""
+    bad_private = {
+        "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ClassA",
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        ],
+    }
+    bad_private2 = {
+        "forProperty": "http://www.knora.org/ontology/1234/my-onto#propB",
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+        ],
+    }
+    categories = DoapCategories(
+        class_doaps=[bad_private],
+        prop_doaps=[bad_private2],
+        has_img_all_classes_doaps=[],
+        has_img_specific_class_doaps=[],
+    )
+    with caplog.at_level(logging.WARNING):
+        result = _validate_doap_categories(categories)
+    assert result is False
+    assert caplog.text.count("'private' is defined as CR ProjectAdmin|D ProjectMember") == 2
+
+
+# --- _parse_new_style_permissions ---
+
+
+def test_parse_new_style_permissions_private(private_perms: dict[str, Any]) -> None:
+    assert _parse_new_style_permissions([private_perms]) == "private"
+
+
+def test_parse_new_style_permissions_public(public_perms: dict[str, Any]) -> None:
+    assert _parse_new_style_permissions([public_perms]) == "public"
+
+
+def test_parse_new_style_permissions_unsupported_group(
+    public_perms: dict[str, Any], caplog: pytest.LogCaptureFixture
+) -> None:
+    public_perms["forGroup"] = f"{USER_IRI_PREFIX}SystemAdmin"
+    with caplog.at_level(logging.WARNING):
+        result = _parse_new_style_permissions([public_perms])
+    assert result is None
+    assert regex.search(r"supported target group for DOAPs is ProjectMember", caplog.text)
+
+
+def test_parse_new_style_permissions_wrong_count(
+    private_perms: dict[str, Any], caplog: pytest.LogCaptureFixture
+) -> None:
+    with caplog.at_level(logging.WARNING):
+        result = _parse_new_style_permissions([private_perms, private_perms])
+    assert result is None
+    assert regex.search(r"exactly 1 DOAP for ProjectMember", caplog.text)

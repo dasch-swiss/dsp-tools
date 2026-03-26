@@ -459,6 +459,16 @@ class TestFileValue:
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF
         assert not res.value_metadata
 
+    def test_svg(self):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        val = ParsedFileValue("image.svg", KnoraValueType.STILL_IMAGE_SVG, metadata)
+        res = _get_file_value(val, AUTHORSHIP_LOOKUP)
+        assert isinstance(res, RdfLikeValue)
+        assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasStillImageFileValue"
+        assert res.user_facing_value == "image.svg"
+        assert res.knora_type == KnoraValueType.STILL_IMAGE_SVG
+        assert not res.value_metadata
+
     def test_iiif_with_legal_info(self):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
         result = _get_file_metadata(metadata, AUTHORSHIP_LOOKUP)

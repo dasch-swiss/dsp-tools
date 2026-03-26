@@ -534,6 +534,22 @@ api-shapes:StillImageFileValue_ClassShape
                                 """
                   ] .
 
+api-shapes:StillImageVectorFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:StillImageVectorFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.svg$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A StillImageVectorFileValue requires a file with the extension 'svg'."
+                  ] .
+
 api-shapes:StillImageExternalFileValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the class type" ;

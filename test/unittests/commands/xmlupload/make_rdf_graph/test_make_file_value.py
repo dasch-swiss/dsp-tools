@@ -10,6 +10,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VAL
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_VECTOR_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _add_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _make_abstract_file_value_graph
@@ -102,6 +103,7 @@ class TestMakeFileValueGraph:
             DOCUMENT_FILE_VALUE,
             MOVING_IMAGE_FILE_VALUE,
             STILL_IMAGE_FILE_VALUE,
+            STILL_IMAGE_VECTOR_FILE_VALUE,
             TEXT_FILE_VALUE,
         ],
     )
@@ -124,6 +126,7 @@ class TestMakeFileValueGraph:
             DOCUMENT_FILE_VALUE,
             MOVING_IMAGE_FILE_VALUE,
             STILL_IMAGE_FILE_VALUE,
+            STILL_IMAGE_VECTOR_FILE_VALUE,
             TEXT_FILE_VALUE,
         ],
     )

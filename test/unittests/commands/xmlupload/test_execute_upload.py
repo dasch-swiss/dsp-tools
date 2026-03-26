@@ -261,7 +261,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        # the retry evaluation function is programmed not to retry if in a testing environment
+        # the retry evaluation function is programmed not to retry if it is in a testing environment,
         # since we want to ensure that we will retry, this needs to be patched here
         with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "false"}):
             resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]

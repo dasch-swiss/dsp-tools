@@ -47,7 +47,6 @@ def mapping_add(info: MappingInfo) -> bool:
 
     succeeded = 0
     failed: list[str] = []
-    total = len(resolved_excel.classes) + len(resolved_excel.properties)
 
     for cm in resolved_excel.classes:
         result = _add_class_with_retry(client, ontology_iri, cm)
@@ -63,7 +62,12 @@ def mapping_add(info: MappingInfo) -> bool:
         else:
             succeeded += 1
 
-    _print_summary(total=total, succeeded=succeeded, failed=failed)
+    _print_summary(
+        n_classes=len(resolved_excel.classes),
+        n_properties=len(resolved_excel.properties),
+        succeeded=succeeded,
+        failed=failed,
+    )
     return len(failed) == 0
 
 
@@ -85,8 +89,8 @@ def _add_property_with_retry(
     return result
 
 
-def _print_summary(total: int, succeeded: int, failed: list[str]) -> None:
-    print(f"Done: {total} entries processed.")
+def _print_summary(n_classes: int, n_properties: int, succeeded: int, failed: list[str]) -> None:
+    print(f"Done: {n_classes} classes and {n_properties} properties processed.")
     print(f"  Succeeded: {succeeded}")
     print(f"  Failed: {len(failed)}")
     for msg in failed:

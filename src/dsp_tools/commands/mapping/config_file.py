@@ -1,20 +1,23 @@
+import warnings
 from pathlib import Path
 from typing import Any
 
 import yaml
+from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFile
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 TEMPLATE = """\
-- shortcode: "{shortcode}"
-- ontology: "{ontology}"
-- excel-file:
-- server:
-- user:
-- password:
+shortcode: "{shortcode}"
+ontology: "{ontology}"
+excel-file:
+user:
+password:
+server:
 """
 
 
@@ -22,7 +25,8 @@ def create_mapping_config(shortcode: str, ontology: str, cwd: Path) -> bool:
     """Write a template mapping YAML config to cwd/mapping-{shortcode}-{ontology}.yaml."""
     output_path = cwd / f"mapping-{shortcode}-{ontology}.yaml"
     if output_path.exists():
-        print(f"WARNING: '{output_path}' already exists. Aborting to avoid overwriting it.")
+        msg = f"'{output_path}' already exists. Aborting to avoid overwriting it."
+        warnings.warn(DspToolsUserWarning(msg))
         return False
     output_path.write_text(TEMPLATE.format(shortcode=shortcode, ontology=ontology), encoding="utf-8")
     print(f"Mapping config written to '{output_path}'.")
@@ -49,7 +53,8 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
     try:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
-        raise InvalidMappingConfigFile(f"Failed to parse YAML file '{filepath}': {e}") from e
+        logger.error(e)
+        raise InvalidMappingConfigFile(f"Failed to parse YAML file '{filepath}'") from None
     if not isinstance(data, dict):
         raise InvalidMappingConfigFile(f"The mapping config file '{filepath}' does not contain a valid YAML mapping.")
     return data

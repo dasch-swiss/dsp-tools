@@ -9,10 +9,10 @@ from dsp_tools.commands.mapping.models import ClassMapping
 from dsp_tools.commands.mapping.models import ParsedMappingExcel
 from dsp_tools.commands.mapping.models import PropertyMapping
 
-_REQUIRED_SHEETS = {"prefix", "classes", "properties"}
-_PREFIX_COLUMNS = {"prefix", "link"}
-_CLASSES_COLUMNS = {"class", "mapping"}
-_PROPERTIES_COLUMNS = {"property", "mapping"}
+REQUIRED_SHEETS = {"prefix", "classes", "properties"}
+PREFIX_COLUMNS = {"prefix", "link"}
+CLASSES_COLUMNS = {"class", "mapping"}
+PROPERTIES_COLUMNS = {"property", "mapping"}
 
 
 def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappingExcel, dict[str, str]]:
@@ -26,7 +26,7 @@ def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappingExcel, dict[str,
 
 
 def _validate_sheets(sheets: dict[str, pd.DataFrame], excel_path: Path) -> None:
-    missing = _REQUIRED_SHEETS - set(sheets.keys())
+    missing = REQUIRED_SHEETS - set(sheets.keys())
     if missing:
         raise InvalidFileFormatError(
             f"The Excel file '{excel_path}' is missing required sheets: {', '.join(sorted(missing))}"
@@ -36,9 +36,9 @@ def _validate_sheets(sheets: dict[str, pd.DataFrame], excel_path: Path) -> None:
 def _validate_columns(sheets: dict[str, pd.DataFrame], excel_path: Path) -> None:
     problems: list[str] = []
     for sheet_name, required_cols in [
-        ("prefix", _PREFIX_COLUMNS),
-        ("classes", _CLASSES_COLUMNS),
-        ("properties", _PROPERTIES_COLUMNS),
+        ("prefix", PREFIX_COLUMNS),
+        ("classes", CLASSES_COLUMNS),
+        ("properties", PROPERTIES_COLUMNS),
     ]:
         problem = check_contains_required_columns(sheets[sheet_name], required_cols)
         if problem:

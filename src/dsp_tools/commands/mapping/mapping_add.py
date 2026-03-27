@@ -48,7 +48,7 @@ def mapping_add(info: MappingInfo) -> bool:
 
 
 def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -> None:
-    # TODO: change communication
+    # TODO: add printing
     pass
 
 

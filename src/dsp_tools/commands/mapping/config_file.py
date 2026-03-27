@@ -42,9 +42,9 @@ def parse_mapping_config(filepath: Path) -> MappingInfo:
         excel_file=Path(_require_field(data, "excel-file", filepath)),
     )
     server = ServerCredentials(
-        server=_require_field(data, "server", filepath),
         user=_require_field(data, "user", filepath),
         password=_require_field(data, "password", filepath),
+        server=_require_field(data, "server", filepath),
     )
     return MappingInfo(config=config, server=server)
 

@@ -14,6 +14,7 @@ from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import parse_api_v3_error
 
 TIMEOUT_30 = 30
 
@@ -24,17 +25,17 @@ class MappingClientLive(MappingClient):
     encoded_ontology_iri: str
     auth: AuthenticationClient
 
-    def put_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> None | ResponseCodeAndText:
         encoded_class = quote_plus(class_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
         return self._put(url, class_iri, mapping_iris)
 
-    def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> None | ResponseCodeAndText:
         encoded_prop = quote_plus(property_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
         return self._put(url, property_iri, mapping_iris)
 
-    def _put(self, url: str, entity_iri: str, external_iris: list[str]) -> str | ResponseCodeAndText:
+    def _put(self, url: str, entity_iri: str, external_iris: list[str]) -> None | ResponseCodeAndText:
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
@@ -50,19 +51,20 @@ class MappingClientLive(MappingClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
+
         log_response(response)
         # TODO: find out what happens when it does not exist
         match response.status_code:
             case HTTPStatus.OK:
-                return entity_iri
-            case HTTPStatus.BAD_REQUEST:
-                raise InvalidInputError(
-                    f"The API rejected the mapping for '{entity_iri}' as invalid input (HTTP 400): {response.text}"
-                )
+                return None
             case HTTPStatus.FORBIDDEN:
                 raise BadCredentialsError(
                     "You do not have permission to add mappings to this project. "
                     "Only a SystemAdmin or ProjectAdmin can perform this action."
                 )
+            case HTTPStatus.BAD_REQUEST:
+                raise InvalidInputError(
+                    f"The API rejected the mapping for '{entity_iri}' as invalid input (HTTP 400): {response.text}"
+                )
             case _:
-                return ResponseCodeAndText(response.status_code, response.text)
+                return parse_api_v3_error(response)

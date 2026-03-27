@@ -24,21 +24,17 @@ class MappingClientLive(MappingClient):
     encoded_ontology_iri: str
     auth: AuthenticationClient
 
-    def add_class_mapping(
-        self, ontology_iri: str, class_iri: str, external_iris: list[str]
-    ) -> str | ResponseCodeAndText:
+    def add_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         encoded_class = quote_plus(class_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
-        return self._put(url, external_iris, class_iri)
+        return self._put(url, class_iri, mapping_iris)
 
-    def add_property_mapping(
-        self, ontology_iri: str, property_iri: str, external_iris: list[str]
-    ) -> str | ResponseCodeAndText:
+    def add_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         encoded_prop = quote_plus(property_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
-        return self._put(url, external_iris, property_iri)
+        return self._put(url, property_iri, mapping_iris)
 
-    def _put(self, url: str, external_iris: list[str], entity_iri: str) -> str | ResponseCodeAndText:
+    def _put(self, url: str, entity_iri: str, external_iris: list[str]) -> str | ResponseCodeAndText:
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",

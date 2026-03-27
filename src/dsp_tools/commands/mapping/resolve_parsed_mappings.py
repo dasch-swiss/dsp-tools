@@ -36,7 +36,7 @@ def _resolve_one_mapping(
     parsed_mapping: ParsedMapping,
     prefix_lookup: dict[str, str],
     ontology_namespace: str,
-    mapping_type: Callable[ResolvedMapping],
+    mapping_type: Callable[[str, list[str]], ResolvedMapping],
 ) -> tuple[ResolvedMapping, list[PrefixResolutionProblem]]:
     resolved: list[str] = []
     problems: list[PrefixResolutionProblem] = []

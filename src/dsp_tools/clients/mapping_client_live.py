@@ -7,6 +7,7 @@ from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import InvalidInputError
+from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.clients.mapping_client import MappingClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
@@ -53,7 +54,7 @@ class MappingClientLive(MappingClient):
             log_and_raise_request_exception(err)
 
         log_response(response)
-        # TODO: find out what happens when it does not exist
+
         match response.status_code:
             case HTTPStatus.OK:
                 return None
@@ -67,4 +68,9 @@ class MappingClientLive(MappingClient):
                     f"The API rejected the mapping for '{entity_iri}' as invalid input (HTTP 400): {response.text}"
                 )
             case _:
-                return parse_api_v3_error(response)
+                parsed_response = parse_api_v3_error(response)
+                if parsed_response.api_error_code == "ontology_not_found":
+                    raise ProjectOntologyNotFound(
+                        "The ontology referenced does not exist on this server for this project."
+                    )
+                return parsed_response

@@ -8,13 +8,13 @@ from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFile
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
 
-_TEMPLATE = """\
-shortcode: "{shortcode}"
-ontology: "{ontology}"
-server:
-user:
-password:
-excel-file:
+TEMPLATE = """\
+- shortcode: "{shortcode}"
+- ontology: "{ontology}"
+- excel-file:
+- server:
+- user:
+- password:
 """
 
 
@@ -24,11 +24,9 @@ def create_mapping_config(shortcode: str, ontology: str, cwd: Path) -> bool:
     if output_path.exists():
         print(f"WARNING: '{output_path}' already exists. Aborting to avoid overwriting it.")
         return False
-    output_path.write_text(_TEMPLATE.format(shortcode=shortcode, ontology=ontology), encoding="utf-8")
-    output_path.chmod(0o600)
+    output_path.write_text(TEMPLATE.format(shortcode=shortcode, ontology=ontology), encoding="utf-8")
     print(f"Mapping config written to '{output_path}'.")
-    print("Please fill in the blank fields: server, user, password, excel-file.")
-    print("WARNING: Add 'mapping-*.yaml' to .gitignore to avoid committing credentials.")
+    print("Please fill in the blank fields: excel-file, server, user, password.")
     return True
 
 

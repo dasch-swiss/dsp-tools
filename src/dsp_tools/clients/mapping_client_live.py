@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from http import HTTPStatus
-from urllib.parse import quote
+from urllib.parse import quote_plus
 
 import requests
 from requests import RequestException
@@ -21,22 +21,21 @@ TIMEOUT_60 = 60
 @dataclass
 class MappingClientLive(MappingClient):
     server: str
+    encoded_ontology_iri: str
     auth: AuthenticationClient
 
     def add_class_mapping(
         self, ontology_iri: str, class_iri: str, external_iris: list[str]
     ) -> str | ResponseCodeAndText:
-        encoded_onto = quote(ontology_iri, safe="")
-        encoded_class = quote(class_iri, safe="")
-        url = f"{self.server}/v3/ontologies/{encoded_onto}/classes/{encoded_class}/mapping"
+        encoded_class = quote_plus(class_iri)
+        url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
         return self._put(url, external_iris, class_iri)
 
     def add_property_mapping(
         self, ontology_iri: str, property_iri: str, external_iris: list[str]
     ) -> str | ResponseCodeAndText:
-        encoded_onto = quote(ontology_iri, safe="")
-        encoded_prop = quote(property_iri, safe="")
-        url = f"{self.server}/v3/ontologies/{encoded_onto}/properties/{encoded_prop}/mapping"
+        encoded_prop = quote_plus(property_iri)
+        url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
         return self._put(url, external_iris, property_iri)
 
     def _put(self, url: str, external_iris: list[str], entity_iri: str) -> str | ResponseCodeAndText:
@@ -56,6 +55,7 @@ class MappingClientLive(MappingClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)
+        # TODO: find out what happens when it does not exist
         match response.status_code:
             case HTTPStatus.OK | HTTPStatus.NO_CONTENT:
                 return entity_iri

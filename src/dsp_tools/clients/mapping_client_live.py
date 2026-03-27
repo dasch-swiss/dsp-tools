@@ -15,7 +15,7 @@ from dsp_tools.utils.request_utils import log_and_raise_request_exception
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT_60 = 60
+TIMEOUT_30 = 30
 
 
 @dataclass
@@ -24,12 +24,12 @@ class MappingClientLive(MappingClient):
     encoded_ontology_iri: str
     auth: AuthenticationClient
 
-    def add_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         encoded_class = quote_plus(class_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
         return self._put(url, class_iri, mapping_iris)
 
-    def add_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         encoded_prop = quote_plus(property_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
         return self._put(url, property_iri, mapping_iris)
@@ -39,7 +39,7 @@ class MappingClientLive(MappingClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("PUT", url, TIMEOUT_60, {"mappings": external_iris}, headers)
+        params = RequestParameters("PUT", url, TIMEOUT_30, {"mappings": external_iris}, headers)
         log_request(params)
         try:
             response = requests.put(

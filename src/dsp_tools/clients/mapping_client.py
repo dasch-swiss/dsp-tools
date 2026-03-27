@@ -8,8 +8,8 @@ class MappingClient(Protocol):
     server: str
     auth: AuthenticationClient
 
-    def add_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         """PUT mapping for a class. Returns the class IRI on success, ResponseCodeAndText otherwise."""
 
-    def add_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
+    def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> str | ResponseCodeAndText:
         """PUT mapping for a property. Returns the property IRI on success, ResponseCodeAndText otherwise."""

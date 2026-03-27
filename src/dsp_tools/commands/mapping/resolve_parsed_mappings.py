@@ -12,7 +12,7 @@ from dsp_tools.utils.data_formats.uri_util import is_uri
 
 def resolve_parsed_mappings(
     parsed_mappings: ParsedMappings, prefix_lookup: dict[str, str], ontology_namespace: str
-) -> ResolvedMappings | list[PrefixResolutionProblem]:
+) -> tuple[ResolvedMappings, list[PrefixResolutionProblem]]:
     all_problems: list[PrefixResolutionProblem] = []
 
     resolved_classes: list[ResolvedClassMapping] = []

@@ -30,6 +30,7 @@ from dsp_tools.utils.exceptions import DspToolsRequestException
 class ResponseCodeAndText:
     status_code: int
     text: str
+    api_error_code: list[str] | None = None
 
 
 @dataclass
@@ -235,3 +236,12 @@ def is_server_error(response: ResponseCodeAndText) -> bool:
     if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
         return True
     return False
+
+
+def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
+    error_object = response.json()["errors"]
+    if error_object:
+        err_code = [x["code"] for x in error_object]
+    else:
+        err_code = None
+    return ResponseCodeAndText(response.status_code, response.text, err_code)

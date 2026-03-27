@@ -8,6 +8,7 @@ from unittest.mock import patch
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import is_server_error
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import parse_api_v3_error
 
 
 def test_log_response() -> None:
@@ -44,3 +45,29 @@ class TestIsServerError:
     def test_internal_server_error_returns_true(self):
         response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
         assert is_server_error(response) is True
+
+
+class TestParseV3ServerErrors:
+    def test_several_errors(self):
+        response_json = {
+            "message": "complete message",
+            "errors": [
+                {"code": "code_1", "message": "msg.", "details": {"id": "res_id", "ontologyIri": "iri"}},
+                {"code": "code_2", "message": "msg.", "details": {"id": "res_id", "ontologyIri": "iri"}},
+            ],
+        }
+        json_str = json.dumps(response_json)
+        response_mocked = ResponseMock(404, {}, json_str)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 404
+        assert result.text == json_str
+        assert result.api_error_code == ["code_1", "code_2"]
+
+    def test_no_error_code(self):
+        response_json = {"message": "complete message", "errors": []}
+        json_str = json.dumps(response_json)
+        response_mocked = ResponseMock(404, {}, json_str)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 404
+        assert result.text == json_str
+        assert result.api_error_code is None

@@ -58,3 +58,10 @@ class ResolvedPropertyMapping(ResolvedMapping): ...
 class ResolvedMappings:
     classes: list[ResolvedClassMapping]
     properties: list[ResolvedPropertyMapping]
+
+
+@dataclass
+class MappingRequestFailedProblem:
+    iri: str
+    mapping_iri: str
+    problem: str

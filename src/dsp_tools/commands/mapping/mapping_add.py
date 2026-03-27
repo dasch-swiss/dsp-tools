@@ -26,7 +26,6 @@ def mapping_add(info: MappingInfo) -> bool:
         _communicate_parsing_problems(problems)
         return False
 
-    # TODO: make a check if the ontology exists
     encoded_ontology_iri = quote_plus(ontology_namespace.rstrip("#"))
     auth = AuthenticationClientLive(
         server=info.server.server,
@@ -55,9 +54,11 @@ def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -
 def _add_classes_mappings(
     client: MappingClient, classes_mapping: list[ResolvedClassMapping]
 ) -> list[MappingUploadFailure]:
+
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for cls in classes_mapping:
         pass
+        # "class_not_found"
 
 
 def _add_properties_mappings(
@@ -66,6 +67,7 @@ def _add_properties_mappings(
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for prop in properties_mapping:
         pass
+        # "property_not_found"
 
 
 def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:

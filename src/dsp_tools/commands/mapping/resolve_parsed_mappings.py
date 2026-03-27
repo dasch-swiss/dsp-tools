@@ -29,9 +29,7 @@ def resolve_parsed_mappings(
         resolved_properties.append(resolved_prop)
         all_problems.extend(prop_problems)
 
-    if all_problems:
-        return all_problems
-    return ResolvedMappings(resolved_classes, resolved_properties)
+    return ResolvedMappings(resolved_classes, resolved_properties), all_problems
 
 
 def _resolve_one_mapping(

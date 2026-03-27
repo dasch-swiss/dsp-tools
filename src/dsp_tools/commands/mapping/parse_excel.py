@@ -56,7 +56,9 @@ def _parse_prefix_sheet(df: pd.DataFrame) -> dict[str, str]:
     return dict(zip(df["prefix"].tolist(), df["link"].tolist()))
 
 
-def _parse_mapping_sheet(df: pd.DataFrame, col_name: str, output_type: Callable[ParsedMapping]) -> list[ParsedMapping]:
+def _parse_mapping_sheet(
+    df: pd.DataFrame, col_name: str, output_type: Callable[[str, list[str]], ParsedMapping]
+) -> list[ParsedMapping]:
     df = df.dropna(how="any")
     parsed = []
     for _, row in df.iterrows():

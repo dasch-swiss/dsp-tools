@@ -53,7 +53,7 @@ class MappingClientLive(MappingClient):
         log_response(response)
         # TODO: find out what happens when it does not exist
         match response.status_code:
-            case HTTPStatus.OK | HTTPStatus.NO_CONTENT:
+            case HTTPStatus.OK:
                 return entity_iri
             case HTTPStatus.BAD_REQUEST:
                 raise InvalidInputError(

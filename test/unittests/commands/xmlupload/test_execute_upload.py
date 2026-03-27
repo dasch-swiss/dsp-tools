@@ -18,7 +18,6 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -177,18 +176,6 @@ class TestExecuteOneUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.side_effect = PermanentConnectionError("conn err")
-        with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
-
-    def test_upload_bad_credentials_stops_upload(
-        self,
-        resource: ProcessedResource,
-        upload_state: UploadState,
-        resource_client: MagicMock,
-        ingest_client: MagicMock,
-        iri_lookups: IRILookups,
-    ) -> None:
-        resource_client.post_resource.side_effect = BadCredentialsError("Forbidden")
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
 

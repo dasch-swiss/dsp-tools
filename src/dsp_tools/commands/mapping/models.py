@@ -18,6 +18,24 @@ class MappingInfo:
 
 
 @dataclass
+class ParsedMapping:
+    name: str
+    prefixed_mapping_iris: list[str]
+
+
+class ParsedClassMapping(ParsedMapping): ...
+
+
+class ParsedPropertyMapping(ParsedMapping): ...
+
+
+@dataclass
+class ParsedMappingExcel:
+    classes: list[ParsedClassMapping]
+    properties: list[ParsedPropertyMapping]
+
+
+@dataclass
 class PrefixResolutionProblem:
     entity: str
     raw_value: str
@@ -25,18 +43,18 @@ class PrefixResolutionProblem:
 
 
 @dataclass
-class ClassMapping:
-    class_iri: str
+class ResolvedMapping:
+    iri: str
     mapping_iris: list[str]
 
 
-@dataclass
-class PropertyMapping:
-    property_iri: str
-    mapping_iris: list[str]
+class ResolvedClassMapping(ResolvedMapping): ...
+
+
+class ResolvedPropertyMapping(ResolvedMapping): ...
 
 
 @dataclass
-class ParsedMappingExcel:
-    classes: list[ClassMapping]
-    properties: list[PropertyMapping]
+class ResolvedMappings:
+    classes: list[ResolvedClassMapping]
+    properties: list[ResolvedPropertyMapping]

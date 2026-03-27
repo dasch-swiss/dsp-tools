@@ -8,7 +8,7 @@ from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.commands.mapping.models import ParsedClassMapping
 from dsp_tools.commands.mapping.models import ParsedMapping
-from dsp_tools.commands.mapping.models import ParsedMappingExcel
+from dsp_tools.commands.mapping.models import ParsedMappings
 from dsp_tools.commands.mapping.models import ParsedPropertyMapping
 
 REQUIRED_SHEETS = {"prefix", "classes", "properties"}
@@ -17,7 +17,7 @@ CLASSES_COLUMNS = {"class", "mapping"}
 PROPERTIES_COLUMNS = {"property", "mapping"}
 
 
-def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappingExcel, dict[str, str]]:
+def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappings, dict[str, str]]:
     sheets = read_and_clean_all_sheets(excel_path)
     _validate_sheets(sheets, excel_path)
     _validate_columns(sheets, excel_path)
@@ -26,7 +26,7 @@ def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappingExcel, dict[str,
     properties: list[ParsedPropertyMapping] = _parse_mapping_sheet(
         sheets["properties"], "property", ParsedPropertyMapping
     )
-    return ParsedMappingExcel(classes=classes, properties=properties), prefix_map
+    return ParsedMappings(classes=classes, properties=properties), prefix_map
 
 
 def _validate_sheets(sheets: dict[str, pd.DataFrame], excel_path: Path) -> None:

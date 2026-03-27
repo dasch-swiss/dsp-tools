@@ -30,16 +30,16 @@ class ParsedPropertyMapping(ParsedMapping): ...
 
 
 @dataclass
-class ParsedMappingExcel:
+class ParsedMappings:
     classes: list[ParsedClassMapping]
     properties: list[ParsedPropertyMapping]
 
 
 @dataclass
 class PrefixResolutionProblem:
-    entity: str
-    raw_value: str
-    prefix: str
+    entity_name: str
+    input_value: str
+    problem: str
 
 
 @dataclass

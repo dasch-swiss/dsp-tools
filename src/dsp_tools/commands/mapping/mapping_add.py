@@ -3,32 +3,32 @@ import time
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.mapping_client import MappingClient
 from dsp_tools.clients.mapping_client_live import MappingClientLive
-from dsp_tools.commands.mapping.excel_parser import parse_mapping_excel
-from dsp_tools.commands.mapping.iri_resolver import resolve_all
 from dsp_tools.commands.mapping.models import ClassMapping
 from dsp_tools.commands.mapping.models import MappingInfo
-from dsp_tools.commands.mapping.models import ParsedMappingExcel
+from dsp_tools.commands.mapping.models import ParsedMappings
 from dsp_tools.commands.mapping.models import PropertyMapping
+from dsp_tools.commands.mapping.parse_excel import parse_mapping_excel
+from dsp_tools.commands.mapping.resolve_parsed_mappings import resolve_parsed_mappings
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import is_server_error
 
 
 def mapping_add(info: MappingInfo) -> bool:
-    raw_excel, prefix_map = parse_mapping_excel(info.config.excel_file)
+    parsed_excel, prefix_lookup = parse_mapping_excel(info.config.excel_file)
 
-    ontology_iri = make_dsp_ontology_prefix(info.server.server, info.config.shortcode, info.config.ontology).rstrip("#")
+    ontology_iri = make_dsp_ontology_prefix(info.server.server, info.config.shortcode, info.config.ontology)
 
     classes = [
-        ClassMapping(class_iri=f"{ontology_iri}#{cm.class_iri}", mapping_iris=cm.mapping_iris)
-        for cm in raw_excel.classes
+        ClassMapping(class_iri=f"{ontology_iri}{cm.class_iri}", mapping_iris=cm.mapping_iris)
+        for cm in parsed_excel.classes
     ]
     properties = [
-        PropertyMapping(property_iri=f"{ontology_iri}#{pm.property_iri}", mapping_iris=pm.mapping_iris)
-        for pm in raw_excel.properties
+        PropertyMapping(property_iri=f"{ontology_iri}{pm.property_iri}", mapping_iris=pm.mapping_iris)
+        for pm in parsed_excel.properties
     ]
-    excel_with_full_iris = ParsedMappingExcel(classes=classes, properties=properties)
-    resolved_excel, problems = resolve_all(excel_with_full_iris, prefix_map)
+    excel_with_full_iris = ParsedMappings(classes=classes, properties=properties)
+    resolved_excel, problems = resolve_parsed_mappings(excel_with_full_iris, prefix_lookup)
 
     if problems:
         problem_lines = "\n".join(

@@ -4,9 +4,9 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
-from dsp_tools.commands.mapping.excel_parser import parse_mapping_excel
 from dsp_tools.commands.mapping.models import ClassMapping
 from dsp_tools.commands.mapping.models import PropertyMapping
+from dsp_tools.commands.mapping.parse_excel import parse_mapping_excel
 
 
 def _write_excel(

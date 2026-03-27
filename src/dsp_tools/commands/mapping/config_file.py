@@ -14,16 +14,16 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 TEMPLATE = """\
 shortcode: "{shortcode}"
 ontology: "{ontology}"
-excel-file:
-user:
-password:
-server:
+excel-file: 
+user: 
+password: 
+server: 
 """
 
 
 def create_mapping_config(shortcode: str, ontology: str, cwd: Path) -> bool:
     """Write a template mapping YAML config to cwd/mapping-{shortcode}-{ontology}.yaml."""
-    output_path = cwd / f"mapping-{shortcode}-{ontology}.yaml"
+    output_path = cwd / f"{shortcode}-{ontology}-mapping.yaml"
     if output_path.exists():
         msg = f"'{output_path}' already exists. Aborting to avoid overwriting it."
         warnings.warn(DspToolsUserWarning(msg))

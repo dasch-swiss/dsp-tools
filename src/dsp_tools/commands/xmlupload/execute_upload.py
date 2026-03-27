@@ -15,7 +15,6 @@ from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
@@ -50,8 +49,6 @@ def _execute_one_resource_upload(
         iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups)
     except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
-    except BadCredentialsError as err:
-        handle_permanent_connection_error(PermanentConnectionError(err.message))
     except PermanentConnectionError as err:
         handle_permanent_connection_error(err)
     except Exception as err:  # noqa: BLE001 (blind-except)

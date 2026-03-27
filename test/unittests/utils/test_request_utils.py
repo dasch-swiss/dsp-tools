@@ -47,7 +47,7 @@ class TestIsServerError:
         assert is_server_error(response) is True
 
 
-class TestParseV3ServerErrors:
+class TestParseApiV3Errors:
     def test_several_errors(self):
         response_json = {
             "message": "complete message",

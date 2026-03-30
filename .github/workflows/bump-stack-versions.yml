@@ -5,12 +5,8 @@ name: Bump start-stack versions
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Release version (e.g. 2026.10.02)"
-        required: true
-        type: string
-      versions_json:
-        description: 'JSON component versions, e.g. {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}'
+      version_json:
+        description: 'JSON with release + component versions, e.g. {"release":"2026.10.02","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"}'
         required: true
         type: string
 

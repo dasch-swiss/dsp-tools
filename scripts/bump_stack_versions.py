@@ -37,8 +37,6 @@ IMAGE_SUBSTITUTIONS: list[tuple[str, str]] = [
 def main() -> None:
     _check_gh_installed()
     _check_gh_authenticated()
-    _check_on_main_branch()
-    _check_working_tree_clean()
 
     print("Bumping versions ...")
 
@@ -92,30 +90,6 @@ def _check_gh_authenticated() -> None:
         sys.exit(1)
 
 
-def _check_on_main_branch() -> None:
-    result = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    branch = result.stdout.strip()
-    if branch != "main":
-        print(f"ERROR: Must be on the 'main' branch, but currently on '{branch}'.")
-        sys.exit(1)
-
-
-def _check_working_tree_clean() -> None:
-    result = subprocess.run(
-        ["git", "status", "--porcelain"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    if result.stdout.strip():
-        print("ERROR: Working tree is not clean. Please commit or stash your changes first.")
-        print(result.stdout)
-        sys.exit(1)
 
 
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:

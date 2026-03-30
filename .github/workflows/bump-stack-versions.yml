@@ -36,5 +36,4 @@ jobs:
         run: python scripts/bump_stack_versions.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ inputs.version }}
-          VERSIONS_JSON: ${{ inputs.versions_json }}
+          VERSION_JSON: ${{ inputs.GHA_WORKFLOW_INPUTS }}

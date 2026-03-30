@@ -28,27 +28,13 @@ services:
 
 class TestGetVersionsFromEnv:
     def test_happy_path(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("VERSION", "2026.10.02")
-        monkeypatch.setenv("VERSIONS_JSON", '{"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}')
+        monkeypatch.setenv("VERSION_JSON", '{"release":"2026.03.04","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"}')
         key, versions = _get_versions_from_env()
-        assert key == "2026.10.02"
+        assert key == "2026.03.04"
         assert versions == {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}
 
-    def test_missing_version_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.delenv("VERSION", raising=False)
-        monkeypatch.setenv("VERSIONS_JSON", '{"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}')
-        with pytest.raises(SystemExit):
-            _get_versions_from_env()
-
-    def test_missing_versions_json_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("VERSION", "2026.10.02")
-        monkeypatch.delenv("VERSIONS_JSON", raising=False)
-        with pytest.raises(SystemExit):
-            _get_versions_from_env()
-
     def test_malformed_json_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("VERSION", "2026.10.02")
-        monkeypatch.setenv("VERSIONS_JSON", "not-valid-json")
+        monkeypatch.setenv("VERSION_JSON", "not-valid-json")
         with pytest.raises(SystemExit):
             _get_versions_from_env()
 

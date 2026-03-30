@@ -1,14 +1,13 @@
 """Script to automate bumping the Docker image versions of DSP components.
 
-Reads the release version and component versions from environment variables (VERSION and VERSIONS_JSON),
+Reads the release version and component versions from the VERSION_JSON environment variable,
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
 - git must be installed and the working tree must be on a clean main branch
 - gh CLI must be installed and authenticated (gh auth login)
-- VERSION env var must be set (e.g. 2026.10.02)
-- VERSIONS_JSON env var must be set (e.g. {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"})
+- VERSION_JSON env var must be set (e.g. {"release":"2026.10.02","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"})
 """
 
 from __future__ import annotations
@@ -52,7 +51,7 @@ def main() -> None:
         print("docker-compose.yml is already up to date. Nothing to do.")
         sys.exit(0)
 
-    git_msg = f"bump versions to {version_key}"
+    git_msg = f"chore(start-stack): bump version to {version_key}"
 
     branch_name = f"chore/bump-version-{version_key}"
     subprocess.run(["git", "checkout", "-b", branch_name], check=True)
@@ -90,23 +89,21 @@ def _check_gh_authenticated() -> None:
         sys.exit(1)
 
 
-
-
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:
-    version = os.environ.get("VERSION")
-    if not version:
-        print("ERROR: VERSION is not set. Provide the release version string (e.g. 2026.10.02).")
-        sys.exit(1)
-    versions_json = os.environ.get("VERSIONS_JSON")
-    if not versions_json:
-        print("ERROR: VERSIONS_JSON is not set. Provide a JSON string with component versions.")
+    version_json = os.environ.get("VERSION_JSON")
+    if not version_json:
+        print("ERROR: VERSION_JSON is not set. Provide a JSON string with release + component versions.")
         sys.exit(1)
     try:
-        versions: dict[str, str] = json.loads(versions_json)
+        data: dict[str, str] = json.loads(version_json)
     except json.JSONDecodeError as e:
-        print(f"ERROR: VERSIONS_JSON is not valid JSON: {e}")
+        print(f"ERROR: VERSION_JSON is not valid JSON: {e}")
         sys.exit(1)
-    return version, versions
+    release = data.pop("release", None)
+    if not release:
+        print("ERROR: VERSION_JSON must contain a 'release' key.")
+        sys.exit(1)
+    return release, data
 
 
 def _update_compose_content(content: str, versions: dict[str, str]) -> str:

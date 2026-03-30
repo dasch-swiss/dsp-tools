@@ -1,12 +1,14 @@
 """Script to automate bumping the Docker image versions of DSP components.
 
-Fetches the latest version from dasch-swiss/ops-deploy/versions/RELEASE.json,
+Reads the release version and component versions from environment variables (VERSION and VERSIONS_JSON),
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
 - git must be installed and the working tree must be on a clean main branch
 - gh CLI must be installed and authenticated (gh auth login)
+- VERSION env var must be set (e.g. 2026.10.02)
+- VERSIONS_JSON env var must be set (e.g. {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"})
 """
 
 from __future__ import annotations
@@ -17,7 +19,6 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib.request
 from pathlib import Path
 
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
@@ -38,14 +39,12 @@ def main() -> None:
     _check_gh_authenticated()
     _check_on_main_branch()
     _check_working_tree_clean()
-    _check_github_pat()
 
     print("Bumping versions ...")
 
     subprocess.run(["git", "pull"], check=True)
 
-    release_data = _fetch_release_json()
-    version_key, versions = _get_latest_release(release_data)
+    version_key, versions = _get_versions_from_env()
 
     old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
     new_content = _update_compose_content(old_content, versions)
@@ -119,29 +118,21 @@ def _check_working_tree_clean() -> None:
         sys.exit(1)
 
 
-def _check_github_pat() -> None:
-    if not os.environ.get("GITHUB_PAT"):
-        print("ERROR: GITHUB_PAT is not set. Provide a PAT with read access to dasch-swiss/ops-deploy.")
+def _get_versions_from_env() -> tuple[str, dict[str, str]]:
+    version = os.environ.get("VERSION")
+    if not version:
+        print("ERROR: VERSION is not set. Provide the release version string (e.g. 2026.10.02).")
         sys.exit(1)
-
-
-def _fetch_release_json() -> dict[str, dict[str, str]]:
-    pat = os.environ["GITHUB_PAT"]
-    url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": f"Bearer {pat}",
-            "Accept": "application/vnd.github.raw+json",
-        },
-    )
-    with urllib.request.urlopen(req) as response:  # noqa: S310
-        return json.loads(response.read())  # type: ignore[no-any-return]
-
-
-def _get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:
-    latest_key = max(data.keys())
-    return latest_key, data[latest_key]
+    versions_json = os.environ.get("VERSIONS_JSON")
+    if not versions_json:
+        print("ERROR: VERSIONS_JSON is not set. Provide a JSON string with component versions.")
+        sys.exit(1)
+    try:
+        versions: dict[str, str] = json.loads(versions_json)
+    except json.JSONDecodeError as e:
+        print(f"ERROR: VERSIONS_JSON is not valid JSON: {e}")
+        sys.exit(1)
+    return version, versions
 
 
 def _update_compose_content(content: str, versions: dict[str, str]) -> str:

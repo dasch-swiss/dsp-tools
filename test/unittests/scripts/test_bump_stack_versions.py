@@ -1,4 +1,6 @@
-from scripts.bump_stack_versions import _get_latest_release
+import pytest
+
+from scripts.bump_stack_versions import _get_versions_from_env
 from scripts.bump_stack_versions import _update_compose_content
 
 COMPOSE_FIXTURE = """\
@@ -24,21 +26,31 @@ services:
 """
 
 
-class TestGetLatestRelease:
-    def test_multiple_entries_returns_latest(self) -> None:
-        data = {
-            "2026.01.14": {"api": "v34.0.0", "app": "v11.0.0", "db": "5.4.0-1", "alloy": "v1.9.0"},
-            "2026.03.04": {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3", "alloy": "v1.10.0"},
-            "2026.02.18": {"api": "v35.1.0", "app": "v12.8.0", "db": "5.5.0-2", "alloy": "v1.9.5"},
-        }
-        key, versions = _get_latest_release(data)
-        assert key == "2026.03.04"
-        assert versions["api"] == "v35.3.0"
+class TestGetVersionsFromEnv:
+    def test_happy_path(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VERSION", "2026.10.02")
+        monkeypatch.setenv("VERSIONS_JSON", '{"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}')
+        key, versions = _get_versions_from_env()
+        assert key == "2026.10.02"
+        assert versions == {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}
 
-    def test_single_entry_key_is_returned(self) -> None:
-        data = {"2025.12.01": {"api": "v30.0.0", "app": "v10.0.0", "db": "5.0.0-1", "alloy": "v1.0.0"}}
-        key, _ = _get_latest_release(data)
-        assert key == "2025.12.01"
+    def test_missing_version_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("VERSION", raising=False)
+        monkeypatch.setenv("VERSIONS_JSON", '{"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}')
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
+
+    def test_missing_versions_json_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VERSION", "2026.10.02")
+        monkeypatch.delenv("VERSIONS_JSON", raising=False)
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
+
+    def test_malformed_json_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("VERSION", "2026.10.02")
+        monkeypatch.setenv("VERSIONS_JSON", "not-valid-json")
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
 
 
 class TestUpdateComposeContent:

@@ -4,6 +4,15 @@ name: Bump start-stack versions
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 2026.10.02)"
+        required: true
+        type: string
+      versions_json:
+        description: 'JSON component versions, e.g. {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -27,4 +36,5 @@ jobs:
         run: python scripts/bump_stack_versions.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+          VERSION: ${{ inputs.version }}
+          VERSIONS_JSON: ${{ inputs.versions_json }}

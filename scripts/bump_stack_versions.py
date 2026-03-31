@@ -5,7 +5,6 @@ updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
-- gh CLI must be installed and authenticated
 - RELEASE, API, APP, DB env vars must be set
 """
 
@@ -13,7 +12,6 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -32,12 +30,7 @@ IMAGE_SUBSTITUTIONS: list[tuple[str, str]] = [
 
 
 def main() -> None:
-    _check_gh_installed()
-    _check_gh_authenticated()
-
     print("Bumping versions ...")
-
-    subprocess.run(["git", "pull"], check=True)
 
     version_key, versions = _get_versions_from_env()
 
@@ -74,30 +67,21 @@ def main() -> None:
     print(f"Pull request created for branch '{branch_name}'.")
 
 
-def _check_gh_installed() -> None:
-    if shutil.which("gh") is None:
-        print("ERROR: 'gh' CLI is not installed. Install it from https://cli.github.com/")
-        sys.exit(1)
-
-
-def _check_gh_authenticated() -> None:
-    result = subprocess.run(["gh", "auth", "status"], capture_output=True, check=False)
-    if result.returncode != 0:
-        print("ERROR: Not authenticated with GitHub. Run 'gh auth login' first.")
-        sys.exit(1)
-
-
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:
-    required = {"RELEASE": "release", "API": "api", "APP": "app", "DB": "db"}
-    values: dict[str, str] = {}
-    for env_var, key in required.items():
-        value = os.environ.get(env_var)
-        if not value:
-            print(f"ERROR: {env_var} env var is not set.")
-            sys.exit(1)
-        values[key] = value
-    release = values.pop("release")
-    return release, values
+    release = _require_env("RELEASE")
+    return release, {
+        "api": _require_env("API"),
+        "app": _require_env("APP"),
+        "db": _require_env("DB"),
+    }
+
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        print(f"ERROR: {name} env var is not set.")
+        sys.exit(1)
+    return value
 
 
 def _update_compose_content(content: str, versions: dict[str, str]) -> str:

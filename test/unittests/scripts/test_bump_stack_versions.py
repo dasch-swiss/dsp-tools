@@ -1,6 +1,7 @@
 import pytest
 
 from scripts.bump_stack_versions import _get_versions_from_env
+from scripts.bump_stack_versions import _require_env
 from scripts.bump_stack_versions import _update_compose_content
 
 COMPOSE_FIXTURE = """\
@@ -24,6 +25,22 @@ services:
   db:
     image: daschswiss/apache-jena-fuseki:5.5.0-3
 """
+
+
+class TestRequireEnv:
+    def test_returns_value_when_set(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("SOME_VAR", "some_value")
+        assert _require_env("SOME_VAR") == "some_value"
+
+    def test_exits_when_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("SOME_VAR", raising=False)
+        with pytest.raises(SystemExit):
+            _require_env("SOME_VAR")
+
+    def test_exits_when_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("SOME_VAR", "")
+        with pytest.raises(SystemExit):
+            _require_env("SOME_VAR")
 
 
 class TestGetVersionsFromEnv:

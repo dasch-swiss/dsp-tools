@@ -4,6 +4,23 @@ name: Bump start-stack versions
 
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Release name, e.g. 2026.10.02'
+        required: true
+        type: string
+      api:
+        description: 'DSP-API / Sipi / Ingest version, e.g. v35.3.0'
+        required: true
+        type: string
+      app:
+        description: 'DSP-APP version, e.g. v12.10.0'
+        required: true
+        type: string
+      db:
+        description: 'Fuseki version, e.g. 5.5.0-3'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -27,4 +44,7 @@ jobs:
         run: python scripts/bump_stack_versions.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+          RELEASE: ${{ inputs.release }}
+          API: ${{ inputs.api }}
+          APP: ${{ inputs.app }}
+          DB: ${{ inputs.db }}

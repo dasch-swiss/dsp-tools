@@ -1,5 +1,6 @@
 """
 Script to automate bumping the Docker image versions of DSP components.
+This script is meant to be run in the GitHub Actions CI. See `.github/workflows/bump-stack-versions.yml`.
 
 Reads the release version and component versions from environment variables,
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,

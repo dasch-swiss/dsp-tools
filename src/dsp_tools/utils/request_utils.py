@@ -244,6 +244,6 @@ def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
         error_object = response.json()["errors"]
         if error_object:
             err_code = [x["code"] for x in error_object]
-    except JSONDecodeError:
+    except json.decoder.JSONDecodeError:
         pass
     return ResponseCodeAndText(response.status_code, response.text, err_code)

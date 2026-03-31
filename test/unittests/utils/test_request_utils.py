@@ -71,3 +71,11 @@ class TestParseApiV3Errors:
         assert result.status_code == 404
         assert result.text == json_str
         assert result.api_error_code is None
+
+    def test_not_v3_error_style(self):
+        response_message = "Invalid value for: path parameter classIri"
+        response_mocked = ResponseMock(400, {}, response_message)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 400
+        assert result.text == response_message
+        assert result.api_error_code is None

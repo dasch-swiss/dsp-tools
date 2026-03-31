@@ -5,8 +5,7 @@ updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
-- git must be installed and the working tree must be on a clean main branch
-- gh CLI must be installed and authenticated (gh auth login)
+- gh CLI must be installed and authenticated
 - VERSION_JSON env var must be set (e.g. {"release":"2026.10.02","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"})
 """
 
@@ -65,7 +64,7 @@ def main() -> None:
             "pr",
             "create",
             "--title",
-            f"chore(start-stack): {git_msg}",
+            git_msg,
             "--base",
             "main",
             "--body",

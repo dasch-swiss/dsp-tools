@@ -52,8 +52,8 @@ class TestParseApiV3Errors:
         response_json = {
             "message": "complete message",
             "errors": [
-                {"code": "code_1", "message": "msg.", "details": {"id": "res_id", "ontologyIri": "iri"}},
-                {"code": "code_2", "message": "msg.", "details": {"id": "res_id", "ontologyIri": "iri"}},
+                {"code": "code_1", "message": "msg.", "details": {}},
+                {"code": "code_2", "message": "msg.", "details": {}},
             ],
         }
         json_str = json.dumps(response_json)

@@ -63,10 +63,6 @@ class MappingClientLive(MappingClient):
                     "You do not have permission to add mappings to this project. "
                     "Only a SystemAdmin or ProjectAdmin can perform this action."
                 )
-            case HTTPStatus.BAD_REQUEST:
-                raise InvalidInputError(
-                    f"The API rejected the mapping for '{entity_iri}' as invalid input (HTTP 400): {response.text}"
-                )
             case _:
                 parsed_response = parse_api_v3_error(response)
                 if parsed_response.api_error_code == "ontology_not_found":

@@ -1,17 +1,16 @@
 """Script to automate bumping the Docker image versions of DSP components.
 
-Reads the release version and component versions from the VERSION_JSON environment variable,
+Reads the release version and component versions from environment variables,
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
 - gh CLI must be installed and authenticated
-- VERSION_JSON env var must be set (e.g. {"release":"2026.10.02","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"})
+- RELEASE, API, APP, DB env vars must be set
 """
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import shutil
@@ -89,20 +88,16 @@ def _check_gh_authenticated() -> None:
 
 
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:
-    version_json = os.environ.get("VERSION_JSON")
-    if not version_json:
-        print("ERROR: VERSION_JSON is not set. Provide a JSON string with release + component versions.")
-        sys.exit(1)
-    try:
-        data: dict[str, str] = json.loads(version_json)
-    except json.JSONDecodeError as e:
-        print(f"ERROR: VERSION_JSON is not valid JSON: {e}")
-        sys.exit(1)
-    release = data.pop("release", None)
-    if not release:
-        print("ERROR: VERSION_JSON must contain a 'release' key.")
-        sys.exit(1)
-    return release, data
+    required = {"RELEASE": "release", "API": "api", "APP": "app", "DB": "db"}
+    values: dict[str, str] = {}
+    for env_var, key in required.items():
+        value = os.environ.get(env_var)
+        if not value:
+            print(f"ERROR: {env_var} env var is not set.")
+            sys.exit(1)
+        values[key] = value
+    release = values.pop("release")
+    return release, values
 
 
 def _update_compose_content(content: str, versions: dict[str, str]) -> str:

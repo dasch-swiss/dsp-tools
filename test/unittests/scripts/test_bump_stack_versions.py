@@ -28,13 +28,43 @@ services:
 
 class TestGetVersionsFromEnv:
     def test_happy_path(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("VERSION_JSON", '{"release":"2026.03.04","api":"v35.3.0","app":"v12.10.0","db":"5.5.0-3"}')
+        monkeypatch.setenv("RELEASE", "2026.03.04")
+        monkeypatch.setenv("API", "v35.3.0")
+        monkeypatch.setenv("APP", "v12.10.0")
+        monkeypatch.setenv("DB", "5.5.0-3")
         key, versions = _get_versions_from_env()
         assert key == "2026.03.04"
         assert versions == {"api": "v35.3.0", "app": "v12.10.0", "db": "5.5.0-3"}
 
-    def test_malformed_json_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("VERSION_JSON", "not-valid-json")
+    def test_missing_release_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("RELEASE", raising=False)
+        monkeypatch.setenv("API", "v35.3.0")
+        monkeypatch.setenv("APP", "v12.10.0")
+        monkeypatch.setenv("DB", "5.5.0-3")
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
+
+    def test_missing_api_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("RELEASE", "2026.03.04")
+        monkeypatch.delenv("API", raising=False)
+        monkeypatch.setenv("APP", "v12.10.0")
+        monkeypatch.setenv("DB", "5.5.0-3")
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
+
+    def test_missing_app_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("RELEASE", "2026.03.04")
+        monkeypatch.setenv("API", "v35.3.0")
+        monkeypatch.delenv("APP", raising=False)
+        monkeypatch.setenv("DB", "5.5.0-3")
+        with pytest.raises(SystemExit):
+            _get_versions_from_env()
+
+    def test_missing_db_exits(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("RELEASE", "2026.03.04")
+        monkeypatch.setenv("API", "v35.3.0")
+        monkeypatch.setenv("APP", "v12.10.0")
+        monkeypatch.delenv("DB", raising=False)
         with pytest.raises(SystemExit):
             _get_versions_from_env()
 

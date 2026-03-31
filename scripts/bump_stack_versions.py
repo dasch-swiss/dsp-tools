@@ -50,7 +50,7 @@ def main() -> None:
         print("docker-compose.yml is already up to date. Nothing to do.")
         sys.exit(0)
 
-    git_msg = f"chore(start-stack): bump version to {version_key}"
+    git_msg = f"chore(start-stack): bump versions to {version_key}"
 
     branch_name = f"chore/bump-version-{version_key}"
     subprocess.run(["git", "checkout", "-b", branch_name], check=True)

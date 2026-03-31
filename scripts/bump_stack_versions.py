@@ -1,4 +1,5 @@
-"""Script to automate bumping the Docker image versions of DSP components.
+"""
+Script to automate bumping the Docker image versions of DSP components.
 
 Reads the release version and component versions from environment variables,
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,

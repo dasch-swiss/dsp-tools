@@ -29,14 +29,14 @@ class MappingClientLive(MappingClient):
     def put_class_mapping(self, class_iri: str, mapping_iris: list[str]) -> None | ResponseCodeAndText:
         encoded_class = quote_plus(class_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
-        return self._put(url, class_iri, mapping_iris)
+        return self._put(url, mapping_iris)
 
     def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> None | ResponseCodeAndText:
         encoded_prop = quote_plus(property_iri)
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
-        return self._put(url, property_iri, mapping_iris)
+        return self._put(url, mapping_iris)
 
-    def _put(self, url: str, entity_iri: str, external_iris: list[str]) -> None | ResponseCodeAndText:
+    def _put(self, url: str, external_iris: list[str]) -> None | ResponseCodeAndText:
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",

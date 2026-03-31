@@ -239,9 +239,11 @@ def is_server_error(response: ResponseCodeAndText) -> bool:
 
 
 def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
-    error_object = response.json()["errors"]
-    if error_object:
-        err_code = [x["code"] for x in error_object]
-    else:
-        err_code = None
+    err_code = None
+    try:
+        error_object = response.json()["errors"]
+        if error_object:
+            err_code = [x["code"] for x in error_object]
+    except JSONDecodeError:
+        pass
     return ResponseCodeAndText(response.status_code, response.text, err_code)

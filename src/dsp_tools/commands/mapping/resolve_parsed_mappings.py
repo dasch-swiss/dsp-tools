@@ -76,10 +76,10 @@ def _resolve_prefixed_iri(
             input_value=prefixed_iri,
             problem="The mapping value only contains a prefix.",
         )
-    if prefix not in prefix_lookup:
+    if not (namespace_found := prefix_lookup[prefix]):
         return PrefixResolutionProblem(
             entity_name=entity_name,
             input_value=prefixed_iri,
             problem="The prefix in the mapping value is not declared in the prefix sheet.",
         )
-    return f"{prefix_lookup[prefix]}{local_name}"
+    return f"{namespace_found}{local_name}"

@@ -1,6 +1,9 @@
 from http import HTTPStatus
 from urllib.parse import quote_plus
 
+from loguru import logger
+from tqdm import tqdm
+
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.mapping_client import MappingClient
 from dsp_tools.clients.mapping_client_live import MappingClientLive
@@ -58,9 +61,9 @@ def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -
 def _add_classes_mappings(
     client: MappingClient, classes_mapping: list[ResolvedClassMapping]
 ) -> list[MappingUploadFailure]:
-
-    # TODO: add progress bar, make the failures, etc. like in the xmlupload
-    for cls in classes_mapping:
+    progress_bar = tqdm(classes_mapping, desc="    Adding mapping to classes", dynamic_ncols=True)
+    logger.debug("Adding mapping to classes")
+    for cls in progress_bar:
         problem_response = client.put_class_mapping(cls.iri, cls.mapping_iris)
         if problem_response:
             pass
@@ -70,8 +73,9 @@ def _add_classes_mappings(
 def _add_properties_mappings(
     client: MappingClient, properties_mapping: list[ResolvedPropertyMapping]
 ) -> list[MappingUploadFailure]:
-    # TODO: add progress bar, make the failures, etc. like in the xmlupload
-    for prop in properties_mapping:
+    progress_bar = tqdm(properties_mapping, desc="    Adding mapping to properties", dynamic_ncols=True)
+    logger.debug("Adding mapping to properties")
+    for prop in progress_bar:
         problem_response = client.put_property_mapping(prop.iri, prop.mapping_iris)
         if problem_response:
             pass

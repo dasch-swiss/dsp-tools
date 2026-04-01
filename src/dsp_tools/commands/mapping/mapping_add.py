@@ -61,7 +61,9 @@ def _add_classes_mappings(
 
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for cls in classes_mapping:
-        pass
+        problem_response = client.put_class_mapping(cls.iri, cls.mapping_iris)
+        if problem_response:
+            pass
         # TODO: deal with retry
 
 
@@ -70,19 +72,23 @@ def _add_properties_mappings(
 ) -> list[MappingUploadFailure]:
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for prop in properties_mapping:
-        pass
-        # TODO: deal with retry
+        problem_response = client.put_property_mapping(prop.iri, prop.mapping_iris)
+        if problem_response:
+            pass
+        # TODO: deal with retry (look at error code)
 
 
 def _deal_with_non_ok_response(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
     if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
         return _deal_with_bad_request(iri, response_code_text)
+    # TODO: deal with other errors
 
 
 def _deal_with_bad_request(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
     if not response_code_text.v3_errors:
         return [MappingUploadFailure(iri=iri, mapping_iri=None, message=response_code_text.text)]
     failures = []
+    # TODO: implmement message construction
     for v3_err in response_code_text.v3_errors:
         match v3_err.error_code:
             case "class_not_found":

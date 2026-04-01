@@ -1,5 +1,19 @@
 # Changelog
 
+## [18.10.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.10.0...v18.10.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* **get:** fix minor issues in DOAP parsing ([#2246](https://github.com/dasch-swiss/dsp-tools/issues/2246)) ([dbeff39](https://github.com/dasch-swiss/dsp-tools/commit/dbeff39f681a4ac411b9dab4704d5dfc54d688e3))
+
+
+### Maintenance
+
+* **exceptions:** replace UnknownDOAPException control flow with warnings (DEV-6161) ([#2241](https://github.com/dasch-swiss/dsp-tools/issues/2241)) ([c390078](https://github.com/dasch-swiss/dsp-tools/commit/c390078cca072c50e856f01f3126b392c2a0fde7))
+* **start-stack:** bump versions to 2026.03.05 ([#2252](https://github.com/dasch-swiss/dsp-tools/issues/2252)) ([ccb3fdb](https://github.com/dasch-swiss/dsp-tools/commit/ccb3fdb34ff408dd5a2c70e060260df7f1758aa9))
+* **workflows:** change input for version bumping workflow (DEV-6196) ([#2250](https://github.com/dasch-swiss/dsp-tools/issues/2250)) ([44d5988](https://github.com/dasch-swiss/dsp-tools/commit/44d5988d53e6a005f018e52f71f21396f8f17553))
+
 ## [18.10.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.9.0...v18.10.0) (2026-03-26)
 
 

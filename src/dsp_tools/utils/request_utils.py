@@ -30,7 +30,14 @@ from dsp_tools.utils.exceptions import DspToolsRequestException
 class ResponseCodeAndText:
     status_code: int
     text: str
-    api_error_code: list[str] | None = None
+    v3_errors: list[ApiV3ErrorDetails] | None = None
+
+
+@dataclass
+class ApiV3ErrorDetails:
+    error_code: str
+    message: str
+    details: dict[str, str]
 
 
 @dataclass
@@ -244,6 +251,7 @@ def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
         error_object = response.json()["errors"]
         if error_object:
             err_code = [x["code"] for x in error_object]
+            # TODO: implement new object
     except json.decoder.JSONDecodeError:
         pass
     return ResponseCodeAndText(response.status_code, response.text, err_code)

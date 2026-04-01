@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
@@ -12,6 +13,7 @@ from dsp_tools.commands.mapping.parse_excel import parse_mapping_excel
 from dsp_tools.commands.mapping.resolve_parsed_mappings import resolve_parsed_mappings
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
 def mapping_add(info: MappingInfo) -> bool:
@@ -25,6 +27,8 @@ def mapping_add(info: MappingInfo) -> bool:
     if problems:
         _communicate_parsing_problems(problems)
         return False
+
+    # TODO: make ontology exists check
 
     encoded_ontology_iri = quote_plus(ontology_namespace.rstrip("#"))
     auth = AuthenticationClientLive(
@@ -58,7 +62,7 @@ def _add_classes_mappings(
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for cls in classes_mapping:
         pass
-        # "class_not_found"
+        # TODO: deal with retry
 
 
 def _add_properties_mappings(
@@ -67,7 +71,29 @@ def _add_properties_mappings(
     # TODO: add progress bar, make the failures, etc. like in the xmlupload
     for prop in properties_mapping:
         pass
-        # "property_not_found"
+        # TODO: deal with retry
+
+
+def _deal_with_non_ok_response(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
+    if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
+        return _deal_with_bad_request(iri, response_code_text)
+
+
+def _deal_with_bad_request(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
+    if not response_code_text.v3_errors:
+        return [MappingUploadFailure(iri=iri, mapping_iri=None, message=response_code_text.text)]
+    failures = []
+    for v3_err in response_code_text.v3_errors:
+        match v3_err.error_code:
+            case "class_not_found":
+                pass
+            case "property_not_found":
+                pass
+            case "invalid_ontology_mapping_iri":
+                pass
+            case _:
+                pass  # make logging warning, unknown error code and then join infos
+    return failures
 
 
 def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:

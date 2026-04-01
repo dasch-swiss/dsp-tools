@@ -52,8 +52,16 @@ class TestParseApiV3Errors:
         response_json = {
             "message": "complete message",
             "errors": [
-                {"code": "code_1", "message": "msg.", "details": {}},
-                {"code": "code_2", "message": "msg.", "details": {}},
+                {
+                    "code": "code_1",
+                    "message": "msg_1",
+                    "details": {"iri": "detail_iri_1"},
+                },
+                {
+                    "code": "code_2",
+                    "message": "msg_2",
+                    "details": {"iri": "detail_iri_2"},
+                },
             ],
         }
         json_str = json.dumps(response_json)
@@ -61,7 +69,8 @@ class TestParseApiV3Errors:
         result = parse_api_v3_error(response_mocked)
         assert result.status_code == 404
         assert result.text == json_str
-        assert result.api_error_code == ["code_1", "code_2"]
+        assert len(result.v3_errors) == 2
+        # TODO: detailed assertion about the content of the objects
 
     def test_no_error_code(self):
         response_json = {"message": "complete message", "errors": []}
@@ -70,7 +79,7 @@ class TestParseApiV3Errors:
         result = parse_api_v3_error(response_mocked)
         assert result.status_code == 404
         assert result.text == json_str
-        assert result.api_error_code is None
+        assert result.v3_errors is None
 
     def test_not_v3_error_style(self):
         response_message = "Invalid value for: path parameter classIri"
@@ -78,4 +87,4 @@ class TestParseApiV3Errors:
         result = parse_api_v3_error(response_mocked)
         assert result.status_code == 400
         assert result.text == response_message
-        assert result.api_error_code is None
+        assert result.v3_errors is None

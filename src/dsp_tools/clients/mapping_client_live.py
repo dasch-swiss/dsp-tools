@@ -6,7 +6,6 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.clients.mapping_client import MappingClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
@@ -63,9 +62,4 @@ class MappingClientLive(MappingClient):
                     "Only a SystemAdmin or ProjectAdmin can perform this action."
                 )
             case _:
-                parsed_response = parse_api_v3_error(response)
-                if parsed_response.api_error_code == "ontology_not_found":
-                    raise ProjectOntologyNotFound(
-                        "The ontology referenced does not exist on this server for this project."
-                    )
-                return parsed_response
+                return parse_api_v3_error(response)

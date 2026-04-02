@@ -15,6 +15,7 @@ from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
@@ -80,6 +81,8 @@ def _execute_one_resource_data_upload(
     for retry_counter in range(num_of_retries):
         try:
             creation_result = resource_client.post_resource(resource_dict, bool(media_info))
+        except BadCredentialsError as err:
+            raise err from None
         except DspToolsRequestException:
             log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=True)
             continue

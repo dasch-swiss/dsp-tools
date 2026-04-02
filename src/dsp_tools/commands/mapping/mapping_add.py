@@ -153,33 +153,33 @@ def _get_correct_user_message_for_non_ok_response(
 ) -> list[MappingUploadFailure]:
     if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
         return _get_correct_bad_requests_message(iri, response_code_text)
+    prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     msg = (
-        f"Unexpected error while adding mapping for class/property '{iri}'. "
+        f"Unexpected error while adding mapping for class/property '{prefixed_iri}'. "
         f"Original status code: {response_code_text.status_code}\nOriginal message: {response_code_text.text}"
     )
-    return [MappingUploadFailure(prefixed_iri=iri, mapping_iri=None, message=msg)]
+    return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=msg)]
 
 
 def _get_correct_bad_requests_message(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
+    prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     if not response_code_text.v3_errors:
-        return [MappingUploadFailure(prefixed_iri=iri, mapping_iri=None, message=response_code_text.text)]
+        return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=response_code_text.text)]
     failures = []
     for v3_err in response_code_text.v3_errors:
         mapping_iri = None
         match v3_err.error_code:
             case "class_not_found":
-                msg = f"The class '{iri}' was not found in the ontology on the server."
+                msg = f"The class '{prefixed_iri}' was not found in the ontology on the server."
             case "property_not_found":
-                msg = f"The property '{iri}' was not found in the ontology on the server."
+                msg = f"The property '{prefixed_iri}' was not found in the ontology on the server."
             case "invalid_ontology_mapping_iri":
                 mapping_iri = v3_err.details.get("iri")
                 msg = f"The mapping IRI '{mapping_iri}' is not a valid external ontology IRI."
             case _:
                 details_str = ", ".join(f"{k}={v}" for k, v in v3_err.details.items()) if v3_err.details else ""
                 msg = f"{v3_err.message}" + (f" ({details_str})" if details_str else "")
-        failures.append(
-            MappingUploadFailure(prefixed_iri=from_dsp_iri_to_prefixed_iri(iri), mapping_iri=mapping_iri, message=msg)
-        )
+        failures.append(MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=mapping_iri, message=msg))
     return failures
 
 

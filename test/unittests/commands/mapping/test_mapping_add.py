@@ -38,7 +38,7 @@ MAPPING_CONFIG = MappingConfig(shortcode=SHORTCODE, ontology=ONTO_NAME, excel_fi
 class TestOntologyExists:
     def _make_auth(self) -> Mock:
         auth = Mock()
-        auth.server = "http://localhost"
+        auth.server = "http://0.0.0.0:3333"
         return auth
 
     def test_ontology_found(self):
@@ -117,11 +117,9 @@ class TestAddClassesMappings:
         classes = [ResolvedClassMapping(iri=CLASS_IRI, mapping_iris=[MAPPING_IRI])]
         result = _add_classes_mappings(client, classes)
         assert len(result) == 1
-        assert result[0].prefixed_iri == CLASS_IRI
+        assert result[0].prefixed_iri == PREFIXED_CLS
         assert result[0].mapping_iri is None
-        assert (
-            result[0].message == "The class 'http://example.org/onto#Book' was not found in the ontology on the server."
-        )
+        assert result[0].message == f"The class '{PREFIXED_CLS}' was not found in the ontology on the server."
 
     def test_retryable_then_success(self):
         client = Mock()
@@ -169,9 +167,9 @@ class TestAddPropertiesMappings:
         props = [ResolvedPropertyMapping(iri=PROP_IRI, mapping_iris=[MAPPING_IRI])]
         result = _add_properties_mappings(client, props)
         assert len(result) == 1
-        assert result[0].prefixed_iri == PROP_IRI
+        assert result[0].prefixed_iri == PREFIXED_PROP
         assert result[0].mapping_iri is None
-        assert result[0].message == "awef"
+        assert result[0].message == "The property 'onto:hasTitle' was not found in the ontology on the server."
 
     def test_retryable_then_success(self):
         client = Mock()
@@ -207,17 +205,21 @@ class TestDealWithNonOkResponse:
         )
         result = _get_correct_user_message_for_non_ok_response(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri is None
+        assert result[0].message == "The class 'onto:Book' was not found in the ontology on the server."
 
     def test_non_400_returns_failure_with_status(self):
         response = ResponseCodeAndText(status_code=503, text="service unavailable")
         result = _get_correct_user_message_for_non_ok_response(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri is None
+        assert result[0].message == (
+            "Unexpected error while adding mapping for class/property 'onto:Book'. "
+            "Original status code: 503\n"
+            "Original message: service unavailable"
+        )
 
 
 class TestDealWithBadRequest:
@@ -225,9 +227,9 @@ class TestDealWithBadRequest:
         response = ResponseCodeAndText(status_code=400, text="plain error text")
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri is None
+        assert result[0].message == "plain error text"
 
     def test_class_not_found(self):
         response = ResponseCodeAndText(
@@ -237,9 +239,9 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri is None
+        assert result[0].message == "The class 'onto:Book' was not found in the ontology on the server."
 
     def test_property_not_found(self):
         response = ResponseCodeAndText(
@@ -249,30 +251,30 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(PROP_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_PROP
+        assert result[0].mapping_iri is None
+        assert result[0].message == "The property 'onto:hasTitle' was not found in the ontology on the server."
 
     def test_invalid_ontology_mapping_iri(self):
         response = ResponseCodeAndText(
             status_code=400,
             text="",
-            v3_errors=[ApiV3ErrorDetails("invalid_ontology_mapping_iri", "invalid", {"iri": MAPPING_IRI})],
+            v3_errors=[ApiV3ErrorDetails("invalid_ontology_mapping_iri", "invalid", {"iri": "invalid-text"})],
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri == "invalid-text"
+        assert result[0].message == "The mapping IRI 'invalid-text' is not a valid external ontology IRI."
 
     def test_unknown_error_code(self):
         response = ResponseCodeAndText(
             status_code=400,
             text="",
-            v3_errors=[ApiV3ErrorDetails("some_unknown_code", "an unknown error", {"key": "val"})],
+            v3_errors=[ApiV3ErrorDetails("some_unknown_code", "an unknown error", {})],
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].prefixed_iri == "asdf"
-        assert result[0].mapping_iri == "asdf"
-        assert result[0].message == "asdf"
+        assert result[0].prefixed_iri == PREFIXED_CLS
+        assert result[0].mapping_iri is None
+        assert result[0].message == "an unknown error"

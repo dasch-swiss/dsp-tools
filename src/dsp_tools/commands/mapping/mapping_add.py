@@ -57,12 +57,12 @@ def mapping_add(info: MappingInfo) -> bool:
     prop_failures = _add_properties_mappings(client, resolved_mappings.properties)
     failures.extend(prop_failures)
 
-    if not failures:
-        print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.")
-        return True
+    if failures:
+        _communicate_upload_failures(failures)
+        return False
 
-    _communicate_upload_failures(failures)
-    return False
+    print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.{RESET_TO_DEFAULT}")
+    return True
 
 
 def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -> None:

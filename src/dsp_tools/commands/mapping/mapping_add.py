@@ -23,6 +23,7 @@ from dsp_tools.commands.mapping.resolve_parsed_mappings import resolve_parsed_ma
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import should_retry_request
@@ -156,12 +157,12 @@ def _get_correct_user_message_for_non_ok_response(
         f"Unexpected error while adding mapping for class/property '{iri}'. "
         f"Original status code: {response_code_text.status_code}\nOriginal message: {response_code_text.text}"
     )
-    return [MappingUploadFailure(iri=iri, mapping_iri=None, message=msg)]
+    return [MappingUploadFailure(prefixed_iri=iri, mapping_iri=None, message=msg)]
 
 
 def _get_correct_bad_requests_message(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
     if not response_code_text.v3_errors:
-        return [MappingUploadFailure(iri=iri, mapping_iri=None, message=response_code_text.text)]
+        return [MappingUploadFailure(prefixed_iri=iri, mapping_iri=None, message=response_code_text.text)]
     failures = []
     for v3_err in response_code_text.v3_errors:
         mapping_iri = None
@@ -176,7 +177,9 @@ def _get_correct_bad_requests_message(iri: str, response_code_text: ResponseCode
             case _:
                 details_str = ", ".join(f"{k}={v}" for k, v in v3_err.details.items()) if v3_err.details else ""
                 msg = f"{v3_err.message}" + (f" ({details_str})" if details_str else "")
-        failures.append(MappingUploadFailure(iri=iri, mapping_iri=mapping_iri, message=msg))
+        failures.append(
+            MappingUploadFailure(prefixed_iri=from_dsp_iri_to_prefixed_iri(iri), mapping_iri=mapping_iri, message=msg)
+        )
     return failures
 
 
@@ -185,9 +188,9 @@ def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
     logger.error(msg_start)
     print(f"{BACKGROUND_BOLD_RED}{msg_start}{RESET_TO_DEFAULT}")
     messages = []
-    failures = sorted(failures, key=lambda x: x.iri)
+    failures = sorted(failures, key=lambda x: x.prefixed_iri)
     for failure in failures:
-        single_line = [f"Ontology class/property '{failure.iri}'"]
+        single_line = [f"Ontology class/property '{failure.prefixed_iri}'"]
         if failure.mapping_iri:
             single_line.append(f"Mapping '{failure.mapping_iri}'")
         single_line.append(f"Problem: {failure.message}")

@@ -62,6 +62,6 @@ class ResolvedMappings:
 
 @dataclass
 class MappingUploadFailure:
-    iri: str
+    prefixed_iri: str
     mapping_iri: str | None
     message: str

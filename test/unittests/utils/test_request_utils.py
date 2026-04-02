@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from http import HTTPStatus
 from typing import Any
 from typing import cast
 from unittest.mock import patch
@@ -10,10 +9,8 @@ import pytest
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import _is_retriable_status_code
 from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.request_utils import should_retry_request
 from dsp_tools.utils.request_utils import parse_api_v3_error
-from dsp_tools.utils.request_utils import should_retry_on_status_code
-
+from dsp_tools.utils.request_utils import should_retry_request
 
 
 @dataclass
@@ -24,6 +21,7 @@ class ResponseMock:
 
     def json(self) -> dict[str, Any]:
         return cast(dict[str, Any], json.loads(self.text))
+
 
 def test_log_response() -> None:
     response_mock = ResponseMock(

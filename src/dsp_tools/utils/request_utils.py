@@ -264,9 +264,3 @@ def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
     except (json.decoder.JSONDecodeError, KeyError):
         pass
     return ResponseCodeAndText(response.status_code, response.text, v3_errors)
-
-
-def should_retry_on_status_code(status_code: int) -> bool:
-    in_500_range = HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
-    rate_limiting = status_code == HTTPStatus.TOO_MANY_REQUESTS
-    return in_500_range or rate_limiting

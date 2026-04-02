@@ -25,7 +25,7 @@ from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import should_retry_on_status_code
+from dsp_tools.utils.request_utils import should_retry_request
 
 RETRY_SLEEP_SECONDS = 5
 LIST_MESSAGE_SEPARATOR = "\n    - "
@@ -107,7 +107,7 @@ def _add_classes_mappings(
         if response is None:
             continue
         # retry if it is a retriable status code
-        if should_retry_on_status_code(response.status_code):
+        if should_retry_request(response):
             logger.warning(f"Retrying to add mapping for class '{cls.iri}' in {RETRY_SLEEP_SECONDS} seconds.")
             time.sleep(RETRY_SLEEP_SECONDS)
             response = client.put_class_mapping(cls.iri, cls.mapping_iris)
@@ -133,7 +133,7 @@ def _add_properties_mappings(
         if response is None:
             continue
         # retry if it is a retriable status code
-        if should_retry_on_status_code(response.status_code):
+        if should_retry_request(response):
             logger.warning(f"Retrying to add mapping for property '{prop.iri}' in {RETRY_SLEEP_SECONDS} seconds.")
             time.sleep(RETRY_SLEEP_SECONDS)
             response = client.put_property_mapping(prop.iri, prop.mapping_iris)

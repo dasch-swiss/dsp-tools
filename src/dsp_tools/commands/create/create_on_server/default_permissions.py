@@ -1,8 +1,6 @@
 import time
 from collections.abc import Callable
 from functools import partial
-from typing import Any
-from typing import cast
 
 from loguru import logger
 
@@ -60,8 +58,7 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
     if not doaps:
         return True
     # Delete each DOAP
-    doaps_list = cast(list[dict[str, Any]], doaps)
-    existing_doap_iris: list[str] = [x["iri"] for x in doaps_list]
+    existing_doap_iris: list[str] = [x["iri"] for x in doaps]
     for iri in existing_doap_iris:
         # partial used here to avoid using an unbound loop variable (ruff: B023)
         result = _execute_with_retry_on_server_error(partial(perm_client.delete_doap, iri), f"delete_doap({iri})")

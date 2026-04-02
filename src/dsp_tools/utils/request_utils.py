@@ -240,6 +240,10 @@ def should_retry_resource_upload(response: ResponseCodeAndText) -> bool:
 
 
 def is_retriable_status_code(status_code: int) -> bool:
-    in_500_range = HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
+    in_500_range = is_server_error(status_code)
     rate_limiting = status_code == HTTPStatus.TOO_MANY_REQUESTS
     return in_500_range or rate_limiting
+
+
+def is_server_error(status_code: int) -> bool:
+    return HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED

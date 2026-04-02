@@ -21,7 +21,7 @@ from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
-from dsp_tools.utils.request_utils import should_retry_resource_upload
+from dsp_tools.utils.request_utils import should_retry_request
 
 
 def _execute_one_resource_upload(
@@ -88,7 +88,7 @@ def _execute_one_resource_data_upload(
             continue
         if isinstance(creation_result, str):
             return creation_result
-        if should_retry_resource_upload(creation_result):
+        if should_retry_request(creation_result):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             continue
         return None  # non-retryable error (4xx etc.)

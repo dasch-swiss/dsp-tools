@@ -59,7 +59,7 @@ def _create_project_on_server(project: ParsedProjectMetadata, client: ProjectCli
     result = client.post_new_project(serialised)
     if isinstance(result, str):
         return result
-    if is_server_error(result):
+    if is_server_error(result.status_code):
         msg = "Due to a server error it was not possible to create the project. "
     else:
         msg = "Unable to create project."

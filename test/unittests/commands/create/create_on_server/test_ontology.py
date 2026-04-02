@@ -43,27 +43,27 @@ class TestCreateOneOntology:
         mock_client.post_new_ontology.assert_called_once()
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
-    def test_success_after_retry(self, mock_is_server_error, mock_serialise, onto_1):
+    @patch("dsp_tools.commands.create.create_on_server.ontology.should_retry_request")
+    def test_success_after_retry(self, mock_should_retry_request, mock_serialise, onto_1):
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
         mock_client.post_new_ontology.side_effect = [first_response, None]
         mock_serialise.return_value = {"@graph": []}
-        mock_is_server_error.return_value = True
+        mock_should_retry_request.return_value = True
         result = _create_one_ontology(onto_1, PROJECT_IRI, mock_client)
         assert result is None
         assert mock_client.post_new_ontology.call_count == 2
-        mock_is_server_error.assert_called_once_with(first_response)
+        mock_should_retry_request.assert_called_once_with(first_response)
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
-    def test_failure_after_retry(self, mock_is_server_error, mock_serialise, onto_1):
+    @patch("dsp_tools.commands.create.create_on_server.ontology.should_retry_request")
+    def test_failure_after_retry(self, mock_should_retry_request, mock_serialise, onto_1):
         mock_client = MagicMock()
         first_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 1")
         second_response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error 2")
         mock_client.post_new_ontology.side_effect = [first_response, second_response]
         mock_serialise.return_value = {"@graph": []}
-        mock_is_server_error.return_value = True
+        mock_should_retry_request.return_value = True
         result = _create_one_ontology(onto_1, PROJECT_IRI, mock_client)
         assert isinstance(result, UploadProblem)
         assert result.problem == UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED
@@ -71,14 +71,14 @@ class TestCreateOneOntology:
         assert mock_client.post_new_ontology.call_count == 2
 
     @patch("dsp_tools.commands.create.create_on_server.ontology.serialise_ontology_graph_for_request")
-    @patch("dsp_tools.commands.create.create_on_server.ontology.is_server_error")
-    def test_non_retryable_failure(self, mock_is_server_error, mock_serialise, onto_1):
+    @patch("dsp_tools.commands.create.create_on_server.ontology.should_retry_request")
+    def test_non_retryable_failure(self, mock_should_retry_request, mock_serialise, onto_1):
         mock_client = MagicMock()
         error_text = "Invalid ontology definition"
         response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text=error_text)
         mock_client.post_new_ontology.return_value = response
         mock_serialise.return_value = {"@graph": []}
-        mock_is_server_error.return_value = False
+        mock_should_retry_request.return_value = False
         result = _create_one_ontology(onto_1, PROJECT_IRI, mock_client)
         assert isinstance(result, UploadProblem)
         assert result.problem == UploadProblemType.ONTOLOGY_COULD_NOT_BE_CREATED

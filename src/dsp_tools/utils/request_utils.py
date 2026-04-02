@@ -196,15 +196,6 @@ def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     raise error
 
 
-def should_retry(response: Response) -> bool:
-    """Returns the decision if a retry of a request is sensible."""
-    in_500_range = 500 <= response.status_code < 600
-    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
-    try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
-    return (try_again_later or in_500_range or rate_limiting) and not in_testing_env
-
-
 def log_and_raise_request_exception(error: RequestException) -> Never:
     msg = (
         f"During an API call the following exception occurred. "
@@ -231,18 +222,19 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))
 
 
-def is_server_error(response: ResponseCodeAndText) -> bool:
-    if HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED:
-        return True
-    return False
-
-
-def should_retry_resource_upload(response: ResponseCodeAndText) -> bool:
-    """Returns whether a failed resource upload response should be retried."""
-    in_500_range = (
-        HTTPStatus.INTERNAL_SERVER_ERROR <= response.status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
-    )
-    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+def should_retry_request(response: ResponseCodeAndText) -> bool:
+    """Returns the decision if a retry of a request is sensible."""
+    retriable_status = _is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"
-    return (in_500_range or rate_limiting or try_again_later) and not in_testing_env
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
+    return (retriable_status or try_again_later) and not in_testing_env
+
+
+def _is_retriable_status_code(status_code: int) -> bool:
+    in_500_range = is_server_error(status_code)
+    rate_limiting = status_code == HTTPStatus.TOO_MANY_REQUESTS
+    return in_500_range or rate_limiting
+
+
+def is_server_error(status_code: int) -> bool:
+    return HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED

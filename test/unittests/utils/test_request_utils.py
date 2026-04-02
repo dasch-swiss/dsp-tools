@@ -1,13 +1,25 @@
 import json
 from dataclasses import dataclass
-from http import HTTPStatus
 from typing import Any
 from typing import cast
 from unittest.mock import patch
 
+import pytest
+
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import is_server_error
+from dsp_tools.utils.request_utils import _is_retriable_status_code
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import should_retry_request
+
+
+@dataclass
+class ResponseMock:
+    status_code: int
+    headers: dict[str, Any]
+    text: str
+
+    def json(self) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(self.text))
 
 
 def test_log_response() -> None:
@@ -26,21 +38,44 @@ def test_log_response() -> None:
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
 
-@dataclass
-class ResponseMock:
-    status_code: int
-    headers: dict[str, Any]
-    text: str
+@pytest.mark.parametrize(
+    ("status_code", "expected"),
+    [
+        (500, True),
+        (503, True),
+        (511, True),
+        (429, True),
+        (200, False),
+        (404, False),
+        (400, False),
+    ],
+)
+def test_is_retriable_status_code(status_code: int, expected: bool) -> None:
+    result = _is_retriable_status_code(status_code)
+    assert result == expected
 
-    def json(self) -> dict[str, Any]:
-        return cast(dict[str, Any], json.loads(self.text))
 
-
-class TestIsServerError:
-    def test_bad_request_without_matching_pattern_returns_false(self):
-        response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text="Invalid ontology definition")
-        assert is_server_error(response) is False
-
-    def test_internal_server_error_returns_true(self):
-        response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        assert is_server_error(response) is True
+@pytest.mark.parametrize(
+    ("env_value", "response", "expected"),
+    [
+        (None, ResponseCodeAndText(500, ""), True),
+        ("false", ResponseCodeAndText(500, ""), True),
+        ("true", ResponseCodeAndText(500, ""), False),
+        (None, ResponseCodeAndText(200, "try again later"), True),
+        ("true", ResponseCodeAndText(200, "try again later"), False),
+        (None, ResponseCodeAndText(200, ""), False),
+        ("false", ResponseCodeAndText(429, "try again later"), True),
+        ("true", ResponseCodeAndText(429, "try again later"), False),
+    ],
+)
+def test_should_retry_request(
+    monkeypatch: pytest.MonkeyPatch,
+    env_value: str | None,
+    response: ResponseCodeAndText,
+    expected: bool,
+) -> None:
+    if env_value is None:
+        monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)
+    else:
+        monkeypatch.setenv("DSP_TOOLS_TESTING", env_value)
+    assert should_retry_request(response) == expected

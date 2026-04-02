@@ -151,7 +151,7 @@ def test_project_does_not_exist_server_error(
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
     mock_serialise.assert_called_once_with(parsed_project)
     mock_client.post_new_project.assert_called_once_with(serialized_project)
-    mock_is_server_error.assert_called_once_with(error_response)
+    mock_is_server_error.assert_called_once_with(error_response.status_code)
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
@@ -180,4 +180,4 @@ def test_project_does_not_exist_client_error(
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
     mock_serialise.assert_called_once_with(parsed_project)
     mock_client.post_new_project.assert_called_once_with(serialized_project)
-    mock_is_server_error.assert_called_once_with(error_response)
+    mock_is_server_error.assert_called_once_with(error_response.status_code)

@@ -69,6 +69,7 @@ def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -
     err_found_msg = f"{len(problem_list)} mapping properties or classes could not be correctly resolved."
     logger.error(err_found_msg)
     print(f"{BACKGROUND_BOLD_RED}{err_found_msg}{RESET_TO_DEFAULT}")
+    problem_list = sorted(problem_list, key=lambda x: x.entity_name)
     problem_str_list = [
         f"Ontology class/property '{p.entity_name}' | Problematic mapping: '{p.input_value}' | Problem: {p.problem}"
         for p in problem_list
@@ -184,6 +185,7 @@ def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
     logger.error(msg_start)
     print(f"{BACKGROUND_BOLD_RED}{msg_start}{RESET_TO_DEFAULT}")
     messages = []
+    failures = sorted(failures, key=lambda x: x.iri)
     for failure in failures:
         single_line = [f"Ontology class/property '{failure.iri}'"]
         if failure.mapping_iri:

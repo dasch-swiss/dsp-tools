@@ -1,5 +1,7 @@
 from collections.abc import Callable
 
+from loguru import logger
+
 from dsp_tools.commands.mapping.models import ParsedMapping
 from dsp_tools.commands.mapping.models import ParsedMappings
 from dsp_tools.commands.mapping.models import PrefixResolutionProblem
@@ -13,6 +15,7 @@ from dsp_tools.utils.data_formats.uri_util import is_uri
 def resolve_parsed_mappings(
     parsed_mappings: ParsedMappings, prefix_lookup: dict[str, str], ontology_namespace: str
 ) -> tuple[ResolvedMappings, list[PrefixResolutionProblem]]:
+    logger.debug("Resolve parsed mapping IRIs")
     all_problems: list[PrefixResolutionProblem] = []
 
     resolved_classes: list[ResolvedClassMapping] = []

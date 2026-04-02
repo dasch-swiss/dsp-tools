@@ -2,6 +2,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
+from loguru import logger
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -18,6 +19,7 @@ PROPERTIES_COLUMNS = {"property", "mapping"}
 
 
 def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappings, dict[str, str]]:
+    logger.debug("Parsing mapping excel.")
     sheets = read_and_clean_all_sheets(excel_path)
     _validate_sheets(sheets, excel_path)
     _validate_columns(sheets, excel_path)

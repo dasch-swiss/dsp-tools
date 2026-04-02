@@ -9,6 +9,7 @@ from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import is_server_error
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import parse_api_v3_error
+from dsp_tools.utils.request_utils import should_retry_on_status_code
 
 
 def test_log_response() -> None:
@@ -69,8 +70,15 @@ class TestParseApiV3Errors:
         result = parse_api_v3_error(response_mocked)
         assert result.status_code == 404
         assert result.text == json_str
+        assert result.v3_errors is not None
         assert len(result.v3_errors) == 2
-        # TODO: detailed assertion about the content of the objects
+        first = next(x for x in result.v3_errors if x.error_code == "code_1")
+        assert first.message == "msg_1"
+        assert first.details == {"iri": "detail_iri_1"}
+
+        second = next(x for x in result.v3_errors if x.error_code == "code_2")
+        assert second.message == "msg_2"
+        assert second.details == {"iri": "detail_iri_2"}
 
     def test_no_error_code(self):
         response_json = {"message": "complete message", "errors": []}
@@ -88,3 +96,23 @@ class TestParseApiV3Errors:
         assert result.status_code == 400
         assert result.text == response_message
         assert result.v3_errors is None
+
+
+class TestShouldRetryOnStatusCode:
+
+
+
+    def test_500_returns_true(self):
+        assert should_retry_on_status_code(500) is True
+
+    def test_503_returns_true(self):
+        assert should_retry_on_status_code(503) is True
+
+    def test_429_returns_true(self):
+        assert should_retry_on_status_code(429) is True
+
+    def test_400_returns_false(self):
+        assert should_retry_on_status_code(400) is False
+
+    def test_404_returns_false(self):
+        assert should_retry_on_status_code(404) is False

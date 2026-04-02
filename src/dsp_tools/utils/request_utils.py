@@ -246,12 +246,24 @@ def is_server_error(response: ResponseCodeAndText) -> bool:
 
 
 def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
-    err_code = None
+    v3_errors = None
     try:
-        error_object = response.json()["errors"]
-        if error_object:
-            err_code = [x["code"] for x in error_object]
-            # TODO: implement new object
-    except json.decoder.JSONDecodeError:
+        error_list = response.json()["errors"]
+        if error_list:
+            v3_errors = [
+                ApiV3ErrorDetails(
+                    error_code=err["code"],
+                    message=err["message"],
+                    details=err.get("details", {}),
+                )
+                for err in error_list
+            ]
+    except (json.decoder.JSONDecodeError, KeyError):
         pass
-    return ResponseCodeAndText(response.status_code, response.text, err_code)
+    return ResponseCodeAndText(response.status_code, response.text, v3_errors)
+
+
+def should_retry_on_status_code(status_code: int) -> bool:
+    in_500_range = HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
+    rate_limiting = status_code == HTTPStatus.TOO_MANY_REQUESTS
+    return in_500_range or rate_limiting

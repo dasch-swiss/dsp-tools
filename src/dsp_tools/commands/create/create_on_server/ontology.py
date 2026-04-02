@@ -12,7 +12,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import is_retriable_status_code
+from dsp_tools.utils.request_utils import should_retry_request
 
 
 def create_all_ontologies(
@@ -44,7 +44,7 @@ def _create_one_ontology(
     serialised = serialise_ontology_graph_for_request(onto, project_iri)
     result = client.post_new_ontology(serialised)
     if isinstance(result, ResponseCodeAndText):
-        if is_retriable_status_code(result.status_code):
+        if should_retry_request(result):
             time.sleep(5)
             result = client.post_new_ontology(serialised)
         if isinstance(result, ResponseCodeAndText):

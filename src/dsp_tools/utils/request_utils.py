@@ -224,13 +224,13 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
 
 def should_retry_request(response: ResponseCodeAndText) -> bool:
     """Returns the decision if a retry of a request is sensible."""
-    retriable_status = is_retriable_status_code(response.status_code)
+    retriable_status = _is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (retriable_status or try_again_later) and not in_testing_env
 
 
-def is_retriable_status_code(status_code: int) -> bool:
+def _is_retriable_status_code(status_code: int) -> bool:
     in_500_range = is_server_error(status_code)
     rate_limiting = status_code == HTTPStatus.TOO_MANY_REQUESTS
     return in_500_range or rate_limiting

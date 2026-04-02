@@ -2,11 +2,11 @@ from copy import deepcopy
 
 import pytest
 
+from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import _tidy_up_resource_creation_idempotent
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def processed_resources() -> list[ProcessedResource]:
 def test_idempotency_on_success(processed_resources) -> None:
     upload_state = UploadState(deepcopy(processed_resources), None, UploadConfig())
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", processed_resources[0])
+        tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", processed_resources[0])
         assert upload_state.pending_resources == processed_resources[1:]
         assert upload_state.failed_uploads == []
         assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
@@ -29,7 +29,7 @@ def test_idempotency_on_success(processed_resources) -> None:
 def test_idempotency_on_failure(processed_resources) -> None:
     upload_state = UploadState(deepcopy(processed_resources), None, UploadConfig())
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, None, processed_resources[0])
+        tidy_up_resource_creation_idempotent(upload_state, None, processed_resources[0])
         assert upload_state.pending_resources == processed_resources[1:]
         assert upload_state.failed_uploads == ["foo_1_id"]
         assert upload_state.iri_resolver.lookup == {}

@@ -1,8 +1,6 @@
 import time
 from collections.abc import Callable
 from functools import partial
-from typing import Any
-from typing import cast
 
 from loguru import logger
 
@@ -17,7 +15,7 @@ from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import is_server_error
+from dsp_tools.utils.request_utils import should_retry_request
 
 
 def create_default_permissions(
@@ -48,18 +46,19 @@ def create_default_permissions(
 def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
     doaps = perm_client.get_project_doaps()
     if isinstance(doaps, ResponseCodeAndText):
-        if is_server_error(doaps):
+        if should_retry_request(doaps):
             logger.info("Server error while requesting existing DOAPs, retrying after 10 seconds...")
             time.sleep(10)
             doaps = perm_client.get_project_doaps()
             if isinstance(doaps, ResponseCodeAndText):
                 return False
+        else:
+            return False
     # Handle empty list case (no DOAPs to delete)
     if not doaps:
         return True
     # Delete each DOAP
-    doaps_list = cast(list[dict[str, Any]], doaps)
-    existing_doap_iris: list[str] = [x["iri"] for x in doaps_list]
+    existing_doap_iris: list[str] = [x["iri"] for x in doaps]
     for iri in existing_doap_iris:
         # partial used here to avoid using an unbound loop variable (ruff: B023)
         result = _execute_with_retry_on_server_error(partial(perm_client.delete_doap, iri), f"delete_doap({iri})")
@@ -192,7 +191,7 @@ def _execute_with_retry_on_server_error(
     result = operation()
     # Check if result is ResponseCodeAndText (error case)
     if isinstance(result, ResponseCodeAndText):
-        if is_server_error(result):
+        if should_retry_request(result):
             logger.warning(f"Server error encountered during {operation_name}, retrying after 10 seconds...")
             time.sleep(10)
             result = operation()

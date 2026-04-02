@@ -19,11 +19,12 @@ from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.request_utils import should_retry
+from dsp_tools.utils.request_utils import should_retry_request
 
 HTTP_OK = 200
 
@@ -190,7 +191,7 @@ class ConnectionLive(Connection):
         raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
-        if should_retry(response):
+        if should_retry_request(ResponseCodeAndText(response.status_code, response.text)):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         api_msg = self._extract_original_api_err_msg(str(response.content))

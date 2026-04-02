@@ -290,7 +290,7 @@ def _2_resources_with_stash_interrupted_by_error(
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         with pytest.warns(DspToolsUserWarning):
             _upload_resources(clients, upload_state)
 
@@ -310,7 +310,7 @@ def _2_resources_with_stash_interrupted_by_error(
             [],
             IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}),
         )
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
 @patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
@@ -410,28 +410,28 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
     client = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver(
             {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
         )
         upload_state_expected = UploadState(resources[2:], stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
         )
         upload_state_expected = UploadState(resources[4:], stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState([], empty_stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_not_called()
+        handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
 
 
@@ -472,35 +472,35 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
     client = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver(
             {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
         )
         upload_state_expected = UploadState(resources[2:], stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
         )
         upload_state_expected = UploadState(resources[4:], stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", "foo_6_id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri"}
         )
         upload_state_expected = UploadState([], stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+        handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(client, upload_state)
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState([], empty_stash, upload_config, [], iri_resolver_expected)
-        _handle_upload_error.assert_not_called()
+        handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
 
 
@@ -540,7 +540,7 @@ def test_logging(
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error"):
         _upload_resources(clients, upload_state)
         assert (
             caplog.records[1].message
@@ -609,7 +609,7 @@ def test_post_requests(
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error"):
         _upload_resources(clients, upload_state)
         _upload_resources(clients, upload_state)
         _upload_resources(clients, upload_state)
@@ -641,14 +641,14 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(
     mock_project_client_class.return_value = mock_project_client
     mock_connection_class.return_value = con
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
         _upload_resources(UploadClients(ingest_client, list_client_mock, legal_info_client_mock), upload_state)
         msg = (
             "Lost connection to DSP server, probably because the server is down. "
             "Please continue later with 'resume-xmlupload'."
         )
-        assert len(_handle_upload_error.call_args_list) == 1
-        err_actual: XmlUploadInterruptedError = _handle_upload_error.call_args_list[0].args[0]
-        upload_state_actual: UploadState = _handle_upload_error.call_args_list[0].args[1]
+        assert len(handle_upload_error.call_args_list) == 1
+        err_actual: XmlUploadInterruptedError = handle_upload_error.call_args_list[0].args[0]
+        upload_state_actual: UploadState = handle_upload_error.call_args_list[0].args[1]
         assert msg in err_actual.message
         assert upload_state_actual == upload_state

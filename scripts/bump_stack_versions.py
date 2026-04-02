@@ -1,23 +1,21 @@
-"""Script to automate bumping the Docker image versions of DSP components.
+"""
+Script to automate bumping the Docker image versions of DSP components.
+This script is meant to be run in the GitHub Actions CI. See `.github/workflows/bump-stack-versions.yml`.
 
-Fetches the latest version from dasch-swiss/ops-deploy/versions/RELEASE.json,
+Reads the release version and component versions from environment variables,
 updates src/dsp_tools/resources/start-stack/docker-compose.yml,
 creates a branch, commits, pushes, and opens a pull request.
 
 Prerequisites:
-- git must be installed and the working tree must be on a clean main branch
-- gh CLI must be installed and authenticated (gh auth login)
+- RELEASE, API, APP, DB env vars must be set
 """
 
 from __future__ import annotations
 
-import json
 import os
 import re
-import shutil
 import subprocess
 import sys
-import urllib.request
 from pathlib import Path
 
 DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
@@ -34,18 +32,9 @@ IMAGE_SUBSTITUTIONS: list[tuple[str, str]] = [
 
 
 def main() -> None:
-    _check_gh_installed()
-    _check_gh_authenticated()
-    _check_on_main_branch()
-    _check_working_tree_clean()
-    _check_github_pat()
-
     print("Bumping versions ...")
 
-    subprocess.run(["git", "pull"], check=True)
-
-    release_data = _fetch_release_json()
-    version_key, versions = _get_latest_release(release_data)
+    version_key, versions = _get_versions_from_env()
 
     old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
     new_content = _update_compose_content(old_content, versions)
@@ -55,7 +44,7 @@ def main() -> None:
         print("docker-compose.yml is already up to date. Nothing to do.")
         sys.exit(0)
 
-    git_msg = f"bump versions to {version_key}"
+    git_msg = f"chore(start-stack): bump versions to {version_key}"
 
     branch_name = f"chore/bump-version-{version_key}"
     subprocess.run(["git", "checkout", "-b", branch_name], check=True)
@@ -69,7 +58,7 @@ def main() -> None:
             "pr",
             "create",
             "--title",
-            f"chore(start-stack): {git_msg}",
+            git_msg,
             "--base",
             "main",
             "--body",
@@ -80,68 +69,21 @@ def main() -> None:
     print(f"Pull request created for branch '{branch_name}'.")
 
 
-def _check_gh_installed() -> None:
-    if shutil.which("gh") is None:
-        print("ERROR: 'gh' CLI is not installed. Install it from https://cli.github.com/")
+def _get_versions_from_env() -> tuple[str, dict[str, str]]:
+    release = _require_env("RELEASE")
+    return release, {
+        "api": _require_env("API"),
+        "app": _require_env("APP"),
+        "db": _require_env("DB"),
+    }
+
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        print(f"ERROR: {name} env var is not set.")
         sys.exit(1)
-
-
-def _check_gh_authenticated() -> None:
-    result = subprocess.run(["gh", "auth", "status"], capture_output=True, check=False)
-    if result.returncode != 0:
-        print("ERROR: Not authenticated with GitHub. Run 'gh auth login' first.")
-        sys.exit(1)
-
-
-def _check_on_main_branch() -> None:
-    result = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    branch = result.stdout.strip()
-    if branch != "main":
-        print(f"ERROR: Must be on the 'main' branch, but currently on '{branch}'.")
-        sys.exit(1)
-
-
-def _check_working_tree_clean() -> None:
-    result = subprocess.run(
-        ["git", "status", "--porcelain"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    if result.stdout.strip():
-        print("ERROR: Working tree is not clean. Please commit or stash your changes first.")
-        print(result.stdout)
-        sys.exit(1)
-
-
-def _check_github_pat() -> None:
-    if not os.environ.get("GITHUB_PAT"):
-        print("ERROR: GITHUB_PAT is not set. Provide a PAT with read access to dasch-swiss/ops-deploy.")
-        sys.exit(1)
-
-
-def _fetch_release_json() -> dict[str, dict[str, str]]:
-    pat = os.environ["GITHUB_PAT"]
-    url = "https://api.github.com/repos/dasch-swiss/ops-deploy/contents/versions/RELEASE.json"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": f"Bearer {pat}",
-            "Accept": "application/vnd.github.raw+json",
-        },
-    )
-    with urllib.request.urlopen(req) as response:  # noqa: S310
-        return json.loads(response.read())  # type: ignore[no-any-return]
-
-
-def _get_latest_release(data: dict[str, dict[str, str]]) -> tuple[str, dict[str, str]]:
-    latest_key = max(data.keys())
-    return latest_key, data[latest_key]
+    return value
 
 
 def _update_compose_content(content: str, versions: dict[str, str]) -> str:

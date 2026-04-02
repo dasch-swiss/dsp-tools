@@ -54,6 +54,8 @@ def _delete_existing_doaps(perm_client: PermissionsClient) -> bool:
             doaps = perm_client.get_project_doaps()
             if isinstance(doaps, ResponseCodeAndText):
                 return False
+        else:
+            return False
     # Handle empty list case (no DOAPs to delete)
     if not doaps:
         return True

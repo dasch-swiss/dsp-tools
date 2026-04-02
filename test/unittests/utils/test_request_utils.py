@@ -6,7 +6,7 @@ from typing import cast
 from unittest.mock import patch
 
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import is_server_error
+from dsp_tools.utils.request_utils import is_retriable_status_code
 from dsp_tools.utils.request_utils import log_response
 
 
@@ -39,8 +39,8 @@ class ResponseMock:
 class TestIsServerError:
     def test_bad_request_without_matching_pattern_returns_false(self):
         response = ResponseCodeAndText(status_code=HTTPStatus.BAD_REQUEST, text="Invalid ontology definition")
-        assert is_server_error(response) is False
+        assert is_retriable_status_code(response.status_code) is False
 
     def test_internal_server_error_returns_true(self):
         response = ResponseCodeAndText(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, text="Server error")
-        assert is_server_error(response) is True
+        assert is_retriable_status_code(response) is True

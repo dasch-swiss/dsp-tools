@@ -13,7 +13,7 @@ from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.request_utils import is_server_error
+from dsp_tools.utils.request_utils import is_retriable_status_code
 
 
 def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, exit_if_exists: bool) -> str:
@@ -59,7 +59,7 @@ def _create_project_on_server(project: ParsedProjectMetadata, client: ProjectCli
     result = client.post_new_project(serialised)
     if isinstance(result, str):
         return result
-    if is_server_error(result):
+    if is_retriable_status_code(result):
         msg = "Due to a server error it was not possible to create the project. "
     else:
         msg = "Unable to create project."

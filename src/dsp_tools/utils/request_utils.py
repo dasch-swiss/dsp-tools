@@ -222,21 +222,12 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))
 
 
-def should_retry(response: Response) -> bool:
+def should_retry_request(response: ResponseCodeAndText) -> bool:
     """Returns the decision if a retry of a request is sensible."""
-    in_500_range = 500 <= response.status_code < 600
-    rate_limiting = response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+    retriable_status = is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
-    return (try_again_later or in_500_range or rate_limiting) and not in_testing_env
-
-
-def should_retry_resource_upload(response: ResponseCodeAndText) -> bool:
-    """Returns whether a failed resource upload response should be retried."""
-    code_is_retriable = is_retriable_status_code(response.status_code)
-    try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"
-    return (code_is_retriable or try_again_later) and not in_testing_env
+    return (retriable_status or try_again_later) and not in_testing_env
 
 
 def is_retriable_status_code(status_code: int) -> bool:

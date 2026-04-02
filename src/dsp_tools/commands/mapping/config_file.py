@@ -6,7 +6,7 @@ import yaml
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFile
+from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFileError
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
@@ -54,14 +54,18 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
         logger.error(e)
-        raise InvalidMappingConfigFile(f"Failed to parse YAML file '{filepath}'") from None
+        raise InvalidMappingConfigFileError(f"Failed to parse YAML file '{filepath}'") from None
     if not isinstance(data, dict):
-        raise InvalidMappingConfigFile(f"The mapping config file '{filepath}' does not contain a valid YAML mapping.")
+        raise InvalidMappingConfigFileError(
+            f"The mapping config file '{filepath}' does not contain a valid YAML mapping."
+        )
     return data
 
 
 def _require_field(data: dict[str, Any], field: str, filepath: Path) -> str:
     value = data.get(field)
     if not value:
-        raise InvalidMappingConfigFile(f"The mapping config file '{filepath}' is missing the required '{field}' field.")
+        raise InvalidMappingConfigFileError(
+            f"The mapping config file '{filepath}' is missing the required '{field}' field."
+        )
     return str(value)

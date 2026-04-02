@@ -26,11 +26,11 @@ from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import should_retry_on_status_code
 
-RETRY_SLEEP_SECONDS = 3
+RETRY_SLEEP_SECONDS = 5
 
 
 def mapping_add(info: MappingInfo) -> bool:
-    logger.info("Starting mapping add for ontology '%s' (shortcode %s)", info.config.ontology, info.config.shortcode)
+    logger.info(f"Starting mapping add for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
 
     parsed_excel, prefix_lookup = parse_mapping_excel(info.config.excel_file)
 
@@ -76,16 +76,21 @@ def _ontology_exists(server: str, shortcode: str, ontology_iri: str) -> bool:
     except ProjectOntologyNotFound:
         return False
     except FatalNonOkApiResponseCode as e:
-        raise ProjectNotFoundError(
-            f"The project with shortcode '{shortcode}' could not be found on the server."
-        ) from e
+        raise ProjectNotFoundError(f"The project with shortcode '{shortcode}' could not be found on the server.") from e
     return ontology_iri in ontology_iris
 
 
 def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -> None:
-    print(f"{BACKGROUND_BOLD_RED}The mapping file contains prefix resolution problems.{RESET_TO_DEFAULT}")
-    for problem in problem_list:
-        print(f"  Entity '{problem.entity_name}', value '{problem.input_value}': {problem.problem}")
+    err_found_msg = f"{len(problem_list)} mapping properties or classes could not be correctly resolved."
+    logger.error(err_found_msg)
+    print(f"{BACKGROUND_BOLD_RED}{err_found_msg}{RESET_TO_DEFAULT}")
+    problem_str_list = [
+        f"Ontology class/property '{p.entity_name}' | Problematic mapping: '{p.input_value}' | Problem: {p.problem}"
+        for p in problem_list
+    ]
+    problem_str = "\n    - " + "\n    - ".join(problem_str_list)
+    logger.error(problem_str)
+    print(problem_str)
 
 
 def _add_classes_mappings(
@@ -129,10 +134,7 @@ def _add_properties_mappings(
 def _deal_with_non_ok_response(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
     if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
         return _deal_with_bad_request(iri, response_code_text)
-    msg = (
-        f"Unexpected server response {response_code_text.status_code} "
-        f"for IRI '{iri}': {response_code_text.text}"
-    )
+    msg = f"Unexpected server response {response_code_text.status_code} for IRI '{iri}': {response_code_text.text}"
     logger.warning(msg)
     return [MappingUploadFailure(iri=iri, mapping_iri=None, message=msg)]
 

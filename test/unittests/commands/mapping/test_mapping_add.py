@@ -9,13 +9,11 @@ from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.commands.mapping.mapping_add import _add_classes_mappings
 from dsp_tools.commands.mapping.mapping_add import _add_properties_mappings
-from dsp_tools.commands.mapping.mapping_add import _communicate_parsing_problems
 from dsp_tools.commands.mapping.mapping_add import _communicate_upload_failures
 from dsp_tools.commands.mapping.mapping_add import _deal_with_bad_request
 from dsp_tools.commands.mapping.mapping_add import _deal_with_non_ok_response
 from dsp_tools.commands.mapping.mapping_add import _ontology_exists
 from dsp_tools.commands.mapping.models import MappingUploadFailure
-from dsp_tools.commands.mapping.models import PrefixResolutionProblem
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
 from dsp_tools.utils.request_utils import ApiV3ErrorDetails
@@ -58,21 +56,6 @@ class TestOntologyExists:
             mock_cls.return_value = mock_client
             with pytest.raises(ProjectNotFoundError):
                 _ontology_exists("http://localhost", "9999", "http://any/onto")
-
-
-class TestCommunicateParsingProblems:
-    def test_prints_problems(self, capsys):
-        problems = [
-            PrefixResolutionProblem("MyClass", "schema:Book", "unknown prefix 'schema'"),
-            PrefixResolutionProblem("hasTitle", "dc:title", "unknown prefix 'dc'"),
-        ]
-        _communicate_parsing_problems(problems)
-        out = capsys.readouterr().out
-        assert "prefix resolution problems" in out
-        assert "MyClass" in out
-        assert "schema:Book" in out
-        assert "unknown prefix 'schema'" in out
-        assert "hasTitle" in out
 
 
 class TestAddClassesMappings:

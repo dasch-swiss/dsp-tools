@@ -1,4 +1,3 @@
-import warnings
 from pathlib import Path
 from typing import Any
 
@@ -9,7 +8,6 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFileError
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 TEMPLATE = """\
 shortcode: "{shortcode}"
@@ -21,15 +19,10 @@ server:
 """
 
 
-def create_mapping_config(shortcode: str, ontology: str, cwd: Path) -> bool:
+def create_mapping_config(shortcode: str, ontology: str, mapping_path: Path) -> bool:
     """Write a template mapping YAML config to cwd/mapping-{shortcode}-{ontology}.yaml."""
-    output_path = cwd / f"{shortcode}-{ontology}-mapping.yaml"
-    if output_path.exists():
-        msg = f"'{output_path}' already exists. Aborting to avoid overwriting it."
-        warnings.warn(DspToolsUserWarning(msg))
-        return False
-    output_path.write_text(TEMPLATE.format(shortcode=shortcode, ontology=ontology), encoding="utf-8")
-    print(f"Mapping config written to '{output_path}'.")
+    mapping_path.write_text(TEMPLATE.format(shortcode=shortcode, ontology=ontology), encoding="utf-8")
+    print(f"Mapping config written to '{mapping_path}'.")
     print("Please fill in the blank fields: excel-file, server, user, password.")
     return True
 

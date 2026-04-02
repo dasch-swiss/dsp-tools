@@ -2,6 +2,8 @@ import argparse
 from pathlib import Path
 
 from dsp_tools.cli.args import PathDependencies
+from dsp_tools.cli.utils import ProhibitedPaths
+from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import check_path_dependencies
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
@@ -88,7 +90,9 @@ def call_mapping_config(args: argparse.Namespace) -> bool:
     ontology = args.ontology
     if not ontology:
         ontology = input("Enter the ontology name: ").strip()
-    return create_mapping_config(shortcode=shortcode, ontology=ontology, cwd=Path.cwd())
+    mapping_path = Path.cwd() / f"{shortcode}-{ontology}-mapping.yaml"
+    check_input_dependencies(prohibited_paths=ProhibitedPaths([mapping_path]))
+    return create_mapping_config(shortcode=shortcode, ontology=ontology, mapping_path=mapping_path)
 
 
 def call_migration_config(args: argparse.Namespace) -> bool:

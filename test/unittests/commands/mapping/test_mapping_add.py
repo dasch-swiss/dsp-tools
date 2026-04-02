@@ -12,21 +12,27 @@ from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundErro
 from dsp_tools.commands.mapping.mapping_add import _add_classes_mappings
 from dsp_tools.commands.mapping.mapping_add import _add_properties_mappings
 from dsp_tools.commands.mapping.mapping_add import _check_if_project_and_ontology_exists
-from dsp_tools.commands.mapping.mapping_add import _communicate_upload_failures
 from dsp_tools.commands.mapping.mapping_add import _get_correct_bad_requests_message
 from dsp_tools.commands.mapping.mapping_add import _get_correct_user_message_for_non_ok_response
 from dsp_tools.commands.mapping.models import MappingConfig
-from dsp_tools.commands.mapping.models import MappingUploadFailure
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
 from dsp_tools.utils.request_utils import ApiV3ErrorDetails
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
-CLASS_IRI = "http://example.org/onto#Book"
-PROP_IRI = "http://example.org/onto#hasTitle"
+ONTO_NAME = "onto"
+SHORTCODE = "0001"
+ONTO_IRI = f"http://0.0.0.0:3333/ontology/{SHORTCODE}/{ONTO_NAME}/v2"
+
+CLASS_IRI = f"{ONTO_IRI}#Book"
+PREFIXED_CLS = f"{ONTO_NAME}:Book"
+
+PROP_IRI = f"{ONTO_IRI}#hasTitle"
+PREFIXED_PROP = f"{ONTO_NAME}:hasTitle"
+
 MAPPING_IRI = "http://schema.org/Book"
 
-MAPPING_CONFIG = MappingConfig(shortcode="0001", ontology="myonto", excel_file=Path("dummy.xlsx"))
+MAPPING_CONFIG = MappingConfig(shortcode=SHORTCODE, ontology=ONTO_NAME, excel_file=Path("dummy.xlsx"))
 
 
 class TestOntologyExists:
@@ -36,19 +42,17 @@ class TestOntologyExists:
         return auth
 
     def test_ontology_found(self):
-        onto_iri = "http://localhost/ontology/0001/myonto/v2"
         with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
             mock_project_client = Mock()
             mock_project_cls.return_value = mock_project_client
             with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
-                mock_onto_client.get_ontologies.return_value = ([], [onto_iri, "http://other/onto"])
+                mock_onto_client.get_ontologies.return_value = ([], [ONTO_IRI, "http://other/onto"])
                 mock_onto_cls.return_value = mock_onto_client
-                result = _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, onto_iri)
+                result = _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
         assert result is None
 
     def test_ontology_not_found_raises(self):
-        onto_iri = "http://localhost/ontology/0001/myonto/v2"
         with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
             with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
@@ -56,7 +60,7 @@ class TestOntologyExists:
                 mock_onto_client.get_ontologies.return_value = ([], ["http://other/onto"])
                 mock_onto_cls.return_value = mock_onto_client
                 with pytest.raises(OntologyReferencedNotFoundError):
-                    _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, onto_iri)
+                    _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_project_not_found_propagates(self):
         with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
@@ -113,7 +117,11 @@ class TestAddClassesMappings:
         classes = [ResolvedClassMapping(iri=CLASS_IRI, mapping_iris=[MAPPING_IRI])]
         result = _add_classes_mappings(client, classes)
         assert len(result) == 1
-        assert result[0].iri == CLASS_IRI
+        assert result[0].prefixed_iri == CLASS_IRI
+        assert result[0].mapping_iri is None
+        assert (
+            result[0].message == "The class 'http://example.org/onto#Book' was not found in the ontology on the server."
+        )
 
     def test_retryable_then_success(self):
         client = Mock()
@@ -161,7 +169,9 @@ class TestAddPropertiesMappings:
         props = [ResolvedPropertyMapping(iri=PROP_IRI, mapping_iris=[MAPPING_IRI])]
         result = _add_properties_mappings(client, props)
         assert len(result) == 1
-        assert result[0].iri == PROP_IRI
+        assert result[0].prefixed_iri == PROP_IRI
+        assert result[0].mapping_iri is None
+        assert result[0].message == "awef"
 
     def test_retryable_then_success(self):
         client = Mock()
@@ -197,14 +207,17 @@ class TestDealWithNonOkResponse:
         )
         result = _get_correct_user_message_for_non_ok_response(CLASS_IRI, response)
         assert len(result) == 1
-        assert "class" in result[0].message
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
     def test_non_400_returns_failure_with_status(self):
         response = ResponseCodeAndText(status_code=503, text="service unavailable")
         result = _get_correct_user_message_for_non_ok_response(CLASS_IRI, response)
         assert len(result) == 1
-        assert "503" in result[0].message
-        assert CLASS_IRI in result[0].message
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
 
 class TestDealWithBadRequest:
@@ -212,8 +225,9 @@ class TestDealWithBadRequest:
         response = ResponseCodeAndText(status_code=400, text="plain error text")
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].message == "plain error text"
-        assert result[0].mapping_iri is None
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
     def test_class_not_found(self):
         response = ResponseCodeAndText(
@@ -223,8 +237,9 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert CLASS_IRI in result[0].message
-        assert result[0].mapping_iri is None
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
     def test_property_not_found(self):
         response = ResponseCodeAndText(
@@ -234,8 +249,9 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(PROP_IRI, response)
         assert len(result) == 1
-        assert PROP_IRI in result[0].message
-        assert result[0].mapping_iri is None
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
     def test_invalid_ontology_mapping_iri(self):
         response = ResponseCodeAndText(
@@ -245,8 +261,9 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].mapping_iri == MAPPING_IRI
-        assert MAPPING_IRI in result[0].message
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"
 
     def test_unknown_error_code(self):
         response = ResponseCodeAndText(
@@ -256,22 +273,6 @@ class TestDealWithBadRequest:
         )
         result = _get_correct_bad_requests_message(CLASS_IRI, response)
         assert len(result) == 1
-        assert result[0].mapping_iri is None
-        assert "an unknown error" in result[0].message
-
-
-class TestCommunicateUploadFailures:
-    def test_without_mapping_iri(self, capsys):
-        failures = [MappingUploadFailure(iri=CLASS_IRI, mapping_iri=None, message="class not found")]
-        _communicate_upload_failures(failures)
-        out = capsys.readouterr().out
-        assert CLASS_IRI in out
-        assert "class not found" in out
-
-    def test_with_mapping_iri(self, capsys):
-        failures = [MappingUploadFailure(iri=CLASS_IRI, mapping_iri=MAPPING_IRI, message="invalid IRI")]
-        _communicate_upload_failures(failures)
-        out = capsys.readouterr().out
-        assert CLASS_IRI in out
-        assert MAPPING_IRI in out
-        assert "invalid IRI" in out
+        assert result[0].prefixed_iri == "asdf"
+        assert result[0].mapping_iri == "asdf"
+        assert result[0].message == "asdf"

@@ -65,6 +65,7 @@ def test_is_retriable_status_code(status_code: int, expected: bool) -> None:
         ("true", ResponseCodeAndText(200, "try again later"), False),
         (None, ResponseCodeAndText(200, ""), False),
         ("false", ResponseCodeAndText(429, "try again later"), True),
+        ("true", ResponseCodeAndText(429, "try again later"), False),
     ],
 )
 def test_should_retry_request(

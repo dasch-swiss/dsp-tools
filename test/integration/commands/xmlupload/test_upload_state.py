@@ -1,13 +1,13 @@
 import pickle
 from pathlib import Path
 
+from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import _save_upload_state
 
 
 def test_save_upload_state(tmp_path: Path) -> None:
@@ -22,7 +22,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
         pending_stash=None,
         config=config,
     )
-    msg = _save_upload_state(upload_state)
+    msg = save_upload_state(upload_state)
     with open(save_location, "rb") as f:
         saved_state: UploadState = pickle.load(f)  # noqa: S301 (deserialization of untrusted data)
     assert msg == f"Saved the current upload state to {save_location}.\n"

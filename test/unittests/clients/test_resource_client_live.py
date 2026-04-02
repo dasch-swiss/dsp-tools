@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.clients.resource_client_live import ResourceClientLive
@@ -35,6 +36,16 @@ class TestPostResource:
 
     @patch("dsp_tools.clients.resource_client_live.log_response")
     @patch("dsp_tools.clients.resource_client_live.log_request")
+    def test_unauthorized_raises_bad_credentials(
+        self, log_req: Mock, log_resp: Mock, client: ResourceClientLive
+    ) -> None:
+        mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED, ok=False)
+        with patch.object(client._session, "post", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
+
+    @patch("dsp_tools.clients.resource_client_live.log_response")
+    @patch("dsp_tools.clients.resource_client_live.log_request")
     def test_forbidden_raises_bad_credentials(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False)
         with patch.object(client._session, "post", return_value=mock_response):
@@ -60,6 +71,12 @@ class TestPostResource:
     ) -> None:
         with patch.object(client._session, "post", side_effect=RequestException("Connection refused")):
             with pytest.raises(DspToolsRequestException):
+                client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
+
+    @patch("dsp_tools.clients.resource_client_live.log_request")
+    def test_read_timeout_raises_read_timeout(self, log_req: Mock, client: ResourceClientLive) -> None:
+        with patch.object(client._session, "post", side_effect=ReadTimeout()):
+            with pytest.raises(ReadTimeout):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_response")

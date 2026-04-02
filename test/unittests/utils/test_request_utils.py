@@ -99,9 +99,6 @@ class TestParseApiV3Errors:
 
 
 class TestShouldRetryOnStatusCode:
-
-
-
     def test_500_returns_true(self):
         assert should_retry_on_status_code(500) is True
 

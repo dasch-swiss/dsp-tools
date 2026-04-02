@@ -152,7 +152,7 @@ def _get_correct_user_message_for_non_ok_response(
     if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
         return _get_correct_bad_requests_message(iri, response_code_text)
     msg = (
-        f"Unexpected error while adding mapping for IRI '{iri}'. "
+        f"Unexpected error while adding mapping for class/property '{iri}'. "
         f"Original status code: {response_code_text.status_code}\nOriginal message: {response_code_text.text}"
     )
     return [MappingUploadFailure(iri=iri, mapping_iri=None, message=msg)]

@@ -5,10 +5,10 @@ import yaml
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFileError
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
-from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 
 TEMPLATE = """\
 shortcode: "{shortcode}"

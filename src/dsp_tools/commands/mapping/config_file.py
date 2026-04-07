@@ -8,6 +8,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFileError
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
+from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 
 TEMPLATE = """\
 shortcode: "{shortcode}"
@@ -34,10 +35,12 @@ def parse_mapping_config(filepath: Path) -> MappingInfo:
         ontology=_require_field(data, "ontology", filepath),
         excel_file=Path(_require_field(data, "excel-file", filepath)),
     )
+    parsed_server = _require_field(data, "server", filepath)
+    resolved_server, _ = get_canonical_server_and_dsp_ingest_url(parsed_server)
     server = ServerCredentials(
         user=_require_field(data, "user", filepath),
         password=_require_field(data, "password", filepath),
-        server=_require_field(data, "server", filepath),
+        server=resolved_server,
     )
     return MappingInfo(config=config, server=server)
 

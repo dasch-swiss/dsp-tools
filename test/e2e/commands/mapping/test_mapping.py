@@ -8,6 +8,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
 from dsp_tools.commands.mapping.mapping_add import mapping_add
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
+
 # TODO: fix tests, add more info
 
 

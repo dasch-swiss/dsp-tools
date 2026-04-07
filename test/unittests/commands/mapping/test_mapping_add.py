@@ -12,8 +12,8 @@ from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundErro
 from dsp_tools.commands.mapping.mapping_add import _add_classes_mappings
 from dsp_tools.commands.mapping.mapping_add import _add_properties_mappings
 from dsp_tools.commands.mapping.mapping_add import _check_if_project_and_ontology_exists
-from dsp_tools.commands.mapping.mapping_add import _get_correct_bad_requests_message
 from dsp_tools.commands.mapping.mapping_add import _get_correct_user_message_for_non_ok_response
+from dsp_tools.commands.mapping.mapping_add import _get_detailed_user_message
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
@@ -225,7 +225,7 @@ class TestDealWithNonOkResponse:
 class TestDealWithBadRequest:
     def test_no_v3_errors_returns_text_message(self):
         response = ResponseCodeAndText(status_code=400, text="plain error text")
-        result = _get_correct_bad_requests_message(CLASS_IRI, response)
+        result = _get_detailed_user_message(CLASS_IRI, response)
         assert len(result) == 1
         assert result[0].prefixed_iri == PREFIXED_CLS
         assert result[0].mapping_iri is None
@@ -237,7 +237,7 @@ class TestDealWithBadRequest:
             text="",
             v3_errors=[ApiV3ErrorDetails("class_not_found", "not found", {})],
         )
-        result = _get_correct_bad_requests_message(CLASS_IRI, response)
+        result = _get_detailed_user_message(CLASS_IRI, response)
         assert len(result) == 1
         assert result[0].prefixed_iri == PREFIXED_CLS
         assert result[0].mapping_iri is None
@@ -249,7 +249,7 @@ class TestDealWithBadRequest:
             text="",
             v3_errors=[ApiV3ErrorDetails("property_not_found", "not found", {})],
         )
-        result = _get_correct_bad_requests_message(PROP_IRI, response)
+        result = _get_detailed_user_message(PROP_IRI, response)
         assert len(result) == 1
         assert result[0].prefixed_iri == PREFIXED_PROP
         assert result[0].mapping_iri is None
@@ -261,7 +261,7 @@ class TestDealWithBadRequest:
             text="",
             v3_errors=[ApiV3ErrorDetails("invalid_ontology_mapping_iri", "invalid", {"iri": "invalid-text"})],
         )
-        result = _get_correct_bad_requests_message(CLASS_IRI, response)
+        result = _get_detailed_user_message(CLASS_IRI, response)
         assert len(result) == 1
         assert result[0].prefixed_iri == PREFIXED_CLS
         assert result[0].mapping_iri == "invalid-text"
@@ -273,7 +273,7 @@ class TestDealWithBadRequest:
             text="",
             v3_errors=[ApiV3ErrorDetails("some_unknown_code", "an unknown error", {})],
         )
-        result = _get_correct_bad_requests_message(CLASS_IRI, response)
+        result = _get_detailed_user_message(CLASS_IRI, response)
         assert len(result) == 1
         assert result[0].prefixed_iri == PREFIXED_CLS
         assert result[0].mapping_iri is None

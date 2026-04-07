@@ -151,8 +151,8 @@ def _add_properties_mappings(
 def _get_correct_user_message_for_non_ok_response(
     iri: str, response_code_text: ResponseCodeAndText
 ) -> list[MappingUploadFailure]:
-    if response_code_text.status_code == HTTPStatus.BAD_REQUEST:
-        return _get_correct_bad_requests_message(iri, response_code_text)
+    if response_code_text.status_code in (HTTPStatus.BAD_REQUEST, HTTPStatus.NOT_FOUND):
+        return _get_detailed_user_message(iri, response_code_text)
     prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     msg = (
         f"Unexpected error while adding mapping for class/property '{prefixed_iri}'. "
@@ -161,7 +161,7 @@ def _get_correct_user_message_for_non_ok_response(
     return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=msg)]
 
 
-def _get_correct_bad_requests_message(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
+def _get_detailed_user_message(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
     prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     if not response_code_text.v3_errors:
         return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=response_code_text.text)]
@@ -190,7 +190,7 @@ def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
     messages = []
     failures = sorted(failures, key=lambda x: x.prefixed_iri)
     for failure in failures:
-        single_line = [f"Ontology class/property '{failure.prefixed_iri}'"]
+        single_line = [f"Project reference '{failure.prefixed_iri}'"]
         if failure.mapping_iri:
             single_line.append(f"Mapping '{failure.mapping_iri}'")
         single_line.append(f"Problem: {failure.message}")

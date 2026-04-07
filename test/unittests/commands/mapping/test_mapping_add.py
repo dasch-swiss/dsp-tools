@@ -110,8 +110,8 @@ class TestAddClassesMappings:
     def test_non_retryable_error_returns_failure(self):
         client = Mock()
         client.put_class_mapping.return_value = ResponseCodeAndText(
-            status_code=HTTPStatus.BAD_REQUEST,
-            text="bad request",
+            status_code=HTTPStatus.NOT_FOUND,
+            text="not found",
             v3_errors=[ApiV3ErrorDetails("class_not_found", "not found", {})],
         )
         classes = [ResolvedClassMapping(iri=CLASS_IRI, mapping_iris=[MAPPING_IRI])]
@@ -160,8 +160,8 @@ class TestAddPropertiesMappings:
     def test_non_retryable_error_returns_failure(self):
         client = Mock()
         client.put_property_mapping.return_value = ResponseCodeAndText(
-            status_code=HTTPStatus.BAD_REQUEST,
-            text="bad request",
+            status_code=HTTPStatus.NOT_FOUND,
+            text="not found",
             v3_errors=[ApiV3ErrorDetails("property_not_found", "not found", {})],
         )
         props = [ResolvedPropertyMapping(iri=PROP_IRI, mapping_iris=[MAPPING_IRI])]
@@ -199,8 +199,8 @@ class TestAddPropertiesMappings:
 class TestDealWithNonOkResponse:
     def test_400_delegates_to_bad_request(self):
         response = ResponseCodeAndText(
-            status_code=HTTPStatus.BAD_REQUEST,
-            text="bad",
+            status_code=HTTPStatus.NOT_FOUND,
+            text="not found",
             v3_errors=[ApiV3ErrorDetails("class_not_found", "not found", {})],
         )
         result = _get_correct_user_message_for_non_ok_response(CLASS_IRI, response)
@@ -233,7 +233,7 @@ class TestDealWithBadRequest:
 
     def test_class_not_found(self):
         response = ResponseCodeAndText(
-            status_code=400,
+            status_code=HTTPStatus.NOT_FOUND,
             text="",
             v3_errors=[ApiV3ErrorDetails("class_not_found", "not found", {})],
         )
@@ -245,7 +245,7 @@ class TestDealWithBadRequest:
 
     def test_property_not_found(self):
         response = ResponseCodeAndText(
-            status_code=400,
+            status_code=HTTPStatus.NOT_FOUND,
             text="",
             v3_errors=[ApiV3ErrorDetails("property_not_found", "not found", {})],
         )

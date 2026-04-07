@@ -5,6 +5,7 @@ from loguru import logger
 from dsp_tools.commands.mapping.models import ParsedMapping
 from dsp_tools.commands.mapping.models import ParsedMappings
 from dsp_tools.commands.mapping.models import PrefixResolutionProblem
+from dsp_tools.commands.mapping.models import PrefixResolutionProblemType
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedMapping
 from dsp_tools.commands.mapping.models import ResolvedMappings
@@ -53,36 +54,36 @@ def _resolve_one_mapping(
 
 
 def _resolve_prefixed_iri(
-    prefixed_iri: str, prefix_lookup: dict[str, str], entity_name: str
+    prefixed_iri: str, prefix_lookup: dict[str, str], project_reference: str
 ) -> str | PrefixResolutionProblem:
     if is_uri(prefixed_iri):
         return prefixed_iri
 
     if ":" not in prefixed_iri:
         return PrefixResolutionProblem(
-            entity_name=entity_name,
+            entity_name=project_reference,
             input_value=prefixed_iri,
-            problem="There is no prefix in the mapping value.",
+            problem=PrefixResolutionProblemType.NO_PREFIX_IN_INPUT,
         )
 
     prefix, local_name = prefixed_iri.split(":", 1)
 
     if not prefix:
         return PrefixResolutionProblem(
-            entity_name=entity_name,
+            entity_name=project_reference,
             input_value=prefixed_iri,
-            problem="There is no prefix in the mapping value.",
+            problem=PrefixResolutionProblemType.NO_PREFIX_IN_INPUT,
         )
     if not local_name:
         return PrefixResolutionProblem(
-            entity_name=entity_name,
+            entity_name=project_reference,
             input_value=prefixed_iri,
-            problem="The mapping value only contains a prefix.",
+            problem=PrefixResolutionProblemType.NO_LOCAL_NAME_IN_INPUT,
         )
     if not (namespace_found := prefix_lookup.get(prefix)):
         return PrefixResolutionProblem(
-            entity_name=entity_name,
+            entity_name=project_reference,
             input_value=prefixed_iri,
-            problem="The prefix in the mapping value is not declared in the prefix sheet.",
+            problem=PrefixResolutionProblemType.PREFIX_NOT_FOUND,
         )
     return f"{namespace_found}{local_name}"

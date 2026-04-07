@@ -2,6 +2,7 @@ from dsp_tools.commands.mapping.models import ParsedClassMapping
 from dsp_tools.commands.mapping.models import ParsedMappings
 from dsp_tools.commands.mapping.models import ParsedPropertyMapping
 from dsp_tools.commands.mapping.models import PrefixResolutionProblem
+from dsp_tools.commands.mapping.models import PrefixResolutionProblemType
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
 from dsp_tools.commands.mapping.resolve_parsed_mappings import _resolve_one_mapping
@@ -21,21 +22,25 @@ class TestResolvePrefixedIri:
         result = _resolve_prefixed_iri("Book", {}, "Book")
         assert isinstance(result, PrefixResolutionProblem)
         assert result.input_value == "Book"
+        assert result.problem == PrefixResolutionProblemType.NO_PREFIX_IN_INPUT
 
     def test_empty_prefix_returns_problem(self):
         result = _resolve_prefixed_iri(":Book", {}, "Book")
         assert isinstance(result, PrefixResolutionProblem)
         assert result.input_value == ":Book"
+        assert result.problem == PrefixResolutionProblemType.NO_PREFIX_IN_INPUT
 
     def test_empty_local_name_returns_problem(self):
         result = _resolve_prefixed_iri("schema:", PREFIX_LOOKUP, "Book")
         assert isinstance(result, PrefixResolutionProblem)
         assert result.input_value == "schema:"
+        assert result.problem == PrefixResolutionProblemType.NO_LOCAL_NAME_IN_INPUT
 
     def test_prefix_not_in_lookup_returns_problem(self):
-        result = _resolve_prefixed_iri("owl:Class", PREFIX_LOOKUP, "Book")
+        result = _resolve_prefixed_iri("other:Class", PREFIX_LOOKUP, "Book")
         assert isinstance(result, PrefixResolutionProblem)
-        assert result.input_value == "owl:Class"
+        assert result.input_value == "other:Class"
+        assert result.problem == PrefixResolutionProblemType.PREFIX_NOT_FOUND
 
     def test_known_prefix_resolves_to_iri(self):
         result = _resolve_prefixed_iri("schema:Book", PREFIX_LOOKUP, "Book")

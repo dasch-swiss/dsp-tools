@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 
 from dsp_tools.cli.args import ServerCredentials
@@ -35,11 +36,17 @@ class ParsedMappings:
     properties: list[ParsedPropertyMapping]
 
 
+class PrefixResolutionProblemType(Enum):
+    NO_PREFIX_IN_INPUT = "There is no prefix in the mapping value."
+    NO_LOCAL_NAME_IN_INPUT = "The mapping value only contains a prefix."
+    PREFIX_NOT_FOUND = "The prefix in the mapping value is not declared in the prefix sheet."
+
+
 @dataclass
 class PrefixResolutionProblem:
     entity_name: str
     input_value: str
-    problem: str
+    problem: PrefixResolutionProblemType
 
 
 @dataclass

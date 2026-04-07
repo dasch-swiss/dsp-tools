@@ -72,7 +72,7 @@ def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -
     print(f"{BACKGROUND_BOLD_RED}{err_found_msg}{RESET_TO_DEFAULT}")
     problem_list = sorted(problem_list, key=lambda x: x.entity_name)
     problem_str_list = [
-        f"Ontology reference '{p.entity_name}' | Problematic mapping: '{p.input_value}' | Problem: {p.problem}"
+        f"Ontology reference '{p.entity_name}' | Problematic mapping: '{p.input_value}' | Problem: {p.problem!s}"
         for p in problem_list
     ]
     problem_str = LIST_MESSAGE_SEPARATOR + LIST_MESSAGE_SEPARATOR.join(problem_str_list)

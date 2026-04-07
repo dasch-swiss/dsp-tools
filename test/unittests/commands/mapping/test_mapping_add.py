@@ -49,8 +49,7 @@ class TestOntologyExists:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.return_value = ([], [ONTO_IRI, "http://other/onto"])
                 mock_onto_cls.return_value = mock_onto_client
-                result = _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
-        assert result is None
+                _check_if_project_and_ontology_exists(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_ontology_not_found_raises(self):
         with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:

@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from dsp_tools.cli.args import PathDependencies
-from dsp_tools.cli.utils import ProhibitedPaths
+from dsp_tools.cli.args import ProhibitedPaths
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import check_path_dependencies
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists

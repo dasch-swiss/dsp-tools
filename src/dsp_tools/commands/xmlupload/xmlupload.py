@@ -3,39 +3,22 @@ from __future__ import annotations
 from pathlib import Path
 
 from loguru import logger
-from rdflib import URIRef
-from requests import ReadTimeout
-from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
-from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
-from dsp_tools.commands.xmlupload.execute_upload import _upload_stash
 from dsp_tools.commands.xmlupload.execute_upload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
-from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
-from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_connection_error
-from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout_or_keyboard_interrupt
-from dsp_tools.commands.xmlupload.handle_errors import handle_upload_error
-from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_creation_failure
-from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
-from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
-from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
@@ -43,10 +26,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
-from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
@@ -197,91 +177,3 @@ def _get_live_clients(
         list_client=list_client,
         legal_info_client=legal_info_client,
     )
-
-
-def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
-    """
-    Iterates through all resources and tries to upload them to DSP.
-    If a temporary exception occurs, the action is repeated until success,
-    and if a permanent exception occurs, the resource is skipped.
-
-    Args:
-        clients: the clients needed for the upload
-        upload_state: the current state of the upload
-
-    Raises:
-        BaseException: in case of an unhandled exception during resource creation
-        XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
-    """
-    project_client = ProjectClientLive(clients.legal_info_client.server, clients.legal_info_client.auth)
-    project_iri = project_client.get_project_iri(upload_state.config.shortcode)
-
-    iri_lookup = IRILookups(
-        project_iri=URIRef(project_iri),
-        id_to_iri=upload_state.iri_resolver,
-    )
-
-    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth)
-    resource_create_client = ResourceCreateClient(
-        con=con,
-    )
-    progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
-    try:
-        for creation_attempts_of_this_round, resource in enumerate(progress_bar):
-            _upload_one_resource(
-                upload_state=upload_state,
-                resource=resource,
-                ingest_client=clients.asset_client,
-                resource_create_client=resource_create_client,
-                iri_lookups=iri_lookup,
-                creation_attempts_of_this_round=creation_attempts_of_this_round,
-            )
-            progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
-        if upload_state.pending_stash:
-            _upload_stash(upload_state, con)
-    except XmlUploadInterruptedError as err:
-        handle_upload_error(err, upload_state)
-
-
-def _upload_one_resource(
-    upload_state: UploadState,
-    resource: ProcessedResource,
-    ingest_client: AssetClient,
-    resource_create_client: ResourceCreateClient,
-    iri_lookups: IRILookups,
-    creation_attempts_of_this_round: int,
-) -> None:
-    media_info = None
-    if resource.file_value:
-        try:
-            ingest_result = ingest_client.get_bitstream_info(resource.file_value)
-        except PermanentConnectionError as err:
-            handle_permanent_connection_error(err)
-        except KeyboardInterrupt:
-            handle_keyboard_interrupt()
-        if not ingest_result:
-            upload_state.failed_uploads.append(resource.res_id)
-            return
-        media_info = ingest_result
-
-    iri = None
-    try:
-        serialised_resource = create_resource_with_values(
-            resource=resource, bitstream_information=media_info, lookups=iri_lookups
-        )
-        logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
-        iri = resource_create_client.create_resource(serialised_resource, resource_has_bitstream=bool(media_info))
-    except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
-        handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
-    except PermanentConnectionError as err:
-        handle_permanent_connection_error(err)
-    except Exception as err:  # noqa: BLE001 (blind-except)
-        err_msg = err.message if isinstance(err, BaseError) else None
-        inform_about_resource_creation_failure(resource, err_msg)
-
-    try:
-        tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
-    except KeyboardInterrupt:
-        tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        handle_keyboard_interrupt()

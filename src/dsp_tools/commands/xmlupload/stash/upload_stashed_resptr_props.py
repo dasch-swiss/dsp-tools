@@ -10,19 +10,18 @@ from rdflib import Graph
 from rdflib import URIRef
 from tqdm import tqdm
 
-from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.error.exceptions import BaseError
 
 
 def upload_stashed_resptr_props(
     upload_state: UploadState,
-    con: Connection,
+    val_client: ValueClient,
 ) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
@@ -51,7 +50,7 @@ def upload_stashed_resptr_props(
             target_iri = upload_state.iri_resolver.get(stash_item.value.value)
             if not target_iri:
                 continue
-            if _upload_stash_item(stash_item, res_iri, target_iri, con):
+            if _upload_stash_item(stash_item, res_iri, target_iri, val_client):
                 link_value_stash.res_2_stash_items[res_id].remove(stash_item)
         # remove res_id if all stash items were uploaded
         if not link_value_stash.res_2_stash_items[res_id]:
@@ -62,7 +61,7 @@ def _upload_stash_item(
     stash: LinkValueStashItem,
     res_iri: str,
     target_iri: str,
-    con: Connection,
+    val_client: ValueClient,
 ) -> bool:
     """
     Upload a single stashed link value to DSP.
@@ -78,10 +77,9 @@ def _upload_stash_item(
     """
     graph = _make_link_value_create_graph(stash, res_iri, target_iri)
     payload = serialise_jsonld_for_value(graph, res_iri)
-    try:
-        con.post(route="/v2/values", data=payload)
-    except BaseError as err:
-        _log_unable_to_upload_link_value(err.message, stash.res_id, stash.value.prop_iri)
+    upload_problem = val_client.post_new_value(payload)
+    if upload_problem:
+        _log_unable_to_upload_link_value(upload_problem.text, stash.res_id, stash.value.prop_iri)
         return False
     logger.debug(f'  Successfully uploaded resptr links of "{stash.value.prop_iri}"')
     return True

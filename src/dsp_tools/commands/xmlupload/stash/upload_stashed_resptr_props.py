@@ -29,7 +29,7 @@ def upload_stashed_resptr_props(
 
     Args:
         upload_state: the current state of the upload
-        con: connection to DSP
+        val_client: Value Client
     """
     logger.info("Upload the stashed links...")
     upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
@@ -70,7 +70,7 @@ def _upload_stash_item(
         stash: the stashed link value to upload
         res_iri: the iri of the resource
         target_iri: the iri of the target resource
-        con: connection to DSP
+        val_client: Value Client
 
     Returns:
         True, if the upload was successful, False otherwise

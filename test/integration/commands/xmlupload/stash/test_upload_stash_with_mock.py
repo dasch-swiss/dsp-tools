@@ -3,6 +3,7 @@ from dataclasses import field
 from typing import Any
 from unittest.mock import Mock
 from unittest.mock import create_autospec
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -11,6 +12,7 @@ from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.resource_client_live import ResourceClientLive
+from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.execute_upload import _upload_stash
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -105,7 +107,8 @@ class TestUploadLinkValueStashes:
         )
 
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, resource_client)
+        with patch.object(ValueClientLive, "post_new_value", return_value=None):
+            _upload_stash(upload_state, resource_client)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:

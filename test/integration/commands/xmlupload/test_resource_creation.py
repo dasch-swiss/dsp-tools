@@ -5,11 +5,10 @@ from uuid import uuid4
 
 import pytest
 
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.resource_client_live import ResourceClientLive
+from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _upload_all_resources
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -86,7 +85,7 @@ def test_one_resource_without_links(
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig())
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(side_effect=[f"{RES_IRI_NAMESPACE_STR}foo_1_iri"])
     mock_resource_client_class.return_value = mock_resource_client
 
@@ -152,7 +151,7 @@ def test_one_resource_with_link_to_existing_resource(
         [],
         IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}),
     )
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(side_effect=[f"{RES_IRI_NAMESPACE_STR}foo_1_iri"])
     mock_resource_client_class.return_value = mock_resource_client
 
@@ -255,7 +254,7 @@ def _2_resources_with_stash_interrupted_by_error(
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -292,13 +291,13 @@ def _2_resources_with_stash_interrupted_by_error(
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-@patch("dsp_tools.commands.xmlupload.execute_upload.ConnectionLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_2_resources_with_stash(
     mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -309,7 +308,7 @@ def test_2_resources_with_stash(
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -318,14 +317,9 @@ def test_2_resources_with_stash(
     )
     mock_resource_client_class.return_value = mock_resource_client
 
-    con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(
-        side_effect=[
-            {},  # uploading a stash doesn't rely on a certain response
-            {},  # uploading a stash doesn't rely on a certain response
-        ]
-    )
-    mock_connection_class.return_value = con
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
     mock_project_client.get_project_iri.return_value = PROJECT_IRI
@@ -335,18 +329,15 @@ def test_2_resources_with_stash(
 
     _upload_all_resources(clients, upload_state)
 
-    post_kwargs = con.post.call_args_list[0].kwargs
-    match post_kwargs:
+    post_arg = val_client.post_new_value.call_args_list[0].args[0]
+    match post_arg:
         case {
-            "route": "/v2/values",
-            "data": {
-                "@id": "http://rdfh.ch/0000/foo_1_iri",
-                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-                "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
-                    "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
-                        "@id": "http://rdfh.ch/0000/foo_2_iri"
-                    },
+            "@id": "http://rdfh.ch/0000/foo_1_iri",
+            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                    "@id": "http://rdfh.ch/0000/foo_2_iri"
                 },
             },
         }:
@@ -362,13 +353,13 @@ def test_2_resources_with_stash(
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
-@patch("dsp_tools.commands.xmlupload.execute_upload.ConnectionLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_5_resources_with_stash_and_interrupt_after_2(
     mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -380,7 +371,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -392,9 +383,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     )
     mock_resource_client_class.return_value = mock_resource_client
 
-    con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(side_effect=[{}, {}])
-    mock_connection_class.return_value = con
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
     mock_project_client.get_project_iri.return_value = PROJECT_IRI
@@ -428,13 +419,13 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         assert upload_state == upload_state_expected
 
 
-@patch("dsp_tools.commands.xmlupload.execute_upload.ConnectionLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_6_resources_with_stash_and_interrupt_after_2(
     mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -446,7 +437,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -459,9 +450,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     )
     mock_resource_client_class.return_value = mock_resource_client
 
-    con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(side_effect=[{}, {}])
-    mock_connection_class.return_value = con
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
     mock_project_client.get_project_iri.return_value = PROJECT_IRI
@@ -502,13 +493,13 @@ def test_6_resources_with_stash_and_interrupt_after_2(
         assert upload_state == upload_state_expected
 
 
-@patch("dsp_tools.commands.xmlupload.execute_upload.ConnectionLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_logging(
     mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     caplog: pytest.LogCaptureFixture,
     ingest_client_mock: AssetClient,
@@ -521,7 +512,7 @@ def test_logging(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -533,9 +524,9 @@ def test_logging(
     )
     mock_resource_client_class.return_value = mock_resource_client
 
-    con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(side_effect=[{}, {}])
-    mock_connection_class.return_value = con
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
     mock_project_client.get_project_iri.return_value = PROJECT_IRI
@@ -576,13 +567,13 @@ def test_logging(
         caplog.clear()
 
 
-@patch("dsp_tools.commands.xmlupload.execute_upload.ConnectionLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
 @patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_post_requests(
     mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -594,7 +585,7 @@ def test_post_requests(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
@@ -607,9 +598,9 @@ def test_post_requests(
     )
     mock_resource_client_class.return_value = mock_resource_client
 
-    con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(side_effect=[{}, {}])
-    mock_connection_class.return_value = con
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
     mock_project_client.get_project_iri.return_value = PROJECT_IRI
@@ -623,7 +614,7 @@ def test_post_requests(
         _upload_all_resources(clients, upload_state)
         _upload_all_resources(clients, upload_state)
         assert mock_resource_client.post_resource.call_count == 6  # 6 resource creations
-        assert len(con.post.call_args_list) == 2  # 2 stash uploads
+        assert val_client.post_new_value.call_count == 2  # 2 stash uploads
 
 
 @patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
@@ -639,7 +630,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(
         ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     upload_state = UploadState(resources.copy(), Stash(None, None), UploadConfig(), [], IriResolver())
-    mock_resource_client = Mock(spec_set=ResourceClientLive)
+    mock_resource_client = Mock()
     mock_resource_client.post_resource = Mock(
         side_effect=[
             ResponseCodeAndText(404, "not found"),  # foo_1 fails

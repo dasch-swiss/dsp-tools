@@ -11,3 +11,8 @@ class ResourceClient(Protocol):
         """
         POST a JSON-LD resource payload to /v2/resources.
         """
+
+    def get_resource(self, resource_iri: str) -> dict[str, Any] | ResponseCodeAndText:
+        """
+        Get an existing resource from the DSP-API
+        """

@@ -4,7 +4,9 @@ from http import HTTPStatus
 from importlib.metadata import version
 from typing import Any
 from typing import cast
+from urllib.parse import quote_plus
 
+import requests
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Session
@@ -20,6 +22,7 @@ from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT_1800 = 1800
+TIMEOUT_30 = 30
 
 
 @dataclass
@@ -64,5 +67,30 @@ class ResourceClientLive(ResourceClient):
                 )
             case HTTPStatus.FORBIDDEN:
                 raise BadCredentialsError("You don't have permission to create resources in this project.")
+            case _:
+                return ResponseCodeAndText(response.status_code, response.text)
+
+    def get_resource(self, resource_iri: str) -> dict[str, Any] | ResponseCodeAndText:
+        url = f"{self.server}/v2/resources/{quote_plus(resource_iri)}"
+        headers: dict[str, str] = {
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("GET", url, TIMEOUT_30, headers=headers)
+        log_request(params)
+        try:
+            response = requests.get(params.url, timeout=params.timeout, headers=params.headers)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+
+        match response.status_code:
+            case HTTPStatus.OK:
+                return cast(dict[str, Any], response.json())
+            case HTTPStatus.UNAUTHORIZED:
+                raise BadCredentialsError(
+                    "Authentication failed. Your credentials may be invalid or your token may have expired."
+                )
+            case HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError("You don't have permission to retrieve this resource.")
             case _:
                 return ResponseCodeAndText(response.status_code, response.text)

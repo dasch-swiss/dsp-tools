@@ -111,7 +111,9 @@ class TestUploadLinkValueStashes:
             _upload_stash(upload_state, resource_client)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
-    def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:
+    def test_upload_link_value_stash_multiple(
+        self, link_val_stash_target_id_2: LinkValueStashItem, resource_client
+    ) -> None:
         """Upload multiple stashed link values (resptr), if all goes well."""
         stash = Stash.make(
             standoff_stash=None,
@@ -139,9 +141,9 @@ class TestUploadLinkValueStashes:
                 "004": "http://www.rdfh.ch/0001/004",
             }
         )
-        con: Connection = ConnectionMock(post_responses=[{}, {}, {}, {}])
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, con)
+        with patch.object(ValueClientLive, "post_new_value", return_value=None):
+            _upload_stash(upload_state, resource_client)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 

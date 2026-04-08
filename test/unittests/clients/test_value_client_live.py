@@ -1,5 +1,5 @@
 # ruff: noqa: ARG002
-
+import json
 from http import HTTPStatus
 from typing import Any
 from unittest.mock import Mock
@@ -30,15 +30,15 @@ class TestPostNewValue:
     @patch("dsp_tools.clients.value_client_live.log_request")
     def test_ok_returns_none(self, log_req: Mock, log_resp: Mock, client: ValueClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK)
-        with patch("dsp_tools.clients.value_client_live.requests.post", return_value=mock_response):
+        with patch("dsp_tools.clients.value_client_live.requests.post", return_value=mock_response) as mock_post:
             result = client.post_new_value(VALUE_JSON)
+        assert mock_post.call_args.kwargs["url"] == f"{client.server}/v2/values"
+        assert json.loads(mock_post.call_args.kwargs["data"]) == VALUE_JSON
         assert result is None
 
     @patch("dsp_tools.clients.value_client_live.log_response")
     @patch("dsp_tools.clients.value_client_live.log_request")
-    def test_unauthorized_raises_bad_credentials(
-        self, log_req: Mock, log_resp: Mock, client: ValueClientLive
-    ) -> None:
+    def test_unauthorized_raises_bad_credentials(self, log_req: Mock, log_resp: Mock, client: ValueClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED)
         with patch("dsp_tools.clients.value_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
@@ -84,15 +84,15 @@ class TestReplaceExistingValue:
     @patch("dsp_tools.clients.value_client_live.log_request")
     def test_ok_returns_none(self, log_req: Mock, log_resp: Mock, client: ValueClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK)
-        with patch("dsp_tools.clients.value_client_live.requests.put", return_value=mock_response):
+        with patch("dsp_tools.clients.value_client_live.requests.put", return_value=mock_response) as mock_put:
             result = client.replace_existing_value(VALUE_JSON)
+        assert mock_put.call_args.kwargs["url"] == f"{client.server}/v2/values"
+        assert json.loads(mock_put.call_args.kwargs["data"]) == VALUE_JSON
         assert result is None
 
     @patch("dsp_tools.clients.value_client_live.log_response")
     @patch("dsp_tools.clients.value_client_live.log_request")
-    def test_unauthorized_raises_bad_credentials(
-        self, log_req: Mock, log_resp: Mock, client: ValueClientLive
-    ) -> None:
+    def test_unauthorized_raises_bad_credentials(self, log_req: Mock, log_resp: Mock, client: ValueClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED)
         with patch("dsp_tools.clients.value_client_live.requests.put", return_value=mock_response):
             with pytest.raises(BadCredentialsError):

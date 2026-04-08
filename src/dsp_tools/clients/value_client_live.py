@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
 
@@ -18,6 +19,7 @@ from dsp_tools.utils.request_utils import log_response
 TIMEOUT_600 = 600
 
 
+@dataclass
 class ValueClientLive(ValueClient):
     server: str
     auth: AuthenticationClient

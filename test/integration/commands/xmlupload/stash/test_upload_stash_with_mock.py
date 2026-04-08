@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
+from unittest.mock import Mock
+from unittest.mock import create_autospec
 from uuid import uuid4
 
 import pytest
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.resource_client import ResourceClient
+from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.commands.xmlupload.execute_upload import _upload_stash
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -24,6 +29,22 @@ from test.integration.commands.xmlupload.connection_mock import ConnectionMockBa
 # ruff: noqa: ARG002 (unused-method-argument)
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
+LOCALHOST = "http://0.0.0.0:3333"
+
+
+@pytest.fixture
+def auth() -> AuthenticationClient:
+    mock_auth = Mock(spec_set=AuthenticationClient)
+    mock_auth.get_token = Mock(return_value="tkn")
+    return mock_auth
+
+
+@pytest.fixture
+def resource_client(auth) -> ResourceClient:
+    mock_resource_client = create_autospec(ResourceClientLive, instance=True)
+    mock_resource_client.server = LOCALHOST
+    mock_resource_client.auth = auth
+    return mock_resource_client
 
 
 @dataclass
@@ -67,7 +88,7 @@ def link_val_stash_target_id_2():
 
 
 class TestUploadLinkValueStashes:
-    def test_upload_link_value_stash(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:
+    def test_upload_link_value_stash(self, link_val_stash_target_id_2: LinkValueStashItem, resource_client) -> None:
         """Upload stashed link values (resptr), if all goes well."""
         stash = Stash.make(
             standoff_stash=None,
@@ -82,9 +103,9 @@ class TestUploadLinkValueStashes:
                 "002": "http://www.rdfh.ch/0001/002",
             }
         )
-        con: Connection = ConnectionMock(post_responses=[{}])
+
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, con)
+        _upload_stash(upload_state, resource_client)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:

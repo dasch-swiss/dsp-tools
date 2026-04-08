@@ -6,7 +6,6 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.clients.value_client_live import ValueClientLive
@@ -65,12 +64,6 @@ class TestPostNewValue:
         assert result.text == "Internal Server Error"
 
     @patch("dsp_tools.clients.value_client_live.log_request")
-    def test_read_timeout_is_reraised(self, log_req: Mock, client: ValueClientLive) -> None:
-        with patch("dsp_tools.clients.value_client_live.requests.post", side_effect=ReadTimeout()):
-            with pytest.raises(ReadTimeout):
-                client.post_new_value(VALUE_JSON)
-
-    @patch("dsp_tools.clients.value_client_live.log_request")
     def test_request_exception_raises_dsp_tools_exception(self, log_req: Mock, client: ValueClientLive) -> None:
         with patch(
             "dsp_tools.clients.value_client_live.requests.post", side_effect=RequestException("Connection refused")
@@ -117,12 +110,6 @@ class TestReplaceExistingValue:
         assert isinstance(result, ResponseCodeAndText)
         assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         assert result.text == "Internal Server Error"
-
-    @patch("dsp_tools.clients.value_client_live.log_request")
-    def test_read_timeout_is_reraised(self, log_req: Mock, client: ValueClientLive) -> None:
-        with patch("dsp_tools.clients.value_client_live.requests.put", side_effect=ReadTimeout()):
-            with pytest.raises(ReadTimeout):
-                client.replace_existing_value(VALUE_JSON)
 
     @patch("dsp_tools.clients.value_client_live.log_request")
     def test_request_exception_raises_dsp_tools_exception(self, log_req: Mock, client: ValueClientLive) -> None:

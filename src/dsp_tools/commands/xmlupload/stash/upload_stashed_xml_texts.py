@@ -129,7 +129,11 @@ def _upload_stash_item(
         res_iri_str=res_iri,
         iri_resolver=iri_resolver,
     )
-    upload_problem = val_client.replace_existing_value(payload)
+    try:
+        upload_problem = val_client.replace_existing_value(payload)
+    except DspToolsRequestException as err:
+        _log_unable_to_upload_xml_resource(err.message, stash_item.res_id, stash_item.value.prop_iri)
+        return False
     if upload_problem:
         _log_unable_to_upload_xml_resource(upload_problem.text, stash_item.res_id, stash_item.value.prop_iri)
         return False

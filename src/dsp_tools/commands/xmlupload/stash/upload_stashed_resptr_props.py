@@ -17,6 +17,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.utils.exceptions import DspToolsRequestException
 
 
 def upload_stashed_resptr_props(
@@ -77,7 +78,11 @@ def _upload_stash_item(
     """
     graph = _make_link_value_create_graph(stash, res_iri, target_iri)
     payload = serialise_jsonld_for_value(graph, res_iri)
-    upload_problem = val_client.post_new_value(payload)
+    try:
+        upload_problem = val_client.post_new_value(payload)
+    except DspToolsRequestException as err:
+        _log_unable_to_upload_link_value(err.message, stash.res_id, stash.value.prop_iri)
+        return False
     if upload_problem:
         _log_unable_to_upload_link_value(upload_problem.text, stash.res_id, stash.value.prop_iri)
         return False

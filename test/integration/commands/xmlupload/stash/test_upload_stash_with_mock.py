@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-from dataclasses import field
-from typing import Any
 from unittest.mock import Mock
 from unittest.mock import create_autospec
 from unittest.mock import patch
@@ -23,10 +20,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.utils.request_utils import PostFiles
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
-
-# ruff: noqa: ARG002 (unused-method-argument)
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
 LOCALHOST = "http://0.0.0.0:3333"
@@ -46,40 +39,6 @@ def resource_client(auth) -> ResourceClientLive:
     mock_resource_client.server = LOCALHOST
     mock_resource_client.auth = auth
     return mock_resource_client
-
-
-@dataclass
-class ConnectionMock(ConnectionMockBase):
-    """Mock class for Connection."""
-
-    get_responses: list[dict[str, Any]] = field(default_factory=list)
-    post_responses: list[dict[str, Any]] = field(default_factory=list)
-    put_responses: list[dict[str, Any]] = field(default_factory=list)
-
-    def get(
-        self,
-        route: str,
-        headers: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        return self.get_responses.pop(0)
-
-    def post(
-        self,
-        route: str,
-        data: dict[str, Any] | None = None,
-        files: PostFiles | None = None,
-        headers: dict[str, str] | None = None,
-        timeout: int | None = None,
-    ) -> dict[str, Any]:
-        return self.post_responses.pop(0)
-
-    def put(
-        self,
-        route: str,
-        data: dict[str, Any] | None = None,
-        headers: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        return self.put_responses.pop(0)
 
 
 @pytest.fixture

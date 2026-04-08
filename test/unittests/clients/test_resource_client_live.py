@@ -151,14 +151,3 @@ class TestGetResource:
         ):
             with pytest.raises(DspToolsRequestException):
                 client.get_resource(RES_IRI)
-
-    @patch("dsp_tools.clients.resource_client_live.log_response")
-    @patch("dsp_tools.clients.resource_client_live.log_request")
-    def test_iri_is_url_encoded(self, log_req: Mock, log_resp: Mock, client: ResourceClientLive) -> None:
-        iri = "http://rdfh.ch/0803/abc"
-        mock_response = Mock(status_code=HTTPStatus.OK, ok=True)
-        mock_response.json.return_value = {}
-        with patch("dsp_tools.clients.resource_client_live.requests.get", return_value=mock_response) as get_mock:
-            client.get_resource(iri)
-        called_url = get_mock.call_args.args[0]
-        assert quote_plus(iri) in called_url

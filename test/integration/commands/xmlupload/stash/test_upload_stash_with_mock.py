@@ -9,8 +9,6 @@ from uuid import uuid4
 import pytest
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.execute_upload import _upload_stash
@@ -32,6 +30,7 @@ from test.integration.commands.xmlupload.connection_mock import ConnectionMockBa
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
 LOCALHOST = "http://0.0.0.0:3333"
+VALUE_UUID = str(uuid4())
 
 
 @pytest.fixture
@@ -42,8 +41,8 @@ def auth() -> AuthenticationClient:
 
 
 @pytest.fixture
-def resource_client(auth) -> ResourceClient:
-    mock_resource_client = create_autospec(ResourceClientLive, instance=True)
+def resource_client(auth) -> ResourceClientLive:
+    mock_resource_client: ResourceClientLive = create_autospec(ResourceClientLive, instance=True)
     mock_resource_client.server = LOCALHOST
     mock_resource_client.auth = auth
     return mock_resource_client
@@ -148,14 +147,13 @@ class TestUploadLinkValueStashes:
 
 
 class TestUploadTextValueStashes:
-    def test_upload_text_value_stash(self) -> None:
+    def test_upload_text_value_stash(self, resource_client) -> None:
         """Upload stashed text values (standoff), if all goes well."""
-        value_uuid = str(uuid4())
         property_name = SOME_PROP_STR
         val = ProcessedRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
-            value_uuid=value_uuid,
+            value_uuid=VALUE_UUID,
             resource_references=set(),
             permissions=None,
             comment=None,
@@ -170,39 +168,34 @@ class TestUploadTextValueStashes:
                 "002": "http://www.rdfh.ch/0001/002",
             }
         )
-        con: Connection = ConnectionMock(
-            get_responses=[
+        resource_client.get_resource.return_value = {
+            "testonto:someprop": [
                 {
-                    "testonto:someprop": [
-                        {
-                            "@id": "http://www.rdfh.ch/0001/001/values/01",
-                            "knora-api:textValueAsXml": "<p>not relevant</p>",
-                        },
-                        {
-                            "@id": "http://www.rdfh.ch/0001/001/values/01",
-                            "knora-api:textValueAsXml": f"<p>{value_uuid}</p>",
-                        },
-                    ],
-                    "@context": {},
+                    "@id": "http://www.rdfh.ch/0001/001/values/01",
+                    "knora-api:textValueAsXml": "<p>not relevant</p>",
+                },
+                {
+                    "@id": "http://www.rdfh.ch/0001/001/values/02",
+                    "knora-api:textValueAsXml": f"<p>{VALUE_UUID}</p>",
                 },
             ],
-            put_responses=[{}],
-        )
+            "@context": {},
+        }
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, con)
+        with patch.object(ValueClientLive, "replace_existing_value", return_value=None):
+            _upload_stash(upload_state, resource_client)
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
-    def test_not_upload_text_value_stash_if_uuid_not_on_value(self) -> None:
+    def test_not_upload_text_value_stash_if_uuid_not_on_value(self, resource_client) -> None:
         """
         Do not upload stashed text values (standoff), if the resource has no value containing the UUID of the stashed
         text value in its text.
         """
-        value_uuid = str(uuid4())
         property_name = SOME_PROP_STR
         val = ProcessedRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
-            value_uuid=value_uuid,
+            value_uuid=VALUE_UUID,
             resource_references=set(),
             permissions=None,
             comment=None,
@@ -217,20 +210,16 @@ class TestUploadTextValueStashes:
                 "002": "http://www.rdfh.ch/0001/002",
             }
         )
-        con: Connection = ConnectionMock(
-            get_responses=[
+        resource_client.get_resource.return_value = {
+            "testonto:someprop": [
                 {
-                    "testonto:someprop": [
-                        {
-                            "@id": "http://www.rdfh.ch/0001/001/values/01",
-                            "knora-api:textValueAsXml": "<p>not relevant</p>",
-                        },
-                    ],
-                    "@context": {},
+                    "@id": "http://www.rdfh.ch/0001/001/values/01",
+                    "knora-api:textValueAsXml": "<p>not relevant</p>",
                 },
             ],
-            put_responses=[{}],
-        )
+            "@context": {},
+        }
         upload_state = UploadState([], stash, UploadConfig(), [], iri_resolver)
-        _upload_stash(upload_state, con)
+        with patch.object(ValueClientLive, "replace_existing_value", return_value=None):
+            _upload_stash(upload_state, resource_client)
         assert upload_state.pending_stash == stash

@@ -7,14 +7,13 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from tqdm import tqdm
 
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.resource_client_live import ResourceClientLive
+from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
 from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_connection_error
@@ -110,8 +109,7 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
-            con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth)
-            _upload_stash(upload_state, con)
+            _upload_stash(upload_state, resource_client)
     except XmlUploadInterruptedError as err:
         handle_upload_error(err, upload_state)
 
@@ -188,14 +186,12 @@ def _execute_one_resource_data_upload(
     raise PermanentConnectionError(msg)
 
 
-def _upload_stash(
-    upload_state: UploadState,
-    con: Connection,
-) -> None:
+def _upload_stash(upload_state: UploadState, resource_client: ResourceClient) -> None:
+    val_client = ValueClientLive(resource_client.server, resource_client.auth)
     if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
-        upload_stashed_xml_texts(upload_state, con)
+        upload_stashed_xml_texts(upload_state, val_client, resource_client)
     if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
-        upload_stashed_resptr_props(upload_state, con)
+        upload_stashed_resptr_props(upload_state, val_client)
 
 
 def cleanup_upload(upload_state: UploadState) -> bool:

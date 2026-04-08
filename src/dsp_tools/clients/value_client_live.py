@@ -1,96 +1,87 @@
 from dataclasses import dataclass
-from dataclasses import field
 from http import HTTPStatus
-from importlib.metadata import version
 from typing import Any
-from typing import cast
-from urllib.parse import quote_plus
 
 import requests
-from requests import ReadTimeout
 from requests import RequestException
-from requests import Session
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.resource_client import ResourceClient
+from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
-TIMEOUT_1800 = 1800
-TIMEOUT_30 = 30
+TIMEOUT_600 = 600
 
 
 @dataclass
-class ResourceClientLive(ResourceClient):
+class ValueClientLive(ValueClient):
     server: str
     auth: AuthenticationClient
-    _session: Session = field(init=False, default_factory=Session)
 
-    def __post_init__(self) -> None:
-        self._session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
-
-    def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: bool) -> str | ResponseCodeAndText:
-        url = f"{self.server}/v2/resources"
+    def post_new_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+        url = f"{self.server}/v2/values"
         headers: dict[str, str] = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        if resource_has_bitstream:
-            headers["X-Asset-Ingested"] = "true"
-        params = RequestParameters("POST", url, TIMEOUT_1800, resource_json, headers)
+        params = RequestParameters("POST", url, TIMEOUT_600, value_json, headers)
 
         log_request(params)
         try:
-            response = self._session.post(
+            response = requests.post(
                 url=params.url,
                 headers=params.headers,
                 data=params.data_serialized,
                 timeout=params.timeout,
             )
-        except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)
 
         match response.status_code:
             case HTTPStatus.OK:
-                return cast(str, response.json()["@id"])
+                return None
             case HTTPStatus.UNAUTHORIZED:
                 raise BadCredentialsError(
                     "Authentication failed. Your credentials may be invalid or your token may have expired."
                 )
             case HTTPStatus.FORBIDDEN:
-                raise BadCredentialsError("You don't have permission to create resources in this project.")
+                raise BadCredentialsError("You don't have permission to create values in this project.")
             case _:
                 return ResponseCodeAndText(response.status_code, response.text)
 
-    def get_resource(self, resource_iri: str) -> dict[str, Any] | ResponseCodeAndText:
-        url = f"{self.server}/v2/resources/{quote_plus(resource_iri)}"
+    def replace_existing_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+        url = f"{self.server}/v2/values"
         headers: dict[str, str] = {
+            "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",
         }
-        params = RequestParameters("GET", url, TIMEOUT_30, headers=headers)
+        params = RequestParameters("PUT", url, TIMEOUT_600, value_json, headers)
+
         log_request(params)
         try:
-            response = requests.get(params.url, timeout=params.timeout, headers=params.headers)
+            response = requests.put(
+                url=params.url,
+                headers=params.headers,
+                data=params.data_serialized,
+                timeout=params.timeout,
+            )
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response)
 
         match response.status_code:
             case HTTPStatus.OK:
-                return cast(dict[str, Any], response.json())
+                return None
             case HTTPStatus.UNAUTHORIZED:
                 raise BadCredentialsError(
                     "Authentication failed. Your credentials may be invalid or your token may have expired."
                 )
             case HTTPStatus.FORBIDDEN:
-                raise BadCredentialsError("You don't have permission to retrieve this resource.")
+                raise BadCredentialsError("You don't have permission to update values in this project.")
             case _:
                 return ResponseCodeAndText(response.status_code, response.text)

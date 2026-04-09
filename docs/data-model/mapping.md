@@ -44,7 +44,7 @@ The `server`, `user`, and `password` fields follow the same conventions as other
 Reads an Excel file and uploads its mappings to a DSP server.
 
 ```bash
-dsp-tools mapping add config_file
+dsp-tools mapping add 0XXX-my-onto-mapping.yaml
 ```
 
 The available arguments are:

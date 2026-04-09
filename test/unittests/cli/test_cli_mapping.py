@@ -14,7 +14,11 @@ from dsp_tools.commands.mapping.models import MappingInfo
 def test_mapping_config_dispatch(create_mapping_config: Mock) -> None:
     create_mapping_config.return_value = True
     entry_point.run("mapping config -P 0001 --ontology my-onto".split())
-    create_mapping_config.assert_called_once_with(shortcode="0001", ontology="my-onto", cwd=Path.cwd())
+    create_mapping_config.assert_called_once_with(
+        shortcode="0001",
+        ontology="my-onto",
+        mapping_path=Path.cwd() / "0001-my-onto-mapping.yaml",
+    )
 
 
 @patch("dsp_tools.cli.utils._check_network_health")

@@ -35,28 +35,28 @@ LIST_MESSAGE_SEPARATOR = "\n    - "
 
 def mapping_add(info: MappingInfo) -> bool:
     logger.info(f"Starting mapping add for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
-    result = _mapping_add(info)
+    prefix_problems, upload_problems = _mapping_add(info)
 
-    match result:
-        case None:
+    match prefix_problems, upload_problems:
+        case None, None:
             print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.{RESET_TO_DEFAULT}")
             return True
-        case [PrefixResolutionProblem()]:
-            _communicate_parsing_problems(result)
+        case list(), None:
+            _communicate_parsing_problems(prefix_problems)
             return False
-        case [MappingUploadFailure()]:
-            _communicate_upload_failures(result)
+        case None, list():
+            _communicate_upload_failures(upload_problems)
             return False
         case _:
             raise UnreachableCodeError()
 
 
-def _mapping_add(info: MappingInfo) -> list[PrefixResolutionProblem | MappingUploadFailure] | None:
+def _mapping_add(info: MappingInfo) -> tuple[list[PrefixResolutionProblem] | None, list[MappingUploadFailure] | None]:
     parsed_excel, prefix_lookup = parse_mapping_excel(info.config.excel_file)
     ontology_namespace = make_dsp_ontology_prefix(info.server.server, info.config.shortcode, info.config.ontology)
     resolved_mappings, problems = resolve_parsed_mappings(parsed_excel, prefix_lookup, ontology_namespace)
     if problems:
-        return problems
+        return problems, None
 
     auth = AuthenticationClientLive(
         server=info.server.server,
@@ -74,8 +74,8 @@ def _mapping_add(info: MappingInfo) -> list[PrefixResolutionProblem | MappingUpl
     failures.extend(prop_failures)
 
     if failures:
-        return failures
-    return None
+        return None, failures
+    return None, None
 
 
 def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -> None:
@@ -202,7 +202,7 @@ def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
     messages = []
     failures = sorted(failures, key=lambda x: x.prefixed_iri)
     for failure in failures:
-        single_line = [f"Project reference '{failure.prefixed_iri}'"]
+        single_line = [failure.prefixed_iri]
         if failure.mapping_iri:
             single_line.append(f"Mapping '{failure.mapping_iri}'")
         single_line.append(f"Problem: {failure.message}")

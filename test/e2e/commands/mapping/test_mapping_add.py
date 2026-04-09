@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 import requests
+from rdflib import RDFS
 from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
@@ -12,11 +14,7 @@ from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.exceptions import DspToolsRequestException
 
 SHORTCODE = "4124"
-ONTO_NAME = "minimal-tp"
-CLASS_LOCAL_NAME = "minimalResource"
-PROP_LOCAL_NAME = "hasText"
-
-TESTDATA = Path("testdata/mapping")
+ONTO_NAME = "testonto"
 
 
 @pytest.fixture(scope="module")
@@ -39,12 +37,35 @@ def test_add_mapping_good():
 
 @pytest.mark.usefixtures("test_add_mapping_good")
 def test_check_successful_mapping_result(ontology_namespace):
-    url = f"{ontology_namespace.rstrip('#')}{ONTO_NAME}"
+    url = ontology_namespace.rstrip("#")
     response = requests.get(url, headers={"Accept": "text/turtle"}, timeout=5)
     if not response.ok:
-        raise DspToolsRequestException("Non-ok response when requesting the ontology from the server.")
+        raise DspToolsRequestException(
+            f"Non-ok response when requesting the ontology from the server.\n"
+            f"Code: {response.status_code} Text: {response.text}"
+        )
     onto_g = Graph()
     onto_g.parse(data=response.text, format="ttl")
+
+    prop_iri = URIRef(f"{ontology_namespace}hasText")
+    expected_sub_props = {
+        URIRef("https://www.dublincore.org/specifications/dublin-core/dcmi-terms/title"),
+        URIRef("http://api.knora.org/ontology/knora-api/v2#hasValue"),
+    }
+    result_sub_props = set(onto_g.objects(prop_iri, RDFS.subPropertyOf))
+    assert result_sub_props == expected_sub_props
+
+    cls_iri = URIRef(f"{ontology_namespace}minimalResource")
+    expected_sub_cls = {
+        URIRef("http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"),
+        URIRef("https://www.w3.org/TR/rdf-schema/Book"),
+        URIRef("http://purl.org/ontology/bibo/Book"),
+        URIRef("http://api.knora.org/ontology/knora-api/v2#Resource"),
+    }
+    result_sub_cls = set(onto_g.objects(cls_iri, RDFS.subClassOf))
+    # cardinality restrictions are also in the results, they are of type blank node and can be filtered out
+    result_sub_cls_without_bnodes = {x for x in result_sub_cls if isinstance(x, URIRef)}
+    assert result_sub_cls_without_bnodes == expected_sub_cls
 
 
 @pytest.mark.usefixtures("create_minimal_project")

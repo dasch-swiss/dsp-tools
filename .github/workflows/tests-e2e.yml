@@ -90,7 +90,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: project
+      - name: mapping
         run: just e2e-test-mapping
       - name: make logging file available
         uses: actions/upload-artifact@v7

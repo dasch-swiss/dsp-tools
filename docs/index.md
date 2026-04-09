@@ -73,6 +73,8 @@ The following CLI Commands are available, listed here in alphabetical order.
 | **`migration export`**   | Download project data from the source server<br>`dsp-tools migration export migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
 | **`migration import`**   | Import a downloaded export to another server<br>`dsp-tools migration import migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
 | **`migration clean-up`** | Clean up local files and server references<br>`dsp-tools migration clean-up migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| **`mapping config`**     | Create a mapping YAML config file<br>`dsp-tools mapping config -P 0XXX --ontology my-onto`                       | [→](./data-model/mapping.md#mapping-config)                       |
+| **`mapping add`**        | Upload external ontology mappings from an Excel file<br>`dsp-tools mapping add 0XXX-my-onto-mapping.yaml`        | [→](./data-model/mapping.md#mapping-add)                          |
 | **`old-excel2json`**     | Create project definition JSON using the old Excel format<br>`dsp-tools old-excel2json excelfolder project.json` | [→](./data-model/excel2json.md#old-excel2json)                    |
 | **`old-excel2lists`**    | Create the list section using the old Excel format<br>`dsp-tools old-excel2lists excelfolder lists.json`         | [→](./data-model/excel2json.md#old-excel2lists)                   |
 | **`resume-xmlupload`**   | Resume a previously interrupted xmlupload<br>`dsp-tools resume-xmlupload`                                        | [→](./data-file/data-file-commands.md#resume-xmlupload)           |

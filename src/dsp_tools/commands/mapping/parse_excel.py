@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 from loguru import logger
@@ -24,11 +25,11 @@ def parse_mapping_excel(excel_path: Path) -> tuple[ParsedMappings, dict[str, str
     _validate_sheets(sheets, excel_path)
     _validate_columns(sheets, excel_path)
     prefix_map = _parse_prefix_sheet(sheets["prefix"])
-    classes: list[ParsedClassMapping] = _parse_mapping_sheet(sheets["classes"], "class", ParsedClassMapping)
-    properties: list[ParsedPropertyMapping] = _parse_mapping_sheet(
-        sheets["properties"], "property", ParsedPropertyMapping
-    )
-    return ParsedMappings(classes=classes, properties=properties), prefix_map
+    classes = _parse_mapping_sheet(sheets["classes"], "class", ParsedClassMapping)
+    classes_parsed = cast(list[ParsedClassMapping], classes)
+    properties = _parse_mapping_sheet(sheets["properties"], "property", ParsedPropertyMapping)
+    properties_parsed = cast(list[ParsedPropertyMapping], properties)
+    return ParsedMappings(classes=classes_parsed, properties=properties_parsed), prefix_map
 
 
 def _validate_sheets(sheets: dict[str, pd.DataFrame], excel_path: Path) -> None:

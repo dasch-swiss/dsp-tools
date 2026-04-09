@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import cast
 
 from loguru import logger
 
@@ -19,21 +20,22 @@ def resolve_parsed_mappings(
     logger.debug("Resolve parsed mapping IRIs")
     all_problems: list[PrefixResolutionProblem] = []
 
-    resolved_classes: list[ResolvedClassMapping] = []
+    resolved_classes = []
     for cls in parsed_mappings.classes:
         resolved_cls, cls_problems = _resolve_one_mapping(cls, prefix_lookup, ontology_namespace, ResolvedClassMapping)
         resolved_classes.append(resolved_cls)
         all_problems.extend(cls_problems)
 
-    resolved_properties: list[ResolvedPropertyMapping] = []
+    resolved_properties = []
     for prop in parsed_mappings.properties:
         resolved_prop, prop_problems = _resolve_one_mapping(
             prop, prefix_lookup, ontology_namespace, ResolvedPropertyMapping
         )
         resolved_properties.append(resolved_prop)
         all_problems.extend(prop_problems)
-
-    return ResolvedMappings(resolved_classes, resolved_properties), all_problems
+    resolved_cls_mappings = cast(list[ResolvedClassMapping], resolved_classes)
+    resolved_prop_mappings = cast(list[ResolvedPropertyMapping], resolved_properties)
+    return ResolvedMappings(resolved_cls_mappings, resolved_prop_mappings), all_problems
 
 
 def _resolve_one_mapping(

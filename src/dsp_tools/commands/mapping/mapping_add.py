@@ -20,6 +20,7 @@ from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
 from dsp_tools.commands.mapping.parse_excel import parse_mapping_excel
 from dsp_tools.commands.mapping.resolve_parsed_mappings import resolve_parsed_mappings
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -34,14 +35,28 @@ LIST_MESSAGE_SEPARATOR = "\n    - "
 
 def mapping_add(info: MappingInfo) -> bool:
     logger.info(f"Starting mapping add for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
+    result = _mapping_add(info)
 
+    match result:
+        case None:
+            print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.{RESET_TO_DEFAULT}")
+            return True
+        case [PrefixResolutionProblem()]:
+            _communicate_parsing_problems(result)
+            return False
+        case [MappingUploadFailure()]:
+            _communicate_upload_failures(result)
+            return False
+        case _:
+            raise UnreachableCodeError()
+
+
+def _mapping_add(info: MappingInfo) -> list[PrefixResolutionProblem | MappingUploadFailure] | None:
     parsed_excel, prefix_lookup = parse_mapping_excel(info.config.excel_file)
     ontology_namespace = make_dsp_ontology_prefix(info.server.server, info.config.shortcode, info.config.ontology)
     resolved_mappings, problems = resolve_parsed_mappings(parsed_excel, prefix_lookup, ontology_namespace)
-
     if problems:
-        _communicate_parsing_problems(problems)
-        return False
+        return problems
 
     auth = AuthenticationClientLive(
         server=info.server.server,
@@ -59,11 +74,8 @@ def mapping_add(info: MappingInfo) -> bool:
     failures.extend(prop_failures)
 
     if failures:
-        _communicate_upload_failures(failures)
-        return False
-
-    print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.{RESET_TO_DEFAULT}")
-    return True
+        return failures
+    return None
 
 
 def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -> None:

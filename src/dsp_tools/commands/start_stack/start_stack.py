@@ -12,6 +12,7 @@ import requests
 import yaml
 from jinja2 import Template
 from loguru import logger
+from requests import RequestException
 
 from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
@@ -160,6 +161,47 @@ class StackHandler:
             )
         Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
         Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
+
+    def _get_fuseki_image_for_latest(self) -> str:
+        """
+        Fetch dsp-api's docker-compose.yml from the main branch and return the Fuseki image it pins.
+
+        Returns:
+            Full image string, e.g. "daschswiss/apache-jena-fuseki:5.5.0-3"
+
+        Raises:
+            PermanentConnectionError: if the request fails or returns a non-OK status
+            StartStackInputError: if the expected key is absent from the YAML
+        """
+        url = f"{self.__url_prefix}docker-compose.yml"
+        try:
+            response = requests.get(url, timeout=30)
+        except RequestException:
+            raise PermanentConnectionError(
+                f"Could not retrieve the Fuseki image from dsp-api. The request to {url} failed."
+            ) from None
+        if not response.ok:
+            raise PermanentConnectionError(
+                f"Cannot retrieve dsp-api's docker-compose.yml from {url}. "
+                f"Status: {response.status_code}. Response: {response.text}"
+            ) from None
+        dsp_api_compose = yaml.safe_load(response.text)
+        result = dsp_api_compose.get("services", {}).get("db", {}).get("image")
+        if isinstance(result, str):
+            return result
+        raise StartStackInputError(
+            f"Could not find the Fuseki image in the YAML retrieved from {url}.\nAPI response: {response.text}"
+        ) from None
+
+    def _patch_fuseki_version_in_override_file(self, fuseki_image: str) -> None:
+        """
+        Patch docker-compose.override.yml in the user's start-stack directory,
+        replacing the db service image with the given Fuseki image.
+        """
+        override_path = self.__docker_path_of_user / "docker-compose.override.yml"
+        override = yaml.safe_load(override_path.read_text(encoding="utf-8"))
+        override["services"]["db"]["image"] = fuseki_image
+        override_path.write_text(yaml.dump(override, default_flow_style=False, sort_keys=False), encoding="utf-8")
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -409,6 +451,9 @@ class StackHandler:
                 "This command requires an internet connection. "
                 "Please ensure that your computer is connected and try again."
             )
+        if self.__stack_configuration.latest_dev_version:
+            fuseki_image = self._get_fuseki_image_for_latest()
+            self._patch_fuseki_version_in_override_file(fuseki_image)
         self._start_docker_containers()
         return True
 

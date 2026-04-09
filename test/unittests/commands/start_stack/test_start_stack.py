@@ -53,8 +53,7 @@ class TestGetFusekiImageForLatest:
         mock_response.ok = False
         mock_response.status_code = 404
         with patch("requests.get", return_value=mock_response):
-            with pytest.raises(PermanentConnectionError, match="404"):
-                result = latest_handler._get_fuseki_image_for_latest()
+            result = latest_handler._get_fuseki_image_for_latest()
         assert result is None
 
 

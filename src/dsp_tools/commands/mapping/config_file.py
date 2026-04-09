@@ -10,7 +10,7 @@ from dsp_tools.commands.mapping.exceptions import InvalidMappingConfigFileError
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingInfo
 
-TEMPLATE = """\
+TEMPLATE = """---
 shortcode: "{shortcode}"
 ontology: "{ontology}"
 excel-file: 

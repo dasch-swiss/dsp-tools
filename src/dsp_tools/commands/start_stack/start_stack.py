@@ -17,6 +17,7 @@ from requests import RequestException
 
 from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
+from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
@@ -442,7 +443,13 @@ class StackHandler:
         """
         self._copy_resources_to_home_dir()
         self._set_custom_host()
-        self._get_sipi_docker_config_lua()
+        try:
+            self._get_sipi_docker_config_lua()
+        except (requests.ConnectionError, requests.ReadTimeout):
+            raise PermanentConnectionError(
+                "This command requires an internet connection. "
+                "Please ensure that your computer is connected and try again."
+            )
         if self.__stack_configuration.latest_dev_version:
             fuseki_image = self._get_fuseki_image_for_latest()
             if fuseki_image is not None:

@@ -12,10 +12,10 @@ from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.setup.ansi_colors import RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 

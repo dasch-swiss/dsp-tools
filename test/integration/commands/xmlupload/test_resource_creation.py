@@ -1,19 +1,16 @@
 from copy import deepcopy
-from typing import Any
-from typing import cast
 from unittest.mock import Mock
 from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-from requests import Response
 
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.list_client import ListGetClient
+from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
+from dsp_tools.commands.xmlupload.execute_upload import _upload_all_resources
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
@@ -24,14 +21,13 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import _upload_resources
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
+from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.integration.commands.xmlupload.legal_info_client_mock import LegalInfoClientMockBase
 
-RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
-
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
+PROJECT_IRI = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 
 LINK_PROP = f"{ONTO}hasCustomLink"
 TEXT_PROP = f"{ONTO}hasText"
@@ -70,11 +66,11 @@ def list_client_mock():
     return Mock(spec_set=ListGetClient)
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_one_resource_without_links(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
     list_client_mock,
@@ -89,61 +85,52 @@ def test_one_resource_without_links(
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig())
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(side_effect=[f"{RES_IRI_NAMESPACE_STR}foo_1_iri"])
+    mock_resource_client_class.return_value = mock_resource_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
-    _upload_resources(clients, upload_state)
+    _upload_all_resources(clients, upload_state)
 
-    assert len(con.post.call_args_list) == len(post_responses)
-    post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
-    assert len(post_call_args) == 3
+    assert mock_resource_client.post_resource.call_count == 1
+    resource_json = mock_resource_client.post_resource.call_args[0][0]
     expected = {
-        "route": "/v2/resources",
-        "data": {
-            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "http://www.w3.org/2000/01/rdf-schema#label": {
+        "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
+        RDFS_LABEL: {
+            "@type": "http://www.w3.org/2001/XMLSchema#string",
+            "@value": "foo_1_label",
+        },
+        "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": PROJECT_IRI},
+        "@context": {},
+        TEXT_PROP: {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
+            "http://api.knora.org/ontology/knora-api/v2#valueAsString": {
                 "@type": "http://www.w3.org/2001/XMLSchema#string",
-                "@value": "foo_1_label",
-            },
-            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
-                "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
-            },
-            "@context": {},
-            TEXT_PROP: {
-                "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
-                "http://api.knora.org/ontology/knora-api/v2#valueAsString": {
-                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                    "@value": "foo_1 text",
-                },
+                "@value": "foo_1 text",
             },
         },
     }
-    assert post_call_args["route"] == expected["route"]
-    assert not post_call_args["headers"]
-    assert post_call_args["data"][TEXT_PROP] == expected["data"][TEXT_PROP]  # type: ignore[index]
-    expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
-    assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
-    expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
-    assert post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"] == expected_label
-    assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
+    assert resource_json[TEXT_PROP] == expected[TEXT_PROP]
+    expected_project = expected["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+    assert resource_json["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
+    expected_label = expected[RDFS_LABEL]
+    assert resource_json[RDFS_LABEL] == expected_label
+    assert resource_json["@type"] == expected["@type"]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}
     assert not upload_state.pending_stash
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_one_resource_with_link_to_existing_resource(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
     list_client_mock,
@@ -164,50 +151,41 @@ def test_one_resource_with_link_to_existing_resource(
         [],
         IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}),
     )
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(side_effect=[f"{RES_IRI_NAMESPACE_STR}foo_1_iri"])
+    mock_resource_client_class.return_value = mock_resource_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
-    _upload_resources(clients, upload_state)
+    _upload_all_resources(clients, upload_state)
 
-    assert len(con.post.call_args_list) == len(post_responses)
-    post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
-    assert len(post_call_args) == 3
+    assert mock_resource_client.post_resource.call_count == 1
+    resource_json = mock_resource_client.post_resource.call_args[0][0]
     prop_name = f"{LINK_PROP}Value"
     expected = {
-        "route": "/v2/resources",
-        "data": {
-            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "http://www.w3.org/2000/01/rdf-schema#label": {
-                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                "@value": "foo_1_label",
-            },
-            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
-                "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
-            },
-            "@context": {},
-            prop_name: {
-                "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
-                    "@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"
-                },
+        "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
+        RDFS_LABEL: {
+            "@type": "http://www.w3.org/2001/XMLSchema#string",
+            "@value": "foo_1_label",
+        },
+        "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": PROJECT_IRI},
+        "@context": {},
+        prop_name: {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+            "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                "@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"
             },
         },
     }
-    assert post_call_args["route"] == expected["route"]
-    assert not post_call_args["headers"]
-    assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
-    expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
-    assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
-    expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
-    assert post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"] == expected_label
-    assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
+    assert resource_json[prop_name] == expected[prop_name]
+    expected_project = expected["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+    assert resource_json["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
+    expected_label = expected[RDFS_LABEL]
+    assert resource_json[RDFS_LABEL] == expected_label
+    assert resource_json["@type"] == expected["@type"]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {
@@ -217,11 +195,11 @@ def test_one_resource_with_link_to_existing_resource(
     assert not upload_state.pending_stash
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_2_resources_with_stash_interrupted_by_timeout(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -235,15 +213,15 @@ def test_2_resources_with_stash_interrupted_by_timeout(
         legal_info_client_mock,
         list_client_mock,
         mock_project_client_class,
-        mock_connection_class,
+        mock_resource_client_class,
     )
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_2_resources_with_stash_interrupted_by_keyboard(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -257,7 +235,7 @@ def test_2_resources_with_stash_interrupted_by_keyboard(
         legal_info_client_mock,
         list_client_mock,
         mock_project_client_class,
-        mock_connection_class,
+        mock_resource_client_class,
     )
 
 
@@ -269,32 +247,32 @@ def _2_resources_with_stash_interrupted_by_error(
     legal_info_client_mock: LegalInfoClient,
     list_client_mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_resource_client_class: Mock,
 ) -> None:
     resources = [
         ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        err_to_interrupt_with,
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            err_to_interrupt_with,
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
         with pytest.warns(DspToolsUserWarning):
-            _upload_resources(clients, upload_state)
+            _upload_all_resources(clients, upload_state)
 
-        assert len(con.post.call_args_list) == len(post_responses)
         err_msg = (
             f"There was a {err_as_str} while trying to create resource 'foo_2_id'.\n"
             "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
@@ -313,11 +291,13 @@ def _2_resources_with_stash_interrupted_by_error(
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_2_resources_with_stash(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -328,37 +308,36 @@ def test_2_resources_with_stash(
     ]
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig())
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
-        {},  # uploading a stash doesn't rely on a certain response
-        {},  # uploading a stash doesn't rely on a certain response
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
+
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    _upload_resources(clients, upload_state)
+    _upload_all_resources(clients, upload_state)
 
-    assert len(con.post.call_args_list) == len(post_responses)
-    post_kwargs = con.post.call_args_list[2].kwargs
-    match post_kwargs:
+    post_arg = val_client.post_new_value.call_args_list[0].args[0]
+    match post_arg:
         case {
-            "route": "/v2/values",
-            "data": {
-                "@id": "http://rdfh.ch/0000/foo_1_iri",
-                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-                "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
-                    "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
-                        "@id": "http://rdfh.ch/0000/foo_2_iri"
-                    },
+            "@id": "http://rdfh.ch/0000/foo_1_iri",
+            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                    "@id": "http://rdfh.ch/0000/foo_2_iri"
                 },
             },
         }:
@@ -374,11 +353,13 @@ def test_2_resources_with_stash(
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_5_resources_with_stash_and_interrupt_after_2(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -390,44 +371,47 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
-        {},  # uploading a stash doesn't rely on a certain response
-        {},  # uploading a stash doesn't rely on a certain response
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_3_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_4_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_5_iri",
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
+
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
     client = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected = IriResolver(
             {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
         )
         upload_state_expected = UploadState(resources[2:], stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
         )
         upload_state_expected = UploadState(resources[4:], stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState([], empty_stash, upload_config, [], iri_resolver_expected)
@@ -435,11 +419,13 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         assert upload_state == upload_state_expected
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_6_resources_with_stash_and_interrupt_after_2(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -451,64 +437,69 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
-        {},  # uploading a stash doesn't rely on a certain response
-        {},  # uploading a stash doesn't rely on a certain response
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_3_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_4_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_5_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_6_iri",
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
+
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
     client = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected = IriResolver(
             {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
         )
         upload_state_expected = UploadState(resources[2:], stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
         )
         upload_state_expected = UploadState(resources[4:], stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         iri_resolver_expected.lookup.update(
             {"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", "foo_6_id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri"}
         )
         upload_state_expected = UploadState([], stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(client, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(client, upload_state)
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState([], empty_stash, upload_config, [], iri_resolver_expected)
         handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_logging(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     caplog: pytest.LogCaptureFixture,
     ingest_client_mock: AssetClient,
@@ -521,27 +512,30 @@ def test_logging(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
-        {},  # uploading a stash doesn't rely on a certain response
-        {},  # uploading a stash doesn't rely on a certain response
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_3_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_4_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_5_iri",
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
+
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error"):
-        _upload_resources(clients, upload_state)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error"):
+        _upload_all_resources(clients, upload_state)
         assert (
             caplog.records[1].message
             == f"Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_1_iri')"
@@ -552,7 +546,7 @@ def test_logging(
         )
         caplog.clear()
 
-        _upload_resources(clients, upload_state)
+        _upload_all_resources(clients, upload_state)
         assert (
             caplog.records[1].message
             == f"Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_3_iri')"
@@ -563,7 +557,7 @@ def test_logging(
         )
         caplog.clear()
 
-        _upload_resources(clients, upload_state)
+        _upload_all_resources(clients, upload_state)
         assert (
             caplog.records[1].message
             == f"Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_5_iri')"
@@ -573,11 +567,13 @@ def test_logging(
         caplog.clear()
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ValueClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_post_requests(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    mock_value_client_class: Mock,
     link_val_stash_lookup_two_items,
     ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
@@ -589,39 +585,44 @@ def test_post_requests(
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config)
-    con = Mock(spec_set=ConnectionLive)
-    post_responses = [
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
-        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
-        {},  # uploading a stash doesn't rely on a certain response
-        {},  # uploading a stash doesn't rely on a certain response
-    ]
-    con.post = Mock(side_effect=post_responses)
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_3_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_4_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_5_iri",
+            f"{RES_IRI_NAMESPACE_STR}foo_6_iri",
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
+
+    val_client = Mock(spec_set=ValueClientLive)
+    val_client.post_new_value = Mock(return_value=None)
+    mock_value_client_class.return_value = val_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
     clients = UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock)
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error"):
-        _upload_resources(clients, upload_state)
-        _upload_resources(clients, upload_state)
-        _upload_resources(clients, upload_state)
-        _upload_resources(clients, upload_state)
-        assert len(con.post.call_args_list) == len(post_responses)
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error"):
+        _upload_all_resources(clients, upload_state)
+        _upload_all_resources(clients, upload_state)
+        _upload_all_resources(clients, upload_state)
+        _upload_all_resources(clients, upload_state)
+        assert mock_resource_client.post_resource.call_count == 6  # 6 resource creations
+        assert val_client.post_new_value.call_count == 2  # 2 stash uploads
 
 
-@patch("dsp_tools.commands.xmlupload.xmlupload.ConnectionLive")
-@patch("dsp_tools.commands.xmlupload.xmlupload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ProjectClientLive")
+@patch("dsp_tools.commands.xmlupload.execute_upload.ResourceClientLive")
 def test_interruption_if_resource_cannot_be_created_because_of_404(
+    mock_resource_client_class: Mock,
     mock_project_client_class: Mock,
-    mock_connection_class: Mock,
+    ingest_client_mock: AssetClient,
     legal_info_client_mock: LegalInfoClient,
     list_client_mock,
 ) -> None:
@@ -629,26 +630,21 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(
         ProcessedResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     upload_state = UploadState(resources.copy(), Stash(None, None), UploadConfig(), [], IriResolver())
-    con = ConnectionLive("foo")
-    resp_404 = Response()
-    resp_404.status_code = 404
-    post_responses = [resp_404]
-    con.session.request = Mock(side_effect=post_responses)
-    ingest_client = DspIngestClientLive("", AuthenticationClientMockBase(), "1234", ".")
+    mock_resource_client = Mock()
+    mock_resource_client.post_resource = Mock(
+        side_effect=[
+            ResponseCodeAndText(404, "not found"),  # foo_1 fails
+            f"{RES_IRI_NAMESPACE_STR}foo_2_iri",  # foo_2 succeeds
+        ]
+    )
+    mock_resource_client_class.return_value = mock_resource_client
 
     mock_project_client = Mock()
-    mock_project_client.get_project_iri.return_value = "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    mock_project_client.get_project_iri.return_value = PROJECT_IRI
     mock_project_client_class.return_value = mock_project_client
-    mock_connection_class.return_value = con
 
-    with patch("dsp_tools.commands.xmlupload.xmlupload.handle_upload_error") as handle_upload_error:
-        _upload_resources(UploadClients(ingest_client, list_client_mock, legal_info_client_mock), upload_state)
-        msg = (
-            "Lost connection to DSP server, probably because the server is down. "
-            "Please continue later with 'resume-xmlupload'."
-        )
-        assert len(handle_upload_error.call_args_list) == 1
-        err_actual: XmlUploadInterruptedError = handle_upload_error.call_args_list[0].args[0]
-        upload_state_actual: UploadState = handle_upload_error.call_args_list[0].args[1]
-        assert msg in err_actual.message
-        assert upload_state_actual == upload_state
+    with patch("dsp_tools.commands.xmlupload.execute_upload.handle_upload_error") as handle_upload_error:
+        _upload_all_resources(UploadClients(ingest_client_mock, list_client_mock, legal_info_client_mock), upload_state)
+        handle_upload_error.assert_not_called()
+        assert upload_state.failed_uploads == ["foo_1_id"]
+        assert upload_state.iri_resolver.lookup == {"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}

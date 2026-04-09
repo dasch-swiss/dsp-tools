@@ -17,6 +17,8 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
+from dsp_tools.commands.xmlupload.execute_upload import enable_unknown_license_if_any_are_missing
+from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
@@ -24,8 +26,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import enable_unknown_license_if_any_are_missing
-from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server

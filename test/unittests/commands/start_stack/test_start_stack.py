@@ -11,6 +11,12 @@ from dsp_tools.commands.start_stack.start_stack import StackHandler
 
 @pytest.fixture
 def latest_handler(tmp_path: Path) -> StackHandler:
+    """
+    StackHandler configured for latest_dev_version=True, with side effects bypassed.
+    The real __init__ calls _get_url_prefix() (a network call) and creates directories
+    under ~/.dsp-tools/. This fixture bypasses __init__ and injects the private attributes
+    directly, substituting tmp_path for the docker path to keep tests isolated.
+    """
     config = StackConfiguration(latest_dev_version=True)
     with patch.object(StackHandler, "__init__", lambda _self, _cfg: None):
         handler = StackHandler.__new__(StackHandler)
@@ -72,7 +78,7 @@ class TestWriteOverrideFile:
 
     def test_only_db_is_changed(self, latest_handler: StackHandler, tmp_path: Path) -> None:
         self._write_initial_override(tmp_path)
-        latest_handler._write_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
+        latest_handler._patch_fuseki_version_in_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
         result = yaml.safe_load((tmp_path / "docker-compose.override.yml").read_text(encoding="utf-8"))
         assert result["services"]["db"]["image"] == "daschswiss/apache-jena-fuseki:5.5.0-3"
         assert result["services"]["api"]["image"] == "daschswiss/knora-api:latest"
@@ -81,5 +87,5 @@ class TestWriteOverrideFile:
 
     def test_file_location(self, latest_handler: StackHandler, tmp_path: Path) -> None:
         self._write_initial_override(tmp_path)
-        latest_handler._write_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
+        latest_handler._patch_fuseki_version_in_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
         assert (tmp_path / "docker-compose.override.yml").exists()

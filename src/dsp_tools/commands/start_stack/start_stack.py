@@ -192,7 +192,7 @@ class StackHandler:
             return result
         return None
 
-    def _write_override_file(self, fuseki_image: str) -> None:
+    def _patch_fuseki_version_in_override_file(self, fuseki_image: str) -> None:
         """
         Patch docker-compose.override.yml in the user's start-stack directory,
         replacing the db service image with the given Fuseki image.
@@ -453,7 +453,7 @@ class StackHandler:
         if self.__stack_configuration.latest_dev_version:
             fuseki_image = self._get_fuseki_image_for_latest()
             if fuseki_image is not None:
-                self._write_override_file(fuseki_image)
+                self._patch_fuseki_version_in_override_file(fuseki_image)
         self._start_docker_containers()
         return True
 

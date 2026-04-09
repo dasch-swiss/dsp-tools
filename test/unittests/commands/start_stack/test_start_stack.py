@@ -4,9 +4,12 @@ from unittest.mock import patch
 
 import pytest
 import yaml
+from requests import RequestException
 
+from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
+from dsp_tools.error.exceptions import PermanentConnectionError
 
 
 @pytest.fixture
@@ -50,16 +53,22 @@ class TestGetFusekiImageForLatest:
         mock_response.ok = True
         mock_response.text = compose_without_db
         with patch("requests.get", return_value=mock_response):
-            result = latest_handler._get_fuseki_image_for_latest()
-        assert result is None
+            with pytest.raises(StartStackInputError):
+                latest_handler._get_fuseki_image_for_latest()
 
     def test_non_ok_response(self, latest_handler: StackHandler) -> None:
         mock_response = MagicMock()
         mock_response.ok = False
         mock_response.status_code = 404
+        mock_response.text = "Not Found"
         with patch("requests.get", return_value=mock_response):
-            result = latest_handler._get_fuseki_image_for_latest()
-        assert result is None
+            with pytest.raises(PermanentConnectionError):
+                latest_handler._get_fuseki_image_for_latest()
+
+    def test_request_exception(self, latest_handler: StackHandler) -> None:
+        with patch("requests.get", side_effect=RequestException("connection failed")):
+            with pytest.raises(PermanentConnectionError):
+                latest_handler._get_fuseki_image_for_latest()
 
 
 class TestWriteOverrideFile:

@@ -12,7 +12,6 @@ import requests
 import yaml
 from jinja2 import Template
 from loguru import logger
-from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
@@ -163,7 +162,7 @@ class StackHandler:
         Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
         Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 
-    def _get_fuseki_image_for_latest(self) -> str | None:
+    def _get_fuseki_image_for_latest(self) -> str:
         """
         Fetch dsp-api's docker-compose.yml from the main branch and return the Fuseki image it pins.
 
@@ -177,20 +176,22 @@ class StackHandler:
         url = f"{self.__url_prefix}docker-compose.yml"
         try:
             response = requests.get(url, timeout=30)
-        except (ReadTimeout, RequestException) as e:
-            logger.error(f"Could not retrieve Fuseki image. Original error message: {e}")
-            return None
+        except RequestException:
+            raise PermanentConnectionError(
+                f"Could not retrieve the Fuseki image from dsp-api. The request to {url} failed."
+            ) from None
         if not response.ok:
-            logger.error(
-                f"Cannot retrieve dsp-api's docker-compose.yml from {url}.\n"
-                f"Status: {response.status_code}. Original message: {response.text}"
-            )
-            return None
+            raise PermanentConnectionError(
+                f"Cannot retrieve dsp-api's docker-compose.yml from {url}. "
+                f"Status: {response.status_code}. Response: {response.text}"
+            ) from None
         dsp_api_compose = yaml.safe_load(response.text)
         result = dsp_api_compose.get("services", {}).get("db", {}).get("image")
         if isinstance(result, str):
             return result
-        return None
+        raise StartStackInputError(
+            f"Could not find the Fuseki image in the YAML retrieved from {url}.\nAPI response: {response.text}"
+        ) from None
 
     def _patch_fuseki_version_in_override_file(self, fuseki_image: str) -> None:
         """
@@ -452,8 +453,7 @@ class StackHandler:
             )
         if self.__stack_configuration.latest_dev_version:
             fuseki_image = self._get_fuseki_image_for_latest()
-            if fuseki_image is not None:
-                self._patch_fuseki_version_in_override_file(fuseki_image)
+            self._patch_fuseki_version_in_override_file(fuseki_image)
         self._start_docker_containers()
         return True
 

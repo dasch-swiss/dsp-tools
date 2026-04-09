@@ -6,6 +6,9 @@ services:
   sipi:
     image: daschswiss/knora-sipi:latest
   db:
+    # Due to compatibility issues, we will replace this during runtime with the fuseki tag used
+    # by the latest published version of the api.
+    # This is a fallback if the version cannot be retrieved.
     image: daschswiss/apache-jena-fuseki:latest
   ingest:
     image: daschswiss/dsp-ingest:latest

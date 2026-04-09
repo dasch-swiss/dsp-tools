@@ -141,6 +141,12 @@ e2e-test-project *FLAGS:
     uv run pytest test/e2e/commands/project/ {{FLAGS}}
 
 
+# Run the end-to-end tests for the mapping command (with testcontainers)
+[no-exit-message]
+e2e-test-mapping *FLAGS:
+    uv run pytest test/e2e/commands/mapping/ {{FLAGS}}
+
+
 # Run the end-to-end tests for the create, get and xmlupload command (with testcontainers)
 [no-exit-message]
 e2e-test-create-get-xmlupload *FLAGS:

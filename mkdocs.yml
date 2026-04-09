@@ -16,6 +16,7 @@ nav:
           - Caveats: data-model/json-project/caveats.md
       - Command excel2json: data-model/excel2json.md
       - Commands to Interact With a Server: data-model/data-model-cli.md
+      - Command mapping: data-model/mapping.md
   - Data for Mass-Upload:
       - xmllib documentation:
           - Overview: xmllib-docs/overview.md

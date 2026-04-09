@@ -186,7 +186,10 @@ class StackHandler:
             )
             return None
         dsp_api_compose = yaml.safe_load(response.text)
-        return dsp_api_compose.get("services", {}).get("db", {}).get("image")
+        result = dsp_api_compose.get("services", {}).get("db", {}).get("image")
+        if isinstance(result, str):
+            return result
+        return None
 
     def _write_override_file(self, fuseki_image: str) -> None:
         """

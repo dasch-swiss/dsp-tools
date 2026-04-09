@@ -7,7 +7,6 @@ import yaml
 
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
-from dsp_tools.error.exceptions import PermanentConnectionError
 
 
 @pytest.fixture

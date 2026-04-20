@@ -34,7 +34,7 @@ LIST_MESSAGE_SEPARATOR = "\n    - "
 
 
 def mapping_add(info: MappingInfo) -> bool:
-    logger.info(f"Starting mapping add for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
+    logger.info(f"Starting `mapping add` for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
     prefix_problems, upload_problems = _mapping_add(info)
 
     match prefix_problems, upload_problems:

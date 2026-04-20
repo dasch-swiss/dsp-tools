@@ -530,7 +530,7 @@ def _add_mapping(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     # config
     config_parser = mapping_subparsers.add_parser(
         name="config",
-        help="Generate a YAML config file for the mapping add command",
+        help="Generate a YAML config file for the `mapping add` command",
     )
     config_parser.set_defaults(action="mapping config")
     config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")

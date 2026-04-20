@@ -99,7 +99,7 @@ def test_add_mapping_inexistent_onto(creds: ServerCredentials):
 
 @pytest.mark.usefixtures("create_minimal_project")
 def test_add_mapping_inexistent_project(creds: ServerCredentials):
-    config_file = Path("testdata/mapping/0000-testonto-mapping-project-not-exist.yaml")
+    config_file = Path("testdata/mapping/F000-testonto-mapping-project-not-exist.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
     with pytest.raises(ProjectNotFoundError):

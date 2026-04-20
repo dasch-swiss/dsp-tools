@@ -1,5 +1,5 @@
 ---
-shortcode: "0000"
+shortcode: "F000"
 ontology: "testonto"
 excel-file: testdata/mapping/4124_testonto_Mapping_good.xlsx
 server: http://0.0.0.0:3333

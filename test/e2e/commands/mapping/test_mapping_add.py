@@ -7,9 +7,12 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
+from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.mapping_add import mapping_add
+from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.exceptions import DspToolsRequestException
 
@@ -27,15 +30,32 @@ def create_minimal_project(creds: ServerCredentials) -> None:
     assert create(Path("testdata/json-project/minimal-project-4124.json"), creds, True)
 
 
+def _adjust_api_url_to_test_container(config_info: MappingInfo, creds: ServerCredentials) -> MappingInfo:
+    """
+    The config info yaml has the default localhost API URL.
+    However, the test containers create different API URLs on the fly to avoid conflict.
+    The actual URL is stored in the creds and corrected here.
+    """
+    corrected_server = ServerCredentials(
+        user=config_info.server.user,
+        password=config_info.server.password,
+        server=creds.server,
+    )
+    config_info.server = corrected_server
+    return config_info
+
+
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_good():
+@pytest.mark.run("first")
+def test_add_mapping_good(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-good.yaml")
     config_info = parse_mapping_config(config_file)
+    config_info = _adjust_api_url_to_test_container(config_info, creds)
     success = mapping_add(config_info)
     assert success
 
 
-@pytest.mark.usefixtures("test_add_mapping_good")
+@pytest.mark.usefixtures("create_minimal_project")
 def test_check_successful_mapping_result(ontology_namespace):
     url = ontology_namespace.rstrip("#")
     response = requests.get(url, headers={"Accept": "text/turtle"}, timeout=5)
@@ -69,24 +89,36 @@ def test_check_successful_mapping_result(ontology_namespace):
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_inexistent_onto():
+def test_add_mapping_inexistent_onto(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-inexistent-onto.yaml")
     config_info = parse_mapping_config(config_file)
-    success = mapping_add(config_info)
-    assert not success
+    config_info = _adjust_api_url_to_test_container(config_info, creds)
+    with pytest.raises(OntologyReferencedNotFoundError):
+        mapping_add(config_info)
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_inexistent_references():
+def test_add_mapping_inexistent_project(creds: ServerCredentials):
+    config_file = Path("testdata/mapping/0000-testonto-mapping-project-not-exist.yaml")
+    config_info = parse_mapping_config(config_file)
+    config_info = _adjust_api_url_to_test_container(config_info, creds)
+    with pytest.raises(ProjectNotFoundError):
+        mapping_add(config_info)
+
+
+@pytest.mark.usefixtures("create_minimal_project")
+def test_add_mapping_inexistent_references(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-inexistent-references.yaml")
     config_info = parse_mapping_config(config_file)
+    config_info = _adjust_api_url_to_test_container(config_info, creds)
     success = mapping_add(config_info)
     assert not success
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_missing_prefix():
+def test_add_mapping_missing_prefix(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-missing-prefix.yaml")
     config_info = parse_mapping_config(config_file)
+    config_info = _adjust_api_url_to_test_container(config_info, creds)
     success = mapping_add(config_info)
     assert not success

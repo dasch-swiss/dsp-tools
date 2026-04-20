@@ -1,5 +1,23 @@
 # Changelog
 
+## [18.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.10.1...v18.11.0) (2026-04-16)
+
+
+### Enhancements
+
+* **start-stack:** retrive fuseki version from API main branch when using `--latest` flag (DEV-6218) ([#2260](https://github.com/dasch-swiss/dsp-tools/issues/2260)) ([d8ad337](https://github.com/dasch-swiss/dsp-tools/commit/d8ad337c546a2ac9836ba60dedf7aaa9c62505f3))
+
+
+### Maintenance
+
+* **dependabot:** limit to one open PR at a time ([#2264](https://github.com/dasch-swiss/dsp-tools/issues/2264)) ([d61bf28](https://github.com/dasch-swiss/dsp-tools/commit/d61bf28dbf3a432c2e9468d3caf50128bc3d9159))
+* **deps:** bump the all-dependencies group across 1 directory with 15 updates ([#2253](https://github.com/dasch-swiss/dsp-tools/issues/2253)) ([37e4460](https://github.com/dasch-swiss/dsp-tools/commit/37e446099130d18d4e3aef028db5effc7609d5d6))
+* **start-stack:** bump versions to 2026.04.01 ([#2263](https://github.com/dasch-swiss/dsp-tools/issues/2263)) ([ed232b7](https://github.com/dasch-swiss/dsp-tools/commit/ed232b7c0f7672b34cf0c90a5202b5d7dc6a3b93))
+* **utils:** combine HTTP status code check util functions ([#2255](https://github.com/dasch-swiss/dsp-tools/issues/2255)) ([b341912](https://github.com/dasch-swiss/dsp-tools/commit/b341912b47e2daa614cdbaef8f2d55db9f2a3701))
+* **xmlupload:** remove `Connection` from uploading stash (DEV-6021) ([#2258](https://github.com/dasch-swiss/dsp-tools/issues/2258)) ([716d5f7](https://github.com/dasch-swiss/dsp-tools/commit/716d5f757723c284947f652bc73345ea1b6ece37))
+* **xmlupload:** replace execute upload function with new version without `Connection` (DEV-6007) ([#2257](https://github.com/dasch-swiss/dsp-tools/issues/2257)) ([1a13748](https://github.com/dasch-swiss/dsp-tools/commit/1a13748eebd2b23fe23eb1b1021188f2036002fb))
+* **xmlupload:** upload resources with new `ResourceClient` (DEV-6006) ([#2219](https://github.com/dasch-swiss/dsp-tools/issues/2219)) ([83012bc](https://github.com/dasch-swiss/dsp-tools/commit/83012bca585a4853277e11d76a5ace3c2099d64d))
+
 ## [18.10.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.10.0...v18.10.1) (2026-04-01)
 
 

@@ -7,6 +7,7 @@ from dsp_tools.cli.call_action_files_only import call_excel2lists
 from dsp_tools.cli.call_action_files_only import call_excel2properties
 from dsp_tools.cli.call_action_files_only import call_excel2resources
 from dsp_tools.cli.call_action_files_only import call_id2iri
+from dsp_tools.cli.call_action_files_only import call_mapping_config
 from dsp_tools.cli.call_action_files_only import call_migration_config
 from dsp_tools.cli.call_action_files_only import call_old_excel2json
 from dsp_tools.cli.call_action_files_only import call_old_excel2lists
@@ -15,6 +16,7 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
+from dsp_tools.cli.call_action_with_network import call_mapping_add
 from dsp_tools.cli.call_action_with_network import call_migration_clean_up
 from dsp_tools.cli.call_action_with_network import call_migration_complete
 from dsp_tools.cli.call_action_with_network import call_migration_export
@@ -84,6 +86,15 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             result = call_id2iri(args)
         case "update-legal":
             result = call_update_legal(args)
+        case "mapping":
+            raise CliCommandNotInvokableError(
+                "The command `mapping` cannot be used as a stand-alone command. "
+                "Use `dsp-tools mapping --help` for available sub-commands."
+            )
+        case "mapping config":
+            result = call_mapping_config(args)
+        case "mapping add":
+            result = call_mapping_add(args)
         case "migration":
             raise CliCommandNotInvokableError(
                 "The command `migration` cannot be used as a stand-alone command. "

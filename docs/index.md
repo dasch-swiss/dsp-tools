@@ -68,6 +68,8 @@ The following CLI Commands are available, listed here in alphabetical order.
 | **`id2iri`**             | Replace internal IDs with IRIs in an XML file<br>`dsp-tools id2iri new_data.xml id2iri_mapping.json`             | [→](./data-file/data-file-commands.md#id2iri)                     |
 | **`ingest-files`**       | Kick off the ingest process and save the mapping CSV<br>`dsp-tools ingest-files 0XXX`                            | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
 | **`ingest-xmlupload`**   | Create resources from XML after files are ingested<br>`dsp-tools ingest-xmlupload data.xml`                      | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
+| **`mapping config`**     | Create a mapping YAML config file<br>`dsp-tools mapping config -P 0XXX --ontology my-onto`                       | [→](./data-model/data-model-cli.md#mapping-config)                |
+| **`mapping add`**        | Upload external ontology mappings from an Excel file<br>`dsp-tools mapping add 0XXX-my-onto-mapping.yaml`        | [→](./data-model/data-model-cli.md#mapping-add)                   |
 | **`migration config`**   | Create a migration config YAML file<br>`dsp-tools migration config -P 0XXX`                                      | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
 | **`migration complete`** | Execute a complete migration<br>`dsp-tools migration complete migration-0XXX.yaml`                               | [→](./special-workflows/migration.md#all-in-one)                  |
 | **`migration export`**   | Download project data from the source server<br>`dsp-tools migration export migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |

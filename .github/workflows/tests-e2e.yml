@@ -83,6 +83,23 @@ jobs:
           path: logging.log
           compression-level: 0
 
+  mapping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v6
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: mapping
+        run: just e2e-test-mapping
+      - name: make logging file available
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-mapping-logging.log
+          path: logging.log
+          compression-level: 0
+
   create-get-xmlupload:
     runs-on: ubuntu-latest
     steps:

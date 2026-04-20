@@ -71,6 +71,8 @@ def make_parser(
 
     _add_migration(subparsers)
 
+    _add_mapping(subparsers)
+
     _add_suppress_update_prompt(subparsers)
 
     return parser
@@ -515,3 +517,29 @@ def _add_migration(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     )
     clean_up_parser.set_defaults(action="migration clean-up")
     clean_up_parser.add_argument("config_file", help="path to the migration config YAML file")
+
+
+def _add_mapping(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    mapping_parser = subparsers.add_parser(
+        name="mapping",
+        help="Manage external ontology mappings for an existing DSP project",
+    )
+    mapping_parser.set_defaults(action="mapping")
+    mapping_subparsers = mapping_parser.add_subparsers(title="Subcommands", dest="mapping_subcommand")
+
+    # config
+    config_parser = mapping_subparsers.add_parser(
+        name="config",
+        help="Generate a YAML config file for the `mapping add` command",
+    )
+    config_parser.set_defaults(action="mapping config")
+    config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")
+    config_parser.add_argument("--ontology", help="name of the ontology to add mappings to")
+
+    # add
+    add_parser = mapping_subparsers.add_parser(
+        name="add",
+        help="Bulk-add external ontology mappings from an Excel file to a DSP project",
+    )
+    add_parser.set_defaults(action="mapping add")
+    add_parser.add_argument("config_file", help="path to the mapping YAML config file")

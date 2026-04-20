@@ -2,6 +2,8 @@ import argparse
 from pathlib import Path
 
 from dsp_tools.cli.args import PathDependencies
+from dsp_tools.cli.args import ProhibitedPaths
+from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import check_path_dependencies
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.old_lists import old_excel2lists
@@ -10,6 +12,7 @@ from dsp_tools.commands.excel2json.project import old_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.commands.mapping.config_file import create_mapping_config
 from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.update_legal.core import update_legal_metadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
@@ -78,6 +81,18 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
     )
+
+
+def call_mapping_config(args: argparse.Namespace) -> bool:
+    shortcode = args.project_shortcode
+    if not shortcode:
+        shortcode = input("Enter the project shortcode: ").strip()
+    ontology = args.ontology
+    if not ontology:
+        ontology = input("Enter the ontology name: ").strip()
+    mapping_path = Path.cwd() / f"{shortcode}-{ontology}-mapping.yaml"
+    check_input_dependencies(prohibited_paths=ProhibitedPaths([mapping_path]))
+    return create_mapping_config(shortcode=shortcode, ontology=ontology, mapping_path=mapping_path)
 
 
 def call_migration_config(args: argparse.Namespace) -> bool:

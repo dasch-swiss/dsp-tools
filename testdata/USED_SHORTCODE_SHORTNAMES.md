@@ -23,7 +23,7 @@ File naming conventions:
 | 4125      | e2e-tp              | testdata/json-project/generic-e2e-project-4125.json                        | `create`, `get`, `xmlupload` |
 | 0005      | limited-view        | testdata/json-project/limited-view-project-0005.json                       | NEVER!                       |
 | 0006      | list-lookup         | testdata/json-project/list-lookup-project-0006.json                        | `xmllib` integration         |
-| 4124      | minimal-tp          | testdata/json-project/minimal-project-4124.json                            | `create`                     |
+| 4124      | minimal-tp          | testdata/json-project/minimal-project-4124.json                            | `create`, `mapping`          |
 | 4123      | systematic-tp       | testdata/json-project/systematic-project-4123.json                         | `create`, `xmlupload`        |
 | 0009      | erroneous-ontology  | testdata/validate-data/erroneous_ontology/erroneous-onto-project-0009.json | `validate-data`              |
 | 9999      | core-validation     | testdata/validate-data/core_validation/core-validation-project-9999.json   | `validate-data`, `xmlupload` |

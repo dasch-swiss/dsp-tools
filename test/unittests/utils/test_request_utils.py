@@ -1,32 +1,35 @@
 import json
-from dataclasses import dataclass
 from typing import Any
-from typing import cast
+from unittest.mock import create_autospec
 from unittest.mock import patch
 
 import pytest
+from requests import Response
 
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import _is_retriable_status_code
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import parse_api_v3_error
 from dsp_tools.utils.request_utils import should_retry_request
 
 
-@dataclass
-class ResponseMock:
-    status_code: int
-    headers: dict[str, Any]
-    text: str
-
-    def json(self) -> dict[str, Any]:
-        return cast(dict[str, Any], json.loads(self.text))
+def _make_response(status_code: int, headers: dict[str, Any], text: str):
+    mock = create_autospec(Response, instance=True)
+    mock.status_code = status_code
+    mock.headers = headers
+    mock.text = text
+    try:
+        mock.json.return_value = json.loads(text)
+    except json.JSONDecodeError as e:
+        mock.json.side_effect = e
+    return mock
 
 
 def test_log_response() -> None:
-    response_mock = ResponseMock(
-        status_code=200,
-        headers={"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
-        text=json.dumps({"foo": "bar"}),
+    response_mock = _make_response(
+        200,
+        {"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
+        json.dumps({"foo": "bar"}),
     )
     expected_output = {
         "status_code": 200,
@@ -34,7 +37,7 @@ def test_log_response() -> None:
         "content": {"foo": "bar"},
     }
     with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
-        log_response(response_mock)  # type: ignore[arg-type]
+        log_response(response_mock)
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
 
@@ -79,3 +82,53 @@ def test_should_retry_request(
     else:
         monkeypatch.setenv("DSP_TOOLS_TESTING", env_value)
     assert should_retry_request(response) == expected
+
+
+class TestParseApiV3Errors:
+    def test_several_errors(self):
+        response_json = {
+            "message": "complete message",
+            "errors": [
+                {
+                    "code": "code_1",
+                    "message": "msg_1",
+                    "details": {"iri": "detail_iri_1"},
+                },
+                {
+                    "code": "code_2",
+                    "message": "msg_2",
+                    "details": {"iri": "detail_iri_2"},
+                },
+            ],
+        }
+        json_str = json.dumps(response_json)
+        response_mocked = _make_response(404, {}, json_str)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 404
+        assert result.text == json_str
+        assert result.v3_errors is not None
+        assert len(result.v3_errors) == 2
+        first = next(x for x in result.v3_errors if x.error_code == "code_1")
+        assert first.message == "msg_1"
+        assert first.details == {"iri": "detail_iri_1"}
+
+        second = next(x for x in result.v3_errors if x.error_code == "code_2")
+        assert second.message == "msg_2"
+        assert second.details == {"iri": "detail_iri_2"}
+
+    def test_no_error_code(self):
+        response_json = {"message": "complete message", "errors": []}
+        json_str = json.dumps(response_json)
+        response_mocked = _make_response(404, {}, json_str)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 404
+        assert result.text == json_str
+        assert result.v3_errors is None
+
+    def test_not_v3_error_style(self):
+        response_message = "Invalid value for: path parameter classIri"
+        response_mocked = _make_response(400, {}, response_message)
+        result = parse_api_v3_error(response_mocked)
+        assert result.status_code == 400
+        assert result.text == response_message
+        assert result.v3_errors is None

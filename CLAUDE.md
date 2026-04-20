@@ -66,6 +66,7 @@ DSP-TOOLS provides the following functionalities:
   to attributes on `<bitstream>` or `<iiif-uri>` elements.
   The command handles validation, error correction via CSV workflow, and authorship deduplication.
 - `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
+- `dsp-tools mapping [config|add]` add mapping to existing ontologies on a server
 
 
 ## Development Commands

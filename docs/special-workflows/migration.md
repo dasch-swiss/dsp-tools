@@ -9,12 +9,35 @@ The assets (multimedia files) are included by default, but can be excluded.
 
 Please note that the entire workflow may take several hours for large projects.
 
+## Limitations
+
 At the moment only projects smaller than 200 GB are supported.
 If your project is larger, then the export will fail and you will get notified.
 If that is the case, please contact the DaSCH Infrastructure and/or Engineering teams to find another solution.
 
 One server can only do 1 export or import at a time.
 If there are conflicts, dsp-tools will stop and print a message.
+
+### User Accounts
+
+The migration checks user accounts for consistency between the source and target server. 
+The following conditions can cause the migration to stop:
+
+- Conflicting user accounts: If the same user (identified by email or username) already exists on both the source and
+  target server, their internal identifiers (IRI in the database) must match. 
+  If they do not — for example, because the account was created independently on each server — 
+  the migration will be aborted. Contact the DaSCH Engineering Team to resolve this.
+- System admin privileges: If a user is a system admin on the source server, their account will be migrated, but their
+  system admin privileges will not be carried over to the
+  target server, for security reasons.
+- root user in data: If the root user created, modified, or deleted any data, the migration will be rejected. 
+  This commonly happens when running `xmlupload` locally with the default settings, 
+  which uses root as the default account.
+    - Using root to create a project, ontologies, or users (via the `create` command or in the DSP-APP) is fine — 
+      this restriction applies to data only.
+    - If migrating from a local server: Re-run the `xmlupload` using a named user account instead of root.
+    - If migrating between remote servers: Contact the DaSCH Engineering Team.
+
 
 ## Step 1: Create a Config File
 

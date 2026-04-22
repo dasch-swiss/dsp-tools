@@ -1,5 +1,24 @@
 # Changelog
 
+## [18.12.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.11.0...v18.12.0) (2026-04-22)
+
+
+### Enhancements
+
+* **mapping:** add mapping config and mapping add commands (DEV-6180) ([#2247](https://github.com/dasch-swiss/dsp-tools/issues/2247)) ([098cd30](https://github.com/dasch-swiss/dsp-tools/commit/098cd30f6d3183ad7bdbdd843003cb1e4c00ca37))
+
+
+### Maintenance
+
+* **codecov:** fix premature coverage status check and add threshold ([#2266](https://github.com/dasch-swiss/dsp-tools/issues/2266)) ([a9a4900](https://github.com/dasch-swiss/dsp-tools/commit/a9a490026f0ac6dbc1a643c5dab28d4a6f35f5d1))
+* **deps:** bump the all-dependencies group across 1 directory with 17 updates ([#2269](https://github.com/dasch-swiss/dsp-tools/issues/2269)) ([6596aa4](https://github.com/dasch-swiss/dsp-tools/commit/6596aa4a011b9d181821018eb6ff1e41c9c9cafb))
+* **start-stack:** bump versions to 2026.04.02 ([#2272](https://github.com/dasch-swiss/dsp-tools/issues/2272)) ([c99358f](https://github.com/dasch-swiss/dsp-tools/commit/c99358fd4dcaa11c820ba2cfa5fd72119483e2bc))
+
+
+### Documentation
+
+* **migration:** add information about user account restrictions ([#2270](https://github.com/dasch-swiss/dsp-tools/issues/2270)) ([42a0a0d](https://github.com/dasch-swiss/dsp-tools/commit/42a0a0da646719959809eee4e979ae551354680a))
+
 ## [18.11.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.10.1...v18.11.0) (2026-04-16)
 
 

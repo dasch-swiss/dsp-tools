@@ -30,6 +30,14 @@ from dsp_tools.utils.exceptions import DspToolsRequestException
 class ResponseCodeAndText:
     status_code: int
     text: str
+    v3_errors: list[ApiV3ErrorDetails] | None = None
+
+
+@dataclass
+class ApiV3ErrorDetails:
+    error_code: str
+    message: str
+    details: dict[str, str]
 
 
 @dataclass
@@ -238,3 +246,21 @@ def _is_retriable_status_code(status_code: int) -> bool:
 
 def is_server_error(status_code: int) -> bool:
     return HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
+
+
+def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
+    v3_errors = None
+    try:
+        error_list = response.json()["errors"]
+        if error_list:
+            v3_errors = [
+                ApiV3ErrorDetails(
+                    error_code=err["code"],
+                    message=err["message"],
+                    details=err.get("details", {}),
+                )
+                for err in error_list
+            ]
+    except (json.decoder.JSONDecodeError, KeyError):
+        pass
+    return ResponseCodeAndText(response.status_code, response.text, v3_errors)

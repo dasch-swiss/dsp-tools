@@ -1,0 +1,7 @@
+---
+shortcode: "4124"
+ontology: "testonto"
+excel-file: testdata/mapping/4124_testonto_Mapping_good.xlsx
+server: http://0.0.0.0:3333
+user: root@example.com
+password: test

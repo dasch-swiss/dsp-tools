@@ -18,8 +18,10 @@ class ShaclCliValidator:
         try:
             self._run_validate_cli(file_paths)
         except subprocess.CalledProcessError as e:
-            logger.exception(f"Docker command failed with {e.returncode}: {e.stderr or ''}")
-            raise ShaclValidationCliError(e.returncode, e.stderr or "")
+            stdout = e.stdout or ""
+            stderr = e.stderr or ""
+            logger.exception(f"Docker command failed with {e.returncode}: stdout={stdout!r}, stderr={stderr!r}")
+            raise ShaclValidationCliError(e.returncode, stdout, stderr)
         return self._parse_validation_result(file_paths.directory / file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:
@@ -38,7 +40,7 @@ class ShaclCliValidator:
         docker_image = docker_spec["image"]
 
         d_cmd = (
-            f"docker run --rm -v {file_paths.directory.absolute()}:/data {docker_image} "
+            f"docker run --rm -v {file_paths.directory.absolute()}:/data:z {docker_image} "
             f"validate --shacl {shacl_path} --data {data_path} --report {report_path}"
         )
         logger.debug(f"Running SHACL validation: {d_cmd}")

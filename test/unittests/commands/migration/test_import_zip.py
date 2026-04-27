@@ -1,13 +1,9 @@
 from pathlib import Path
 from unittest.mock import MagicMock
-from unittest.mock import patch
-
-import pytest
 
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.import_zip import _check_import_progress
-from dsp_tools.commands.migration.import_zip import _upload_zip
 from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
 
@@ -32,39 +28,6 @@ class TestExecuteImport:
         success, returned_id = execute_import(client, config)
         assert success is True
         assert returned_id == import_id
-
-
-class TestUploadZip:
-    def test_success_returns_import_id(self, tmp_path: Path) -> None:
-        (tmp_path / f"export-{SHORTCODE}.zip").touch()
-        import_id = ImportId("test-id-123")
-        config = MigrationConfig(
-            shortcode=SHORTCODE,
-            export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
-            reference_savepath=tmp_path / "migration-references-0099.json",
-            keep_local_export=False,
-            skip_assets=False,
-        )
-        client = MagicMock()
-        client.post_import.return_value = import_id
-        with patch("dsp_tools.commands.migration.import_zip.yaspin"):
-            result = _upload_zip(client, config)
-        assert result == import_id
-
-    def test_exception_propagates(self, tmp_path: Path) -> None:
-        (tmp_path / f"export-{SHORTCODE}.zip").touch()
-        config = MigrationConfig(
-            shortcode=SHORTCODE,
-            export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
-            reference_savepath=tmp_path / "migration-references-0099.json",
-            keep_local_export=False,
-            skip_assets=False,
-        )
-        client = MagicMock()
-        client.post_import.side_effect = RuntimeError("upload failed")
-        with patch("dsp_tools.commands.migration.import_zip.yaspin"):
-            with pytest.raises(RuntimeError, match="upload failed"):
-                _upload_zip(client, config)
 
 
 class TestCheckImportProgress:

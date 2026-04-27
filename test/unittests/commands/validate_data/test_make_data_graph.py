@@ -194,9 +194,7 @@ class TestDateValue:
         assert len(g) == 3
         bn = next(g.objects(RES_IRI, ONTO.testSubDate1))
         assert next(g.objects(bn, RDF.type)) == KNORA_API.DateValue
-        assert next(g.objects(bn, KNORA_API.valueAsString)) == Literal(
-            "JULIAN:BCE:0700:BCE:0600", datatype=XSD.string
-        )
+        assert next(g.objects(bn, KNORA_API.valueAsString)) == Literal("JULIAN:BCE:0700:BCE:0600", datatype=XSD.string)
 
     def test_with_date_range_corr(self):
         val = RdfLikeValue(
@@ -213,9 +211,7 @@ class TestDateValue:
         assert len(g) == 5
         bn = next(g.objects(RES_IRI, ONTO.testSubDate1))
         assert next(g.objects(bn, RDF.type)) == KNORA_API.DateValue
-        assert next(g.objects(bn, KNORA_API.valueAsString)) == Literal(
-            "GREGORIAN:CE:1900:CE:2000", datatype=XSD.string
-        )
+        assert next(g.objects(bn, KNORA_API.valueAsString)) == Literal("GREGORIAN:CE:1900:CE:2000", datatype=XSD.string)
         assert next(g.objects(bn, API_SHAPES.dateHasStart)) == Literal("1900-01-01", datatype=XSD.date)
         assert next(g.objects(bn, API_SHAPES.dateHasEnd)) == Literal("2000-01-01", datatype=XSD.date)
 
@@ -480,9 +476,7 @@ class TestFileValue:
         assert len(g) == 3
         bn = next(g.objects(RES_IRI, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
-        assert next(g.objects(bn, KNORA_API.stillImageFileValueHasExternalUrl)) == Literal(
-            uri, datatype=XSD.anyURI
-        )
+        assert next(g.objects(bn, KNORA_API.stillImageFileValueHasExternalUrl)) == Literal(uri, datatype=XSD.anyURI)
 
 
 if __name__ == "__main__":

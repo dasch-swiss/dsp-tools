@@ -22,8 +22,8 @@ def test_sparql_construct_graph_with_oxigraph_store(oxigraph_graph: Graph) -> No
 
 def test_collection_with_oxigraph_store(oxigraph_graph: Graph) -> None:
     bn = BNode()
-    items = [Literal("a", datatype=XSD.string), Literal("b", datatype=XSD.string)]
-    Collection(oxigraph_graph, bn, items)
+    items: list[Literal] = [Literal("a", datatype=XSD.string), Literal("b", datatype=XSD.string)]
+    Collection(oxigraph_graph, bn, items)  # type: ignore[arg-type]
     # 2 rdf:first + 2 rdf:rest (last rdf:rest points to rdf:nil)
     assert len(list(oxigraph_graph)) == 4
 

@@ -27,7 +27,7 @@ A group can hold exactly one right, and each right includes all the rights below
 
 | Right | Name                  | What it allows                                                                   |
 | ----- | --------------------- | -------------------------------------------------------------------------------- |
-| `CR`  | Change Right          | Modify permissions; permanently erase resources                                  |
+| `CR`  | Change Rights         | Change the access permissions on a resource or value                             |
 | `D`   | Delete                | Mark a resource/value as deleted (original is preserved)                         |
 | `M`   | Modify                | Edit a resource/value                                                            |
 | `V`   | View                  | View at full quality                                                             |

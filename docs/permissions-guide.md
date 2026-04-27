@@ -11,19 +11,15 @@ Understanding both layers — and how they interact — gives you fine-grained c
 
 ### Built-in User Groups
 
-Every user on DSP belongs to one or more built-in groups:
+Every user on DSP belongs to exactly one built-in group:
 
-| Group           | Who is in it                                                     |
-| --------------- | ---------------------------------------------------------------- |
-| `UnknownUser`   | Anyone not logged in                                             |
-| `KnownUser`     | Logged-in users who are **not** members of the project           |
-| `ProjectMember` | Logged-in users who belong to the project                        |
-| `ProjectAdmin`  | Project administrators                                           |
-| `Creator`       | The user who created the specific resource or value (DEPRECATED) |
-| `SystemAdmin`   | System-level administrators                                      |
-
-You can also define your own [project-specific groups (aka custom groups)](./data-model/json-project/overview.md#groups)
-in the JSON project file.
+| Group           | Who is in it                                           |
+| --------------- | ------------------------------------------------------ |
+| `SystemAdmin`   | System-level administrators                            |
+| `ProjectAdmin`  | Project administrators                                 |
+| `ProjectMember` | Logged-in users who belong to the project              |
+| `KnownUser`     | Logged-in users who are **not** members of the project |
+| `UnknownUser`   | Anyone not logged in                                   |
 
 ### Rights Hierarchy
 
@@ -38,7 +34,8 @@ A group can hold exactly one right, and each right includes all the rights below
 | `RV`  | Restricted View       | Images: view at reduced resolution or with a watermark; Video/Audio: No download |
 | —     | _(no right assigned)_ | No access at all                                                                 |
 
-> `CR` implies `D`, which implies `M`, which implies `V`, which implies `RV`.
+> `CR` implies `D`, which implies `M`, which implies `V`.
+> `RV` is a separate, more restrictive access level — it does not follow from `V`.
 
 ## Layer 1: Project-Wide Defaults (JSON)
 
@@ -140,13 +137,10 @@ The three canonical IDs cover the most common access patterns:
 
 Any group omitted from a `<permissions>` block has **no access at all** to that resource/value.
 
-You can also reference project-specific groups:
-
-```xml
-<permissions id="editors-only">
-    <allow group="my-project:editors">M</allow>
-</permissions>
-```
+The IDs `public`, `limited_view`, and `private` are conventions, not reserved keywords.
+Any name is valid; these three are used across DSP-TOOLS documentation and tooling
+because they cover the most common access patterns.
+Treating them as a shared vocabulary keeps projects readable and consistent across the DSP ecosystem.
 
 ### Applying Permissions With the `permissions` Attribute
 
@@ -238,9 +232,50 @@ Here is a scenario with a mixed public/private project:
 | Should a specific value differ from its resource?           | `permissions` attribute on the value element in XML       |
 | Does a resource share its permissions with its values?      | **No.** Each value needs its own `permissions` attribute. |
 
+## Custom Groups
+
+In addition to the built-in groups, you can define project-specific groups in the JSON project file.
+Custom groups are additional membership tiers that sit between `ProjectMember` and `ProjectAdmin`:
+they let you grant finer-grained rights to a subset of project members.
+
+A custom group cannot hold fewer rights than `ProjectMember`, and cannot hold more rights than
+`ProjectAdmin`.
+
+### Defining Custom Groups in JSON
+
+Add a `groups` array to your JSON project file:
+
+```json
+"groups": [
+  {
+    "name": "editors",
+    "descriptions": {"en": "Editors for the project"},
+    "selfjoin": false,
+    "status": true
+  }
+]
+```
+
+The `name` and `descriptions` fields are mandatory; `selfjoin` (default `false`) and `status`
+(default `true`) are optional.
+
+### Using Custom Groups in XML
+
+Reference a custom group as `project-shortname:groupname` in a `<permissions>` block:
+
+```xml
+<permissions id="editors_only">
+    <allow group="my-project:editors">M</allow>
+    <allow group="ProjectAdmin">CR</allow>
+</permissions>
+```
+
+Any group omitted from the block has no access at all to that resource or value.
+
 ## Further Reading
 
 - [JSON project overview — `default_permissions`](./data-model/json-project/overview.md#default_permissions)
 - [JSON project overview — `default_permissions_overrule`](./data-model/json-project/overview.md#default_permissions_overrule)
+- [JSON project overview — `groups`](./data-model/json-project/overview.md#groups)
 - [XML data file — defining permissions](./data-file/xml-data-file.md#defining-permissions-with-the-permissions-element)
 - [XML data file — using permissions](./data-file/xml-data-file.md#using-permissions-with-the-permissions-attribute)

@@ -193,8 +193,8 @@ Reference a custom group as `project-shortname:groupname` in a `<permissions>` b
 
 ```xml
 <permissions id="editors_only">
-    <allow group="my-project:editors">M</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="my-project:editors">M</allow>
 </permissions>
 ```
 
@@ -399,10 +399,10 @@ and remain fully public:
 
 ```xml
 <permissions id="limited_view">
-    <allow group="UnknownUser">RV</allow>
-    <allow group="KnownUser">RV</allow>
-    <allow group="ProjectMember">D</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="KnownUser">RV</allow>
+    <allow group="UnknownUser">RV</allow>
 </permissions>
 
 <resource label="Interview Meier 2019" restype=":AudioRecording" id="audio_001">
@@ -481,8 +481,8 @@ In-progress resources use `permissions="private"`:
 
 ```xml
 <permissions id="private">
-    <allow group="ProjectMember">D</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="ProjectMember">D</allow>
 </permissions>
 
 <!-- Already published — no permissions attribute needed -->

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
 from enum import auto
 
@@ -42,6 +43,9 @@ class GlobalLimitedViewPermission(Enum):
 @dataclass
 class LimitedViewPermissionsSelection:
     limited_selection: list[str]
+    still_image: list[str] = field(default_factory=list)
+    moving_image: list[str] = field(default_factory=list)
+    audio: list[str] = field(default_factory=list)
 
 
 @dataclass

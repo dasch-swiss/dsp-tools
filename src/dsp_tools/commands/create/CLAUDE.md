@@ -97,9 +97,10 @@ After parsing to typed models, complex semantic validations are performed in `_c
     - Skipped when `default_permissions` is `private` (cannot be overruled)
     - For `overrule_private`: validates all referenced IRIs exist in the ontology (properties or classes)
     - For `overrule_limited_view`:
-        - If selection mode: validates that all referenced IRIs exist and are `StillImageRepresentation` subclasses
+        - If selection mode: validates that all referenced IRIs exist and are subclasses of
+          `StillImageRepresentation`, `MovingImageRepresentation`, or `AudioRepresentation`
         - If `ALL` or `NONE`: no validation needed
-    - Still image class detection traverses the complete inheritance chain from `knora-api:StillImageRepresentation`
+    - Class detection traverses the complete inheritance chain from each of the three parent classes
 
 ### Problem Collection Pattern
 

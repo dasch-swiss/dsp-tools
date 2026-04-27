@@ -126,6 +126,12 @@ def _separate_props_and_classes(
     return props, cls
 
 
+_KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
+_STILL_IMAGE_FILE_VALUE = f"{_KNORA_API}hasStillImageFileValue"
+_MOVING_IMAGE_FILE_VALUE = f"{_KNORA_API}hasMovingImageFileValue"
+_AUDIO_FILE_VALUE = f"{_KNORA_API}hasAudioFileValue"
+
+
 def _handle_limited_view_overrule(
     overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection,
     perm_client: PermissionsClient,
@@ -133,13 +139,21 @@ def _handle_limited_view_overrule(
     overall_success = True
     match overrule_limited_view:
         case LimitedViewPermissionsSelection():
-            for ele in overrule_limited_view.limited_selection:
-                success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=ele)
-                if not success:
+            for iri in overrule_limited_view.still_image:
+                if not _create_one_limited_view_overrule(perm_client, _STILL_IMAGE_FILE_VALUE, iri):
+                    overall_success = False
+            for iri in overrule_limited_view.moving_image:
+                if not _create_one_limited_view_overrule(perm_client, _MOVING_IMAGE_FILE_VALUE, iri):
+                    overall_success = False
+            for iri in overrule_limited_view.audio:
+                if not _create_one_limited_view_overrule(perm_client, _AUDIO_FILE_VALUE, iri):
                     overall_success = False
         case GlobalLimitedViewPermission.ALL:
-            success = _create_one_limited_view_overrule(perm_client=perm_client, img_class_iri=None)
-            if not success:
+            if not _create_one_limited_view_overrule(perm_client, _STILL_IMAGE_FILE_VALUE, None):
+                overall_success = False
+            if not _create_one_limited_view_overrule(perm_client, _MOVING_IMAGE_FILE_VALUE, None):
+                overall_success = False
+            if not _create_one_limited_view_overrule(perm_client, _AUDIO_FILE_VALUE, None):
                 overall_success = False
         case _:
             raise UnreachableCodeError(f"Unknown overrule_limited_view: {overrule_limited_view!s}")
@@ -163,9 +177,9 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
     )
 
 
-def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_iri: str | None) -> bool:
-    # This makes only sense for the knora-api:hasStillImageFileValue property of image classes
-    # To set it for all image classes, set img_class_iri to None
+def _create_one_limited_view_overrule(
+    perm_client: PermissionsClient, file_value_prop_iri: str, img_class_iri: str | None
+) -> bool:
     perm = [
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},
@@ -173,14 +187,15 @@ def _create_one_limited_view_overrule(perm_client: PermissionsClient, img_class_
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}UnknownUser", "name": "RV", "permissionCode": None},
     ]
     payload = {
-        "forProperty": "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue",
+        "forProperty": file_value_prop_iri,
         "forResourceClass": img_class_iri,
         "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
 
     return _execute_with_retry_on_server_error(
-        lambda: perm_client.create_new_doap(payload), f"create_limited_view_overrule(img_class={img_class_iri})"
+        lambda: perm_client.create_new_doap(payload),
+        f"create_limited_view_overrule(prop={file_value_prop_iri}, img_class={img_class_iri})",
     )
 
 

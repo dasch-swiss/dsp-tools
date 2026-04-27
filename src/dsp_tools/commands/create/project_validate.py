@@ -178,9 +178,9 @@ def _complex_parsed_project_validation(
     if duplicate_cards := _check_for_duplicate_properties_in_cardinalities_for_one_resource(cardinalities_flattened):
         problems.append(duplicate_cards)
     # PERMISSIONS
-    still_image_classes = _get_still_image_classes(cls_flattened)
+    still_image_classes, moving_image_classes, audio_classes = _get_limited_view_classes(cls_flattened)
     if perm_problem := _check_for_invalid_default_permissions_overrule(
-        parsed_permissions, prop_iris, cls_iris, still_image_classes
+        parsed_permissions, prop_iris, cls_iris, still_image_classes, moving_image_classes, audio_classes
     ):
         problems.append(perm_problem)
     potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
@@ -310,7 +310,12 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
 
 
 def _check_for_invalid_default_permissions_overrule(
-    parsed_permissions: ParsedPermissions, properties: list[str], classes: list[str], still_image_classes: set[str]
+    parsed_permissions: ParsedPermissions,
+    properties: list[str],
+    classes: list[str],
+    still_image_classes: set[str],
+    moving_image_classes: set[str],
+    audio_classes: set[str],
 ) -> CollectedProblems | None:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
         return None
@@ -328,7 +333,11 @@ def _check_for_invalid_default_permissions_overrule(
         case LimitedViewPermissionsSelection():
             problems.extend(
                 _check_limited_view_selection(
-                    parsed_permissions.overrule_limited_view, defined_iris_in_ontology, still_image_classes
+                    parsed_permissions.overrule_limited_view,
+                    defined_iris_in_ontology,
+                    still_image_classes,
+                    moving_image_classes,
+                    audio_classes,
                 )
             )
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
@@ -344,7 +353,11 @@ def _check_for_invalid_default_permissions_overrule(
 
 
 def _check_limited_view_selection(
-    limited_view: LimitedViewPermissionsSelection, defined_iris_in_ontology: set[str], still_image_classes: set[str]
+    limited_view: LimitedViewPermissionsSelection,
+    defined_iris_in_ontology: set[str],
+    still_image_classes: set[str],
+    moving_image_classes: set[str],
+    audio_classes: set[str],
 ) -> list[CreateProblem]:
     problems: list[CreateProblem] = []
     limited_iris = set(limited_view.limited_selection)
@@ -353,12 +366,21 @@ def _check_limited_view_selection(
     )
     problems.extend(undefined_iri_problems)
     # if we do not subtract the unknown iris,
-    # they will be duplicated in this check as they are not recognised as still images
+    # they will be duplicated in this check as they are not recognised as valid representation subclasses
     limited_to_check = limited_iris - iris_defined_in_the_ontology
-    _, not_still_image_problems = _get_unknown_iris_and_problem(
-        limited_to_check, still_image_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+    all_valid_classes = still_image_classes | moving_image_classes | audio_classes
+    _, not_valid_problems = _get_unknown_iris_and_problem(
+        limited_to_check, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
     )
-    problems.extend(not_still_image_problems)
+    problems.extend(not_valid_problems)
+    # Populate classified lists on the model for use during DOAP creation
+    for iri in limited_to_check:
+        if iri in still_image_classes:
+            limited_view.still_image.append(iri)
+        elif iri in moving_image_classes:
+            limited_view.moving_image.append(iri)
+        elif iri in audio_classes:
+            limited_view.audio.append(iri)
     return problems
 
 
@@ -370,8 +392,10 @@ def _get_unknown_iris_and_problem(
     return set(), []
 
 
-def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
+def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[str], set[str], set[str]]:
     knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
+    knora_moving_image = f"{KNORA_API_PREFIX}MovingImageRepresentation"
+    knora_audio = f"{KNORA_API_PREFIX}AudioRepresentation"
 
     children_by_parent: dict[str, list[str]] = defaultdict(list)
     for cls in parsed_classes:
@@ -384,9 +408,13 @@ def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
                 visited.add(child_iri)
                 _collect_all_descendants(child_iri, visited)
 
-    descendants: set[str] = set()
-    _collect_all_descendants(knora_still_image, descendants)
-    return descendants
+    still_image: set[str] = set()
+    _collect_all_descendants(knora_still_image, still_image)
+    moving_image: set[str] = set()
+    _collect_all_descendants(knora_moving_image, moving_image)
+    audio: set[str] = set()
+    _collect_all_descendants(knora_audio, audio)
+    return still_image, moving_image, audio
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

@@ -141,15 +141,26 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
     return prefixes_knora_base_inverted
 
 
+_LIMITED_VIEW_FILE_VALUE_PROPS = {
+    "hasStillImageFileValue",
+    "hasMovingImageFileValue",
+    "hasAudioFileValue",
+}
+
+
+def _is_limited_view_prop(for_prop: str) -> bool:
+    return any(p in for_prop for p in _LIMITED_VIEW_FILE_VALUE_PROPS)
+
+
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | None:
     """
     The overrule object of the JSON project definition file has 2 categories: private and limited_view.
     - "private" is a list of classes/properties that are private.
       The DOAPs for these correspond 1:1 to the classes/properties.
     - "limited_view" is
-        - a list of image classes that are limited_view:
-          The DOAPs for these are for knora-api:hasStillImageFileValue and the respective class.
-        - or the string "all". The DOAPs for these are only for knora-api:hasStillImageFileValue.
+        - a list of representation classes that are limited_view:
+          The DOAPs for these are for a file value property and the respective class.
+        - or the string "all". The DOAPs for these are only for file value properties.
 
     This function groups the DOAPs into these categories.
 
@@ -168,11 +179,11 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
         match (doap.get("forResourceClass"), doap.get("forProperty")):
             case (for_class, None) if for_class:
                 class_doaps.append(doap)
-            case (None, for_prop) if for_prop and "hasStillImageFileValue" not in for_prop:
+            case (None, for_prop) if for_prop and not _is_limited_view_prop(for_prop):
                 prop_doaps.append(doap)
-            case (None, for_prop) if for_prop and "hasStillImageFileValue" in for_prop:
+            case (None, for_prop) if for_prop and _is_limited_view_prop(for_prop):
                 has_img_all_classes_doaps.append(doap)
-            case (for_class, for_prop) if for_class and for_prop and "hasStillImageFileValue" in for_prop:
+            case (for_class, for_prop) if for_class and for_prop and _is_limited_view_prop(for_prop):
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
@@ -256,13 +267,13 @@ def _construct_overrule_object(
         privates.append(_get_prefixed_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     limited_views: list[str] | Literal["all"]
-    if len(doap_categories.has_img_all_classes_doaps) > 1:
-        logger.warning("There can only be 1 all-images DOAP for 'hasStillImageFileValue'")
+    if len(doap_categories.has_img_all_classes_doaps) > len(_LIMITED_VIEW_FILE_VALUE_PROPS):
+        logger.warning("Found more all-images DOAPs than expected file value property types")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) == 1 and len(doap_categories.has_img_specific_class_doaps) > 0:
-        logger.warning("If there is a DOAP for all images, there cannot be DOAPs for specific img classes")
+    if len(doap_categories.has_img_all_classes_doaps) > 0 and len(doap_categories.has_img_specific_class_doaps) > 0:
+        logger.warning("If there are DOAPs for all images, there cannot be DOAPs for specific img classes")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) == 1:
+    if len(doap_categories.has_img_all_classes_doaps) > 0:
         limited_views = "all"
     else:
         limited_views = []

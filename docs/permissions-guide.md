@@ -60,7 +60,8 @@ or
 ```
 
 - **`public`**: `UnknownUser` and `KnownUser` can view everything. This is the open-access default.
-- **`private`**: Only `ProjectMember` and `ProjectAdmin` can view anything. Everything is locked down by default for `UnknownUser` and `KnownUser`.
+- **`private`**: Only `ProjectMember` and `ProjectAdmin` can view anything.
+  Everything is locked down by default for `UnknownUser` and `KnownUser`.
 
 ### `default_permissions_overrule` (only when `default_permissions` is `"public"`)
 
@@ -81,8 +82,8 @@ Use `default_permissions_overrule` to carve out exceptions:
 The two available restriction levels are:
 
 - **`private`**: A list of class or property names.
-  - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
-  - For a **property**: the property's content is hidden, but the rest of the resource remains public.
+    - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
+    - For a **property**: the property's content is hidden, but the rest of the resource remains public.
 - **`limited_view`**: A list of image classes whose images are blurred/watermarked for outsiders.
   Only the image is affected — the rest of the resource stays public.
   Use the special value `"all"` to apply this to every `StillImageRepresentation` subclass,

@@ -125,7 +125,13 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
     assert next(result.objects(subject_iri, DASH.closedByTypes)) == Literal(True)
-    assert isinstance(next(result.objects(subject_iri, SH.property)), BNode)
+    assert next(result.subjects(SH.property, API_SHAPES.hasPermissions_Cardinality)) == subject_iri
+    label_shape = next(result.subjects(SH.path, RDFS.label))
+    assert isinstance(label_shape, BNode)
+    assert next(result.subjects(SH.property, label_shape)) == subject_iri
+    standoff_shape = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))
+    assert isinstance(standoff_shape, BNode)
+    assert next(result.subjects(SH.property, standoff_shape)) == subject_iri
 
 
 def test_construct_resource_nodeshape_no_res(one_bool_prop: Graph) -> None:

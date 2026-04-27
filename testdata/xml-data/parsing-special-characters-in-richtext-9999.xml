@@ -155,4 +155,16 @@
         </text-prop>
     </resource>
 
+    <resource label="res_with_internal_link_in_footnote"
+              restype=":ClassWithEverything"
+              id="res_with_internal_link_in_footnote">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                Text
+                <footnote content="Footnote &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:target_resource_with_id:IRI&quot;&gt;link&lt;/a&gt;"/>
+                end text
+            </text>
+        </text-prop>
+    </resource>
+
 </knora>

@@ -116,22 +116,22 @@ The three canonical IDs cover the most common access patterns:
 
 ```xml
 <permissions id="public">
-    <allow group="UnknownUser">V</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="ProjectMember">D</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="KnownUser">V</allow>
+    <allow group="UnknownUser">V</allow>
 </permissions>
 
 <permissions id="limited_view">
-    <allow group="UnknownUser">RV</allow>
-    <allow group="KnownUser">RV</allow>
-    <allow group="ProjectMember">D</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="KnownUser">RV</allow>
+    <allow group="UnknownUser">RV</allow>
 </permissions>
 
 <permissions id="private">
-    <allow group="ProjectMember">D</allow>
     <allow group="ProjectAdmin">CR</allow>
+    <allow group="ProjectMember">D</allow>
 </permissions>
 ```
 
@@ -147,7 +147,7 @@ Treating them as a shared vocabulary keeps projects readable and consistent acro
 Use the IDs you defined as a `permissions` attribute on `<resource>` elements or value elements:
 
 ```xml
-<resource label="Board minutes 2024" restype=":Meeting" id="meeting_001" permissions="private">
+<resource label="Board minutes 2024" restype=":Meeting" id="meeting_001" permissions="public">
     <text-prop name=":hasTitle">
         <text encoding="utf8" permissions="public">Board Meeting, January 2024</text>
     </text-prop>
@@ -157,80 +157,11 @@ Use the IDs you defined as a `permissions` attribute on `<resource>` elements or
 </resource>
 ```
 
-Notice that `<resource permissions="private">` only sets the resource's own permission.
+Notice that `<resource permissions="public">` only sets the resource's own permission.
 **Properties do not inherit from their resource** — each value
 must have its own `permissions` attribute if you want to control access at that level.
 
 If you omit the `permissions` attribute entirely, the project defaults apply.
-
-## Putting It All Together
-
-Here is a scenario with a mixed public/private project:
-
-**JSON project file** — project is public, but images are watermarked and one class is locked down:
-
-```json
-"default_permissions": "public",
-"default_permissions_overrule": {
-    "private": [
-        "archive:InternalMemo"
-    ],
-    "limited_view": "all"
-}
-```
-
-**XML data file** — individual overrides on top of those defaults:
-
-```xml
-<!-- Permission IDs defined once at the top -->
-<permissions id="public">
-    <allow group="UnknownUser">V</allow>
-    <allow group="KnownUser">V</allow>
-    <allow group="ProjectMember">D</allow>
-    <allow group="ProjectAdmin">CR</allow>
-</permissions>
-<permissions id="limited_view">
-    <allow group="UnknownUser">RV</allow>
-    <allow group="KnownUser">RV</allow>
-    <allow group="ProjectMember">D</allow>
-    <allow group="ProjectAdmin">CR</allow>
-</permissions>
-<permissions id="private">
-    <allow group="ProjectMember">D</allow>
-    <allow group="ProjectAdmin">CR</allow>
-</permissions>
-
-<!-- A photo: the resource is public, the image is served with watermark -->
-<resource label="Stadtansicht 1910" restype=":Photo" id="photo_001" permissions="public">
-    <bitstream
-        license="http://rdfh.ch/licenses/cc-by-4.0"
-        copyright-holder="City Archive"
-        authorship-id="authorship_1"
-        permissions="limited_view">
-            photos/stadtansicht_1910.tif
-    </bitstream>
-    <text-prop name=":hasCaption">
-        <text encoding="utf8" permissions="public">View of the old town, ca. 1910</text>
-    </text-prop>
-</resource>
-
-<!-- An internal memo: resource and all its values are locked down -->
-<resource label="Budget note 2024-03" restype=":InternalMemo" id="memo_042" permissions="private">
-    <text-prop name=":hasContent">
-        <text encoding="utf8" permissions="private">... confidential ...</text>
-    </text-prop>
-</resource>
-```
-
-## Quick Reference
-
-| Question                                                    | Where to set it                                           |
-| ----------------------------------------------------------- | --------------------------------------------------------- |
-| Should the whole project be public or private by default?   | `default_permissions` in JSON                             |
-| Should certain classes or properties be exceptions?         | `default_permissions_overrule` in JSON                    |
-| Should a specific resource differ from the project default? | `permissions` attribute on `<resource>` in XML            |
-| Should a specific value differ from its resource?           | `permissions` attribute on the value element in XML       |
-| Does a resource share its permissions with its values?      | **No.** Each value needs its own `permissions` attribute. |
 
 ## Custom Groups
 
@@ -249,15 +180,12 @@ Add a `groups` array to your JSON project file:
 "groups": [
   {
     "name": "editors",
-    "descriptions": {"en": "Editors for the project"},
-    "selfjoin": false,
-    "status": true
+    "descriptions": {"en": "Editors for the project"}
   }
 ]
 ```
 
-The `name` and `descriptions` fields are mandatory; `selfjoin` (default `false`) and `status`
-(default `true`) are optional.
+The `name` and `descriptions` fields are mandatory.
 
 ### Using Custom Groups in XML
 

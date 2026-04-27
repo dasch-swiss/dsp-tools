@@ -28,20 +28,21 @@ def construct_property_shapes(onto: Graph, project_lists: list[OneList]) -> Grap
     """
     logger.debug("Constructing property shapes for ontology.")
     g = Graph(store="Oxigraph")
-    g += _construct_link_value_shape(onto)
-    g += _construct_link_value_node_shape(onto)
-    g += _construct_property_type_text_value(onto)
-    g += _construct_list_shapes(onto, project_lists)
-    g += _construct_seqnum_is_part_of_prop_shape(onto)
-    g += _construct_value_type_shapes_to_class_shapes(onto)
-    g += _construct_link_value_type_shapes_to_class_shapes(onto)
-    return g + _add_property_shapes_to_class_shapes(onto)
+    _construct_link_value_shape(g, onto)
+    _construct_link_value_node_shape(g, onto)
+    _construct_property_type_text_value(g, onto)
+    _construct_list_shapes(g, onto, project_lists)
+    _construct_seqnum_is_part_of_prop_shape(g, onto)
+    _construct_value_type_shapes_to_class_shapes(g, onto)
+    _construct_link_value_type_shapes_to_class_shapes(g, onto)
+    _add_property_shapes_to_class_shapes(g, onto)
+    return g
 
 
-def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
+def _add_property_shapes_to_class_shapes(target: Graph, onto: Graph) -> None:
     logger.debug("Add property shape to resources")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -58,7 +59,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
-      ?restriction a owl:Restriction ;          
+      ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction .
 
       ?propRestriction knora-api:isEditable true .
@@ -68,14 +69,13 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
     }
     """
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
+def _construct_value_type_shapes_to_class_shapes(target: Graph, onto: Graph) -> None:
     logger.debug("Add value type shape to resources")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -94,7 +94,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
-      ?restriction a owl:Restriction ;          
+      ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction .
 
       ?propRestriction knora-api:isEditable true ;
@@ -108,14 +108,13 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
     }
     """
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
+def _construct_link_value_type_shapes_to_class_shapes(target: Graph, onto: Graph) -> None:
     logger.debug("Add value type shape to resources")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -134,7 +133,7 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
-      ?restriction a owl:Restriction ;          
+      ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction .
 
       ?propRestriction knora-api:isEditable true ;
@@ -144,14 +143,13 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
     }
     """
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_link_value_shape(onto: Graph) -> Graph:
+def _construct_link_value_shape(target: Graph, onto: Graph) -> None:
     logger.debug("Constructing LinkValue PropertyShape")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
@@ -173,14 +171,13 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
     }
     """
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_link_value_node_shape(onto: Graph) -> Graph:
+def _construct_link_value_node_shape(target: Graph, onto: Graph) -> None:
     logger.debug("Constructing LinkValue NodeShape")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
@@ -193,7 +190,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?msg 
+                                sh:message   ?msg
                             ] ;
             sh:severity    sh:Violation .
 
@@ -208,26 +205,23 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
     }
     """
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_property_type_text_value(onto: Graph) -> Graph:
+def _construct_property_type_text_value(target: Graph, onto: Graph) -> None:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
         "salsah-gui:Textarea": "api-shapes:TextareaTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
     }
-    g = Graph(store="Oxigraph")
     for object_type, shacl_shape in property_type_mapper.items():
-        g += _construct_one_property_type_text_value(onto, object_type, shacl_shape)
-    return g
+        _construct_one_property_type_text_value(target, onto, object_type, shacl_shape)
 
 
-def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
+def _construct_one_property_type_text_value(target: Graph, onto: Graph, gui_element: str, shacl_shape: str) -> None:
     logger.debug(f"Constructing shape for {gui_element}")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
@@ -249,24 +243,20 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     }
     """ % {"gui_element": gui_element, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
-    lists_graph = Graph(store="Oxigraph")
+def _construct_list_shapes(target: Graph, onto: Graph, project_lists: list[OneList]) -> None:
     for one_list in project_lists:
-        lists_graph += _construct_one_list_node_shape(one_list)
+        _construct_one_list_node_shape(target, one_list)
     for one_list in project_lists:
-        lists_graph += _construct_one_list_property_shape(onto, one_list)
-    return lists_graph
+        _construct_one_list_property_shape(target, onto, one_list)
 
 
-def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    g = Graph(store="Oxigraph")
+def _construct_one_list_node_shape(target: Graph, one_list: OneList) -> None:
     list_iri = URIRef(one_list.list_iri)
-    g.add((list_iri, RDF.type, SH.NodeShape))
-    g.add((list_iri, SH.severity, SH.Violation))
+    target.add((list_iri, RDF.type, SH.NodeShape))
+    target.add((list_iri, SH.severity, SH.Violation))
     list_iris = [nd.iri for nd in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
@@ -277,15 +267,13 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
         ),
         sh_in=list_iris,
     )
-    g += _construct_one_list_property_shape_with_collection(node_prop_info)
-    return g
+    _construct_one_list_property_shape_with_collection(target, node_prop_info)
 
 
-def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
-    g = Graph(store="Oxigraph")
+def _construct_one_list_property_shape_with_collection(target: Graph, shacl_info: SHACLListInfo) -> None:
     collection_bn = BNode()
     collection_literals: list[SubjectObjectTypeAlias] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
-    Collection(g, collection_bn, collection_literals)
+    Collection(target, collection_bn, collection_literals)
     prop_shape: list[tuple[PropertyTypeAlias, SubjectObjectTypeAlias]] = [
         (RDF.type, SH.PropertyShape),
         (SH.path, shacl_info.sh_path),
@@ -294,15 +282,14 @@ def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo
     ]
     prop_bn: SubjectObjectTypeAlias = BNode()
     for prop, obj in prop_shape:
-        g.add((prop_bn, prop, obj))
-    g.add((shacl_info.list_iri, SH.property, prop_bn))
-    return g
+        target.add((prop_bn, prop, obj))
+    target.add((shacl_info.list_iri, SH.property, prop_bn))
 
 
-def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
+def _construct_one_list_property_shape(target: Graph, onto: Graph, one_list: OneList) -> None:
     logger.debug(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
@@ -322,14 +309,13 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     }
     """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_iri}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
-def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
+def _construct_seqnum_is_part_of_prop_shape(target: Graph, onto: Graph) -> None:
     logger.debug("Constructing Collection Shape seqnum / isPartOf")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX dash: <http://datashapes.org/dash#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -353,5 +339,4 @@ def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
     # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
     # Therefore, we have a union query.
     if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph

@@ -37,7 +37,10 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
 
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:
-    res = _construct_link_value_shape(link_prop)
+    # Private functions take a plain in-memory Graph() as target so no Oxigraph files are created
+    # during the test run; the tests only inspect the resulting triples, not the store backend.
+    res = Graph()
+    _construct_link_value_shape(res, link_prop)
     assert len(res) == 3
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, RDF.type)) == SH.PropertyShape
@@ -45,8 +48,9 @@ def test_construct_link_value_shape(link_prop: Graph) -> None:
 
 
 def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> None:
-    res = _construct_one_property_type_text_value(
-        one_richtext_prop, "salsah-gui:Richtext", "api-shapes:FormattedTextValue_ClassShape"
+    res = Graph()
+    _construct_one_property_type_text_value(
+        res, one_richtext_prop, "salsah-gui:Richtext", "api-shapes:FormattedTextValue_ClassShape"
     )
     assert len(res) == 3
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.path)) == ONTO.testRichtext
@@ -55,13 +59,15 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
 
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
-    res = _add_property_shapes_to_class_shapes(card_1)
+    res = Graph()
+    _add_property_shapes_to_class_shapes(res, card_1)
     expected_props = {ONTO.testBoolean_PropShape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 
 def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> None:
-    res = _construct_value_type_shapes_to_class_shapes(card_1)
+    res = Graph()
+    _construct_value_type_shapes_to_class_shapes(res, card_1)
     prop_iri = ONTO.testBoolean_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testBoolean
     assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.BooleanValue
@@ -70,17 +76,20 @@ def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> N
 
 
 def test_construct_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
-    res = _construct_value_type_shapes_to_class_shapes(link_prop_card_1)
+    res = Graph()
+    _construct_value_type_shapes_to_class_shapes(res, link_prop_card_1)
     assert len(res) == 0
 
 
 def test_construct_link_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> None:
-    res = _construct_link_value_type_shapes_to_class_shapes(card_1)
+    res = Graph()
+    _construct_link_value_type_shapes_to_class_shapes(res, card_1)
     assert len(res) == 0
 
 
 def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
-    res = _construct_link_value_type_shapes_to_class_shapes(link_prop_card_1)
+    res = Graph()
+    _construct_link_value_type_shapes_to_class_shapes(res, link_prop_card_1)
     prop_iri = ONTO.testHasLinkToCardOneResource_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testHasLinkToCardOneResource
     assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.LinkValue
@@ -95,7 +104,8 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -105,7 +115,8 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 \\ or", "http://rdfh.ch/lists/9999/l2n1or")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -115,7 +126,8 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode('l2n2"', "http://rdfh.ch/lists/9999/l2n2")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -125,7 +137,8 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n3'", "http://rdfh.ch/lists/9999/l2n3")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -135,7 +148,8 @@ class TestConstructListNode:
             list_name="secondList \\ ",
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -145,7 +159,8 @@ class TestConstructListNode:
             list_name='secondList " ',
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -155,7 +170,8 @@ class TestConstructListNode:
             list_name='secondList " ',
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
@@ -165,7 +181,8 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
         assert next(result.objects(nodeshape_iri, SH.severity)) == SH.Violation
@@ -190,7 +207,8 @@ class TestConstructListNode:
                 OneNode("three", "http://rdfh.ch/lists/9999/3"),
             ],
         )
-        result = _construct_one_list_node_shape(test_list)
+        result = Graph()
+        _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
         assert next(result.objects(nodeshape_iri, SH.severity)) == SH.Violation

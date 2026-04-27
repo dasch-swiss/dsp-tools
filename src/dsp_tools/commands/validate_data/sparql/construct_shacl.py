@@ -41,33 +41,32 @@ def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
     props = ["isLinkProperty", "isEditable", "isLinkValueProperty"]
     g = Graph(store="Oxigraph")
     for p in props:
-        g += _get_one_relevant_knora_subset(knora_api, p)
+        _get_one_relevant_knora_subset(g, knora_api, p)
     return g
 
 
-def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
+def _get_one_relevant_knora_subset(target: Graph, knora_api: Graph, knora_prop: str) -> None:
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
     CONSTRUCT {
-    
+
       ?focusProp a owl:ObjectProperty ;
                  knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
-      
+
     } WHERE {
-      
+
       ?focusProp a owl:ObjectProperty ;
                  knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
-      
+
     }
     """ % {"knora_prop": knora_prop}  # noqa: UP031 (printf-string-formatting)
     if results_graph := knora_api.query(query_s).graph:
-        return results_graph
-    return Graph(store="Oxigraph")
+        target += results_graph
 
 
 def _get_defined_permissions_shape(permission_ids: list[str]) -> Graph:

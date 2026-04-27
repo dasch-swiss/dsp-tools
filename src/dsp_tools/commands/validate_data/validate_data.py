@@ -351,11 +351,11 @@ def _save_message_df_get_message_body(df: pd.DataFrame, severity: str, file_path
 def _save_unexpected_results_and_inform_user(report: ValidationReportGraphs, filepath: Path) -> None:
     timestamp = f"{datetime.now()!s}_"
     save_path = filepath.parent / f"{timestamp}_validation_result.ttl"
-    report.validation_graph.serialize(save_path)
+    report.validation_graph.serialize(save_path, format="ox-ttl")
     shacl_p = filepath.parent / f"{timestamp}_shacl.ttl"
-    report.shacl_graph.serialize(shacl_p)
+    report.shacl_graph.serialize(shacl_p, format="ox-ttl")
     data_p = filepath.parent / f"{timestamp}_data.ttl"
-    report.data_graph.serialize(data_p)
+    report.data_graph.serialize(data_p, format="ox-ttl")
     msg = (
         f"\nPlease contact the development team with the files starting with the timestamp '{timestamp}' "
         f"in the directory '{filepath.parent}'."

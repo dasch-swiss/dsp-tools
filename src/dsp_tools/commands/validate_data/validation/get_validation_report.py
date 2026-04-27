@@ -77,12 +77,12 @@ def _call_shacl_cli(
 
 def _create_and_write_graphs(rdf_graphs: RDFGraphs, tmp_path: Path) -> None:
     logger.debug("Serialise RDF graphs into turtle strings")
-    data_str = rdf_graphs.data.serialize(format="ttl")
-    ontos_str = rdf_graphs.ontos.serialize(format="ttl")
-    card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
-    content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
-    knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
-    res_in_db_str = rdf_graphs.resources_in_db_graph.serialize(format="ttl")
+    data_str = rdf_graphs.data.serialize(format="ox-ttl")
+    ontos_str = rdf_graphs.ontos.serialize(format="ox-ttl")
+    card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ox-ttl")
+    content_shape_str = rdf_graphs.content_shapes.serialize(format="ox-ttl")
+    knora_api_str = rdf_graphs.knora_api.serialize(format="ox-ttl")
+    res_in_db_str = rdf_graphs.resources_in_db_graph.serialize(format="ox-ttl")
     turtle_paths_and_graphs = [
         (tmp_path / CARDINALITY_DATA_TTL, data_str),
         (tmp_path / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),

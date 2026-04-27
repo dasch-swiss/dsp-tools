@@ -44,7 +44,7 @@ def _call_shacl_cli(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> ValidationReportGraphs:
     _create_and_write_graphs(rdf_graphs, tmp_path)
-    results_graph = Graph()
+    results_graph = Graph(store="Oxigraph")
     conforms = True
     card_files = ValidationFilePaths(
         directory=tmp_path,

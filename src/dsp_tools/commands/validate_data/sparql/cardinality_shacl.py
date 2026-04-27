@@ -22,7 +22,7 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
         Graph with the resource class node shapes
     """
     logger.debug("Constructing cardinality shapes for the ontology.")
-    g = Graph()
+    g = Graph(store="Oxigraph")
     g += _construct_resource_nodeshape(onto)
     g += _construct_all_cardinalities(onto)
     return g
@@ -63,11 +63,11 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
-    g = Graph()
+    g = Graph(store="Oxigraph")
     g += _construct_1_cardinality(onto_graph)
     g += _construct_0_1_cardinality(onto_graph)
     g += _construct_1_n_cardinality(onto_graph)
@@ -109,7 +109,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
@@ -146,7 +146,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
@@ -182,7 +182,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
@@ -215,7 +215,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def get_list_of_potentially_problematic_cardinalities(

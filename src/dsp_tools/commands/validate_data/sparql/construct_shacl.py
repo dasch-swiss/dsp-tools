@@ -39,7 +39,7 @@ def construct_shapes_graphs(
 def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
     logger.debug("Getting relevant knora-api subset")
     props = ["isLinkProperty", "isEditable", "isLinkValueProperty"]
-    g = Graph()
+    g = Graph(store="Oxigraph")
     for p in props:
         g += _get_one_relevant_knora_subset(knora_api, p)
     return g
@@ -67,11 +67,11 @@ def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
     """ % {"knora_prop": knora_prop}  # noqa: UP031 (printf-string-formatting)
     if results_graph := knora_api.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _get_defined_permissions_shape(permission_ids: list[str]) -> Graph:
-    g = Graph()
+    g = Graph(store="Oxigraph")
     permissions = " ".join([f'"{x}"' for x in permission_ids])
     msg = f"You must reference one of the pre-defined permissions: {', '.join(permission_ids)}"
     shape = f"""

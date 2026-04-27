@@ -27,7 +27,7 @@ def construct_property_shapes(onto: Graph, project_lists: list[OneList]) -> Grap
         Graph with the property shapes
     """
     logger.debug("Constructing property shapes for ontology.")
-    g = Graph()
+    g = Graph(store="Oxigraph")
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
@@ -69,7 +69,7 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
@@ -109,7 +109,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
@@ -145,7 +145,7 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_link_value_shape(onto: Graph) -> Graph:
@@ -174,7 +174,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_link_value_node_shape(onto: Graph) -> Graph:
@@ -209,7 +209,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_property_type_text_value(onto: Graph) -> Graph:
@@ -218,7 +218,7 @@ def _construct_property_type_text_value(onto: Graph) -> Graph:
         "salsah-gui:Textarea": "api-shapes:TextareaTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
     }
-    g = Graph()
+    g = Graph(store="Oxigraph")
     for object_type, shacl_shape in property_type_mapper.items():
         g += _construct_one_property_type_text_value(onto, object_type, shacl_shape)
     return g
@@ -250,11 +250,11 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     """ % {"gui_element": gui_element, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
-    lists_graph = Graph()
+    lists_graph = Graph(store="Oxigraph")
     for one_list in project_lists:
         lists_graph += _construct_one_list_node_shape(one_list)
     for one_list in project_lists:
@@ -263,7 +263,7 @@ def _construct_list_shapes(onto: Graph, project_lists: list[OneList]) -> Graph:
 
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    g = Graph()
+    g = Graph(store="Oxigraph")
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
@@ -282,7 +282,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
 
 
 def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
-    g = Graph()
+    g = Graph(store="Oxigraph")
     collection_bn = BNode()
     collection_literals: list[SubjectObjectTypeAlias] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
     Collection(g, collection_bn, collection_literals)
@@ -323,7 +323,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_iri}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
@@ -354,4 +354,4 @@ def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
     # Therefore, we have a union query.
     if results_graph := onto.query(query_s).graph:
         return results_graph
-    return Graph()
+    return Graph(store="Oxigraph")

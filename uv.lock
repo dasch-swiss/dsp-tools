@@ -500,7 +500,7 @@ requires-dist = [
     { name = "loguru", specifier = "~=0.7.3" },
     { name = "lxml" },
     { name = "openpyxl" },
-    { name = "oxrdflib", specifier = ">=0.5.0" },
+    { name = "oxrdflib", specifier = "~=0.5.0" },
     { name = "packaging" },
     { name = "pandas", extras = ["excel"] },
     { name = "polars" },

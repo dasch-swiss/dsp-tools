@@ -3,6 +3,11 @@ import regex
 from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
+# Inside a `<footnote content="...">` attribute, the nested `<a href="...">` is XML-escaped,
+# so the attribute delimiter around the IRI placeholder can be either `"` or `&quot;`.
+_HREF_QUOTE = r'(?:"|&quot;)'
+_INTERNAL_ID_PATTERN = rf"href={_HREF_QUOTE}IRI:(.*?):IRI{_HREF_QUOTE}"
+
 
 def prepare_richtext_string_for_upload(richtext_str: str, iri_resolver: IriResolver) -> str:
     richtext_str, ids_not_found = replace_ids_if_found(richtext_str, iri_resolver)
@@ -26,11 +31,13 @@ def replace_ids_if_found(richtext_str: str, iri_resolver: IriResolver) -> tuple[
 
 
 def _replace_one_id(txt: str, id_: str, iri: str) -> str:
-    return txt.replace(f'href="IRI:{id_}:IRI"', f'href="{iri}"')
+    txt = txt.replace(f'href="IRI:{id_}:IRI"', f'href="{iri}"')
+    txt = txt.replace(f"href=&quot;IRI:{id_}:IRI&quot;", f"href=&quot;{iri}&quot;")
+    return txt
 
 
 def find_internal_ids(txt: str) -> set[str]:
-    return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=txt))
+    return set(regex.findall(pattern=_INTERNAL_ID_PATTERN, string=txt))
 
 
 def _richtext_as_xml(richtext_str: str) -> str:

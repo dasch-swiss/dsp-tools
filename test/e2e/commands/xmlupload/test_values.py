@@ -391,6 +391,16 @@ class TestTextParsing:
         )
         assert returned_str == expected_str
 
+    def test_res_with_internal_link_in_footnote(self, g_text_parsing, onto_iri_9999):
+        target_iri = util_get_res_iri_from_label(g_text_parsing, "target_resource_with_id")
+        prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
+        expected_str = (
+            f'Text <footnote content="Footnote &lt;a class=&quot;salsah-link&quot; '
+            f'href=&quot;{target_iri}&quot;&gt;link&lt;/a&gt;"/> end text'
+        )
+        returned_str = self._util_get_string_value(g_text_parsing, "res_with_internal_link_in_footnote", prop_iri)
+        assert expected_str in returned_str
+
     def test_special_characters_in_richtext(self, g_text_parsing, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testRichtext")
         returned_str = self._util_get_string_value(g_text_parsing, "res_richtext_special_characters", prop_iri)

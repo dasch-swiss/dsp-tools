@@ -4,6 +4,7 @@
     "apiHost": "0.0.0.0",
     "apiPort": 3333,
     "apiPath": "",
+    "logErrors": false,
     "iiifProtocol": "http",
     "iiifHost": "0.0.0.0",
     "iiifPort": 1024,
@@ -11,7 +12,6 @@
     "ingestUrl": "http://0.0.0.0:3340",
     "geonameToken": "knora",
     "jsonWebToken": "",
-    "logErrors": false,
     "iriBase": "http://rdfh.ch",
     "instrumentation": {
       "environment": "production",
@@ -32,11 +32,7 @@
           "enabled": false,
           "disabledLevels": []
         },
-        "tracingCorsUrls": [],
-        "otlp": {
-          "logsUrl": "",
-          "tracesUrl": ""
-        }
+        "tracingCorsUrls": []
       }
     },
     "featureFlags": {

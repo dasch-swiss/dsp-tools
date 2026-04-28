@@ -125,14 +125,30 @@ def test_create_default_permissions_with_limited_view_specific_classes(
     assert prop_to_class[_AUDIO_FILE_VALUE] == AUDIO_IRI
 
 
-def test_create_default_permissions_with_limited_view_still_image_only(
-    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
+@pytest.mark.parametrize(
+    ("classified_kwargs", "expected_prop", "expected_class"),
+    [
+        (
+            {"still_image": {STILL_IMAGE_IRI}, "moving_image": set(), "audio": set()},
+            _STILL_IMAGE_FILE_VALUE,
+            STILL_IMAGE_IRI,
+        ),
+        (
+            {"still_image": set(), "moving_image": {MOVING_IMAGE_IRI}, "audio": set()},
+            _MOVING_IMAGE_FILE_VALUE,
+            MOVING_IMAGE_IRI,
+        ),
+        ({"still_image": set(), "moving_image": set(), "audio": {AUDIO_IRI}}, _AUDIO_FILE_VALUE, AUDIO_IRI),
+    ],
+)
+def test_create_default_permissions_with_single_media_type(
+    mock_permissions_client: MagicMock,
+    created_iris: CreatedIriCollection,
+    classified_kwargs: dict[str, set[str]],
+    expected_prop: str,
+    expected_class: str,
 ) -> None:
-    limited_view = LimitedViewClasses(
-        still_image={STILL_IMAGE_IRI},
-        moving_image=set(),
-        audio=set(),
-    )
+    limited_view = LimitedViewClasses(**classified_kwargs)
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
@@ -150,66 +166,8 @@ def test_create_default_permissions_with_limited_view_still_image_only(
     limited_view_calls = [c[0][0] for c in calls if c[0][0].get("forProperty") in _ALL_FILE_VALUE_PROPS]
 
     assert len(limited_view_calls) == 1
-    assert limited_view_calls[0]["forProperty"] == _STILL_IMAGE_FILE_VALUE
-    assert limited_view_calls[0]["forResourceClass"] == STILL_IMAGE_IRI
-
-
-def test_create_default_permissions_with_limited_view_moving_image_only(
-    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
-) -> None:
-    limited_view = LimitedViewClasses(
-        still_image=set(),
-        moving_image={MOVING_IMAGE_IRI},
-        audio=set(),
-    )
-
-    result = create_default_permissions(
-        perm_client=mock_permissions_client,
-        validated_permissions=ParsedPermissions(
-            default_permissions=DefaultPermissions.PUBLIC,
-            overrule_private=None,
-            overrule_limited_view=limited_view,
-        ),
-        created_iris=created_iris,
-    )
-
-    assert result is True
-
-    calls = mock_permissions_client.create_new_doap.call_args_list
-    limited_view_calls = [c[0][0] for c in calls if c[0][0].get("forProperty") in _ALL_FILE_VALUE_PROPS]
-
-    assert len(limited_view_calls) == 1
-    assert limited_view_calls[0]["forProperty"] == _MOVING_IMAGE_FILE_VALUE
-    assert limited_view_calls[0]["forResourceClass"] == MOVING_IMAGE_IRI
-
-
-def test_create_default_permissions_with_limited_view_audio_only(
-    mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
-) -> None:
-    limited_view = LimitedViewClasses(
-        still_image=set(),
-        moving_image=set(),
-        audio={AUDIO_IRI},
-    )
-
-    result = create_default_permissions(
-        perm_client=mock_permissions_client,
-        validated_permissions=ParsedPermissions(
-            default_permissions=DefaultPermissions.PUBLIC,
-            overrule_private=None,
-            overrule_limited_view=limited_view,
-        ),
-        created_iris=created_iris,
-    )
-
-    assert result is True
-
-    calls = mock_permissions_client.create_new_doap.call_args_list
-    limited_view_calls = [c[0][0] for c in calls if c[0][0].get("forProperty") in _ALL_FILE_VALUE_PROPS]
-
-    assert len(limited_view_calls) == 1
-    assert limited_view_calls[0]["forProperty"] == _AUDIO_FILE_VALUE
-    assert limited_view_calls[0]["forResourceClass"] == AUDIO_IRI
+    assert limited_view_calls[0]["forProperty"] == expected_prop
+    assert limited_view_calls[0]["forResourceClass"] == expected_class
 
 
 def test_create_default_permissions_no_overrule(

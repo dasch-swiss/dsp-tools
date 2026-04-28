@@ -5,6 +5,7 @@ import json
 from collections import Counter
 from collections import defaultdict
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -186,9 +187,9 @@ def _complex_parsed_project_validation(
     if duplicate_cards := _check_for_duplicate_properties_in_cardinalities_for_one_resource(cardinalities_flattened):
         problems.append(duplicate_cards)
     # PERMISSIONS
-    still_image_classes, moving_image_classes, audio_classes = _get_limited_view_classes(cls_flattened)
+    limited_view_classes = _get_limited_view_classes(cls_flattened)
     perm_problems, validated_permissions = _check_for_invalid_default_permissions_overrule(
-        parsed_permissions, prop_iris, cls_iris, still_image_classes, moving_image_classes, audio_classes
+        parsed_permissions, prop_iris, cls_iris, limited_view_classes
     )
     if perm_problems:
         problems.append(perm_problems)
@@ -322,9 +323,7 @@ def _check_for_invalid_default_permissions_overrule(
     parsed_permissions: ParsedPermissions,
     properties: list[str],
     classes: list[str],
-    still_image_classes: set[str],
-    moving_image_classes: set[str],
-    audio_classes: set[str],
+    limited_view_classes: LimitedViewClasses,
 ) -> tuple[CollectedProblems | None, ValidatedPermissions]:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
         return None, ValidatedPermissions(
@@ -348,9 +347,7 @@ def _check_for_invalid_default_permissions_overrule(
             limited_problems, classified = _check_limited_view_selection(
                 parsed_permissions.overrule_limited_view,
                 defined_iris_in_ontology,
-                still_image_classes,
-                moving_image_classes,
-                audio_classes,
+                limited_view_classes,
             )
             problems.extend(limited_problems)
             validated_limited_view = classified
@@ -375,9 +372,7 @@ def _check_for_invalid_default_permissions_overrule(
 def _check_limited_view_selection(
     limited_view: LimitedViewPermissionsSelection,
     defined_iris_in_ontology: set[str],
-    still_image_classes: set[str],
-    moving_image_classes: set[str],
-    audio_classes: set[str],
+    limited_view_classes: LimitedViewClasses,
 ) -> tuple[list[CreateProblem], ClassifiedLimitedViewPermissions]:
     problems: list[CreateProblem] = []
     limited_iris = set(limited_view.limited_selection)
@@ -387,15 +382,17 @@ def _check_limited_view_selection(
     problems.extend(undefined_iri_problems)
     # Exclude unknown iris to avoid duplicate errors: they are not valid representation subclasses either
     known_iris = limited_iris - unknown_iris
-    all_valid_classes = still_image_classes | moving_image_classes | audio_classes
+    all_valid_classes = (
+        limited_view_classes.still_image | limited_view_classes.moving_image | limited_view_classes.audio
+    )
     _, not_valid_problems = _get_unknown_iris_and_problem(
         known_iris, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
     )
     problems.extend(not_valid_problems)
     classified = ClassifiedLimitedViewPermissions(
-        still_image=[iri for iri in known_iris if iri in still_image_classes],
-        moving_image=[iri for iri in known_iris if iri in moving_image_classes],
-        audio=[iri for iri in known_iris if iri in audio_classes],
+        still_image=[iri for iri in known_iris if iri in limited_view_classes.still_image],
+        moving_image=[iri for iri in known_iris if iri in limited_view_classes.moving_image],
+        audio=[iri for iri in known_iris if iri in limited_view_classes.audio],
     )
     return problems, classified
 
@@ -408,7 +405,14 @@ def _get_unknown_iris_and_problem(
     return set(), []
 
 
-def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[str], set[str], set[str]]:
+@dataclass
+class LimitedViewClasses:
+    still_image: set[str]
+    moving_image: set[str]
+    audio: set[str]
+
+
+def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> LimitedViewClasses:
     parent_iris = (
         f"{KNORA_API_PREFIX}StillImageRepresentation",
         f"{KNORA_API_PREFIX}MovingImageRepresentation",
@@ -420,11 +424,11 @@ def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[st
         for super_cls in cls.supers:
             children_by_parent[super_cls].append(cls.name)
 
-    def _collect_all_descendants(parent_iri: str, visited: set[str]) -> None:
+    def _collect_all_descendants(parent_iri: str, accumulated: set[str]) -> None:
         for child_iri in children_by_parent.get(parent_iri, []):
-            if child_iri not in visited:  # Prevent infinite recursion on cycles
-                visited.add(child_iri)
-                _collect_all_descendants(child_iri, visited)
+            if child_iri not in accumulated:  # Prevent infinite recursion on cycles
+                accumulated.add(child_iri)
+                _collect_all_descendants(child_iri, accumulated)
 
     descendants: list[set[str]] = []
     for parent_iri in parent_iris:
@@ -432,7 +436,7 @@ def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[st
         _collect_all_descendants(parent_iri, collected)
         descendants.append(collected)
     still_image, moving_image, audio = descendants
-    return still_image, moving_image, audio
+    return LimitedViewClasses(still_image=still_image, moving_image=moving_image, audio=audio)
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

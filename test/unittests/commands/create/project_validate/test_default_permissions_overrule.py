@@ -9,6 +9,7 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
+from dsp_tools.commands.create.project_validate import LimitedViewClasses
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.commands.create.project_validate import _get_limited_view_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -51,8 +52,19 @@ def audio_classes() -> set[str]:
     return {TEST_AUDIO}
 
 
+@pytest.fixture
+def limited_view_classes(
+    still_image_classes: set[str], moving_image_classes: set[str], audio_classes: set[str]
+) -> LimitedViewClasses:
+    return LimitedViewClasses(
+        still_image=still_image_classes,
+        moving_image=moving_image_classes,
+        audio=audio_classes,
+    )
+
+
 def test_check_overrule_no_overrule_private(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PRIVATE,
@@ -60,7 +72,7 @@ def test_check_overrule_no_overrule_private(
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert isinstance(validated, ValidatedPermissions)
@@ -68,7 +80,7 @@ def test_check_overrule_no_overrule_private(
 
 
 def test_check_overrule_no_overrule_public(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -76,14 +88,14 @@ def test_check_overrule_no_overrule_public(
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
 def test_check_overrule_no_limited_view(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -91,14 +103,14 @@ def test_check_overrule_no_limited_view(
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
 def test_check_overrule_limited_view_all(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -106,14 +118,14 @@ def test_check_overrule_limited_view_all(
         overrule_limited_view=GlobalLimitedViewPermission.ALL,
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert validated.overrule_limited_view == GlobalLimitedViewPermission.ALL
 
 
 def test_check_overrule_valid_still_image(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -121,7 +133,7 @@ def test_check_overrule_valid_still_image(
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
@@ -131,7 +143,7 @@ def test_check_overrule_valid_still_image(
 
 
 def test_check_overrule_valid_moving_image(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -139,7 +151,7 @@ def test_check_overrule_valid_moving_image(
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_MOVING_IMAGE]),
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
@@ -149,7 +161,7 @@ def test_check_overrule_valid_moving_image(
 
 
 def test_check_overrule_valid_audio(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -157,7 +169,7 @@ def test_check_overrule_valid_audio(
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_AUDIO]),
     )
     problems, validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
     assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
@@ -167,7 +179,7 @@ def test_check_overrule_valid_audio(
 
 
 def test_check_overrule_unknown_private(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -175,7 +187,7 @@ def test_check_overrule_unknown_private(
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
     )
     problems, _validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
@@ -184,7 +196,7 @@ def test_check_overrule_unknown_private(
 
 
 def test_check_overrule_unknown_limited_view(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -192,7 +204,7 @@ def test_check_overrule_unknown_limited_view(
         overrule_limited_view=LimitedViewPermissionsSelection([f"{ONTO_NAMESPACE_STR}Unknown"]),
     )
     problems, _validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
@@ -201,7 +213,7 @@ def test_check_overrule_unknown_limited_view(
 
 
 def test_check_overrule_invalid_wrong_superclass(
-    known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
 ) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
@@ -209,7 +221,7 @@ def test_check_overrule_invalid_wrong_superclass(
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_RESOURCE]),
     )
     problems, _validated = _check_for_invalid_default_permissions_overrule(
-        perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
+        perm, known_props, known_classes, limited_view_classes
     )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
@@ -235,10 +247,10 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == set()
-        assert moving_image == set()
-        assert audio == set()
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == set()
+        assert result.audio == set()
 
     def test_direct_still_image_inheritance(self) -> None:
         classes = [
@@ -257,10 +269,10 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}Painting"}
-        assert moving_image == set()
-        assert audio == set()
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}Painting"}
+        assert result.moving_image == set()
+        assert result.audio == set()
 
     def test_direct_moving_image_inheritance(self) -> None:
         classes = [
@@ -272,10 +284,10 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == set()
-        assert moving_image == {f"{ONTO_NAMESPACE_STR}Video"}
-        assert audio == set()
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == {f"{ONTO_NAMESPACE_STR}Video"}
+        assert result.audio == set()
 
     def test_direct_audio_inheritance(self) -> None:
         classes = [
@@ -287,10 +299,10 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == set()
-        assert moving_image == set()
-        assert audio == {f"{ONTO_NAMESPACE_STR}Recording"}
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == set()
+        assert result.audio == {f"{ONTO_NAMESPACE_STR}Recording"}
 
     def test_deep_still_image_inheritance(self) -> None:
         classes = [
@@ -344,8 +356,8 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == {
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {
             f"{ONTO_NAMESPACE_STR}Level1",
             f"{ONTO_NAMESPACE_STR}Level2",
             f"{ONTO_NAMESPACE_STR}Level3",
@@ -354,8 +366,8 @@ class TestGetLimitedViewClasses:
             f"{ONTO_NAMESPACE_STR}Level6",
             f"{ONTO_NAMESPACE_STR}Level7",
         }
-        assert moving_image == set()
-        assert audio == set()
+        assert result.moving_image == set()
+        assert result.audio == set()
 
     def test_complex_multi_branch_hierarchy(self) -> None:
         classes = [
@@ -409,8 +421,8 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == {
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {
             f"{ONTO_NAMESPACE_STR}Photo",
             f"{ONTO_NAMESPACE_STR}Painting",
             f"{ONTO_NAMESPACE_STR}DigitalPhoto",
@@ -419,8 +431,8 @@ class TestGetLimitedViewClasses:
             f"{ONTO_NAMESPACE_STR}Watercolor",
             f"{ONTO_NAMESPACE_STR}HDRPhoto",
         }
-        assert moving_image == set()
-        assert audio == set()
+        assert result.moving_image == set()
+        assert result.audio == set()
 
     def test_mixed_representation_types(self) -> None:
         classes = [
@@ -467,7 +479,7 @@ class TestGetLimitedViewClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        still_image, moving_image, audio = _get_limited_view_classes(classes)
-        assert still_image == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}DigitalPhoto"}
-        assert moving_image == {f"{ONTO_NAMESPACE_STR}Video"}
-        assert audio == {f"{ONTO_NAMESPACE_STR}Recording"}
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}DigitalPhoto"}
+        assert result.moving_image == {f"{ONTO_NAMESPACE_STR}Video"}
+        assert result.audio == {f"{ONTO_NAMESPACE_STR}Recording"}

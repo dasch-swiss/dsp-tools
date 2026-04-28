@@ -169,15 +169,15 @@ def test_categorize_doaps_valid_cases(
     assert result is not None
     assert result.class_doaps == [class_doap_private]
     assert result.prop_doaps == [prop_doap_private]
-    assert result.has_img_all_classes_doaps == [img_all_doap]
-    assert result.has_img_specific_class_doaps == []
+    assert result.limited_view_all_classes_doaps == [img_all_doap]
+    assert result.limited_view_specific_class_doaps == []
 
     result2 = _categorize_doaps([class_doap_private, img_specific_doap])
     assert result2 is not None
     assert result2.class_doaps == [class_doap_private]
     assert result2.prop_doaps == []
-    assert result2.has_img_all_classes_doaps == []
-    assert result2.has_img_specific_class_doaps == [img_specific_doap]
+    assert result2.limited_view_all_classes_doaps == []
+    assert result2.limited_view_specific_class_doaps == [img_specific_doap]
 
 
 def test_categorize_doaps_empty() -> None:
@@ -185,8 +185,8 @@ def test_categorize_doaps_empty() -> None:
     assert result is not None
     assert len(result.class_doaps) == 0
     assert len(result.prop_doaps) == 0
-    assert len(result.has_img_all_classes_doaps) == 0
-    assert len(result.has_img_specific_class_doaps) == 0
+    assert len(result.limited_view_all_classes_doaps) == 0
+    assert len(result.limited_view_specific_class_doaps) == 0
 
 
 @pytest.mark.parametrize(
@@ -248,8 +248,8 @@ def test_validate_doap_categories_valid_all_images(
     categories = DoapCategories(
         class_doaps=[class_doap_private],
         prop_doaps=[prop_doap_private],
-        has_img_all_classes_doaps=[img_all_doap],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[img_all_doap],
+        limited_view_specific_class_doaps=[],
     )
     assert _validate_doap_categories(categories)
 
@@ -260,8 +260,8 @@ def test_validate_doap_categories_valid_specific_images(
     categories = DoapCategories(
         class_doaps=[class_doap_private],
         prop_doaps=[prop_doap_private],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[img_specific_doap],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[img_specific_doap],
     )
     assert _validate_doap_categories(categories)
 
@@ -276,8 +276,8 @@ def test_validate_doap_categories_invalid_private_wrong_count(caplog: pytest.Log
     categories = DoapCategories(
         class_doaps=[class_doap],
         prop_doaps=[],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _validate_doap_categories(categories)
@@ -296,8 +296,8 @@ def test_validate_doap_categories_invalid_private_wrong_names(caplog: pytest.Log
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[prop_doap],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _validate_doap_categories(categories)
@@ -316,8 +316,8 @@ def test_validate_doap_categories_invalid_limited_view_wrong_count(caplog: pytes
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[img_doap],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[img_doap],
+        limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _validate_doap_categories(categories)
@@ -344,8 +344,8 @@ def test_validate_doap_categories_logs_all_invalid(caplog: pytest.LogCaptureFixt
     categories = DoapCategories(
         class_doaps=[bad_private],
         prop_doaps=[bad_private2],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _validate_doap_categories(categories)
@@ -365,8 +365,8 @@ def test_construct_overrule_object_private_only() -> None:
     categories = DoapCategories(
         class_doaps=[class_doap],
         prop_doaps=[prop_doap],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[],
     )
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
@@ -383,8 +383,8 @@ def test_construct_overrule_object_limited_view_all() -> None:
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[img_doap],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[img_doap],
+        limited_view_specific_class_doaps=[],
     )
     result = _construct_overrule_object(categories, {})
     assert result == {"limited_view": "all"}
@@ -399,8 +399,8 @@ def test_construct_overrule_object_limited_view_specific() -> None:
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[img_doap],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[img_doap],
     )
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
@@ -422,8 +422,8 @@ def test_construct_overrule_object_mixed() -> None:
     categories = DoapCategories(
         class_doaps=[class_doap],
         prop_doaps=[],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[img_doap],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[img_doap],
     )
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
@@ -439,8 +439,8 @@ def test_construct_overrule_object_empty() -> None:
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[],
+        limited_view_specific_class_doaps=[],
     )
     result = _construct_overrule_object(categories, {})
     assert result == {}
@@ -452,19 +452,27 @@ def test_construct_overrule_object_invalid_multiple_all_images(caplog: pytest.Lo
         "hasPermissions": [],
     }
     img_doap2 = {
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasMovingImageFileValue",
+        "hasPermissions": [],
+    }
+    img_doap3 = {
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasAudioFileValue",
+        "hasPermissions": [],
+    }
+    img_doap4 = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[img_doap1, img_doap2],
-        has_img_specific_class_doaps=[],
+        limited_view_all_classes_doaps=[img_doap1, img_doap2, img_doap3, img_doap4],
+        limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _construct_overrule_object(categories, {})
     assert result is None
-    assert "There can only be 1 all-images DOAP" in caplog.text
+    assert "Found more limited_view DOAPs (no class restriction) than expected file value property types" in caplog.text
 
 
 def test_construct_overrule_object_invalid_mixed_image_types(caplog: pytest.LogCaptureFixture) -> None:
@@ -480,13 +488,13 @@ def test_construct_overrule_object_invalid_mixed_image_types(caplog: pytest.LogC
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        has_img_all_classes_doaps=[all_img_doap],
-        has_img_specific_class_doaps=[specific_img_doap],
+        limited_view_all_classes_doaps=[all_img_doap],
+        limited_view_specific_class_doaps=[specific_img_doap],
     )
     with caplog.at_level(logging.WARNING):
         result = _construct_overrule_object(categories, {})
     assert result is None
-    assert "If there is a DOAP for all images, there cannot be DOAPs" in caplog.text
+    assert "Cannot have both all-classes limited_view DOAPs and specific-class limited_view DOAPs" in caplog.text
 
 
 @pytest.mark.parametrize(

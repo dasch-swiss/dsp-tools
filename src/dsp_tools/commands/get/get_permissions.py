@@ -22,7 +22,8 @@ def get_default_permissions(
 
     Returns:
         "default_permissions": "public" or "private" or error message
-        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        "default_permissions_overrule": {"private": [<classes_or_props>],
+            "limited_view": ["all" or <representation_classes>]}
     """
     perm_client = PermissionsClientLive(
         server=auth.server,
@@ -111,7 +112,8 @@ def _parse_default_permissions_overrule(
 
     Returns:
         an overrule object that can be written into the JSON project definition file, in this form:
-        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        "default_permissions_overrule": {"private": [<classes_or_props>],
+            "limited_view": ["all" or <representation_classes>]}
         or None if the DOAPs do not fit into our system.
     """
     prefixes_knora_base_inverted = _convert_prefixes(prefixes)
@@ -268,8 +270,9 @@ def _construct_overrule_object(
         privates.append(_get_prefixed_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     limited_views: list[str] | Literal["all"]
-    if len(doap_categories.limited_view_all_classes_doaps) > len(_LIMITED_VIEW_FILE_VALUE_PROPS):
-        logger.warning("Found more limited_view DOAPs (no class restriction) than expected file value property types")
+    all_class_props = [d.get("forProperty") for d in doap_categories.limited_view_all_classes_doaps]
+    if len(all_class_props) != len(set(all_class_props)):
+        logger.warning("Found duplicate limited_view DOAPs (no class restriction) for the same file value property")
         return None
     if (
         len(doap_categories.limited_view_all_classes_doaps) > 0
@@ -281,8 +284,8 @@ def _construct_overrule_object(
         limited_views = "all"
     else:
         limited_views = []
-        for img_doap in doap_categories.limited_view_specific_class_doaps:
-            limited_views.append(_get_prefixed_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
+        for media_doap in doap_categories.limited_view_specific_class_doaps:
+            limited_views.append(_get_prefixed_iri(media_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str] | Literal["all"]] = {}
     if privates:

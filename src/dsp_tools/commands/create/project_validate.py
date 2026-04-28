@@ -36,6 +36,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
+from dsp_tools.commands.create.models.parsed_project import PermissionValidationResult
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
@@ -180,13 +181,13 @@ def _complex_parsed_project_validation(  # noqa: PLR0912
         problems.append(duplicate_cards)
     # PERMISSIONS
     still_image_classes, moving_image_classes, audio_classes = _get_limited_view_classes(cls_flattened)
-    perm_problem, classified = _check_for_invalid_default_permissions_overrule(
+    perm_result = _check_for_invalid_default_permissions_overrule(
         parsed_permissions, prop_iris, cls_iris, still_image_classes, moving_image_classes, audio_classes
     )
-    if perm_problem:
-        problems.append(perm_problem)
-    if classified is not None:
-        parsed_permissions.overrule_limited_view = classified
+    if perm_result.problems:
+        problems.append(perm_result.problems)
+    if perm_result.classified is not None:
+        parsed_permissions.overrule_limited_view = perm_result.classified
     potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
         props_flattened, cardinalities_flattened
     )
@@ -320,9 +321,9 @@ def _check_for_invalid_default_permissions_overrule(
     still_image_classes: set[str],
     moving_image_classes: set[str],
     audio_classes: set[str],
-) -> tuple[CollectedProblems | None, ClassifiedLimitedViewPermissions | None]:
+) -> PermissionValidationResult:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
-        return None, None
+        return PermissionValidationResult(problems=None, classified=None)
 
     defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
@@ -350,10 +351,11 @@ def _check_for_invalid_default_permissions_overrule(
         case _:
             raise UnreachableCodeError()
 
+    collected: CollectedProblems | None = None
     if problems:
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
-        return CollectedProblems(err_msg, problems), classified
-    return None, classified
+        collected = CollectedProblems(err_msg, problems)
+    return PermissionValidationResult(problems=collected, classified=classified)
 
 
 def _check_limited_view_selection(
@@ -393,9 +395,11 @@ def _get_unknown_iris_and_problem(
 
 
 def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[str], set[str], set[str]]:
-    knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
-    knora_moving_image = f"{KNORA_API_PREFIX}MovingImageRepresentation"
-    knora_audio = f"{KNORA_API_PREFIX}AudioRepresentation"
+    parent_iris = (
+        f"{KNORA_API_PREFIX}StillImageRepresentation",
+        f"{KNORA_API_PREFIX}MovingImageRepresentation",
+        f"{KNORA_API_PREFIX}AudioRepresentation",
+    )
 
     children_by_parent: dict[str, list[str]] = defaultdict(list)
     for cls in parsed_classes:
@@ -408,12 +412,12 @@ def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> tuple[set[st
                 visited.add(child_iri)
                 _collect_all_descendants(child_iri, visited)
 
-    still_image: set[str] = set()
-    _collect_all_descendants(knora_still_image, still_image)
-    moving_image: set[str] = set()
-    _collect_all_descendants(knora_moving_image, moving_image)
-    audio: set[str] = set()
-    _collect_all_descendants(knora_audio, audio)
+    descendants: list[set[str]] = []
+    for parent_iri in parent_iris:
+        collected: set[str] = set()
+        _collect_all_descendants(parent_iri, collected)
+        descendants.append(collected)
+    still_image, moving_image, audio = descendants
     return still_image, moving_image, audio
 
 

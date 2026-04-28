@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
+from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 
 
@@ -49,6 +50,12 @@ class ClassifiedLimitedViewPermissions:
     still_image: list[str]
     moving_image: list[str]
     audio: list[str]
+
+
+@dataclass
+class PermissionValidationResult:
+    problems: CollectedProblems | None
+    classified: ClassifiedLimitedViewPermissions | None
 
 
 @dataclass

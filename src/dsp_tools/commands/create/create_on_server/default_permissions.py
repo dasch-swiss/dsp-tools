@@ -145,22 +145,19 @@ def _handle_limited_view_overrule(
     overall_success = True
     match overrule_limited_view:
         case ClassifiedLimitedViewPermissions():
-            for iri in overrule_limited_view.still_image:
-                if not _create_one_limited_view_overrule(perm_client, _STILL_IMAGE_FILE_VALUE, iri):
-                    overall_success = False
-            for iri in overrule_limited_view.moving_image:
-                if not _create_one_limited_view_overrule(perm_client, _MOVING_IMAGE_FILE_VALUE, iri):
-                    overall_success = False
-            for iri in overrule_limited_view.audio:
-                if not _create_one_limited_view_overrule(perm_client, _AUDIO_FILE_VALUE, iri):
-                    overall_success = False
+            groups = [
+                (_STILL_IMAGE_FILE_VALUE, overrule_limited_view.still_image),
+                (_MOVING_IMAGE_FILE_VALUE, overrule_limited_view.moving_image),
+                (_AUDIO_FILE_VALUE, overrule_limited_view.audio),
+            ]
+            for prop_iri, iris in groups:
+                for iri in iris:
+                    if not _create_one_limited_view_overrule(perm_client, prop_iri, iri):
+                        overall_success = False
         case GlobalLimitedViewPermission.ALL:
-            if not _create_one_limited_view_overrule(perm_client, _STILL_IMAGE_FILE_VALUE, None):
-                overall_success = False
-            if not _create_one_limited_view_overrule(perm_client, _MOVING_IMAGE_FILE_VALUE, None):
-                overall_success = False
-            if not _create_one_limited_view_overrule(perm_client, _AUDIO_FILE_VALUE, None):
-                overall_success = False
+            for prop_iri in (_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE):
+                if not _create_one_limited_view_overrule(perm_client, prop_iri, None):
+                    overall_success = False
         case _:
             raise UnreachableCodeError(f"Unknown overrule_limited_view: {overrule_limited_view!s}")
     return overall_success

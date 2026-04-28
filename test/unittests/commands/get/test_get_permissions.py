@@ -45,7 +45,7 @@ def prop_doap_private() -> dict[str, Any]:
 
 
 @pytest.fixture
-def img_all_doap() -> dict[str, Any]:
+def still_image_all_doap() -> dict[str, Any]:
     return {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "forProject": PROJ_IRI,
@@ -59,7 +59,7 @@ def img_all_doap() -> dict[str, Any]:
 
 
 @pytest.fixture
-def img_specific_doap() -> dict[str, Any]:
+def still_image_specific_doap() -> dict[str, Any]:
     return {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
@@ -220,22 +220,22 @@ def test_convert_prefixes(input_prefixes: dict[str, str], expected: dict[str, st
 def test_categorize_doaps_valid_cases(
     class_doap_private: dict[str, Any],
     prop_doap_private: dict[str, Any],
-    img_all_doap: dict[str, Any],
-    img_specific_doap: dict[str, Any],
+    still_image_all_doap: dict[str, Any],
+    still_image_specific_doap: dict[str, Any],
 ) -> None:
-    result = _categorize_doaps([class_doap_private, prop_doap_private, img_all_doap])
+    result = _categorize_doaps([class_doap_private, prop_doap_private, still_image_all_doap])
     assert result is not None
     assert result.class_doaps == [class_doap_private]
     assert result.prop_doaps == [prop_doap_private]
-    assert result.limited_view_all_classes_doaps == [img_all_doap]
+    assert result.limited_view_all_classes_doaps == [still_image_all_doap]
     assert result.limited_view_specific_class_doaps == []
 
-    result2 = _categorize_doaps([class_doap_private, img_specific_doap])
+    result2 = _categorize_doaps([class_doap_private, still_image_specific_doap])
     assert result2 is not None
     assert result2.class_doaps == [class_doap_private]
     assert result2.prop_doaps == []
     assert result2.limited_view_all_classes_doaps == []
-    assert result2.limited_view_specific_class_doaps == [img_specific_doap]
+    assert result2.limited_view_specific_class_doaps == [still_image_specific_doap]
 
 
 def test_categorize_doaps_empty() -> None:
@@ -301,25 +301,25 @@ def test_categorize_doaps_mixed_valid_and_invalid(
 
 
 def test_validate_doap_categories_valid_all_images(
-    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], img_all_doap: dict[str, Any]
+    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], still_image_all_doap: dict[str, Any]
 ) -> None:
     categories = DoapCategories(
         class_doaps=[class_doap_private],
         prop_doaps=[prop_doap_private],
-        limited_view_all_classes_doaps=[img_all_doap],
+        limited_view_all_classes_doaps=[still_image_all_doap],
         limited_view_specific_class_doaps=[],
     )
     assert _validate_doap_categories(categories)
 
 
 def test_validate_doap_categories_valid_specific_images(
-    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], img_specific_doap: dict[str, Any]
+    class_doap_private: dict[str, Any], prop_doap_private: dict[str, Any], still_image_specific_doap: dict[str, Any]
 ) -> None:
     categories = DoapCategories(
         class_doaps=[class_doap_private],
         prop_doaps=[prop_doap_private],
         limited_view_all_classes_doaps=[],
-        limited_view_specific_class_doaps=[img_specific_doap],
+        limited_view_specific_class_doaps=[still_image_specific_doap],
     )
     assert _validate_doap_categories(categories)
 
@@ -364,7 +364,7 @@ def test_validate_doap_categories_invalid_private_wrong_names(caplog: pytest.Log
 
 
 def test_validate_doap_categories_invalid_limited_view_wrong_count(caplog: pytest.LogCaptureFixture) -> None:
-    img_doap = {
+    still_image_doap = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [
             {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
@@ -374,7 +374,7 @@ def test_validate_doap_categories_invalid_limited_view_wrong_count(caplog: pytes
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        limited_view_all_classes_doaps=[img_doap],
+        limited_view_all_classes_doaps=[still_image_doap],
         limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
@@ -434,14 +434,14 @@ def test_construct_overrule_object_private_only() -> None:
 
 
 def test_construct_overrule_object_limited_view_all() -> None:
-    img_doap = {
+    still_image_doap = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        limited_view_all_classes_doaps=[img_doap],
+        limited_view_all_classes_doaps=[still_image_doap],
         limited_view_specific_class_doaps=[],
     )
     result = _construct_overrule_object(categories, {})
@@ -449,7 +449,7 @@ def test_construct_overrule_object_limited_view_all() -> None:
 
 
 def test_construct_overrule_object_limited_view_specific() -> None:
-    img_doap = {
+    still_image_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -458,7 +458,7 @@ def test_construct_overrule_object_limited_view_specific() -> None:
         class_doaps=[],
         prop_doaps=[],
         limited_view_all_classes_doaps=[],
-        limited_view_specific_class_doaps=[img_doap],
+        limited_view_specific_class_doaps=[still_image_doap],
     )
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
@@ -472,7 +472,7 @@ def test_construct_overrule_object_mixed() -> None:
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#MyClass",
         "hasPermissions": [],
     }
-    img_doap = {
+    still_image_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -481,7 +481,7 @@ def test_construct_overrule_object_mixed() -> None:
         class_doaps=[class_doap],
         prop_doaps=[],
         limited_view_all_classes_doaps=[],
-        limited_view_specific_class_doaps=[img_doap],
+        limited_view_specific_class_doaps=[still_image_doap],
     )
     prefixes_inverted = {
         "http://www.knora.org/ontology/1234/my-onto": "my-onto",
@@ -504,41 +504,46 @@ def test_construct_overrule_object_empty() -> None:
     assert result == {}
 
 
-def test_construct_overrule_object_invalid_multiple_all_images(caplog: pytest.LogCaptureFixture) -> None:
-    img_doap1 = {
+def test_construct_overrule_object_invalid_duplicate_all_class_props(caplog: pytest.LogCaptureFixture) -> None:
+    still_image_doap_1 = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
-    img_doap2 = {
-        "forProperty": "http://www.knora.org/ontology/knora-base#hasMovingImageFileValue",
-        "hasPermissions": [],
-    }
-    img_doap3 = {
-        "forProperty": "http://www.knora.org/ontology/knora-base#hasAudioFileValue",
-        "hasPermissions": [],
-    }
-    img_doap4 = {
+    still_image_doap_2 = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        limited_view_all_classes_doaps=[img_doap1, img_doap2, img_doap3, img_doap4],
+        limited_view_all_classes_doaps=[still_image_doap_1, still_image_doap_2],
         limited_view_specific_class_doaps=[],
     )
     with caplog.at_level(logging.WARNING):
         result = _construct_overrule_object(categories, {})
     assert result is None
-    assert "Found more limited_view DOAPs (no class restriction) than expected file value property types" in caplog.text
+    assert "Found duplicate limited_view DOAPs (no class restriction) for the same file value property" in caplog.text
 
 
-def test_construct_overrule_object_invalid_mixed_image_types(caplog: pytest.LogCaptureFixture) -> None:
-    all_img_doap = {
+def test_construct_overrule_object_all_three_types_all_class(
+    still_image_all_doap: dict[str, Any], video_all_doap: dict[str, Any], audio_all_doap: dict[str, Any]
+) -> None:
+    categories = DoapCategories(
+        class_doaps=[],
+        prop_doaps=[],
+        limited_view_all_classes_doaps=[still_image_all_doap, video_all_doap, audio_all_doap],
+        limited_view_specific_class_doaps=[],
+    )
+    result = _construct_overrule_object(categories, {})
+    assert result == {"limited_view": "all"}
+
+
+def test_construct_overrule_object_invalid_mixed_all_and_specific(caplog: pytest.LogCaptureFixture) -> None:
+    all_classes_doap = {
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
     }
-    specific_img_doap = {
+    specific_class_doap = {
         "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#ImageClass",
         "forProperty": "http://www.knora.org/ontology/knora-base#hasStillImageFileValue",
         "hasPermissions": [],
@@ -546,8 +551,8 @@ def test_construct_overrule_object_invalid_mixed_image_types(caplog: pytest.LogC
     categories = DoapCategories(
         class_doaps=[],
         prop_doaps=[],
-        limited_view_all_classes_doaps=[all_img_doap],
-        limited_view_specific_class_doaps=[specific_img_doap],
+        limited_view_all_classes_doaps=[all_classes_doap],
+        limited_view_specific_class_doaps=[specific_class_doap],
     )
     with caplog.at_level(logging.WARNING):
         result = _construct_overrule_object(categories, {})
@@ -807,11 +812,11 @@ class TestMovingImageAndAudioDoapTypes:
 
     def test_categorize_all_three_all_class_doaps(
         self,
-        img_all_doap: dict[str, Any],
+        still_image_all_doap: dict[str, Any],
         video_all_doap: dict[str, Any],
         audio_all_doap: dict[str, Any],
     ) -> None:
-        result = _categorize_doaps([img_all_doap, video_all_doap, audio_all_doap])
+        result = _categorize_doaps([still_image_all_doap, video_all_doap, audio_all_doap])
         assert result is not None
         assert len(result.limited_view_all_classes_doaps) == 3
         assert result.limited_view_specific_class_doaps == []
@@ -876,7 +881,7 @@ class TestMovingImageAndAudioDoapTypes:
 
     def test_construct_overrule_all_three_specific(
         self,
-        img_specific_doap: dict[str, Any],
+        still_image_specific_doap: dict[str, Any],
         video_specific_doap: dict[str, Any],
         audio_specific_doap: dict[str, Any],
     ) -> None:
@@ -884,7 +889,7 @@ class TestMovingImageAndAudioDoapTypes:
             class_doaps=[],
             prop_doaps=[],
             limited_view_all_classes_doaps=[],
-            limited_view_specific_class_doaps=[img_specific_doap, video_specific_doap, audio_specific_doap],
+            limited_view_specific_class_doaps=[still_image_specific_doap, video_specific_doap, audio_specific_doap],
         )
         prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
         result = _construct_overrule_object(categories, prefixes_inverted)

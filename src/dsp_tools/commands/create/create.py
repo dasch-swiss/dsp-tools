@@ -18,7 +18,6 @@ from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -35,13 +34,11 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
     if isinstance(parsing_result, list):
         print_all_problem_collections(parsing_result)
         return False
-    parsed_project, validated_permissions = parsing_result
-    return _execute_create(parsed_project, validated_permissions, creds, exit_if_exists)
+    return _execute_create(parsing_result, creds, exit_if_exists)
 
 
 def _execute_create(
     parsed_project: ParsedProject,
-    validated_permissions: ValidatedPermissions,
     creds: ServerCredentials,
     exit_if_exists: bool,
 ) -> bool:
@@ -115,7 +112,7 @@ def _execute_create(
     )
     success = create_default_permissions(
         perm_client=perm_client,
-        validated_permissions=validated_permissions,
+        validated_permissions=parsed_project.permissions,
         created_iris=created_iris,
     )
     if not success:

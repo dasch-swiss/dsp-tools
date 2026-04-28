@@ -8,9 +8,8 @@ from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
-from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
+from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
@@ -21,7 +20,7 @@ from dsp_tools.utils.request_utils import should_retry_request
 
 def create_default_permissions(
     perm_client: PermissionsClient,
-    validated_permissions: ValidatedPermissions,
+    validated_permissions: ParsedPermissions,
     created_iris: CreatedIriCollection,
 ) -> bool:
     print(BOLD + "Processing default permissions:" + RESET_TO_DEFAULT)
@@ -91,7 +90,7 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
 
 
 def _create_overrules(
-    validated_permissions: ValidatedPermissions,
+    validated_permissions: ParsedPermissions,
     perm_client: PermissionsClient,
     created_collection: CreatedIriCollection,
 ) -> bool:
@@ -106,10 +105,6 @@ def _create_overrules(
         case GlobalLimitedViewPermission.ALL | LimitedViewClasses():
             if not _handle_limited_view_overrule(validated_permissions.overrule_limited_view, perm_client):
                 overall_success = False
-        case _:
-            raise UnreachableCodeError(
-                f"Unknown overrule_limited_view: {validated_permissions.overrule_limited_view!r}"
-            )
 
     return overall_success
 
@@ -160,8 +155,6 @@ def _handle_limited_view_overrule(
             for prop_iri in (_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE):
                 if not _create_one_limited_view_overrule(perm_client, prop_iri, None):
                     overall_success = False
-        case _:
-            raise UnreachableCodeError(f"Unknown overrule_limited_view: {overrule_limited_view!s}")
     return overall_success
 
 

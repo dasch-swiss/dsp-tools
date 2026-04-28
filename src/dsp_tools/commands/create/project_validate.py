@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import importlib.resources
 import json
 from collections import Counter
@@ -36,11 +37,9 @@ from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
-from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
@@ -66,7 +65,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
 def parse_and_validate_project(
     project_file: Path, server: str
 ) -> tuple[
-    list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions],
+    list[CollectedProblems] | ParsedProject,
     list[CardinalitiesThatMayCreateAProblematicCircle],
 ]:
     json_project = parse_json_file(project_file)
@@ -87,7 +86,7 @@ def parse_and_validate_lists(
 def _validate_parsed_json_project(
     json_project: dict[str, Any], server: str
 ) -> tuple[
-    list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions],
+    list[CollectedProblems] | ParsedProject,
     list[CardinalitiesThatMayCreateAProblematicCircle],
 ]:
     _validate_with_json_schema(json_project)
@@ -102,11 +101,10 @@ def _validate_parsed_json_project(
             )
             if validation_problems:
                 return validation_problems, potential_circles
-            return (parsing_result, validated_permissions), potential_circles
+            validated_project = dataclasses.replace(parsing_result, permissions=validated_permissions)
+            return validated_project, potential_circles
         case list():
             return parsing_result, []
-        case _:
-            raise UnreachableCodeError()
 
 
 def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
@@ -141,7 +139,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
 
 def _complex_parsed_project_validation(
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
-) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle], ValidatedPermissions]:
+) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle], ParsedPermissions]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -323,13 +321,9 @@ def _check_for_invalid_default_permissions_overrule(
     properties: list[str],
     classes: list[str],
     limited_view_classes: LimitedViewClasses,
-) -> tuple[CollectedProblems | None, ValidatedPermissions]:
+) -> tuple[CollectedProblems | None, ParsedPermissions]:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
-        return None, ValidatedPermissions(
-            default_permissions=parsed_permissions.default_permissions,
-            overrule_private=parsed_permissions.overrule_private,
-            overrule_limited_view=GlobalLimitedViewPermission.NONE,
-        )
+        return None, dataclasses.replace(parsed_permissions, overrule_limited_view=GlobalLimitedViewPermission.NONE)
 
     defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
@@ -352,20 +346,14 @@ def _check_for_invalid_default_permissions_overrule(
             validated_limited_view = classified
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             validated_limited_view = parsed_permissions.overrule_limited_view
-        case _:
-            raise UnreachableCodeError(
-                f"Unknown overrule_limited_view type: {parsed_permissions.overrule_limited_view!r}"
-            )
+        case LimitedViewClasses():
+            validated_limited_view = parsed_permissions.overrule_limited_view
 
     collected: CollectedProblems | None = None
     if problems:
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
         collected = CollectedProblems(err_msg, problems)
-    return collected, ValidatedPermissions(
-        default_permissions=parsed_permissions.default_permissions,
-        overrule_private=parsed_permissions.overrule_private,
-        overrule_limited_view=validated_limited_view,
-    )
+    return collected, dataclasses.replace(parsed_permissions, overrule_limited_view=validated_limited_view)
 
 
 def _check_limited_view_selection(

@@ -55,14 +55,7 @@ class LimitedViewClasses:
 class ParsedPermissions:
     default_permissions: DefaultPermissions
     overrule_private: list[str] | None
-    overrule_limited_view: LimitedViewPermissionsSelection | GlobalLimitedViewPermission
-
-
-@dataclass
-class ValidatedPermissions:
-    default_permissions: DefaultPermissions
-    overrule_private: list[str] | None
-    overrule_limited_view: LimitedViewClasses | GlobalLimitedViewPermission
+    overrule_limited_view: LimitedViewPermissionsSelection | LimitedViewClasses | GlobalLimitedViewPermission
 
 
 @dataclass

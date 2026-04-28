@@ -8,7 +8,6 @@ import regex
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
-from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.utils.exceptions import JSONFileParsingError
@@ -34,10 +33,7 @@ def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
 def test_validate_project(tp_systematic: dict[str, Any]) -> None:
     result, potential_circles = _validate_parsed_json_project(tp_systematic, SERVER)
     assert not potential_circles
-    assert isinstance(result, tuple)
-    parsed_project, validated_permissions = result
-    assert isinstance(parsed_project, ParsedProject)
-    assert isinstance(validated_permissions, ValidatedPermissions)
+    assert isinstance(result, ParsedProject)
 
 
 def test_json_schema_validation_error():

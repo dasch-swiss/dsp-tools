@@ -8,7 +8,6 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
-from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.commands.create.project_validate import _get_limited_view_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -74,7 +73,7 @@ def test_check_overrule_no_overrule_private(
         perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
-    assert isinstance(validated, ValidatedPermissions)
+    assert isinstance(validated, ParsedPermissions)
     assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 

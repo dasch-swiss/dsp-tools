@@ -273,6 +273,12 @@ api-shapes:IntValue_ClassShape
                  [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:intValueAsInt ;
+                    # Due to performance reasons we changed to the oxigraph backend of rdflib.
+                    # They normalise xsd:int into xsd:integer, (https://github.com/oxigraph/oxigraph/issues/526)
+                    # therefore even though we input xsd:int into the Graph, the serialisation is of type xsd:integer.
+                    # The performance reasons outweighed this as we can validate it differently.
+                    # IMPORTANT: this cannot be used on the data that is sent to the API as it will be the correct
+                    # xsd:int there, and would erroneously fail validation with this file.
                     sh:datatype xsd:integer ;
                     sh:minInclusive "-2147483648"^^xsd:int ;
                     sh:maxInclusive "2147483647"^^xsd:int ;
@@ -365,6 +371,13 @@ api-shapes:TimeValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:timeValueAsTimeStamp ;
+                    # Due to performance reasons we changed to the oxigraph backend of rdflib.
+                    # They normalise xsd:dateTimeStamp into xsd:dateTime,
+                    # (https://github.com/oxigraph/oxigraph/issues/526) therefore even though we input
+                    # xsd:dateTimeStamp into the Graph, the serialisation is of type xsd:dateTime.
+                    # The performance reasons outweighed this as we can validate it differently.
+                    # IMPORTANT: this cannot be used on the data that is sent to the API as it will be the correct
+                    # xsd:dateTimeStamp there, and would erroneously fail validation with this file.
                     sh:datatype xsd:dateTime ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;

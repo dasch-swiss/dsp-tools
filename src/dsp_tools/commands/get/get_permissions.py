@@ -143,6 +143,7 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
     return prefixes_knora_base_inverted
 
 
+# DOAPs returned by the server use the knora-base namespace, not the knora-api v2 namespace
 _KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
 _LIMITED_VIEW_FILE_VALUE_PROPS = {
     f"{_KNORA_BASE}hasStillImageFileValue",

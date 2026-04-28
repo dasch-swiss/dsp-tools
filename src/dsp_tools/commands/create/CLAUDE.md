@@ -109,7 +109,7 @@ Instead of failing fast, the create command collects all problems:
 - **Models**: `CollectedProblems` groups related problems with a message
 - **Problem Types**: `InputProblem`, `CreateProblem` for different error sources
 - **Display**: `communicate_problems.py` formats problems for user display
-- **Return Type**: Functions return `ParsedProject | list[CollectedProblems]`
+- **Return Type**: Functions return `list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions]`
 - **Benefit**: Users see all issues at once, not just the first error
 
 ## Parsing Pipeline (`parsing/`)
@@ -217,6 +217,7 @@ Cardinalities can be sorted by ontology, as they do not have any inter-ontology 
 
 - Creates DOAP (Default Object Access Permission) settings
 - Uses created IRIs from ontology creation
+- Accepts a `ValidatedPermissions` (the post-validation type) rather than `ParsedPermissions`
 
 ### Why This Order Matters
 

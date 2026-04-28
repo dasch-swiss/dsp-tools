@@ -134,6 +134,7 @@ def _separate_props_and_classes(
     return props, cls
 
 
+# DSP-API accepts property IRIs in the knora-api v2 namespace when creating DOAPs
 _STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
 _MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
 _AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"

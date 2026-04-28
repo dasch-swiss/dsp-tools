@@ -50,7 +50,7 @@ from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
-NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
+NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "No validation errors found!   " + RESET_TO_DEFAULT
 
 
 def validate_data(

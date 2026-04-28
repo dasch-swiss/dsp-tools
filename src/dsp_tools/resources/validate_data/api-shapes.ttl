@@ -274,6 +274,8 @@ api-shapes:IntValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:intValueAsInt ;
                     sh:datatype xsd:integer ;
+                    sh:minInclusive "-2147483648"^^xsd:int ;
+                    sh:maxInclusive "2147483647"^^xsd:int ;
                     sh:severity sh:Violation ;
                     sh:message  "The integer must be within the range of -2'147'483'648 and 2'147'483'647."
                  ] .

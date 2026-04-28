@@ -148,7 +148,7 @@ _LIMITED_VIEW_FILE_VALUE_PROPS = {
 }
 
 
-def _is_limited_view_prop(for_prop: str) -> bool:
+def _is_file_value_prop(for_prop: str) -> bool:
     return any(p in for_prop for p in _LIMITED_VIEW_FILE_VALUE_PROPS)
 
 
@@ -179,11 +179,11 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
         match (doap.get("forResourceClass"), doap.get("forProperty")):
             case (for_class, None) if for_class:
                 class_doaps.append(doap)
-            case (None, for_prop) if for_prop and not _is_limited_view_prop(for_prop):
+            case (None, for_prop) if for_prop and not _is_file_value_prop(for_prop):
                 prop_doaps.append(doap)
-            case (None, for_prop) if for_prop and _is_limited_view_prop(for_prop):
+            case (None, for_prop) if for_prop and _is_file_value_prop(for_prop):
                 has_img_all_classes_doaps.append(doap)
-            case (for_class, for_prop) if for_class and for_prop and _is_limited_view_prop(for_prop):
+            case (for_class, for_prop) if for_class and for_prop and _is_file_value_prop(for_prop):
                 has_img_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)

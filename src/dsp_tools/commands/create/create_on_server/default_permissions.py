@@ -8,8 +8,7 @@ from dsp_tools.clients.permissions_client import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
-from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
-from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
+from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
@@ -22,7 +21,7 @@ from dsp_tools.utils.request_utils import should_retry_request
 
 def create_default_permissions(
     perm_client: PermissionsClient,
-    parsed_permissions: ParsedPermissions,
+    validated_permissions: ValidatedPermissions,
     created_iris: CreatedIriCollection,
 ) -> bool:
     print(BOLD + "Processing default permissions:" + RESET_TO_DEFAULT)
@@ -31,12 +30,12 @@ def create_default_permissions(
         print("    WARNING: Cannot delete the existing default permissions")
         logger.warning("Cannot delete the existing default permissions")
         return False
-    if not _create_new_doap(perm_client, parsed_permissions.default_permissions):
+    if not _create_new_doap(perm_client, validated_permissions.default_permissions):
         print("    WARNING: Cannot create default permissions")
         logger.warning("Cannot create default permissions")
         return False
-    if parsed_permissions.overrule_private or parsed_permissions.overrule_limited_view:
-        if not _create_overrules(parsed_permissions, perm_client, created_iris):
+    if validated_permissions.overrule_private or validated_permissions.overrule_limited_view:
+        if not _create_overrules(validated_permissions, perm_client, created_iris):
             print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
             return False
@@ -89,23 +88,21 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
 
 
 def _create_overrules(
-    parsed_permissions: ParsedPermissions, perm_client: PermissionsClient, created_collection: CreatedIriCollection
+    validated_permissions: ValidatedPermissions,
+    perm_client: PermissionsClient,
+    created_collection: CreatedIriCollection,
 ) -> bool:
     overall_success = True
-    if parsed_permissions.overrule_private:
-        success = _create_private_overrule(parsed_permissions.overrule_private, perm_client, created_collection)
+    if validated_permissions.overrule_private:
+        success = _create_private_overrule(validated_permissions.overrule_private, perm_client, created_collection)
         if not success:
             overall_success = False
 
-    if isinstance(parsed_permissions.overrule_limited_view, GlobalLimitedViewPermission):
-        if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
+    if isinstance(validated_permissions.overrule_limited_view, GlobalLimitedViewPermission):
+        if validated_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
             return overall_success
 
-    overrule = parsed_permissions.overrule_limited_view
-    if isinstance(overrule, LimitedViewPermissionsSelection):
-        raise UnreachableCodeError(
-            "overrule_limited_view must be classified before create_default_permissions is called"
-        )
+    overrule = validated_permissions.overrule_limited_view
     success = _handle_limited_view_overrule(overrule, perm_client)
     if not success:
         overall_success = False

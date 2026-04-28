@@ -18,8 +18,8 @@ from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
-from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
@@ -32,17 +32,19 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
     if potential_circles:
         print_msg_str_for_potential_problematic_circles(potential_circles)
 
-    match parsing_result:
-        case ParsedProject():
-            return _execute_create(parsing_result, creds, exit_if_exists)
-        case list():
-            print_all_problem_collections(parsing_result)
-            return False
-        case _:
-            raise UnreachableCodeError("Unreachable result of project parsing.")
+    if isinstance(parsing_result, list):
+        print_all_problem_collections(parsing_result)
+        return False
+    parsed_project, validated_permissions = parsing_result
+    return _execute_create(parsed_project, validated_permissions, creds, exit_if_exists)
 
 
-def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exit_if_exists: bool) -> bool:
+def _execute_create(
+    parsed_project: ParsedProject,
+    validated_permissions: ValidatedPermissions,
+    creds: ServerCredentials,
+    exit_if_exists: bool,
+) -> bool:
     msg = "JSON project file is syntactically correct and passed validation."
     print(BOLD_GREEN + "    JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT)
     logger.info(msg)
@@ -113,7 +115,7 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
     )
     success = create_default_permissions(
         perm_client=perm_client,
-        parsed_permissions=parsed_project.permissions,
+        validated_permissions=validated_permissions,
         created_iris=created_iris,
     )
     if not success:

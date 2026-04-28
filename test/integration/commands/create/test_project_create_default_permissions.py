@@ -6,7 +6,7 @@ from dsp_tools.commands.create.create_on_server.default_permissions import creat
 from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
-from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
+from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -46,7 +46,7 @@ def test_create_default_permissions_with_limited_view_all(
 ) -> None:
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=GlobalLimitedViewPermission.ALL,
@@ -104,7 +104,7 @@ def test_create_default_permissions_with_limited_view_specific_classes(
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=limited_view,
@@ -136,7 +136,7 @@ def test_create_default_permissions_with_limited_view_still_image_only(
 
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=limited_view,
@@ -159,7 +159,7 @@ def test_create_default_permissions_no_overrule(
 ) -> None:
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=GlobalLimitedViewPermission.NONE,
@@ -182,7 +182,7 @@ def test_create_default_permissions_get_doaps_failure(
     mock_permissions_client.get_project_doaps.return_value = ResponseCodeAndText(500, "Internal error")
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=GlobalLimitedViewPermission.ALL,
@@ -199,7 +199,7 @@ def test_create_default_permissions_delete_doap_failure(
     with pytest.raises(BadCredentialsError):
         create_default_permissions(
             perm_client=mock_permissions_client,
-            parsed_permissions=ParsedPermissions(
+            validated_permissions=ValidatedPermissions(
                 default_permissions=DefaultPermissions.PUBLIC,
                 overrule_private=None,
                 overrule_limited_view=GlobalLimitedViewPermission.ALL,
@@ -214,7 +214,7 @@ def test_create_default_permissions_create_doap_failure(
     mock_permissions_client.create_new_doap.return_value = ResponseCodeAndText(400, "Bad request")
     result = create_default_permissions(
         perm_client=mock_permissions_client,
-        parsed_permissions=ParsedPermissions(
+        validated_permissions=ValidatedPermissions(
             default_permissions=DefaultPermissions.PUBLIC,
             overrule_private=None,
             overrule_limited_view=GlobalLimitedViewPermission.ALL,

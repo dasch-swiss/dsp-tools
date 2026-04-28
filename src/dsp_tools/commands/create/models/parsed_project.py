@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
-from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 
 
@@ -53,18 +52,17 @@ class ClassifiedLimitedViewPermissions:
 
 
 @dataclass
-class PermissionValidationResult:
-    problems: CollectedProblems | None
-    classified: ClassifiedLimitedViewPermissions | None
-
-
-@dataclass
 class ParsedPermissions:
     default_permissions: DefaultPermissions
     overrule_private: list[str] | None
-    overrule_limited_view: (
-        LimitedViewPermissionsSelection | ClassifiedLimitedViewPermissions | GlobalLimitedViewPermission
-    )
+    overrule_limited_view: LimitedViewPermissionsSelection | GlobalLimitedViewPermission
+
+
+@dataclass
+class ValidatedPermissions:
+    default_permissions: DefaultPermissions
+    overrule_private: list[str] | None
+    overrule_limited_view: ClassifiedLimitedViewPermissions | GlobalLimitedViewPermission
 
 
 @dataclass

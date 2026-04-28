@@ -36,7 +36,7 @@ from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
-from dsp_tools.commands.create.models.parsed_project import PermissionValidationResult
+from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
@@ -54,7 +54,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     result, potential_circles = parse_and_validate_project(project_file, server)
     if potential_circles:
         print_msg_str_for_potential_problematic_circles(potential_circles)
-    if not isinstance(result, ParsedProject):
+    if isinstance(result, list):
         print_all_problem_collections(result)
         return False
     print(
@@ -65,7 +65,10 @@ def validate_project_only(project_file: Path, server: str) -> bool:
 
 def parse_and_validate_project(
     project_file: Path, server: str
-) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[
+    list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions],
+    list[CardinalitiesThatMayCreateAProblematicCircle],
+]:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
 
@@ -83,20 +86,23 @@ def parse_and_validate_lists(
 
 def _validate_parsed_json_project(
     json_project: dict[str, Any], server: str
-) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[
+    list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions],
+    list[CardinalitiesThatMayCreateAProblematicCircle],
+]:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
 
     match parsing_result:
         case ParsedProject():
-            validation_problems, potential_circles = _complex_parsed_project_validation(
+            validation_problems, potential_circles, validated_permissions = _complex_parsed_project_validation(
                 parsing_result.ontologies,
                 parsing_result.lists,
                 parsing_result.permissions,
             )
             if validation_problems:
                 return validation_problems, potential_circles
-            return parsing_result, potential_circles
+            return (parsing_result, validated_permissions), potential_circles
         case list():
             return parsing_result, []
         case _:
@@ -133,9 +139,9 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_parsed_project_validation(  # noqa: PLR0912
+def _complex_parsed_project_validation(
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
-) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle], ValidatedPermissions]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -181,17 +187,15 @@ def _complex_parsed_project_validation(  # noqa: PLR0912
         problems.append(duplicate_cards)
     # PERMISSIONS
     still_image_classes, moving_image_classes, audio_classes = _get_limited_view_classes(cls_flattened)
-    perm_result = _check_for_invalid_default_permissions_overrule(
+    perm_problems, validated_permissions = _check_for_invalid_default_permissions_overrule(
         parsed_permissions, prop_iris, cls_iris, still_image_classes, moving_image_classes, audio_classes
     )
-    if perm_result.problems:
-        problems.append(perm_result.problems)
-    if perm_result.classified is not None:
-        parsed_permissions.overrule_limited_view = perm_result.classified
+    if perm_problems:
+        problems.append(perm_problems)
     potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
         props_flattened, cardinalities_flattened
     )
-    return problems, potential_circles
+    return problems, potential_circles, validated_permissions
 
 
 def _check_for_duplicate_iris(
@@ -321,9 +325,13 @@ def _check_for_invalid_default_permissions_overrule(
     still_image_classes: set[str],
     moving_image_classes: set[str],
     audio_classes: set[str],
-) -> PermissionValidationResult:
+) -> tuple[CollectedProblems | None, ValidatedPermissions]:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
-        return PermissionValidationResult(problems=None, classified=None)
+        return None, ValidatedPermissions(
+            default_permissions=parsed_permissions.default_permissions,
+            overrule_private=parsed_permissions.overrule_private,
+            overrule_limited_view=GlobalLimitedViewPermission.NONE,
+        )
 
     defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
@@ -334,7 +342,7 @@ def _check_for_invalid_default_permissions_overrule(
         )
         problems.extend(unknown_private_problems)
 
-    classified: ClassifiedLimitedViewPermissions | None = None
+    validated_limited_view: ClassifiedLimitedViewPermissions | GlobalLimitedViewPermission
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
             limited_problems, classified = _check_limited_view_selection(
@@ -345,17 +353,19 @@ def _check_for_invalid_default_permissions_overrule(
                 audio_classes,
             )
             problems.extend(limited_problems)
+            validated_limited_view = classified
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
-            # no checks necessary
-            pass
-        case _:
-            raise UnreachableCodeError()
+            validated_limited_view = parsed_permissions.overrule_limited_view
 
     collected: CollectedProblems | None = None
     if problems:
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
         collected = CollectedProblems(err_msg, problems)
-    return PermissionValidationResult(problems=collected, classified=classified)
+    return collected, ValidatedPermissions(
+        default_permissions=parsed_permissions.default_permissions,
+        overrule_private=parsed_permissions.overrule_private,
+        overrule_limited_view=validated_limited_view,
+    )
 
 
 def _check_limited_view_selection(

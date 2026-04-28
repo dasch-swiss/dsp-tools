@@ -8,6 +8,7 @@ from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
+from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.commands.create.project_validate import _get_limited_view_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -58,11 +59,12 @@ def test_check_overrule_no_overrule_private(
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert result.classified is None
+    assert problems is None
+    assert isinstance(validated, ValidatedPermissions)
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
 def test_check_overrule_no_overrule_public(
@@ -73,11 +75,11 @@ def test_check_overrule_no_overrule_public(
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert result.classified is None
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
 def test_check_overrule_no_limited_view(
@@ -88,11 +90,11 @@ def test_check_overrule_no_limited_view(
         overrule_private=[TEST_RESOURCE],
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert result.classified is None
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
 def test_check_overrule_limited_view_all(
@@ -103,11 +105,11 @@ def test_check_overrule_limited_view_all(
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.ALL,
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert result.classified is None
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.ALL
 
 
 def test_check_overrule_valid_still_image(
@@ -118,14 +120,14 @@ def test_check_overrule_valid_still_image(
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert isinstance(result.classified, ClassifiedLimitedViewPermissions)
-    assert result.classified.still_image == [TEST_STILL_IMAGE]
-    assert result.classified.moving_image == []
-    assert result.classified.audio == []
+    assert problems is None
+    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
+    assert validated.overrule_limited_view.still_image == [TEST_STILL_IMAGE]
+    assert validated.overrule_limited_view.moving_image == []
+    assert validated.overrule_limited_view.audio == []
 
 
 def test_check_overrule_valid_moving_image(
@@ -136,14 +138,14 @@ def test_check_overrule_valid_moving_image(
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_MOVING_IMAGE]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert isinstance(result.classified, ClassifiedLimitedViewPermissions)
-    assert result.classified.still_image == []
-    assert result.classified.moving_image == [TEST_MOVING_IMAGE]
-    assert result.classified.audio == []
+    assert problems is None
+    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
+    assert validated.overrule_limited_view.still_image == []
+    assert validated.overrule_limited_view.moving_image == [TEST_MOVING_IMAGE]
+    assert validated.overrule_limited_view.audio == []
 
 
 def test_check_overrule_valid_audio(
@@ -154,14 +156,14 @@ def test_check_overrule_valid_audio(
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_AUDIO]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert result.problems is None
-    assert isinstance(result.classified, ClassifiedLimitedViewPermissions)
-    assert result.classified.still_image == []
-    assert result.classified.moving_image == []
-    assert result.classified.audio == [TEST_AUDIO]
+    assert problems is None
+    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
+    assert validated.overrule_limited_view.still_image == []
+    assert validated.overrule_limited_view.moving_image == []
+    assert validated.overrule_limited_view.audio == [TEST_AUDIO]
 
 
 def test_check_overrule_unknown_private(
@@ -172,13 +174,13 @@ def test_check_overrule_unknown_private(
         overrule_private=[f"{ONTO_NAMESPACE_STR}Unknown"],
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert isinstance(result.problems, CollectedProblems)
-    assert len(result.problems.problems) == 1
-    assert result.problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
-    assert result.problems.problems[0].problematic_object == "onto:Unknown"
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
+    assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
 def test_check_overrule_unknown_limited_view(
@@ -189,13 +191,13 @@ def test_check_overrule_unknown_limited_view(
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([f"{ONTO_NAMESPACE_STR}Unknown"]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert isinstance(result.problems, CollectedProblems)
-    assert len(result.problems.problems) == 1
-    assert result.problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
-    assert result.problems.problems[0].problematic_object == "onto:Unknown"
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
+    assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
 def test_check_overrule_invalid_wrong_superclass(
@@ -206,13 +208,13 @@ def test_check_overrule_invalid_wrong_superclass(
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_RESOURCE]),
     )
-    result = _check_for_invalid_default_permissions_overrule(
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
         perm, known_props, known_classes, still_image_classes, moving_image_classes, audio_classes
     )
-    assert isinstance(result.problems, CollectedProblems)
-    assert len(result.problems.problems) == 1
-    assert result.problems.problems[0].problem == InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
-    assert result.problems.problems[0].problematic_object == "onto:TestResource"
+    assert isinstance(problems, CollectedProblems)
+    assert len(problems.problems) == 1
+    assert problems.problems[0].problem == InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+    assert problems.problems[0].problematic_object == "onto:TestResource"
 
 
 class TestGetLimitedViewClasses:

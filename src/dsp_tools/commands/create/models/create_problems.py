@@ -59,7 +59,7 @@ class InputProblemType(ProblemType):
         "It must be either 'all' or a list of representation classes."
     )
     UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE = (
-        "The referenced class or property in the private overrule permissions is not defined in the ontology."
+        "The referenced class or property in the permission overrule is not defined in the ontology."
     )
     INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE = (
         "This class cannot be used in limited_view permissions because it is not a subclass of "

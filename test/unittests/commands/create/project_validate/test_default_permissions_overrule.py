@@ -317,42 +317,7 @@ class TestGetLimitedViewClasses:
                 name=f"{ONTO_NAMESPACE_STR}Level2",
                 labels={"en": "L2"},
                 comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level1", f"{KNORA_API_PREFIX}Resource"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level3",
-                labels={"en": "L3"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level2"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level4",
-                labels={"en": "L4"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level3"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level5",
-                labels={"en": "L5"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level4"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level6",
-                labels={"en": "L6"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level5"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level7",
-                labels={"en": "L7"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level6"],
+                supers=[f"{ONTO_NAMESPACE_STR}Level1"],
                 onto_iri=ONTO_IRI,
             ),
         ]
@@ -360,14 +325,59 @@ class TestGetLimitedViewClasses:
         assert result.still_image == {
             f"{ONTO_NAMESPACE_STR}Level1",
             f"{ONTO_NAMESPACE_STR}Level2",
-            f"{ONTO_NAMESPACE_STR}Level3",
-            f"{ONTO_NAMESPACE_STR}Level4",
-            f"{ONTO_NAMESPACE_STR}Level5",
-            f"{ONTO_NAMESPACE_STR}Level6",
-            f"{ONTO_NAMESPACE_STR}Level7",
         }
         assert result.moving_image == set()
         assert result.audio == set()
+
+    def test_deep_moving_image_inheritance(self) -> None:
+        classes = [
+            ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Level1",
+                labels={"en": "L1"},
+                comments={},
+                supers=[KNORA_MOVING_IMAGE],
+                onto_iri=ONTO_IRI,
+            ),
+            ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Level2",
+                labels={"en": "L2"},
+                comments={},
+                supers=[f"{ONTO_NAMESPACE_STR}Level1"],
+                onto_iri=ONTO_IRI,
+            ),
+        ]
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == {
+            f"{ONTO_NAMESPACE_STR}Level1",
+            f"{ONTO_NAMESPACE_STR}Level2",
+        }
+        assert result.audio == set()
+
+    def test_deep_audio_inheritance(self) -> None:
+        classes = [
+            ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Level1",
+                labels={"en": "L1"},
+                comments={},
+                supers=[KNORA_AUDIO],
+                onto_iri=ONTO_IRI,
+            ),
+            ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Level2",
+                labels={"en": "L2"},
+                comments={},
+                supers=[f"{ONTO_NAMESPACE_STR}Level1"],
+                onto_iri=ONTO_IRI,
+            ),
+        ]
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == set()
+        assert result.audio == {
+            f"{ONTO_NAMESPACE_STR}Level1",
+            f"{ONTO_NAMESPACE_STR}Level2",
+        }
 
     def test_complex_multi_branch_hierarchy(self) -> None:
         classes = [

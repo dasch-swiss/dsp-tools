@@ -239,7 +239,8 @@ you can define exceptions, by marking certain classes or properties as `private`
       while the rest of the resource is still public.
 - `limited_view`: representation classes which will be blurred/watermarked/not downloadable for users outside of your project.
     - Only the media will be limited, the rest of the resource will be public.
-    - `all` means all representation classes, also the ones created in the future.
+    - `all` means all subclasses of StillImageRepresentation, MovingImageRepresentation,
+      and AudioRepresentation, including future subclasses.
 
 ```json
 "default_permissions": "public|private",

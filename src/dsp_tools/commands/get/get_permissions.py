@@ -141,15 +141,16 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
     return prefixes_knora_base_inverted
 
 
+_KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
 _LIMITED_VIEW_FILE_VALUE_PROPS = {
-    "hasStillImageFileValue",
-    "hasMovingImageFileValue",
-    "hasAudioFileValue",
+    f"{_KNORA_BASE}hasStillImageFileValue",
+    f"{_KNORA_BASE}hasMovingImageFileValue",
+    f"{_KNORA_BASE}hasAudioFileValue",
 }
 
 
 def _is_file_value_prop(for_prop: str) -> bool:
-    return any(p in for_prop for p in _LIMITED_VIEW_FILE_VALUE_PROPS)
+    return for_prop in _LIMITED_VIEW_FILE_VALUE_PROPS
 
 
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | None:

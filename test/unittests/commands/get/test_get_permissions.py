@@ -74,6 +74,64 @@ def img_specific_doap() -> dict[str, Any]:
 
 
 @pytest.fixture
+def video_all_doap() -> dict[str, Any]:
+    return {
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasMovingImageFileValue",
+        "forProject": PROJ_IRI,
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+        ],
+    }
+
+
+@pytest.fixture
+def video_specific_doap() -> dict[str, Any]:
+    return {
+        "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#VideoClass",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasMovingImageFileValue",
+        "forProject": PROJ_IRI,
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+        ],
+    }
+
+
+@pytest.fixture
+def audio_all_doap() -> dict[str, Any]:
+    return {
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasAudioFileValue",
+        "forProject": PROJ_IRI,
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+        ],
+    }
+
+
+@pytest.fixture
+def audio_specific_doap() -> dict[str, Any]:
+    return {
+        "forResourceClass": "http://www.knora.org/ontology/1234/my-onto#AudioClass",
+        "forProperty": "http://www.knora.org/ontology/knora-base#hasAudioFileValue",
+        "forProject": PROJ_IRI,
+        "hasPermissions": [
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
+            {"additionalInformation": f"{USER_IRI_PREFIX}ProjectMember", "name": "D", "permissionCode": 8},
+            {"additionalInformation": f"{USER_IRI_PREFIX}KnownUser", "name": "RV", "permissionCode": 1},
+            {"additionalInformation": f"{USER_IRI_PREFIX}UnknownUser", "name": "RV", "permissionCode": 1},
+        ],
+    }
+
+
+@pytest.fixture
 def private_perms() -> dict[str, Any]:
     perms = [
         {"additionalInformation": f"{USER_IRI_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": 16},
@@ -720,3 +778,119 @@ class TestParseNewStylePermissions:
             regex.escape("There must be exactly 1 DOAP for ProjectMember."),
             caplog.text,
         )
+
+
+class TestMovingImageAndAudioDoapTypes:
+    def test_categorize_video_all_doap(self, video_all_doap: dict[str, Any]) -> None:
+        result = _categorize_doaps([video_all_doap])
+        assert result is not None
+        assert result.limited_view_all_classes_doaps == [video_all_doap]
+        assert result.limited_view_specific_class_doaps == []
+
+    def test_categorize_audio_all_doap(self, audio_all_doap: dict[str, Any]) -> None:
+        result = _categorize_doaps([audio_all_doap])
+        assert result is not None
+        assert result.limited_view_all_classes_doaps == [audio_all_doap]
+        assert result.limited_view_specific_class_doaps == []
+
+    def test_categorize_video_specific_doap(self, video_specific_doap: dict[str, Any]) -> None:
+        result = _categorize_doaps([video_specific_doap])
+        assert result is not None
+        assert result.limited_view_all_classes_doaps == []
+        assert result.limited_view_specific_class_doaps == [video_specific_doap]
+
+    def test_categorize_audio_specific_doap(self, audio_specific_doap: dict[str, Any]) -> None:
+        result = _categorize_doaps([audio_specific_doap])
+        assert result is not None
+        assert result.limited_view_all_classes_doaps == []
+        assert result.limited_view_specific_class_doaps == [audio_specific_doap]
+
+    def test_categorize_all_three_all_class_doaps(
+        self,
+        img_all_doap: dict[str, Any],
+        video_all_doap: dict[str, Any],
+        audio_all_doap: dict[str, Any],
+    ) -> None:
+        result = _categorize_doaps([img_all_doap, video_all_doap, audio_all_doap])
+        assert result is not None
+        assert len(result.limited_view_all_classes_doaps) == 3
+        assert result.limited_view_specific_class_doaps == []
+
+    def test_validate_video_all_doap(self, video_all_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[video_all_doap],
+            limited_view_specific_class_doaps=[],
+        )
+        assert _validate_doap_categories(categories)
+
+    def test_validate_audio_all_doap(self, audio_all_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[audio_all_doap],
+            limited_view_specific_class_doaps=[],
+        )
+        assert _validate_doap_categories(categories)
+
+    def test_validate_video_specific_doap(self, video_specific_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[],
+            limited_view_specific_class_doaps=[video_specific_doap],
+        )
+        assert _validate_doap_categories(categories)
+
+    def test_validate_audio_specific_doap(self, audio_specific_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[],
+            limited_view_specific_class_doaps=[audio_specific_doap],
+        )
+        assert _validate_doap_categories(categories)
+
+    def test_construct_overrule_video_specific(self, video_specific_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[],
+            limited_view_specific_class_doaps=[video_specific_doap],
+        )
+        prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
+        result = _construct_overrule_object(categories, prefixes_inverted)
+        assert result == {"limited_view": ["my-onto:VideoClass"]}
+
+    def test_construct_overrule_audio_specific(self, audio_specific_doap: dict[str, Any]) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[],
+            limited_view_specific_class_doaps=[audio_specific_doap],
+        )
+        prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
+        result = _construct_overrule_object(categories, prefixes_inverted)
+        assert result == {"limited_view": ["my-onto:AudioClass"]}
+
+    def test_construct_overrule_all_three_specific(
+        self,
+        img_specific_doap: dict[str, Any],
+        video_specific_doap: dict[str, Any],
+        audio_specific_doap: dict[str, Any],
+    ) -> None:
+        categories = DoapCategories(
+            class_doaps=[],
+            prop_doaps=[],
+            limited_view_all_classes_doaps=[],
+            limited_view_specific_class_doaps=[img_specific_doap, video_specific_doap, audio_specific_doap],
+        )
+        prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
+        result = _construct_overrule_object(categories, prefixes_inverted)
+        assert result is not None
+        assert set(result["limited_view"]) == {  # type: ignore[arg-type]
+            "my-onto:ImageClass",
+            "my-onto:VideoClass",
+            "my-onto:AudioClass",
+        }

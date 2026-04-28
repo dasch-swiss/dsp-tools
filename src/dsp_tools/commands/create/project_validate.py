@@ -27,6 +27,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
+from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
@@ -131,7 +132,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
         ) from None
 
 
-def _complex_parsed_project_validation(
+def _complex_parsed_project_validation(  # noqa: PLR0912
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
 ) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle]]:
     cls_iris = []
@@ -179,10 +180,13 @@ def _complex_parsed_project_validation(
         problems.append(duplicate_cards)
     # PERMISSIONS
     still_image_classes, moving_image_classes, audio_classes = _get_limited_view_classes(cls_flattened)
-    if perm_problem := _check_for_invalid_default_permissions_overrule(
+    perm_problem, classified = _check_for_invalid_default_permissions_overrule(
         parsed_permissions, prop_iris, cls_iris, still_image_classes, moving_image_classes, audio_classes
-    ):
+    )
+    if perm_problem:
         problems.append(perm_problem)
+    if classified is not None:
+        parsed_permissions.overrule_limited_view = classified
     potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
         props_flattened, cardinalities_flattened
     )
@@ -316,9 +320,9 @@ def _check_for_invalid_default_permissions_overrule(
     still_image_classes: set[str],
     moving_image_classes: set[str],
     audio_classes: set[str],
-) -> CollectedProblems | None:
+) -> tuple[CollectedProblems | None, ClassifiedLimitedViewPermissions | None]:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
-        return None
+        return None, None
 
     defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
@@ -329,17 +333,17 @@ def _check_for_invalid_default_permissions_overrule(
         )
         problems.extend(unknown_private_problems)
 
+    classified: ClassifiedLimitedViewPermissions | None = None
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
-            problems.extend(
-                _check_limited_view_selection(
-                    parsed_permissions.overrule_limited_view,
-                    defined_iris_in_ontology,
-                    still_image_classes,
-                    moving_image_classes,
-                    audio_classes,
-                )
+            limited_problems, classified = _check_limited_view_selection(
+                parsed_permissions.overrule_limited_view,
+                defined_iris_in_ontology,
+                still_image_classes,
+                moving_image_classes,
+                audio_classes,
             )
+            problems.extend(limited_problems)
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             # no checks necessary
             pass
@@ -348,8 +352,8 @@ def _check_for_invalid_default_permissions_overrule(
 
     if problems:
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
-        return CollectedProblems(err_msg, problems)
-    return None
+        return CollectedProblems(err_msg, problems), classified
+    return None, classified
 
 
 def _check_limited_view_selection(
@@ -358,30 +362,26 @@ def _check_limited_view_selection(
     still_image_classes: set[str],
     moving_image_classes: set[str],
     audio_classes: set[str],
-) -> list[CreateProblem]:
+) -> tuple[list[CreateProblem], ClassifiedLimitedViewPermissions]:
     problems: list[CreateProblem] = []
     limited_iris = set(limited_view.limited_selection)
-    iris_defined_in_the_ontology, undefined_iri_problems = _get_unknown_iris_and_problem(
+    unknown_iris, undefined_iri_problems = _get_unknown_iris_and_problem(
         limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
     )
     problems.extend(undefined_iri_problems)
-    # if we do not subtract the unknown iris,
-    # they will be duplicated in this check as they are not recognised as valid representation subclasses
-    limited_to_check = limited_iris - iris_defined_in_the_ontology
+    # Exclude unknown iris to avoid duplicate errors: they are not valid representation subclasses either
+    known_iris = limited_iris - unknown_iris
     all_valid_classes = still_image_classes | moving_image_classes | audio_classes
     _, not_valid_problems = _get_unknown_iris_and_problem(
-        limited_to_check, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+        known_iris, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
     )
     problems.extend(not_valid_problems)
-    # Populate classified lists on the model for use during DOAP creation
-    for iri in limited_to_check:
-        if iri in still_image_classes:
-            limited_view.still_image.append(iri)
-        elif iri in moving_image_classes:
-            limited_view.moving_image.append(iri)
-        elif iri in audio_classes:
-            limited_view.audio.append(iri)
-    return problems
+    classified = ClassifiedLimitedViewPermissions(
+        still_image=[iri for iri in known_iris if iri in still_image_classes],
+        moving_image=[iri for iri in known_iris if iri in moving_image_classes],
+        audio=[iri for iri in known_iris if iri in audio_classes],
+    )
+    return problems, classified
 
 
 def _get_unknown_iris_and_problem(

@@ -3,12 +3,13 @@ from unittest.mock import MagicMock
 import pytest
 
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
+from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
-from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
@@ -16,10 +17,9 @@ STILL_IMAGE_IRI = f"{ONTO_NAMESPACE_STR}ImageResource"
 MOVING_IMAGE_IRI = f"{ONTO_NAMESPACE_STR}VideoResource"
 AUDIO_IRI = f"{ONTO_NAMESPACE_STR}AudioResource"
 
-_KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
-_STILL_IMAGE_FILE_VALUE = f"{_KNORA_API}hasStillImageFileValue"
-_MOVING_IMAGE_FILE_VALUE = f"{_KNORA_API}hasMovingImageFileValue"
-_AUDIO_FILE_VALUE = f"{_KNORA_API}hasAudioFileValue"
+_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
+_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
+_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
 _ALL_FILE_VALUE_PROPS = {_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE}
 
 
@@ -96,8 +96,7 @@ def test_create_default_permissions_with_limited_view_all(
 def test_create_default_permissions_with_limited_view_specific_classes(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = LimitedViewPermissionsSelection(
-        limited_selection=[STILL_IMAGE_IRI, MOVING_IMAGE_IRI, AUDIO_IRI],
+    limited_view = ClassifiedLimitedViewPermissions(
         still_image=[STILL_IMAGE_IRI],
         moving_image=[MOVING_IMAGE_IRI],
         audio=[AUDIO_IRI],
@@ -129,8 +128,7 @@ def test_create_default_permissions_with_limited_view_specific_classes(
 def test_create_default_permissions_with_limited_view_still_image_only(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = LimitedViewPermissionsSelection(
-        limited_selection=[STILL_IMAGE_IRI],
+    limited_view = ClassifiedLimitedViewPermissions(
         still_image=[STILL_IMAGE_IRI],
         moving_image=[],
         audio=[],

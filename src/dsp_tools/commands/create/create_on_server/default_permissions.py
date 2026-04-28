@@ -5,6 +5,7 @@ from functools import partial
 from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
@@ -14,6 +15,7 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import should_retry_request
 
@@ -99,7 +101,12 @@ def _create_overrules(
         if parsed_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
             return overall_success
 
-    success = _handle_limited_view_overrule(parsed_permissions.overrule_limited_view, perm_client)
+    overrule = parsed_permissions.overrule_limited_view
+    if isinstance(overrule, LimitedViewPermissionsSelection):
+        raise UnreachableCodeError(
+            "overrule_limited_view must be classified before create_default_permissions is called"
+        )
+    success = _handle_limited_view_overrule(overrule, perm_client)
     if not success:
         overall_success = False
 
@@ -126,19 +133,18 @@ def _separate_props_and_classes(
     return props, cls
 
 
-_KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
-_STILL_IMAGE_FILE_VALUE = f"{_KNORA_API}hasStillImageFileValue"
-_MOVING_IMAGE_FILE_VALUE = f"{_KNORA_API}hasMovingImageFileValue"
-_AUDIO_FILE_VALUE = f"{_KNORA_API}hasAudioFileValue"
+_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
+_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
+_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
 
 
 def _handle_limited_view_overrule(
-    overrule_limited_view: GlobalLimitedViewPermission | LimitedViewPermissionsSelection,
+    overrule_limited_view: GlobalLimitedViewPermission | ClassifiedLimitedViewPermissions,
     perm_client: PermissionsClient,
 ) -> bool:
     overall_success = True
     match overrule_limited_view:
-        case LimitedViewPermissionsSelection():
+        case ClassifiedLimitedViewPermissions():
             for iri in overrule_limited_view.still_image:
                 if not _create_one_limited_view_overrule(perm_client, _STILL_IMAGE_FILE_VALUE, iri):
                     overall_success = False
@@ -195,7 +201,7 @@ def _create_one_limited_view_overrule(
 
     return _execute_with_retry_on_server_error(
         lambda: perm_client.create_new_doap(payload),
-        f"create_limited_view_overrule(prop={file_value_prop_iri}, img_class={class_iri})",
+        f"create_limited_view_overrule(prop={file_value_prop_iri}, class_iri={class_iri})",
     )
 
 

@@ -34,7 +34,10 @@ def create_default_permissions(
         print("    WARNING: Cannot create default permissions")
         logger.warning("Cannot create default permissions")
         return False
-    if validated_permissions.overrule_private or validated_permissions.overrule_limited_view:
+    if (
+        validated_permissions.overrule_private is not None
+        or validated_permissions.overrule_limited_view != GlobalLimitedViewPermission.NONE
+    ):
         if not _create_overrules(validated_permissions, perm_client, created_iris):
             print("    WARNING: Cannot create default permissions overrules")
             logger.warning("Cannot create default permissions overrules")
@@ -94,18 +97,19 @@ def _create_overrules(
 ) -> bool:
     overall_success = True
     if validated_permissions.overrule_private:
-        success = _create_private_overrule(validated_permissions.overrule_private, perm_client, created_collection)
-        if not success:
+        if not _create_private_overrule(validated_permissions.overrule_private, perm_client, created_collection):
             overall_success = False
 
-    if isinstance(validated_permissions.overrule_limited_view, GlobalLimitedViewPermission):
-        if validated_permissions.overrule_limited_view == GlobalLimitedViewPermission.NONE:
-            return overall_success
-
-    overrule = validated_permissions.overrule_limited_view
-    success = _handle_limited_view_overrule(overrule, perm_client)
-    if not success:
-        overall_success = False
+    match validated_permissions.overrule_limited_view:
+        case GlobalLimitedViewPermission.NONE:
+            pass
+        case GlobalLimitedViewPermission.ALL | ClassifiedLimitedViewPermissions():
+            if not _handle_limited_view_overrule(validated_permissions.overrule_limited_view, perm_client):
+                overall_success = False
+        case _:
+            raise UnreachableCodeError(
+                f"Unknown overrule_limited_view: {validated_permissions.overrule_limited_view!r}"
+            )
 
     return overall_success
 

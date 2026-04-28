@@ -356,6 +356,10 @@ def _check_for_invalid_default_permissions_overrule(
             validated_limited_view = classified
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
             validated_limited_view = parsed_permissions.overrule_limited_view
+        case _:
+            raise UnreachableCodeError(
+                f"Unknown overrule_limited_view type: {parsed_permissions.overrule_limited_view!r}"
+            )
 
     collected: CollectedProblems | None = None
     if problems:

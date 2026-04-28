@@ -46,10 +46,11 @@ from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
-NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "\n   No validation errors found!   " + RESET_TO_DEFAULT
+NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "No validation errors found!   " + RESET_TO_DEFAULT
 
 
 def validate_data(
@@ -120,41 +121,42 @@ def validate_parsed_resources(
     _ = ProjectClientLive(auth.server, auth).get_project_iri(shortcode)
 
     msg = "Starting SHACL schema validation."
-    print(msg)
-    logger.debug(msg)
-    rdf_graphs, triple_stores, used_iris, existing_resources_retrieved = (
-        prepare_data_for_validation_from_parsed_resource(
-            parsed_resources=parsed_resources,
-            authorship_lookup=authorship_lookup,
-            permission_ids=permission_ids,
-            auth=auth,
-            shortcode=shortcode,
-            do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
+    sp = get_default_spinner(msg)
+    with sp:
+        logger.debug(msg)
+        rdf_graphs, triple_stores, used_iris, existing_resources_retrieved = (
+            prepare_data_for_validation_from_parsed_resource(
+                parsed_resources=parsed_resources,
+                authorship_lookup=authorship_lookup,
+                permission_ids=permission_ids,
+                auth=auth,
+                shortcode=shortcode,
+                do_not_request_resource_metadata_from_db=config.do_not_request_resource_metadata_from_db,
+            )
         )
-    )
-    validation_result = _validate_data(
-        rdf_graphs, triple_stores, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
-    )
-    if validation_result.cardinalities_with_potential_circle:
-        print_msg_str_for_potential_problematic_circles(validation_result.cardinalities_with_potential_circle)
+        validation_result = _validate_data(
+            rdf_graphs, triple_stores, used_iris, parsed_resources, config, shortcode, existing_resources_retrieved
+        )
+        if validation_result.cardinalities_with_potential_circle:
+            print_msg_str_for_potential_problematic_circles(validation_result.cardinalities_with_potential_circle)
 
-    if validation_result.no_problems:
-        logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
-        print(NO_VALIDATION_ERRORS_FOUND_MSG)
-        return True
+        if validation_result.no_problems:
+            logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
+            sp.ok(f"✔ {NO_VALIDATION_ERRORS_FOUND_MSG}")
+            return True
 
     match validation_result.problems:
         case UnknownClassesInData():
             msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
+            sp.print(f"✘ {VALIDATION_ERRORS_FOUND_MSG}")
             logger.error(msg)
-            print(VALIDATION_ERRORS_FOUND_MSG)
             print(msg + "\n")
             # if unknown classes are found, we cannot validate all the data in the file
             return False
         case OntologyValidationProblem():
             msg = get_msg_str_ontology_validation_violation(validation_result.problems)
+            sp.print(f"✘ {VALIDATION_ERRORS_FOUND_MSG}")
             logger.error(msg)
-            print(VALIDATION_ERRORS_FOUND_MSG)
             print(msg + "\n")
             # if the ontology itself has errors, we will not validate the data
             return False

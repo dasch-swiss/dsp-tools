@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from dsp_tools.commands.create.create_on_server.default_permissions import create_default_permissions
-from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -96,10 +96,10 @@ def test_create_default_permissions_with_limited_view_all(
 def test_create_default_permissions_with_limited_view_specific_classes(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = ClassifiedLimitedViewPermissions(
-        still_image=[STILL_IMAGE_IRI],
-        moving_image=[MOVING_IMAGE_IRI],
-        audio=[AUDIO_IRI],
+    limited_view = LimitedViewClasses(
+        still_image={STILL_IMAGE_IRI},
+        moving_image={MOVING_IMAGE_IRI},
+        audio={AUDIO_IRI},
     )
 
     result = create_default_permissions(
@@ -128,10 +128,10 @@ def test_create_default_permissions_with_limited_view_specific_classes(
 def test_create_default_permissions_with_limited_view_still_image_only(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = ClassifiedLimitedViewPermissions(
-        still_image=[STILL_IMAGE_IRI],
-        moving_image=[],
-        audio=[],
+    limited_view = LimitedViewClasses(
+        still_image={STILL_IMAGE_IRI},
+        moving_image=set(),
+        audio=set(),
     )
 
     result = create_default_permissions(
@@ -157,10 +157,10 @@ def test_create_default_permissions_with_limited_view_still_image_only(
 def test_create_default_permissions_with_limited_view_moving_image_only(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = ClassifiedLimitedViewPermissions(
-        still_image=[],
-        moving_image=[MOVING_IMAGE_IRI],
-        audio=[],
+    limited_view = LimitedViewClasses(
+        still_image=set(),
+        moving_image={MOVING_IMAGE_IRI},
+        audio=set(),
     )
 
     result = create_default_permissions(
@@ -186,10 +186,10 @@ def test_create_default_permissions_with_limited_view_moving_image_only(
 def test_create_default_permissions_with_limited_view_audio_only(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
-    limited_view = ClassifiedLimitedViewPermissions(
-        still_image=[],
-        moving_image=[],
-        audio=[AUDIO_IRI],
+    limited_view = LimitedViewClasses(
+        still_image=set(),
+        moving_image=set(),
+        audio={AUDIO_IRI},
     )
 
     result = create_default_permissions(

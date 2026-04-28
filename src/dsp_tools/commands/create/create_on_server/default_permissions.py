@@ -5,9 +5,9 @@ from functools import partial
 from loguru import logger
 
 from dsp_tools.clients.permissions_client import PermissionsClient
-from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -103,7 +103,7 @@ def _create_overrules(
     match validated_permissions.overrule_limited_view:
         case GlobalLimitedViewPermission.NONE:
             pass
-        case GlobalLimitedViewPermission.ALL | ClassifiedLimitedViewPermissions():
+        case GlobalLimitedViewPermission.ALL | LimitedViewClasses():
             if not _handle_limited_view_overrule(validated_permissions.overrule_limited_view, perm_client):
                 overall_success = False
         case _:
@@ -141,19 +141,19 @@ _AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
 
 
 def _handle_limited_view_overrule(
-    overrule_limited_view: GlobalLimitedViewPermission | ClassifiedLimitedViewPermissions,
+    overrule_limited_view: GlobalLimitedViewPermission | LimitedViewClasses,
     perm_client: PermissionsClient,
 ) -> bool:
     overall_success = True
     match overrule_limited_view:
-        case ClassifiedLimitedViewPermissions():
+        case LimitedViewClasses():
             groups = [
                 (_STILL_IMAGE_FILE_VALUE, overrule_limited_view.still_image),
                 (_MOVING_IMAGE_FILE_VALUE, overrule_limited_view.moving_image),
                 (_AUDIO_FILE_VALUE, overrule_limited_view.audio),
             ]
             for prop_iri, iris in groups:
-                for iri in iris:
+                for iri in sorted(iris):
                     if not _create_one_limited_view_overrule(perm_client, prop_iri, iri):
                         overall_success = False
         case GlobalLimitedViewPermission.ALL:

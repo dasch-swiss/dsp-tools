@@ -5,7 +5,6 @@ import json
 from collections import Counter
 from collections import defaultdict
 from copy import deepcopy
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -28,9 +27,9 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinal
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
-from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
@@ -341,7 +340,7 @@ def _check_for_invalid_default_permissions_overrule(
         )
         problems.extend(unknown_private_problems)
 
-    validated_limited_view: ClassifiedLimitedViewPermissions | GlobalLimitedViewPermission
+    validated_limited_view: LimitedViewClasses | GlobalLimitedViewPermission
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
             limited_problems, classified = _check_limited_view_selection(
@@ -373,7 +372,7 @@ def _check_limited_view_selection(
     limited_view: LimitedViewPermissionsSelection,
     defined_iris_in_ontology: set[str],
     limited_view_classes: LimitedViewClasses,
-) -> tuple[list[CreateProblem], ClassifiedLimitedViewPermissions]:
+) -> tuple[list[CreateProblem], LimitedViewClasses]:
     problems: list[CreateProblem] = []
     limited_iris = set(limited_view.limited_selection)
     unknown_iris, undefined_iri_problems = _get_unknown_iris_and_problem(
@@ -389,10 +388,10 @@ def _check_limited_view_selection(
         known_iris, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
     )
     problems.extend(not_valid_problems)
-    classified = ClassifiedLimitedViewPermissions(
-        still_image=[iri for iri in known_iris if iri in limited_view_classes.still_image],
-        moving_image=[iri for iri in known_iris if iri in limited_view_classes.moving_image],
-        audio=[iri for iri in known_iris if iri in limited_view_classes.audio],
+    classified = LimitedViewClasses(
+        still_image=known_iris & limited_view_classes.still_image,
+        moving_image=known_iris & limited_view_classes.moving_image,
+        audio=known_iris & limited_view_classes.audio,
     )
     return problems, classified
 
@@ -403,13 +402,6 @@ def _get_unknown_iris_and_problem(
     if unknown := used_iris - defined_iris_in_ontology:
         return unknown, [InputProblem(from_dsp_iri_to_prefixed_iri(x), problem_type) for x in unknown]
     return set(), []
-
-
-@dataclass
-class LimitedViewClasses:
-    still_image: set[str]
-    moving_image: set[str]
-    audio: set[str]
 
 
 def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> LimitedViewClasses:

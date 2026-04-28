@@ -3,13 +3,12 @@ import pytest
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
-from dsp_tools.commands.create.models.parsed_project import ClassifiedLimitedViewPermissions
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.parsed_project import ValidatedPermissions
-from dsp_tools.commands.create.project_validate import LimitedViewClasses
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
 from dsp_tools.commands.create.project_validate import _get_limited_view_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -136,10 +135,10 @@ def test_check_overrule_valid_still_image(
         perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
-    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
-    assert validated.overrule_limited_view.still_image == [TEST_STILL_IMAGE]
-    assert validated.overrule_limited_view.moving_image == []
-    assert validated.overrule_limited_view.audio == []
+    assert isinstance(validated.overrule_limited_view, LimitedViewClasses)
+    assert validated.overrule_limited_view.still_image == {TEST_STILL_IMAGE}
+    assert validated.overrule_limited_view.moving_image == set()
+    assert validated.overrule_limited_view.audio == set()
 
 
 def test_check_overrule_valid_moving_image(
@@ -154,10 +153,10 @@ def test_check_overrule_valid_moving_image(
         perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
-    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
-    assert validated.overrule_limited_view.still_image == []
-    assert validated.overrule_limited_view.moving_image == [TEST_MOVING_IMAGE]
-    assert validated.overrule_limited_view.audio == []
+    assert isinstance(validated.overrule_limited_view, LimitedViewClasses)
+    assert validated.overrule_limited_view.still_image == set()
+    assert validated.overrule_limited_view.moving_image == {TEST_MOVING_IMAGE}
+    assert validated.overrule_limited_view.audio == set()
 
 
 def test_check_overrule_valid_audio(
@@ -172,10 +171,10 @@ def test_check_overrule_valid_audio(
         perm, known_props, known_classes, limited_view_classes
     )
     assert problems is None
-    assert isinstance(validated.overrule_limited_view, ClassifiedLimitedViewPermissions)
-    assert validated.overrule_limited_view.still_image == []
-    assert validated.overrule_limited_view.moving_image == []
-    assert validated.overrule_limited_view.audio == [TEST_AUDIO]
+    assert isinstance(validated.overrule_limited_view, LimitedViewClasses)
+    assert validated.overrule_limited_view.still_image == set()
+    assert validated.overrule_limited_view.moving_image == set()
+    assert validated.overrule_limited_view.audio == {TEST_AUDIO}
 
 
 def test_check_overrule_unknown_private(

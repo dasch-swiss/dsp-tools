@@ -172,8 +172,8 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
     """
     class_doaps = []
     prop_doaps = []
-    has_img_all_classes_doaps = []
-    has_img_specific_class_doaps = []
+    limited_view_all_classes_doaps = []
+    limited_view_specific_class_doaps = []
     other_doaps = []
     for doap in project_doaps:
         match (doap.get("forResourceClass"), doap.get("forProperty")):
@@ -182,9 +182,9 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
             case (None, for_prop) if for_prop and not _is_file_value_prop(for_prop):
                 prop_doaps.append(doap)
             case (None, for_prop) if for_prop and _is_file_value_prop(for_prop):
-                has_img_all_classes_doaps.append(doap)
+                limited_view_all_classes_doaps.append(doap)
             case (for_class, for_prop) if for_class and for_prop and _is_file_value_prop(for_prop):
-                has_img_specific_class_doaps.append(doap)
+                limited_view_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
     # Only validate other_doaps if there are any
@@ -195,8 +195,8 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
     return DoapCategories(
         class_doaps=class_doaps,
         prop_doaps=prop_doaps,
-        has_img_all_classes_doaps=has_img_all_classes_doaps,
-        has_img_specific_class_doaps=has_img_specific_class_doaps,
+        limited_view_all_classes_doaps=limited_view_all_classes_doaps,
+        limited_view_specific_class_doaps=limited_view_specific_class_doaps,
     )
 
 
@@ -204,7 +204,7 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> bool:
     privates_valid = [_validate_private_doap(d) for d in doap_categories.class_doaps + doap_categories.prop_doaps]
     limited_views_valid = [
         _validate_limited_view_doap(d)
-        for d in doap_categories.has_img_all_classes_doaps + doap_categories.has_img_specific_class_doaps
+        for d in doap_categories.limited_view_all_classes_doaps + doap_categories.limited_view_specific_class_doaps
     ]
     return all(privates_valid) and all(limited_views_valid)
 
@@ -267,17 +267,20 @@ def _construct_overrule_object(
         privates.append(_get_prefixed_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     limited_views: list[str] | Literal["all"]
-    if len(doap_categories.has_img_all_classes_doaps) > len(_LIMITED_VIEW_FILE_VALUE_PROPS):
-        logger.warning("Found more all-images DOAPs than expected file value property types")
+    if len(doap_categories.limited_view_all_classes_doaps) > len(_LIMITED_VIEW_FILE_VALUE_PROPS):
+        logger.warning("Found more limited_view DOAPs (no class restriction) than expected file value property types")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) > 0 and len(doap_categories.has_img_specific_class_doaps) > 0:
-        logger.warning("If there are DOAPs for all images, there cannot be DOAPs for specific img classes")
+    if (
+        len(doap_categories.limited_view_all_classes_doaps) > 0
+        and len(doap_categories.limited_view_specific_class_doaps) > 0
+    ):
+        logger.warning("Cannot have both all-classes limited_view DOAPs and specific-class limited_view DOAPs")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) > 0:
+    if len(doap_categories.limited_view_all_classes_doaps) > 0:
         limited_views = "all"
     else:
         limited_views = []
-        for img_doap in doap_categories.has_img_specific_class_doaps:
+        for img_doap in doap_categories.limited_view_specific_class_doaps:
             limited_views.append(_get_prefixed_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str] | Literal["all"]] = {}

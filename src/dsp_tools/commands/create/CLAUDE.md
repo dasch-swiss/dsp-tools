@@ -109,7 +109,7 @@ Instead of failing fast, the create command collects all problems:
 - **Models**: `CollectedProblems` groups related problems with a message
 - **Problem Types**: `InputProblem`, `CreateProblem` for different error sources
 - **Display**: `communicate_problems.py` formats problems for user display
-- **Return Type**: Functions return `list[CollectedProblems] | tuple[ParsedProject, ValidatedPermissions]`
+- **Return Type**: Functions return `list[CollectedProblems] | ParsedProject`
 - **Benefit**: Users see all issues at once, not just the first error
 
 ## Parsing Pipeline (`parsing/`)
@@ -217,7 +217,7 @@ Cardinalities can be sorted by ontology, as they do not have any inter-ontology 
 
 - Creates DOAP (Default Object Access Permission) settings
 - Uses created IRIs from ontology creation
-- Accepts a `ValidatedPermissions` (the post-validation type) rather than `ParsedPermissions`
+- Accepts the post-validation `ParsedPermissions` (where `overrule_limited_view` is already a `LimitedViewClasses | GlobalLimitedViewPermission`)
 
 ### Why This Order Matters
 
@@ -279,6 +279,9 @@ Maps parsed cardinality values to OWL restrictions:
 - **`ParsedProject`**: Complete project with all sections
 - **`ParsedProjectMetadata`**: Project info (shortcode, names, descriptions)
 - **`ParsedPermissions`**: Default permissions + overrule settings
+- **`LimitedViewClasses`**: Classified representation IRIs (still_image / moving_image / audio sets)
+- **`LimitedViewPermissionsSelection`**: Transient flat list of IRIs from JSON parsing (pre-validation)
+- **`GlobalLimitedViewPermission`**: ALL or NONE sentinel for limited_view
 - **`ParsedGroup`**: Group with multilingual descriptions
 - **`ParsedUser`**: User credentials and info
 - **`ParsedList`**: Hierarchical list with nodes

@@ -894,7 +894,8 @@ class TestMovingImageAndAudioDoapTypes:
         prefixes_inverted = {"http://www.knora.org/ontology/1234/my-onto": "my-onto"}
         result = _construct_overrule_object(categories, prefixes_inverted)
         assert result is not None
-        assert set(result["limited_view"]) == {  # type: ignore[arg-type]
+        assert isinstance(result["limited_view"], list)
+        assert set(result["limited_view"]) == {
             "my-onto:ImageClass",
             "my-onto:VideoClass",
             "my-onto:AudioClass",

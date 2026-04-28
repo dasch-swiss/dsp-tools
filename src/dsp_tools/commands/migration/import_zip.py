@@ -33,10 +33,29 @@ def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
 
 def execute_import(client: MigrationImportClient, config: MigrationConfig) -> tuple[bool, ImportId]:
     logger.debug("Starting Import of Project")
-    import_id = client.post_import(config.export_savepath)
+    import_id = _upload_zip(client, config)
     write_or_update_reference_json(config.reference_savepath, import_id=import_id)
     logger.info(f"Import ID of project: {import_id.id_}")
     return _check_import_progress(client, import_id), import_id
+
+
+def _upload_zip(client: MigrationImportClient, config: MigrationConfig) -> ImportId:
+    with yaspin(
+        Spinners.bouncingBall,
+        color="light_green",
+        on_color="on_black",
+        attrs=["bold", "blink"],
+    ) as sp:
+        sp.text = "Uploading project"
+        logger.debug("Uploading project ZIP")
+        try:
+            import_id = client.post_import(config.export_savepath)
+        except Exception:
+            sp.fail("✘")
+            raise
+        logger.info("Upload completed.")
+        sp.ok("✔")
+    return import_id
 
 
 def _check_import_progress(

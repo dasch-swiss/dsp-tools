@@ -22,7 +22,7 @@ to ensure data conforms to ontological constraints before upload.
     - Runs SHACL validation using a containerized CLI tool
     - Handles Docker communication and error handling
     - Parses validation results back into Python objects
-    - Requires Docker Desktop to be running
+    - Requires Docker to be running
 
 ### Data Preparation Pipeline (`prepare_data/`)
 
@@ -156,7 +156,7 @@ Validation results are categorized into:
 
 ## Important Notes
 
-- **Docker Requirement**: Validation requires Docker Desktop to be running for SHACL validation
+- **Docker Requirement**: Validation requires Docker to be running for SHACL validation
 - **Local SHACL Validation**: Validation is performed locally using a Docker container, not server-side
 - **Temporary File Management**: Creates temporary files for Docker communication, automatically cleaned up
 - **Graph Saving**: Optional graph saving functionality for debugging complex validation failures  

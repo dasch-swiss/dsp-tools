@@ -178,7 +178,7 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
 
 
 def _create_one_limited_view_overrule(
-    perm_client: PermissionsClient, file_value_prop_iri: str, img_class_iri: str | None
+    perm_client: PermissionsClient, file_value_prop_iri: str, class_iri: str | None
 ) -> bool:
     perm = [
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
@@ -188,14 +188,14 @@ def _create_one_limited_view_overrule(
     ]
     payload = {
         "forProperty": file_value_prop_iri,
-        "forResourceClass": img_class_iri,
+        "forResourceClass": class_iri,
         "forProject": perm_client.project_iri,
         "hasPermissions": perm,
     }
 
     return _execute_with_retry_on_server_error(
         lambda: perm_client.create_new_doap(payload),
-        f"create_limited_view_overrule(prop={file_value_prop_iri}, img_class={img_class_iri})",
+        f"create_limited_view_overrule(prop={file_value_prop_iri}, img_class={class_iri})",
     )
 
 

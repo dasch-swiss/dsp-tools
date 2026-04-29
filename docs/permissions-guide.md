@@ -37,6 +37,19 @@ A group can hold exactly one right, and each right includes all the rights below
 > `CR` implies `D`, which implies `M`, which implies `V`.
 > `RV` is a separate, more restrictive access level — it does not follow from `V`.
 
+### The Three Access Tiers
+
+Most DSP projects are configured around three conventional access tiers:
+
+| Tier | Who can access it |
+| -------------- | ------------------------------------------------------------------------------- |
+| `public` | Everyone, including anonymous visitors |
+| `limited_view` | Everyone, but outsiders see images at reduced quality (blurred or watermarked) and cannot download audio or video files |
+| `private` | Project members and project admins only — invisible to all outsiders |
+
+These are the permission IDs used as conventions throughout DSP-TOOLS documentation and tooling.
+The technical definitions are in [Defining Permission IDs With `<permissions>`](#defining-permission-ids-with-permissions).
+
 ## Layer 1: Project-Wide Defaults (JSON)
 
 The JSON project file sets a baseline that applies to every resource and value

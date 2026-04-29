@@ -1,5 +1,25 @@
 # Changelog
 
+## [18.13.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.12.0...v18.13.0) (2026-04-29)
+
+
+### Enhancements
+
+* add spinner to long process in `validate-data` and `xmlupload` (DEV-6318) ([#2282](https://github.com/dasch-swiss/dsp-tools/issues/2282)) ([1d4d12c](https://github.com/dasch-swiss/dsp-tools/commit/1d4d12c052805bf64cfdb4b35dad3c447abe42fc))
+* **migration:** add progress spinner during ZIP upload in import phase (DEV-6307) ([#2275](https://github.com/dasch-swiss/dsp-tools/issues/2275)) ([b8a59c5](https://github.com/dasch-swiss/dsp-tools/commit/b8a59c5e3afd64c94cf1f6d5d2bc7a113d769f3b))
+
+
+### Bug Fixes
+
+* **validate-data:** change Docker Volume Mount Path to make it SELinux save (DEV-6303) ([#2276](https://github.com/dasch-swiss/dsp-tools/issues/2276)) ([9a905f3](https://github.com/dasch-swiss/dsp-tools/commit/9a905f356d7e150ab5409ac45d8973ca28e12bab))
+* **xmlupload:** resolve internal links inside footnote content (DEV-6289) ([#2274](https://github.com/dasch-swiss/dsp-tools/issues/2274)) ([c2e8d3c](https://github.com/dasch-swiss/dsp-tools/commit/c2e8d3c939adcd6d45f72391f33e814d85c361b0))
+
+
+### Maintenance
+
+* adapt dsp-app-config.json to template in ops-deploy repo ([#2273](https://github.com/dasch-swiss/dsp-tools/issues/2273)) ([3bb3a37](https://github.com/dasch-swiss/dsp-tools/commit/3bb3a37743217085412b02c9b664a199637923b2))
+* **start-stack:** bump versions to 2026.04.03 ([#2285](https://github.com/dasch-swiss/dsp-tools/issues/2285)) ([6a63860](https://github.com/dasch-swiss/dsp-tools/commit/6a638603f84f07a264960c6234cdd9ed0198aa74))
+
 ## [18.12.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.11.0...v18.12.0) (2026-04-22)
 
 

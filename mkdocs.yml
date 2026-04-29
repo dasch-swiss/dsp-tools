@@ -8,6 +8,8 @@ edit_uri: blob/main/docs/
 
 nav:
   - Overview: index.md
+  - User Guides:
+      - Permissions: permissions-guide.md
   - Running a Local Stack: local-stack.md
   - Data Modelling:
       - JSON project file:

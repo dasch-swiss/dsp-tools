@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_sh
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
@@ -222,6 +223,65 @@ class TestConstructListNode:
             "(input displayed in format 'listName / NodeName')."
         )
         assert next(result.objects(nd_bn, SH.message)) == Literal(expected_msg, datatype=XSD.string)
+
+
+class TestConstructOneListPropertyShape:
+    def test_generates_sh_node_with_oxigraph_onto(self) -> None:
+        # Regression: Oxigraph normalizes plain literals to xsd:string.
+        # _construct_one_list_property_shape's SPARQL must run against an Oxigraph
+        # store to match these literals; a plain Memory store would return no results.
+        list_iri = "http://rdfh.ch/lists/9999/testList"
+        onto = Graph(store="Oxigraph")
+        onto.parse(
+            data=f"""
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
+            @prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
+            @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+            onto:testListProp a owl:ObjectProperty ;
+                knora-api:objectType knora-api:ListValue ;
+                salsah-gui:guiAttribute "hlist=<{list_iri}>" .
+            """,
+            format="ttl",
+        )
+        test_list = OneList(
+            list_iri=list_iri,
+            list_name="testList",
+            nodes=[OneNode("node1", "http://rdfh.ch/lists/9999/node1")],
+        )
+        result = Graph()
+        _construct_one_list_property_shape(result, onto, test_list)
+        assert (ONTO.testListProp_PropShape, SH.node, URIRef(list_iri)) in result
+
+    def test_no_match_when_onto_is_plain_memory_graph_with_xsd_string(self) -> None:
+        # Documents the root cause of the regression: when an Oxigraph-backed graph is
+        # combined with another graph via the + operator, rdflib creates a plain Memory
+        # graph. Plain literals in SPARQL do not match xsd:string typed literals in
+        # rdflib's Memory SPARQL engine, so the query returns no results.
+        list_iri = "http://rdfh.ch/lists/9999/testList"
+        ox_graph = Graph(store="Oxigraph")
+        ox_graph.parse(
+            data=f"""
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
+            @prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
+            @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+            onto:testListProp a owl:ObjectProperty ;
+                knora-api:objectType knora-api:ListValue ;
+                salsah-gui:guiAttribute "hlist=<{list_iri}>" .
+            """,
+            format="ttl",
+        )
+        # Simulates the old bug: the + operator copies triples to a plain Memory graph
+        memory_graph = ox_graph + Graph()
+        test_list = OneList(
+            list_iri=list_iri,
+            list_name="testList",
+            nodes=[OneNode("node1", "http://rdfh.ch/lists/9999/node1")],
+        )
+        result = Graph()
+        _construct_one_list_property_shape(result, memory_graph, test_list)
+        assert (ONTO.testListProp_PropShape, SH.node, URIRef(list_iri)) not in result
 
 
 if __name__ == "__main__":

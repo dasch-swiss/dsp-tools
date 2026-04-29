@@ -27,8 +27,8 @@ def construct_shapes_graphs(
         shapes graph
     """
     logger.debug("Constructing SHACL shapes from ontology.")
-    knora_subset = _get_all_relevant_knora_subset(knora_api)
-    graph_to_query = knora_subset + onto
+    graph_to_query = _get_all_relevant_knora_subset(knora_api)
+    graph_to_query += onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
     content = construct_property_shapes(graph_to_query, project_info_from_api.all_lists)
     content += construct_allowed_licenses_shape(project_info_from_api.enabled_licenses)

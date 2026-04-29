@@ -1,5 +1,4 @@
 ---
-
 services:
   api:
     # on the verge of every deployment, update the "image" value from the "api" value of

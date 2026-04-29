@@ -1,5 +1,8 @@
+import io
+import shutil
 from pathlib import Path
 
+import pyoxigraph as ox
 from loguru import logger
 from rdflib import Graph
 
@@ -77,15 +80,45 @@ def _call_shacl_cli(
 
 def _create_and_write_graphs(rdf_graphs: RDFGraphs, tmp_path: Path) -> None:
     logger.debug("Serialise RDF graphs into turtle files")
-    # The graphs must be merged in their graph representations and not serialisation due to blank node compatibility.
-    turtle_paths_and_graphs = [
-        (tmp_path / CARDINALITY_DATA_TTL, rdf_graphs.data),
-        (tmp_path / CARDINALITY_SHACL_TTL, rdf_graphs.cardinality_shapes + rdf_graphs.ontos + rdf_graphs.knora_api),
-        (
-            tmp_path / CONTENT_DATA_TTL,
-            rdf_graphs.data + rdf_graphs.ontos + rdf_graphs.knora_api + rdf_graphs.resources_in_db_graph,
-        ),
-        (tmp_path / CONTENT_SHACL_TTL, rdf_graphs.content_shapes + rdf_graphs.ontos + rdf_graphs.knora_api),
-    ]
-    for f_path, graph in turtle_paths_and_graphs:
-        graph.serialize(destination=f_path, format="ox-ttl")
+    rdf_graphs.data.serialize(destination=tmp_path / CARDINALITY_DATA_TTL, format="ox-ttl")
+    shutil.copy(tmp_path / CARDINALITY_DATA_TTL, tmp_path / CONTENT_DATA_TTL)
+    _append_serialised_graphs(
+        tmp_path / CONTENT_DATA_TTL,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+        rdf_graphs.resources_in_db_graph,
+    )
+    _write_serialised_graphs(
+        tmp_path / CARDINALITY_SHACL_TTL,
+        rdf_graphs.cardinality_shapes,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+    )
+    _write_serialised_graphs(
+        tmp_path / CONTENT_SHACL_TTL,
+        rdf_graphs.content_shapes,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+    )
+
+
+def _write_serialised_graphs(dest: Path, *graphs: Graph) -> None:
+    store = _merge_into_ox_store(*graphs)
+    with open(dest, "wb") as f:
+        store.dump(f, format=ox.RdfFormat.TURTLE, from_graph=ox.DefaultGraph())
+
+
+def _append_serialised_graphs(dest: Path, *graphs: Graph) -> None:
+    store = _merge_into_ox_store(*graphs)
+    with open(dest, "ab") as f:
+        store.dump(f, format=ox.RdfFormat.TURTLE, from_graph=ox.DefaultGraph())
+
+
+def _merge_into_ox_store(*graphs: Graph) -> ox.Store:
+    store = ox.Store()
+    for g in graphs:
+        buf = io.BytesIO()
+        g.serialize(buf, format="ox-ttl")
+        buf.seek(0)
+        store.load(buf, format=ox.RdfFormat.TURTLE)
+    return store

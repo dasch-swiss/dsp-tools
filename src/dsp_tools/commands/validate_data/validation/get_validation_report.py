@@ -115,6 +115,10 @@ def _append_serialised_graphs(dest: Path, *graphs: Graph) -> None:
 
 
 def _merge_into_ox_store(*graphs: Graph) -> ox.Store:
+    # Serialise each rdflib Graph to a byte buffer and reload into a raw pyoxigraph Store.
+    # This avoids merging via rdflib's in-memory backend (triggered by Graph.__add__/+=),
+    # which is slow and defeats the purpose of using the Oxigraph store.
+    # The round-trip also guarantees correct blank-node handling during serialisation.
     store = ox.Store()
     for g in graphs:
         buf = io.BytesIO()

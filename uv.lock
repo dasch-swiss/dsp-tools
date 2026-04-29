@@ -441,6 +441,7 @@ dependencies = [
     { name = "loguru" },
     { name = "lxml" },
     { name = "openpyxl" },
+    { name = "oxrdflib" },
     { name = "packaging" },
     { name = "pandas", extra = ["excel"] },
     { name = "polars" },
@@ -499,6 +500,7 @@ requires-dist = [
     { name = "loguru", specifier = "~=0.7.3" },
     { name = "lxml" },
     { name = "openpyxl" },
+    { name = "oxrdflib", specifier = "~=0.5.0" },
     { name = "packaging" },
     { name = "pandas", extras = ["excel"] },
     { name = "polars" },
@@ -1196,6 +1198,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3d/f9/88d94a75de065ea32619465d2f77b29a0469500e99012523b91cc4141cd1/openpyxl-3.1.5.tar.gz", hash = "sha256:cf0e3cf56142039133628b5acffe8ef0c12bc902d2aadd3e0fe5878dc08d1050", size = 186464, upload-time = "2024-06-28T14:03:44.161Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl", hash = "sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2", size = 250910, upload-time = "2024-06-28T14:03:41.161Z" },
+]
+
+[[package]]
+name = "oxrdflib"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyoxigraph" },
+    { name = "rdflib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ec/97/589f244d9a12e033f5216595ef17e7975aabe7f906f709a3a8d1cde37288/oxrdflib-0.5.0.tar.gz", hash = "sha256:f83148e2c6d443f7718c6e8936c6b89e36ebb4f1002da69e8f0656e8fb5a0df2", size = 7708, upload-time = "2025-09-13T19:11:32.584Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c6/f7/9cee8d87f202f88d93179db083508c898deac42b235ff20ade1f456770a1/oxrdflib-0.5.0-py3-none-any.whl", hash = "sha256:dbe7b57bddca1b2acaf93c71ce3cf2022be8e673052e05ad317682cb9c56b559", size = 9925, upload-time = "2025-09-13T19:11:31.368Z" },
 ]
 
 [[package]]

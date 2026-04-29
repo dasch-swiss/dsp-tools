@@ -1,5 +1,6 @@
 from rdflib import RDF
 from rdflib import SH
+from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -29,7 +30,7 @@ def test_construct_allowed_licenses_shape_one_license():
     expected_msg = (
         "Please only use enabled licenses in your data. Consult the project information for enabled licenses."
     )
-    assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg)
+    assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg, datatype=XSD.string)
     assert next(result.objects(prop_shape, SH.severity)) == SH.Violation
 
 
@@ -44,5 +45,5 @@ def test_construct_allowed_licenses_shape_no_license():
     assert next(result.objects(prop_shape, RDF.type)) == SH.PropertyShape
     assert next(result.objects(prop_shape, SH.path)) == KNORA_API.hasLicense
     expected_msg = "You are only allowed to reference enabled licenses. No licenses are enabled for this project."
-    assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg)
+    assert next(result.objects(prop_shape, SH.message)) == Literal(expected_msg, datatype=XSD.string)
     assert next(result.objects(prop_shape, SH.severity)) == SH.Violation

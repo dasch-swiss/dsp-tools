@@ -214,6 +214,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.LessThanConstraintComponent
             | SH.MinExclusiveConstraintComponent
             | SH.MinInclusiveConstraintComponent
+            | SH.MaxInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
             | SH.DatatypeConstraintComponent
         ):

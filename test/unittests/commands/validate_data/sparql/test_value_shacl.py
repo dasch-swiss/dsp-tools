@@ -70,7 +70,9 @@ def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> N
     prop_iri = ONTO.testBoolean_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testBoolean
     assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.BooleanValue
-    assert next(res.objects(prop_iri, SH.message)) == Literal("This property requires a BooleanValue")
+    assert next(res.objects(prop_iri, SH.message)) == Literal(
+        "This property requires a BooleanValue", datatype=XSD.string
+    )
     assert len(res) == 4
 
 
@@ -92,7 +94,7 @@ def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_c
     prop_iri = ONTO.testHasLinkToCardOneResource_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testHasLinkToCardOneResource
     assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.LinkValue
-    assert next(res.objects(prop_iri, SH.message)) == Literal("This property requires a LinkValue")
+    assert next(res.objects(prop_iri, SH.message)) == Literal("This property requires a LinkValue", datatype=XSD.string)
     assert len(res) == 4
 
 

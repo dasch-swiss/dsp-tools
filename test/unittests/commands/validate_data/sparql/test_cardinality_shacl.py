@@ -4,6 +4,7 @@ from pyoxigraph import Store
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -55,7 +56,7 @@ class TestCheckTripleNumbersOnto:
         assert next(result.objects(label_shape, SH.minCount)) == Literal(1)
         assert next(result.objects(label_shape, SH.maxCount)) == Literal(1)
         assert next(result.objects(label_shape, SH.severity)) == SH.Violation
-        assert next(result.objects(label_shape, SH.message)) == Literal("A label is required")
+        assert next(result.objects(label_shape, SH.message)) == Literal("A label is required", datatype=XSD.string)
         standoff_shapes = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))
         assert next(result.subjects(SH.property, standoff_shapes)) == test_cls
         assert next(result.objects(standoff_shapes, RDF.type)) == SH.PropertyShape

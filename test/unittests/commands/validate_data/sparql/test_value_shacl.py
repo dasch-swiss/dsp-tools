@@ -38,9 +38,7 @@ def test_construct_property_shapes(res_and_props_with_simpletext):
 
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:
-    # Private functions take a plain in-memory Graph() as target so no Oxigraph files are created
-    # during the test run; the tests only inspect the resulting triples, not the store backend.
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_link_value_shape(res, link_prop)
     assert len(res) == 3
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
@@ -49,7 +47,7 @@ def test_construct_link_value_shape(link_prop: Graph) -> None:
 
 
 def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_one_property_type_text_value(
         res, one_richtext_prop, "salsah-gui:Richtext", "api-shapes:FormattedTextValue_ClassShape"
     )
@@ -60,14 +58,14 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
 
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _add_property_shapes_to_class_shapes(res, card_1)
     expected_props = {ONTO.testBoolean_PropShape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 
 def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_value_type_shapes_to_class_shapes(res, card_1)
     prop_iri = ONTO.testBoolean_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testBoolean
@@ -77,19 +75,19 @@ def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> N
 
 
 def test_construct_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_value_type_shapes_to_class_shapes(res, link_prop_card_1)
     assert len(res) == 0
 
 
 def test_construct_link_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_link_value_type_shapes_to_class_shapes(res, card_1)
     assert len(res) == 0
 
 
 def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
-    res = Graph()
+    res = Graph(store="Oxigraph")
     _construct_link_value_type_shapes_to_class_shapes(res, link_prop_card_1)
     prop_iri = ONTO.testHasLinkToCardOneResource_PropShape
     assert next(res.objects(prop_iri, SH.path)) == ONTO.testHasLinkToCardOneResource
@@ -105,7 +103,7 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -116,7 +114,7 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 \\ or", "http://rdfh.ch/lists/9999/l2n1or")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -127,7 +125,7 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode('l2n2"', "http://rdfh.ch/lists/9999/l2n2")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -138,7 +136,7 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n3'", "http://rdfh.ch/lists/9999/l2n3")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -149,7 +147,7 @@ class TestConstructListNode:
             list_name="secondList \\ ",
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -160,7 +158,7 @@ class TestConstructListNode:
             list_name='secondList " ',
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -171,7 +169,7 @@ class TestConstructListNode:
             list_name='secondList " ',
             nodes=[OneNode("a", "http://rdfh.ch/lists/9999/a")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -182,7 +180,7 @@ class TestConstructListNode:
             list_name="list",
             nodes=[OneNode("l2n1 space", "http://rdfh.ch/lists/9999/l2n1")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -208,7 +206,7 @@ class TestConstructListNode:
                 OneNode("three", "http://rdfh.ch/lists/9999/3"),
             ],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_node_shape(result, test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
@@ -249,39 +247,9 @@ class TestConstructOneListPropertyShape:
             list_name="testList",
             nodes=[OneNode("node1", "http://rdfh.ch/lists/9999/node1")],
         )
-        result = Graph()
+        result = Graph(store="Oxigraph")
         _construct_one_list_property_shape(result, onto, test_list)
         assert (ONTO.testListProp_PropShape, SH.node, URIRef(list_iri)) in result
-
-    def test_no_match_when_onto_is_plain_memory_graph_with_xsd_string(self) -> None:
-        # Documents the root cause of the regression: when an Oxigraph-backed graph is
-        # combined with another graph via the + operator, rdflib creates a plain Memory
-        # graph. Plain literals in SPARQL do not match xsd:string typed literals in
-        # rdflib's Memory SPARQL engine, so the query returns no results.
-        list_iri = "http://rdfh.ch/lists/9999/testList"
-        ox_graph = Graph(store="Oxigraph")
-        ox_graph.parse(
-            data=f"""
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            @prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
-            @prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
-            @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
-            onto:testListProp a owl:ObjectProperty ;
-                knora-api:objectType knora-api:ListValue ;
-                salsah-gui:guiAttribute "hlist=<{list_iri}>" .
-            """,
-            format="ttl",
-        )
-        # Simulates the old bug: the + operator copies triples to a plain Memory graph
-        memory_graph = ox_graph + Graph()
-        test_list = OneList(
-            list_iri=list_iri,
-            list_name="testList",
-            nodes=[OneNode("node1", "http://rdfh.ch/lists/9999/node1")],
-        )
-        result = Graph()
-        _construct_one_list_property_shape(result, memory_graph, test_list)
-        assert (ONTO.testListProp_PropShape, SH.node, URIRef(list_iri)) not in result
 
 
 if __name__ == "__main__":

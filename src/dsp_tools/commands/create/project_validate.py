@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import importlib.resources
 import json
 from collections import Counter
@@ -29,6 +30,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedProperty
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
@@ -38,7 +40,6 @@ from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadat
 from dsp_tools.commands.create.parsing.parse_project import parse_lists
 from dsp_tools.commands.create.parsing.parse_project import parse_metadata
 from dsp_tools.commands.create.parsing.parse_project import parse_project
-from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
@@ -52,7 +53,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     result, potential_circles = parse_and_validate_project(project_file, server)
     if potential_circles:
         print_msg_str_for_potential_problematic_circles(potential_circles)
-    if not isinstance(result, ParsedProject):
+    if isinstance(result, list):
         print_all_problem_collections(result)
         return False
     print(
@@ -63,7 +64,10 @@ def validate_project_only(project_file: Path, server: str) -> bool:
 
 def parse_and_validate_project(
     project_file: Path, server: str
-) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[
+    list[CollectedProblems] | ParsedProject,
+    list[CardinalitiesThatMayCreateAProblematicCircle],
+]:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
 
@@ -81,24 +85,26 @@ def parse_and_validate_lists(
 
 def _validate_parsed_json_project(
     json_project: dict[str, Any], server: str
-) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[
+    list[CollectedProblems] | ParsedProject,
+    list[CardinalitiesThatMayCreateAProblematicCircle],
+]:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
 
     match parsing_result:
         case ParsedProject():
-            validation_problems, potential_circles = _complex_parsed_project_validation(
+            validation_problems, potential_circles, validated_permissions = _complex_parsed_project_validation(
                 parsing_result.ontologies,
                 parsing_result.lists,
                 parsing_result.permissions,
             )
             if validation_problems:
                 return validation_problems, potential_circles
-            return parsing_result, potential_circles
+            validated_project = dataclasses.replace(parsing_result, permissions=validated_permissions)
+            return validated_project, potential_circles
         case list():
             return parsing_result, []
-        case _:
-            raise UnreachableCodeError()
 
 
 def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
@@ -133,7 +139,7 @@ def _validate_with_json_schema(project_definition: dict[str, Any]) -> None:
 
 def _complex_parsed_project_validation(
     ontologies: list[ParsedOntology], parsed_lists: list[ParsedList], parsed_permissions: ParsedPermissions
-) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle]]:
+) -> tuple[list[CollectedProblems], list[CardinalitiesThatMayCreateAProblematicCircle], ParsedPermissions]:
     cls_iris = []
     prop_iris = []
     cls_flattened = []
@@ -178,15 +184,16 @@ def _complex_parsed_project_validation(
     if duplicate_cards := _check_for_duplicate_properties_in_cardinalities_for_one_resource(cardinalities_flattened):
         problems.append(duplicate_cards)
     # PERMISSIONS
-    still_image_classes = _get_still_image_classes(cls_flattened)
-    if perm_problem := _check_for_invalid_default_permissions_overrule(
-        parsed_permissions, prop_iris, cls_iris, still_image_classes
-    ):
-        problems.append(perm_problem)
+    limited_view_classes = _get_limited_view_classes(cls_flattened)
+    perm_problems, validated_permissions = _check_for_invalid_default_permissions_overrule(
+        parsed_permissions, prop_iris, cls_iris, limited_view_classes
+    )
+    if perm_problems:
+        problems.append(perm_problems)
     potential_circles = _check_for_mandatory_cardinalities_with_knora_resources(
         props_flattened, cardinalities_flattened
     )
-    return problems, potential_circles
+    return problems, potential_circles, validated_permissions
 
 
 def _check_for_duplicate_iris(
@@ -310,10 +317,13 @@ def _get_duplicates_in_list(input_list: list[str]) -> list[str]:
 
 
 def _check_for_invalid_default_permissions_overrule(
-    parsed_permissions: ParsedPermissions, properties: list[str], classes: list[str], still_image_classes: set[str]
-) -> CollectedProblems | None:
+    parsed_permissions: ParsedPermissions,
+    properties: list[str],
+    classes: list[str],
+    limited_view_classes: LimitedViewClasses,
+) -> tuple[CollectedProblems | None, ParsedPermissions]:
     if parsed_permissions.default_permissions == DefaultPermissions.PRIVATE:
-        return None
+        return None, dataclasses.replace(parsed_permissions, overrule_limited_view=GlobalLimitedViewPermission.NONE)
 
     defined_iris_in_ontology = set(properties + classes)
     problems: list[CreateProblem] = []
@@ -324,42 +334,54 @@ def _check_for_invalid_default_permissions_overrule(
         )
         problems.extend(unknown_private_problems)
 
+    validated_limited_view: LimitedViewClasses | GlobalLimitedViewPermission
     match parsed_permissions.overrule_limited_view:
         case LimitedViewPermissionsSelection():
-            problems.extend(
-                _check_limited_view_selection(
-                    parsed_permissions.overrule_limited_view, defined_iris_in_ontology, still_image_classes
-                )
+            limited_problems, classified = _check_limited_view_selection(
+                parsed_permissions.overrule_limited_view,
+                defined_iris_in_ontology,
+                limited_view_classes,
             )
+            problems.extend(limited_problems)
+            validated_limited_view = classified
         case GlobalLimitedViewPermission.ALL | GlobalLimitedViewPermission.NONE:
-            # no checks necessary
-            pass
-        case _:
-            raise UnreachableCodeError()
+            validated_limited_view = parsed_permissions.overrule_limited_view
+        case LimitedViewClasses():
+            validated_limited_view = parsed_permissions.overrule_limited_view
 
+    collected: CollectedProblems | None = None
     if problems:
         err_msg = "The 'project.default_permissions_overrule' section of your project has the following problems:"
-        return CollectedProblems(err_msg, problems)
-    return None
+        collected = CollectedProblems(err_msg, problems)
+    return collected, dataclasses.replace(parsed_permissions, overrule_limited_view=validated_limited_view)
 
 
 def _check_limited_view_selection(
-    limited_view: LimitedViewPermissionsSelection, defined_iris_in_ontology: set[str], still_image_classes: set[str]
-) -> list[CreateProblem]:
+    limited_view: LimitedViewPermissionsSelection,
+    defined_iris_in_ontology: set[str],
+    limited_view_classes: LimitedViewClasses,
+) -> tuple[list[CreateProblem], LimitedViewClasses]:
     problems: list[CreateProblem] = []
     limited_iris = set(limited_view.limited_selection)
-    iris_defined_in_the_ontology, undefined_iri_problems = _get_unknown_iris_and_problem(
+    unknown_iris, undefined_iri_problems = _get_unknown_iris_and_problem(
         limited_iris, defined_iris_in_ontology, InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
     )
     problems.extend(undefined_iri_problems)
-    # if we do not subtract the unknown iris,
-    # they will be duplicated in this check as they are not recognised as still images
-    limited_to_check = limited_iris - iris_defined_in_the_ontology
-    _, not_still_image_problems = _get_unknown_iris_and_problem(
-        limited_to_check, still_image_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+    # Exclude unknown iris to avoid duplicate errors: they are not valid representation subclasses either
+    known_iris = limited_iris - unknown_iris
+    all_valid_classes = (
+        limited_view_classes.still_image | limited_view_classes.moving_image | limited_view_classes.audio
     )
-    problems.extend(not_still_image_problems)
-    return problems
+    _, not_valid_problems = _get_unknown_iris_and_problem(
+        known_iris, all_valid_classes, InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
+    )
+    problems.extend(not_valid_problems)
+    classified = LimitedViewClasses(
+        still_image=known_iris & limited_view_classes.still_image,
+        moving_image=known_iris & limited_view_classes.moving_image,
+        audio=known_iris & limited_view_classes.audio,
+    )
+    return problems, classified
 
 
 def _get_unknown_iris_and_problem(
@@ -370,23 +392,31 @@ def _get_unknown_iris_and_problem(
     return set(), []
 
 
-def _get_still_image_classes(parsed_classes: list[ParsedClass]) -> set[str]:
-    knora_still_image = f"{KNORA_API_PREFIX}StillImageRepresentation"
+def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> LimitedViewClasses:
+    parent_iris = (
+        f"{KNORA_API_PREFIX}StillImageRepresentation",
+        f"{KNORA_API_PREFIX}MovingImageRepresentation",
+        f"{KNORA_API_PREFIX}AudioRepresentation",
+    )
 
     children_by_parent: dict[str, list[str]] = defaultdict(list)
     for cls in parsed_classes:
         for super_cls in cls.supers:
             children_by_parent[super_cls].append(cls.name)
 
-    def _collect_all_descendants(parent_iri: str, visited: set[str]) -> None:
+    def _collect_all_descendants(parent_iri: str, accumulated: set[str]) -> None:
         for child_iri in children_by_parent.get(parent_iri, []):
-            if child_iri not in visited:  # Prevent infinite recursion on cycles
-                visited.add(child_iri)
-                _collect_all_descendants(child_iri, visited)
+            if child_iri not in accumulated:  # Prevent infinite recursion on cycles
+                accumulated.add(child_iri)
+                _collect_all_descendants(child_iri, accumulated)
 
-    descendants: set[str] = set()
-    _collect_all_descendants(knora_still_image, descendants)
-    return descendants
+    descendants: list[set[str]] = []
+    for parent_iri in parent_iris:
+        collected: set[str] = set()
+        _collect_all_descendants(parent_iri, collected)
+        descendants.append(collected)
+    still_image, moving_image, audio = descendants
+    return LimitedViewClasses(still_image=still_image, moving_image=moving_image, audio=audio)
 
 
 def _check_circular_references_in_mandatory_property_cardinalities(

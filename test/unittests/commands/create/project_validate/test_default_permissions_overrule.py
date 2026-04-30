@@ -5,17 +5,22 @@ from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
+from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import LimitedViewPermissionsSelection
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.project_validate import _check_for_invalid_default_permissions_overrule
-from dsp_tools.commands.create.project_validate import _get_still_image_classes
+from dsp_tools.commands.create.project_validate import _get_limited_view_classes
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from test.unittests.commands.create.constants import ONTO_IRI
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 KNORA_STILL_IMAGE = f"{KNORA_API_PREFIX}StillImageRepresentation"
+KNORA_MOVING_IMAGE = f"{KNORA_API_PREFIX}MovingImageRepresentation"
+KNORA_AUDIO = f"{KNORA_API_PREFIX}AudioRepresentation"
 
 TEST_STILL_IMAGE = f"{ONTO_NAMESPACE_STR}TestStillImage"
+TEST_MOVING_IMAGE = f"{ONTO_NAMESPACE_STR}TestMovingImage"
+TEST_AUDIO = f"{ONTO_NAMESPACE_STR}TestAudio"
 TEST_RESOURCE = f"{ONTO_NAMESPACE_STR}TestResource"
 TEST_PROPERTY = f"{ONTO_NAMESPACE_STR}hasName"
 
@@ -27,7 +32,7 @@ def known_props() -> list[str]:
 
 @pytest.fixture
 def known_classes() -> list[str]:
-    return [TEST_STILL_IMAGE, TEST_RESOURCE]
+    return [TEST_STILL_IMAGE, TEST_MOVING_IMAGE, TEST_AUDIO, TEST_RESOURCE]
 
 
 @pytest.fixture
@@ -35,97 +40,173 @@ def still_image_classes() -> set[str]:
     return {TEST_STILL_IMAGE, f"{ONTO_NAMESPACE_STR}TestStillImage2"}
 
 
-def test_check_overrule_no_overrule_private(known_props, known_classes, still_image_classes) -> None:
+@pytest.fixture
+def moving_image_classes() -> set[str]:
+    return {TEST_MOVING_IMAGE}
+
+
+@pytest.fixture
+def audio_classes() -> set[str]:
+    return {TEST_AUDIO}
+
+
+@pytest.fixture
+def limited_view_classes(
+    still_image_classes: set[str], moving_image_classes: set[str], audio_classes: set[str]
+) -> LimitedViewClasses:
+    return LimitedViewClasses(
+        still_image=still_image_classes,
+        moving_image=moving_image_classes,
+        audio=audio_classes,
+    )
+
+
+def test_check_overrule_no_overrule_private(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PRIVATE,
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
-    assert result is None
+    problems, validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
+    assert problems is None
+    assert isinstance(validated, ParsedPermissions)
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
-def test_check_overrule_no_overrule_public(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_no_overrule_public(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
-    assert result is None
+    problems, validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
-def test_check_overrule_no_limited_view(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_no_limited_view(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=[TEST_RESOURCE],
         overrule_limited_view=GlobalLimitedViewPermission.NONE,
     )
-    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
-    assert result is None
+    problems, validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.NONE
 
 
-def test_check_overrule_limited_view_all(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_limited_view_all(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=None,
         overrule_limited_view=GlobalLimitedViewPermission.ALL,
     )
-    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
-    assert result is None
+    problems, validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
+    assert problems is None
+    assert validated.overrule_limited_view == GlobalLimitedViewPermission.ALL
 
 
-def test_check_overrule_valid_direct_inheritance(known_props, known_classes, still_image_classes) -> None:
+@pytest.mark.parametrize(
+    ("iri", "expected_still", "expected_moving", "expected_audio"),
+    [
+        (TEST_STILL_IMAGE, {TEST_STILL_IMAGE}, set(), set()),
+        (TEST_MOVING_IMAGE, set(), {TEST_MOVING_IMAGE}, set()),
+        (TEST_AUDIO, set(), set(), {TEST_AUDIO}),
+    ],
+)
+def test_check_overrule_valid_single_media_type(
+    known_props: list[str],
+    known_classes: list[str],
+    limited_view_classes: LimitedViewClasses,
+    iri: str,
+    expected_still: set[str],
+    expected_moving: set[str],
+    expected_audio: set[str],
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=None,
-        overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
+        overrule_limited_view=LimitedViewPermissionsSelection([iri]),
     )
-    result = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
-    assert result is None
+    problems, validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
+    assert problems is None
+    assert isinstance(validated.overrule_limited_view, LimitedViewClasses)
+    assert validated.overrule_limited_view.still_image == expected_still
+    assert validated.overrule_limited_view.moving_image == expected_moving
+    assert validated.overrule_limited_view.audio == expected_audio
 
 
-def test_check_overrule_unknown_private(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_unknown_private(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=[f"{ONTO_NAMESPACE_STR}Unknown"],
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_STILL_IMAGE]),
     )
-    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
     assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
-def test_check_overrule_unknown_limited_view(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_unknown_limited_view(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([f"{ONTO_NAMESPACE_STR}Unknown"]),
     )
-    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE
     assert problems.problems[0].problematic_object == "onto:Unknown"
 
 
-def test_check_overrule_invalid_wrong_superclass(known_props, known_classes, still_image_classes) -> None:
+def test_check_overrule_invalid_wrong_superclass(
+    known_props: list[str], known_classes: list[str], limited_view_classes: LimitedViewClasses
+) -> None:
     perm = ParsedPermissions(
         default_permissions=DefaultPermissions.PUBLIC,
         overrule_private=None,
         overrule_limited_view=LimitedViewPermissionsSelection([TEST_RESOURCE]),
     )
-    problems = _check_for_invalid_default_permissions_overrule(perm, known_props, known_classes, still_image_classes)
+    problems, _validated = _check_for_invalid_default_permissions_overrule(
+        perm, known_props, known_classes, limited_view_classes
+    )
     assert isinstance(problems, CollectedProblems)
     assert len(problems.problems) == 1
     assert problems.problems[0].problem == InputProblemType.INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE
     assert problems.problems[0].problematic_object == "onto:TestResource"
 
 
-class TestGetStillImageClasses:
-    def test_no_still_image_classes(self) -> None:
+class TestGetLimitedViewClasses:
+    def test_no_limited_view_classes(self) -> None:
         classes = [
             ParsedClass(
                 name=f"{ONTO_NAMESPACE_STR}TextResource",
@@ -142,91 +223,95 @@ class TestGetStillImageClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        result = _get_still_image_classes(classes)
-        assert result == set()
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == set()
+        assert result.moving_image == set()
+        assert result.audio == set()
 
-    def test_direct_inheritance(self) -> None:
+    @pytest.mark.parametrize(
+        ("knora_parent", "expected_still", "expected_moving", "expected_audio"),
+        [
+            (
+                KNORA_STILL_IMAGE,
+                {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}Painting"},
+                set(),
+                set(),
+            ),
+            (KNORA_MOVING_IMAGE, set(), {f"{ONTO_NAMESPACE_STR}Video"}, set()),
+            (KNORA_AUDIO, set(), set(), {f"{ONTO_NAMESPACE_STR}Recording"}),
+        ],
+    )
+    def test_direct_inheritance(
+        self,
+        knora_parent: str,
+        expected_still: set[str],
+        expected_moving: set[str],
+        expected_audio: set[str],
+    ) -> None:
+        name_map = {
+            KNORA_STILL_IMAGE: [f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}Painting"],
+            KNORA_MOVING_IMAGE: [f"{ONTO_NAMESPACE_STR}Video"],
+            KNORA_AUDIO: [f"{ONTO_NAMESPACE_STR}Recording"],
+        }
         classes = [
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Photo",
-                labels={"en": "Photo"},
-                comments={},
-                supers=[KNORA_STILL_IMAGE],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Painting",
-                labels={"en": "Painting"},
-                comments={},
-                supers=[KNORA_STILL_IMAGE],
-                onto_iri=ONTO_IRI,
-            ),
+            ParsedClass(name=n, labels={"en": n}, comments={}, supers=[knora_parent], onto_iri=ONTO_IRI)
+            for n in name_map[knora_parent]
         ]
-        result = _get_still_image_classes(classes)
-        assert result == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}Painting"}
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == expected_still
+        assert result.moving_image == expected_moving
+        assert result.audio == expected_audio
 
-    def test_deep_inheritance(self) -> None:
+    @pytest.mark.parametrize(
+        ("knora_parent", "expected_still", "expected_moving", "expected_audio"),
+        [
+            (
+                KNORA_STILL_IMAGE,
+                {f"{ONTO_NAMESPACE_STR}Level1", f"{ONTO_NAMESPACE_STR}Level2"},
+                set(),
+                set(),
+            ),
+            (
+                KNORA_MOVING_IMAGE,
+                set(),
+                {f"{ONTO_NAMESPACE_STR}Level1", f"{ONTO_NAMESPACE_STR}Level2"},
+                set(),
+            ),
+            (
+                KNORA_AUDIO,
+                set(),
+                set(),
+                {f"{ONTO_NAMESPACE_STR}Level1", f"{ONTO_NAMESPACE_STR}Level2"},
+            ),
+        ],
+    )
+    def test_deep_inheritance(
+        self,
+        knora_parent: str,
+        expected_still: set[str],
+        expected_moving: set[str],
+        expected_audio: set[str],
+    ) -> None:
         classes = [
             ParsedClass(
                 name=f"{ONTO_NAMESPACE_STR}Level1",
                 labels={"en": "L1"},
                 comments={},
-                supers=[KNORA_STILL_IMAGE],
+                supers=[knora_parent],
                 onto_iri=ONTO_IRI,
             ),
             ParsedClass(
                 name=f"{ONTO_NAMESPACE_STR}Level2",
                 labels={"en": "L2"},
                 comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level1", f"{KNORA_API_PREFIX}Resource"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level3",
-                labels={"en": "L3"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level2"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level4",
-                labels={"en": "L4"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level3"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level5",
-                labels={"en": "L5"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level4"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level6",
-                labels={"en": "L6"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level5"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}Level7",
-                labels={"en": "L7"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}Level6"],
+                supers=[f"{ONTO_NAMESPACE_STR}Level1"],
                 onto_iri=ONTO_IRI,
             ),
         ]
-        result = _get_still_image_classes(classes)
-        assert result == {
-            f"{ONTO_NAMESPACE_STR}Level1",
-            f"{ONTO_NAMESPACE_STR}Level2",
-            f"{ONTO_NAMESPACE_STR}Level3",
-            f"{ONTO_NAMESPACE_STR}Level4",
-            f"{ONTO_NAMESPACE_STR}Level5",
-            f"{ONTO_NAMESPACE_STR}Level6",
-            f"{ONTO_NAMESPACE_STR}Level7",
-        }
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == expected_still
+        assert result.moving_image == expected_moving
+        assert result.audio == expected_audio
 
     def test_complex_multi_branch_hierarchy(self) -> None:
         classes = [
@@ -280,8 +365,8 @@ class TestGetStillImageClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        result = _get_still_image_classes(classes)
-        assert result == {
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {
             f"{ONTO_NAMESPACE_STR}Photo",
             f"{ONTO_NAMESPACE_STR}Painting",
             f"{ONTO_NAMESPACE_STR}DigitalPhoto",
@@ -290,8 +375,10 @@ class TestGetStillImageClasses:
             f"{ONTO_NAMESPACE_STR}Watercolor",
             f"{ONTO_NAMESPACE_STR}HDRPhoto",
         }
+        assert result.moving_image == set()
+        assert result.audio == set()
 
-    def test_mixed_still_image_and_other_classes(self) -> None:
+    def test_mixed_representation_types(self) -> None:
         classes = [
             ParsedClass(
                 name=f"{ONTO_NAMESPACE_STR}Photo",
@@ -308,17 +395,24 @@ class TestGetStillImageClasses:
                 onto_iri=ONTO_IRI,
             ),
             ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Video",
+                labels={"en": "Video"},
+                comments={},
+                supers=[KNORA_MOVING_IMAGE],
+                onto_iri=ONTO_IRI,
+            ),
+            ParsedClass(
+                name=f"{ONTO_NAMESPACE_STR}Recording",
+                labels={"en": "Recording"},
+                comments={},
+                supers=[KNORA_AUDIO],
+                onto_iri=ONTO_IRI,
+            ),
+            ParsedClass(
                 name=f"{ONTO_NAMESPACE_STR}PDF",
                 labels={"en": "PDF"},
                 comments={},
                 supers=[f"{KNORA_API_PREFIX}DocumentRepresentation"],
-                onto_iri=ONTO_IRI,
-            ),
-            ParsedClass(
-                name=f"{ONTO_NAMESPACE_STR}ArchivePDF",
-                labels={"en": "Archive"},
-                comments={},
-                supers=[f"{ONTO_NAMESPACE_STR}PDF"],
                 onto_iri=ONTO_IRI,
             ),
             ParsedClass(
@@ -329,5 +423,7 @@ class TestGetStillImageClasses:
                 onto_iri=ONTO_IRI,
             ),
         ]
-        result = _get_still_image_classes(classes)
-        assert result == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}DigitalPhoto"}
+        result = _get_limited_view_classes(classes)
+        assert result.still_image == {f"{ONTO_NAMESPACE_STR}Photo", f"{ONTO_NAMESPACE_STR}DigitalPhoto"}
+        assert result.moving_image == {f"{ONTO_NAMESPACE_STR}Video"}
+        assert result.audio == {f"{ONTO_NAMESPACE_STR}Recording"}

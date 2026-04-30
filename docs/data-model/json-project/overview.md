@@ -237,9 +237,10 @@ you can define exceptions, by marking certain classes or properties as `private`
     - For a class, it means that the resources of that class will be invisible for people outside of your project.
     - For a property, it means that the content of that property will be invisible for people outside of your project,
       while the rest of the resource is still public.
-- `limited_view`: image classes which will be blurred/watermarked for users outside of your project.
-    - Only the image will be blurred, the rest of the resource will be public.
-    - `all` means all image classes, also the ones created in the future.
+- `limited_view`: representation classes which will be blurred/watermarked/not downloadable for users outside of your project.
+    - Only the media will be limited, the rest of the resource will be public.
+    - `all` means all subclasses of StillImageRepresentation, MovingImageRepresentation,
+      and AudioRepresentation, including future subclasses.
 
 ```json
 "default_permissions": "public|private",
@@ -248,9 +249,11 @@ you can define exceptions, by marking certain classes or properties as `private`
         "my-onto:PrivateResource",
         "my-onto:privateProp"
     ],
-    "limited_view": "all" | [  // "all" means all subclasses of StillImageRepresentation
+    "limited_view": "all" | [  // "all" means all subclasses of StillImageRepresentation,
+                               //           MovingImageRepresentation, and AudioRepresentation
       "my-onto:Image1",
-      "my-onto:Image2",  // only subclasses of StillImageRepresentation can appear here
+      "my-onto:Image2",  // only subclasses of StillImageRepresentation, MovingImageRepresentation,
+                         //                   or AudioRepresentation can appear here
     ],
 }
 ```

@@ -55,14 +55,15 @@ class InputProblemType(ProblemType):
         "Defining 'default_permissions' is mandatory and must either be 'public' or 'private'."
     )
     LIMITED_VIEW_PERMISSIONS_NOT_CORRECT = (
-        "Your input for the 'limited_view' permissions is invalid. It must be either 'all' or a list of image classes."
+        "Your input for the 'limited_view' permissions is invalid. "
+        "It must be either 'all' or a list of representation classes."
     )
     UNKNOWN_IRI_IN_PERMISSIONS_OVERRULE = (
-        "The referenced class or property in the private overrule permissions is not defined in the ontology."
+        "The referenced class or property in the permission overrule is not defined in the ontology."
     )
     INVALID_LIMITED_VIEW_PERMISSIONS_OVERRULE = (
-        "This class cannot be used in limited_view permissions "
-        "because it is not a subclass of StillImageRepresentation."
+        "This class cannot be used in limited_view permissions because it is not a subclass of "
+        "StillImageRepresentation, MovingImageRepresentation, or AudioRepresentation."
     )
 
     DUPLICATE_LIST_NAME = "You have lists in your project with the same name. List names must be unique."

@@ -22,7 +22,8 @@ def get_default_permissions(
 
     Returns:
         "default_permissions": "public" or "private" or error message
-        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        "default_permissions_overrule": {"private": [<classes_or_props>],
+            "limited_view": ["all" or <representation_classes>]}
     """
     perm_client = PermissionsClientLive(
         server=auth.server,
@@ -111,7 +112,8 @@ def _parse_default_permissions_overrule(
 
     Returns:
         an overrule object that can be written into the JSON project definition file, in this form:
-        "default_permissions_overrule": {"private": [<classes_or_props>], "limited_view": ["all" or <img_classes>]}
+        "default_permissions_overrule": {"private": [<classes_or_props>],
+            "limited_view": ["all" or <representation_classes>]}
         or None if the DOAPs do not fit into our system.
     """
     prefixes_knora_base_inverted = _convert_prefixes(prefixes)
@@ -141,15 +143,28 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
     return prefixes_knora_base_inverted
 
 
+# DOAPs returned by the server use the knora-base namespace, not the knora-api v2 namespace
+_KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
+_LIMITED_VIEW_FILE_VALUE_PROPS = {
+    f"{_KNORA_BASE}hasStillImageFileValue",
+    f"{_KNORA_BASE}hasMovingImageFileValue",
+    f"{_KNORA_BASE}hasAudioFileValue",
+}
+
+
+def _is_file_value_prop(for_prop: str) -> bool:
+    return for_prop in _LIMITED_VIEW_FILE_VALUE_PROPS
+
+
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | None:
     """
     The overrule object of the JSON project definition file has 2 categories: private and limited_view.
     - "private" is a list of classes/properties that are private.
       The DOAPs for these correspond 1:1 to the classes/properties.
     - "limited_view" is
-        - a list of image classes that are limited_view:
-          The DOAPs for these are for knora-api:hasStillImageFileValue and the respective class.
-        - or the string "all". The DOAPs for these are only for knora-api:hasStillImageFileValue.
+        - a list of representation classes that are limited_view:
+          The DOAPs for these are for a file value property and the respective class.
+        - or the string "all". The DOAPs for these are only for file value properties.
 
     This function groups the DOAPs into these categories.
 
@@ -161,19 +176,19 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
     """
     class_doaps = []
     prop_doaps = []
-    has_img_all_classes_doaps = []
-    has_img_specific_class_doaps = []
+    limited_view_all_classes_doaps = []
+    limited_view_specific_class_doaps = []
     other_doaps = []
     for doap in project_doaps:
         match (doap.get("forResourceClass"), doap.get("forProperty")):
             case (for_class, None) if for_class:
                 class_doaps.append(doap)
-            case (None, for_prop) if for_prop and "hasStillImageFileValue" not in for_prop:
+            case (None, for_prop) if for_prop and not _is_file_value_prop(for_prop):
                 prop_doaps.append(doap)
-            case (None, for_prop) if for_prop and "hasStillImageFileValue" in for_prop:
-                has_img_all_classes_doaps.append(doap)
-            case (for_class, for_prop) if for_class and for_prop and "hasStillImageFileValue" in for_prop:
-                has_img_specific_class_doaps.append(doap)
+            case (None, for_prop) if for_prop and _is_file_value_prop(for_prop):
+                limited_view_all_classes_doaps.append(doap)
+            case (for_class, for_prop) if for_class and for_prop and _is_file_value_prop(for_prop):
+                limited_view_specific_class_doaps.append(doap)
             case _:
                 other_doaps.append(doap)
     # Only validate other_doaps if there are any
@@ -184,8 +199,8 @@ def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | N
     return DoapCategories(
         class_doaps=class_doaps,
         prop_doaps=prop_doaps,
-        has_img_all_classes_doaps=has_img_all_classes_doaps,
-        has_img_specific_class_doaps=has_img_specific_class_doaps,
+        limited_view_all_classes_doaps=limited_view_all_classes_doaps,
+        limited_view_specific_class_doaps=limited_view_specific_class_doaps,
     )
 
 
@@ -193,7 +208,7 @@ def _validate_doap_categories(doap_categories: DoapCategories) -> bool:
     privates_valid = [_validate_private_doap(d) for d in doap_categories.class_doaps + doap_categories.prop_doaps]
     limited_views_valid = [
         _validate_limited_view_doap(d)
-        for d in doap_categories.has_img_all_classes_doaps + doap_categories.has_img_specific_class_doaps
+        for d in doap_categories.limited_view_all_classes_doaps + doap_categories.limited_view_specific_class_doaps
     ]
     return all(privates_valid) and all(limited_views_valid)
 
@@ -256,18 +271,22 @@ def _construct_overrule_object(
         privates.append(_get_prefixed_iri(prop_doap["forProperty"], prefixes_knora_base_inverted))
 
     limited_views: list[str] | Literal["all"]
-    if len(doap_categories.has_img_all_classes_doaps) > 1:
-        logger.warning("There can only be 1 all-images DOAP for 'hasStillImageFileValue'")
+    all_class_props = [d.get("forProperty") for d in doap_categories.limited_view_all_classes_doaps]
+    if len(all_class_props) != len(set(all_class_props)):
+        logger.warning("Found duplicate limited_view DOAPs (no class restriction) for the same file value property")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) == 1 and len(doap_categories.has_img_specific_class_doaps) > 0:
-        logger.warning("If there is a DOAP for all images, there cannot be DOAPs for specific img classes")
+    if (
+        len(doap_categories.limited_view_all_classes_doaps) > 0
+        and len(doap_categories.limited_view_specific_class_doaps) > 0
+    ):
+        logger.warning("Cannot have both all-classes limited_view DOAPs and specific-class limited_view DOAPs")
         return None
-    if len(doap_categories.has_img_all_classes_doaps) == 1:
+    if len(doap_categories.limited_view_all_classes_doaps) > 0:
         limited_views = "all"
     else:
         limited_views = []
-        for img_doap in doap_categories.has_img_specific_class_doaps:
-            limited_views.append(_get_prefixed_iri(img_doap["forResourceClass"], prefixes_knora_base_inverted))
+        for media_doap in doap_categories.limited_view_specific_class_doaps:
+            limited_views.append(_get_prefixed_iri(media_doap["forResourceClass"], prefixes_knora_base_inverted))
 
     result: dict[str, list[str] | Literal["all"]] = {}
     if privates:

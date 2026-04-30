@@ -42,14 +42,19 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
+    logger.debug(f"{len(validation_results)} validation results found before filtering.")
+    logger.debug(f"{len(unexpected_extracted)} unexpected validation results.")
     reformatted_results = reformat_extracted_results(validation_results)
+    logger.debug(f"{len(reformatted_results)} results after filtering.")
     return AllProblems(reformatted_results, unexpected_extracted)
 
 
 def _query_all_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    logger.debug("Querying all validation results.")
     no_details, with_details = _separate_result_types(results_and_onto, data_onto_graph)
+    logger.debug(f"{len(no_details) + len(with_details)} validation results before filtering.")
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
@@ -166,6 +171,7 @@ def _get_resource_iri_and_type(
 def _query_all_without_detail(
     all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    logger.debug("Querying validation results without details.")
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
@@ -317,6 +323,7 @@ def _query_for_non_existent_cardinality_violation(
 def _query_all_with_detail(
     all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    logger.debug("Querying validation results with details.")
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 

@@ -44,7 +44,7 @@ def test_get_token_uses_cached_token(auth_client: AuthenticationClientLive):
 
 
 def test_get_token_error_responses(auth_client: AuthenticationClientLive):
-    mock_response = Mock(status_code=HTTPStatus.BAD_REQUEST.value, ok=False, text="Error", headers={})
+    mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, ok=False, text="Error", headers={})
     mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
     with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
         with pytest.raises(FatalNonOkApiResponseCode):

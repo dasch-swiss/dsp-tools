@@ -54,14 +54,16 @@ class AuthenticationClientLive(AuthenticationClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        if response.ok:
-            res_json: dict[str, Any] = response.json()
-            tkn = cast(str, res_json["token"])
-            self._token = tkn
-            return tkn
-        if response.status_code == HTTPStatus.UNAUTHORIZED:
-            raise BadCredentialsError(
-                f"Login to the API with the email '{self.email}' was not successful. "
-                f"Please ensure that an account for this email exists and that the password is correct."
-            )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        match response.status_code:
+            case HTTPStatus.OK:
+                res_json: dict[str, Any] = response.json()
+                tkn = cast(str, res_json["token"])
+                self._token = tkn
+                return tkn
+            case HTTPStatus.UNAUTHORIZED | HTTPStatus.BAD_REQUEST:
+                raise BadCredentialsError(
+                    f"Login to the API with the email '{self.email}' was not successful. "
+                    f"Please ensure that an account for this email exists and that the password is correct."
+                )
+            case _:
+                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

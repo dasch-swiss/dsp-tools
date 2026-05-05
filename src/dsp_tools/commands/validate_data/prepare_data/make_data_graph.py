@@ -22,30 +22,29 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 def make_data_graph(data: RdfLikeData) -> Graph:
     logger.debug("Creating the RDF data graph.")
-    g = Graph()
+    g = Graph(store="Oxigraph")
     for r in data.resources:
-        g += _make_one_resource(r)
+        _add_one_resource(g, r)
     return g
 
 
-def _make_one_resource(res: RdfLikeResource) -> Graph:
+def _add_one_resource(g: Graph, res: RdfLikeResource) -> None:
     res_iri = DATA[res.res_id]
-    g = _make_property_objects_graph(res.property_objects, res_iri)
+    _add_property_objects(g, res.property_objects, res_iri)
     for v in res.values:
-        g += _make_one_value(v, res_iri)
-    return g
+        _add_one_value(g, v, res_iri)
 
 
-def _make_one_value(val: RdfLikeValue, res_iri: URIRef) -> Graph:
+def _add_one_value(g: Graph, val: RdfLikeValue, res_iri: URIRef) -> None:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
     val_iri = DATA[val.value_uuid]
-    g = _make_property_objects_graph(val.value_metadata, val_iri)
+    _add_property_objects(g, val.value_metadata, val_iri)
     g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))
     # The interval values are added in the property objects graph
     if val.knora_type == KnoraValueType.INTERVAL_VALUE:
-        return g
+        return
     if val.knora_type == KnoraValueType.LINK_VALUE:
         link_val = val.user_facing_value if val.user_facing_value else ""
         if link_val.startswith("http://rdfh.ch/"):
@@ -55,15 +54,12 @@ def _make_one_value(val: RdfLikeValue, res_iri: URIRef) -> Graph:
     else:
         triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
     g.add((val_iri, prop_type_info.knora_prop, triple_object))
-    return g
 
 
-def _make_property_objects_graph(property_objects: list[PropertyObject], subject_iri: URIRef) -> Graph:
-    g = Graph()
+def _add_property_objects(g: Graph, property_objects: list[PropertyObject], subject_iri: URIRef) -> None:
     for trpl in property_objects:
         object_val = _make_one_rdflib_object(trpl.object_value, trpl.object_type, trpl.property_type)
         g.add((subject_iri, TRIPLE_PROP_TYPE_TO_IRI_MAPPER[trpl.property_type], object_val))
-    return g
 
 
 def _make_one_rdflib_object(

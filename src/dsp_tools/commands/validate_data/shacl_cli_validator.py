@@ -59,7 +59,7 @@ class ShaclCliValidator:
         if not filepath.exists():
             raise ShaclValidationError(f"SHACL file not found: {filepath}")
         logger.debug(f"Parse validation response: {filepath}.")
-        graph = Graph()
+        graph = Graph(store="Oxigraph")
         graph.parse(filepath)
         conforms = bool(next(graph.objects(None, SH.conforms)))
         return SHACLValidationReport(conforms=conforms, validation_graph=graph)

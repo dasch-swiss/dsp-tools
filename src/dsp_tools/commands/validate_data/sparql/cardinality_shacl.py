@@ -22,21 +22,21 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
         Graph with the resource class node shapes
     """
     logger.debug("Constructing cardinality shapes for the ontology.")
-    g = Graph()
-    g += _construct_resource_nodeshape(onto)
-    g += _construct_all_cardinalities(onto)
+    g = Graph(store="Oxigraph")
+    _construct_resource_nodeshape(g, onto)
+    _construct_all_cardinalities(g, onto)
     return g
 
 
-def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
+def _construct_resource_nodeshape(target: Graph, onto_graph: Graph) -> None:
     logger.debug("Constructing resource NodeShape")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
@@ -49,9 +49,9 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
                               sh:minCount 1 ;
                               sh:maxCount 1 ;
                               sh:severity sh:Violation ;
-                              sh:message "A label is required" 
+                              sh:message "A label is required"
                             ] ,
-                            [ 
+                            [
                               a sh:PropertyShape ;
                               sh:path knora-api:hasStandoffLinkTo
                             ] .
@@ -62,23 +62,20 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
+        target += results_graph
 
 
-def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
-    g = Graph()
-    g += _construct_1_cardinality(onto_graph)
-    g += _construct_0_1_cardinality(onto_graph)
-    g += _construct_1_n_cardinality(onto_graph)
-    g += _construct_0_n_cardinality(onto_graph)
-    return g
+def _construct_all_cardinalities(target: Graph, onto_graph: Graph) -> None:
+    _construct_1_cardinality(target, onto_graph)
+    _construct_0_1_cardinality(target, onto_graph)
+    _construct_1_n_cardinality(target, onto_graph)
+    _construct_0_n_cardinality(target, onto_graph)
 
 
-def _construct_1_cardinality(onto_graph: Graph) -> Graph:
+def _construct_1_cardinality(target: Graph, onto_graph: Graph) -> None:
     logger.debug("Constructing cardinality: 1")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -92,7 +89,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 1 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality 1" 
+          sh:message "Cardinality 1"
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -102,20 +99,19 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           owl:cardinality 1 .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
+        target += results_graph
 
 
-def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
+def _construct_0_1_cardinality(target: Graph, onto_graph: Graph) -> None:
     logger.debug("Constructing cardinality: 0-1")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -129,7 +125,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 0 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality 0-1" 
+          sh:message "Cardinality 0-1"
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -139,20 +135,19 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           owl:maxCardinality 1 .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
+        target += results_graph
 
 
-def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
+def _construct_1_n_cardinality(target: Graph, onto_graph: Graph) -> None:
     logger.debug("Constructing cardinality: 1-n")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -165,7 +160,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           sh:path ?propRestriction ;
           sh:minCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality 1-n" 
+          sh:message "Cardinality 1-n"
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -175,20 +170,19 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           owl:minCardinality 1 .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
+        target += results_graph
 
 
-def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
+def _construct_0_n_cardinality(target: Graph, onto_graph: Graph) -> None:
     logger.debug("Constructing cardinality: 0-n")
     query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
@@ -198,7 +192,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     CONSTRUCT {
       ?class sh:property [
           a sh:PropertyShape ;
-          sh:path ?propRestriction 
+          sh:path ?propRestriction
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -208,14 +202,13 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           owl:minCardinality 0 .
-          
+
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
+        target += results_graph
 
 
 def get_list_of_potentially_problematic_cardinalities(

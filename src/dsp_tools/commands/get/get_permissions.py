@@ -10,6 +10,8 @@ from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
+_KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
+
 
 def get_default_permissions(
     auth: AuthenticationClient, project_iri: str, prefixes: dict[str, str]
@@ -141,19 +143,16 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
             shortcode, onto_name = match.groups()
             prefixes_knora_base_inverted[f"http://www.knora.org/ontology/{shortcode}/{onto_name}"] = onto_shorthand
     return prefixes_knora_base_inverted
-
-
-# DOAPs returned by the server use the knora-base namespace, not the knora-api v2 namespace
-_KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
-_LIMITED_VIEW_FILE_VALUE_PROPS = {
-    f"{_KNORA_BASE}hasStillImageFileValue",
-    f"{_KNORA_BASE}hasMovingImageFileValue",
-    f"{_KNORA_BASE}hasAudioFileValue",
-}
-
-
+    
+    
 def _is_file_value_prop(for_prop: str) -> bool:
-    return for_prop in _LIMITED_VIEW_FILE_VALUE_PROPS
+    # DOAPs returned by the server use the knora-base namespace, not the knora-api v2 namespace
+    limited_view_file_value_props = {
+        f"{_KNORA_BASE}hasStillImageFileValue",
+        f"{_KNORA_BASE}hasMovingImageFileValue",
+        f"{_KNORA_BASE}hasAudioFileValue",
+    }
+    return for_prop in limited_view_file_value_props
 
 
 def _categorize_doaps(project_doaps: list[dict[str, Any]]) -> DoapCategories | None:

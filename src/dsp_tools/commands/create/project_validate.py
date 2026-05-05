@@ -398,11 +398,11 @@ def _get_limited_view_classes(parsed_classes: list[ParsedClass]) -> LimitedViewC
         for super_cls in cls.supers:
             children_by_parent[super_cls].append(cls.name)
 
-    def _collect_all_descendants(parent_iri: str, accumulated: set[str]) -> None:
+    def _collect_all_descendants(parent_iri: str, visited: set[str]) -> None:
         for child_iri in children_by_parent.get(parent_iri, []):
-            if child_iri not in accumulated:  # Prevent infinite recursion on cycles
-                accumulated.add(child_iri)
-                _collect_all_descendants(child_iri, accumulated)
+            if child_iri not in visited:  # Prevent infinite recursion on cycles
+                visited.add(child_iri)
+                _collect_all_descendants(child_iri, visited)
 
     descendants: list[set[str]] = []
     for parent_iri in parent_iris:

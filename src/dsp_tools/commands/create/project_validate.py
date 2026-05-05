@@ -53,7 +53,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     result, potential_circles = parse_and_validate_project(project_file, server)
     if potential_circles:
         print_msg_str_for_potential_problematic_circles(potential_circles)
-    if isinstance(result, list):
+    if not isinstance(result, ParsedProject):
         print_all_problem_collections(result)
         return False
     print(
@@ -64,10 +64,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
 
 def parse_and_validate_project(
     project_file: Path, server: str
-) -> tuple[
-    list[CollectedProblems] | ParsedProject,
-    list[CardinalitiesThatMayCreateAProblematicCircle],
-]:
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     json_project = parse_json_file(project_file)
     return _validate_parsed_json_project(json_project, server)
 
@@ -85,10 +82,7 @@ def parse_and_validate_lists(
 
 def _validate_parsed_json_project(
     json_project: dict[str, Any], server: str
-) -> tuple[
-    list[CollectedProblems] | ParsedProject,
-    list[CardinalitiesThatMayCreateAProblematicCircle],
-]:
+) -> tuple[list[CollectedProblems] | ParsedProject, list[CardinalitiesThatMayCreateAProblematicCircle]]:
     _validate_with_json_schema(json_project)
     parsing_result = parse_project(json_project, server)
 

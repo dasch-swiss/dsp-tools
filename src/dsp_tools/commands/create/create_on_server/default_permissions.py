@@ -10,12 +10,18 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import should_retry_request
+
+# DSP-API accepts property IRIs in the knora-api v2 namespace when creating DOAPs
+_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
+_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
+_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
 
 
 def create_default_permissions(
@@ -90,13 +96,12 @@ def _create_new_doap(perm_client: PermissionsClient, default_permissions: Defaul
 
 
 def _create_overrules(
-    validated_permissions: ParsedPermissions,
-    perm_client: PermissionsClient,
-    created_collection: CreatedIriCollection,
+    validated_permissions: ParsedPermissions, perm_client: PermissionsClient, created_collection: CreatedIriCollection
 ) -> bool:
     overall_success = True
     if validated_permissions.overrule_private:
-        if not _create_private_overrule(validated_permissions.overrule_private, perm_client, created_collection):
+        success = _create_private_overrule(validated_permissions.overrule_private, perm_client, created_collection)
+        if not success:
             overall_success = False
 
     match validated_permissions.overrule_limited_view:
@@ -129,12 +134,6 @@ def _separate_props_and_classes(
     return props, cls
 
 
-# DSP-API accepts property IRIs in the knora-api v2 namespace when creating DOAPs
-_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
-_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
-_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
-
-
 def _handle_limited_view_overrule(
     overrule_limited_view: GlobalLimitedViewPermission | LimitedViewClasses,
     perm_client: PermissionsClient,
@@ -155,6 +154,8 @@ def _handle_limited_view_overrule(
             for prop_iri in (_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE):
                 if not _create_one_limited_view_overrule(perm_client, prop_iri, None):
                     overall_success = False
+        case _:
+            raise UnreachableCodeError(f"Unknown overrule_limited_view: {overrule_limited_view!s}")
     return overall_success
 
 
@@ -178,6 +179,10 @@ def _create_one_private_overrule(perm_client: PermissionsClient, res_iri: str | 
 def _create_one_limited_view_overrule(
     perm_client: PermissionsClient, file_value_prop_iri: str, class_iri: str | None
 ) -> bool:
+    """
+    This only makes sense for the knora-api:has*FileValue property of multimedia classes.
+    To set it for all multimedia classes, use `class_iri=None`.
+    """
     perm = [
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectAdmin", "name": "CR", "permissionCode": None},
         {"additionalInformation": f"{KNORA_ADMIN_PREFIX}ProjectMember", "name": "D", "permissionCode": None},

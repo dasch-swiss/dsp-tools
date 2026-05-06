@@ -143,8 +143,8 @@ def _convert_prefixes(prefixes: dict[str, str]) -> dict[str, str]:
             shortcode, onto_name = match.groups()
             prefixes_knora_base_inverted[f"http://www.knora.org/ontology/{shortcode}/{onto_name}"] = onto_shorthand
     return prefixes_knora_base_inverted
-    
-    
+
+
 def _is_file_value_prop(for_prop: str) -> bool:
     # DOAPs returned by the server use the knora-base namespace, not the knora-api v2 namespace
     limited_view_file_value_props = {

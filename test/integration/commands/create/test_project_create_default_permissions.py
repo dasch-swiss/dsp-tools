@@ -47,7 +47,7 @@ def test_create_default_permissions_with_limited_view_all(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
     """Test that limited_view: 'all' creates a DOAP without class restriction."""
-    
+
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         validated_permissions=ParsedPermissions(
@@ -70,7 +70,7 @@ def test_create_default_permissions_with_limited_view_all(
     assert props_used == _ALL_FILE_VALUE_PROPS
 
     for call in limited_view_calls:
-        assert call["forResourceClass"] is None # This is the key requirement
+        assert call["forResourceClass"] is None  # This is the key requirement
         assert call["forProject"] == "http://rdfh.ch/projects/test-project"
         expected_permissions = [
             {

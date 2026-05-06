@@ -30,6 +30,8 @@ def mock_permissions_client() -> MagicMock:
     mock_client.auth = MagicMock()
     mock_client.auth.server = "http://0.0.0.0:3333"
 
+    # Mock successful API calls
+    # Return a list with some existing DOAPs to avoid the logic issue in _delete_existing_doaps
     mock_client.get_project_doaps.return_value = [{"iri": "http://test.iri/existing-doap"}]
     mock_client.delete_doap.return_value = True
     mock_client.create_new_doap.return_value = True
@@ -44,6 +46,8 @@ def created_iris() -> CreatedIriCollection:
 def test_create_default_permissions_with_limited_view_all(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
+    """Test that limited_view: 'all' creates a DOAP without class restriction."""
+    
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         validated_permissions=ParsedPermissions(
@@ -66,7 +70,7 @@ def test_create_default_permissions_with_limited_view_all(
     assert props_used == _ALL_FILE_VALUE_PROPS
 
     for call in limited_view_calls:
-        assert call["forResourceClass"] is None
+        assert call["forResourceClass"] is None # This is the key requirement
         assert call["forProject"] == "http://rdfh.ch/projects/test-project"
         expected_permissions = [
             {
@@ -173,6 +177,7 @@ def test_create_default_permissions_with_single_media_type(
 def test_create_default_permissions_no_overrule(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
+    """Test that default permissions work without any overrules."""
     result = create_default_permissions(
         perm_client=mock_permissions_client,
         validated_permissions=ParsedPermissions(
@@ -184,17 +189,20 @@ def test_create_default_permissions_no_overrule(
     )
 
     assert result is True
+
+    # Should only create the basic default DOAP, no overrule DOAPs
     assert mock_permissions_client.create_new_doap.call_count == 1
     call = mock_permissions_client.create_new_doap.call_args_list[0]
     payload = call[0][0]
-    assert "forProperty" not in payload
-    assert "forResourceClass" not in payload
+    assert "forProperty" not in payload  # Basic DOAP doesn't specify property
+    assert "forResourceClass" not in payload  # Basic DOAP doesn't specify resource class
     assert payload["forProject"] == "http://rdfh.ch/projects/test-project"
 
 
 def test_create_default_permissions_get_doaps_failure(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
+    """Test handling of get_project_doaps failures."""
     mock_permissions_client.get_project_doaps.return_value = ResponseCodeAndText(500, "Internal error")
     result = create_default_permissions(
         perm_client=mock_permissions_client,
@@ -211,6 +219,7 @@ def test_create_default_permissions_get_doaps_failure(
 def test_create_default_permissions_delete_doap_failure(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
+    """Test handling of delete_doap failures."""
     mock_permissions_client.delete_doap.side_effect = BadCredentialsError("No permission")
     with pytest.raises(BadCredentialsError):
         create_default_permissions(
@@ -227,6 +236,7 @@ def test_create_default_permissions_delete_doap_failure(
 def test_create_default_permissions_create_doap_failure(
     mock_permissions_client: MagicMock, created_iris: CreatedIriCollection
 ) -> None:
+    """Test handling of create_new_doap failures (returns ResponseCodeAndText on error)."""
     mock_permissions_client.create_new_doap.return_value = ResponseCodeAndText(400, "Bad request")
     result = create_default_permissions(
         perm_client=mock_permissions_client,

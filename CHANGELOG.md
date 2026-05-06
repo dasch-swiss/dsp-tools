@@ -1,5 +1,23 @@
 # Changelog
 
+## [18.14.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.13.0...v18.14.0) (2026-05-06)
+
+
+### Enhancements
+
+* **validate-data:** improve validation time (DEV-6310) ([#2284](https://github.com/dasch-swiss/dsp-tools/issues/2284)) ([f94fc3d](https://github.com/dasch-swiss/dsp-tools/commit/f94fc3d3f90e5dd80fe6edd68d9ac1708b908f09))
+
+
+### Bug Fixes
+
+* **validate-data:** add user ID to shacl-cli command to enable file access on some systems (DEV-6431) ([#2290](https://github.com/dasch-swiss/dsp-tools/issues/2290)) ([ac48128](https://github.com/dasch-swiss/dsp-tools/commit/ac481280e45304040b9a0251f2da867b97f18389))
+
+
+### Maintenance
+
+* **clients:** improve error message for 400 status code in `AuthenticationClient` ([#2287](https://github.com/dasch-swiss/dsp-tools/issues/2287)) ([8c8aefe](https://github.com/dasch-swiss/dsp-tools/commit/8c8aefe46af62456b0f5baf8b556ce289b5cde71))
+* **start-stack:** bump versions to 2026.05.01  ([#2291](https://github.com/dasch-swiss/dsp-tools/issues/2291)) ([59ac724](https://github.com/dasch-swiss/dsp-tools/commit/59ac724a12800f920e8cf83b4a371eeebff91105))
+
 ## [18.13.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.12.0...v18.13.0) (2026-04-29)
 
 

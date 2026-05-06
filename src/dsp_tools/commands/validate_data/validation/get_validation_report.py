@@ -1,5 +1,8 @@
+import io
+import shutil
 from pathlib import Path
 
+import pyoxigraph as ox
 from loguru import logger
 from rdflib import Graph
 
@@ -44,7 +47,7 @@ def _call_shacl_cli(
     rdf_graphs: RDFGraphs, shacl_validator: ShaclCliValidator, tmp_path: Path
 ) -> ValidationReportGraphs:
     _create_and_write_graphs(rdf_graphs, tmp_path)
-    results_graph = Graph()
+    results_graph = Graph(store="Oxigraph")
     conforms = True
     card_files = ValidationFilePaths(
         directory=tmp_path,
@@ -76,19 +79,51 @@ def _call_shacl_cli(
 
 
 def _create_and_write_graphs(rdf_graphs: RDFGraphs, tmp_path: Path) -> None:
-    logger.debug("Serialise RDF graphs into turtle strings")
-    data_str = rdf_graphs.data.serialize(format="ttl")
-    ontos_str = rdf_graphs.ontos.serialize(format="ttl")
-    card_shape_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
-    content_shape_str = rdf_graphs.content_shapes.serialize(format="ttl")
-    knora_api_str = rdf_graphs.knora_api.serialize(format="ttl")
-    res_in_db_str = rdf_graphs.resources_in_db_graph.serialize(format="ttl")
-    turtle_paths_and_graphs = [
-        (tmp_path / CARDINALITY_DATA_TTL, data_str),
-        (tmp_path / CARDINALITY_SHACL_TTL, card_shape_str + ontos_str + knora_api_str),
-        (tmp_path / CONTENT_DATA_TTL, data_str + ontos_str + knora_api_str + res_in_db_str),
-        (tmp_path / CONTENT_SHACL_TTL, content_shape_str + ontos_str + knora_api_str),
-    ]
-    for f_path, content in turtle_paths_and_graphs:
-        with open(f_path, "w") as writer:
-            writer.write(content)
+    logger.debug("Serialise RDF graphs into turtle files")
+    rdf_graphs.data.serialize(destination=tmp_path / CARDINALITY_DATA_TTL, format="ox-ttl")
+    shutil.copy(tmp_path / CARDINALITY_DATA_TTL, tmp_path / CONTENT_DATA_TTL)
+    _append_serialised_graphs(
+        tmp_path / CONTENT_DATA_TTL,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+        rdf_graphs.resources_in_db_graph,
+    )
+    _write_serialised_graphs(
+        tmp_path / CARDINALITY_SHACL_TTL,
+        rdf_graphs.cardinality_shapes,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+    )
+    _write_serialised_graphs(
+        tmp_path / CONTENT_SHACL_TTL,
+        rdf_graphs.content_shapes,
+        rdf_graphs.ontos,
+        rdf_graphs.knora_api,
+    )
+
+
+def _write_serialised_graphs(dest: Path, *graphs: Graph) -> None:
+    store = _merge_into_ox_store(*graphs)
+    with open(dest, "wb") as f:
+        store.dump(f, format=ox.RdfFormat.TURTLE, from_graph=ox.DefaultGraph())
+
+
+def _append_serialised_graphs(dest: Path, *graphs: Graph) -> None:
+    store = _merge_into_ox_store(*graphs)
+    with open(dest, "ab") as f:
+        store.dump(f, format=ox.RdfFormat.TURTLE, from_graph=ox.DefaultGraph())
+
+
+def _merge_into_ox_store(*graphs: Graph) -> ox.Store:
+    # Each graph is serialised separately to avoid merging via rdflib's in-memory backend
+    # (Graph.__add__ / +=), which bypasses the Oxigraph store and is slow.
+    # Graphs cannot be concatenated as raw strings: oxrdflib re-uses blank node labels
+    # per serialisation, so merging serialised strings would conflate distinct blank nodes.
+    # Serialising into one shared Store preserves blank node identity correctly.
+    store = ox.Store()
+    for g in graphs:
+        buf = io.BytesIO()
+        g.serialize(buf, format="ox-ttl")
+        buf.seek(0)
+        store.load(buf, format=ox.RdfFormat.TURTLE)
+    return store

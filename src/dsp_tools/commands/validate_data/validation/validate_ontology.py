@@ -66,7 +66,7 @@ def _get_ontology_validation_result(
     with as_file(files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")) as shacl_file_path:
         shacl_file = Path(shacl_file_path)
         shutil.copy(shacl_file, tmp_path / ONTOLOGIES_SHACL_TTL)
-    onto_graph.serialize(tmp_path / ONTOLOGIES_DATA_TTL)
+    onto_graph.serialize(tmp_path / ONTOLOGIES_DATA_TTL, format="ox-ttl")
     paths = ValidationFilePaths(
         directory=tmp_path,
         data_file=ONTOLOGIES_DATA_TTL,

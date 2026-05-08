@@ -86,16 +86,14 @@
                         "super": "MovingImageRepresentation",
                         "labels": {
                             "en": "Movie Resource"
-                        },
-                        "cardinalities": []
+                        }
                     },
                     {
                         "name": "AudioResource",
                         "super": "AudioRepresentation",
                         "labels": {
                             "en": "Audio Resource"
-                        },
-                        "cardinalities": []
+                        }
                     },
                     {
                         "name": "ResourceWithPropFromSecondOnto",

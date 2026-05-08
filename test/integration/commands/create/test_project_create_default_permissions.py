@@ -9,7 +9,9 @@ from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_AUDIO_FILE_VALUE
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_STILL_IMAGE_FILE_VALUE
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
@@ -17,10 +19,11 @@ STILL_IMAGE_IRI = f"{ONTO_NAMESPACE_STR}ImageResource"
 MOVING_IMAGE_IRI = f"{ONTO_NAMESPACE_STR}VideoResource"
 AUDIO_IRI = f"{ONTO_NAMESPACE_STR}AudioResource"
 
-_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
-_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
-_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
-_ALL_FILE_VALUE_PROPS = {_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE}
+_ALL_FILE_VALUE_PROPS = {
+    KNORA_API_HAS_STILL_IMAGE_FILE_VALUE,
+    KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE,
+    KNORA_API_HAS_AUDIO_FILE_VALUE,
+}
 
 
 @pytest.fixture
@@ -124,9 +127,9 @@ def test_create_default_permissions_with_limited_view_specific_classes(
     assert len(limited_view_calls) == 3, f"Expected 3 limited_view DOAPs, got {len(limited_view_calls)}"
 
     prop_to_class = {c["forProperty"]: c["forResourceClass"] for c in limited_view_calls}
-    assert prop_to_class[_STILL_IMAGE_FILE_VALUE] == STILL_IMAGE_IRI
-    assert prop_to_class[_MOVING_IMAGE_FILE_VALUE] == MOVING_IMAGE_IRI
-    assert prop_to_class[_AUDIO_FILE_VALUE] == AUDIO_IRI
+    assert prop_to_class[KNORA_API_HAS_STILL_IMAGE_FILE_VALUE] == STILL_IMAGE_IRI
+    assert prop_to_class[KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE] == MOVING_IMAGE_IRI
+    assert prop_to_class[KNORA_API_HAS_AUDIO_FILE_VALUE] == AUDIO_IRI
 
 
 @pytest.mark.parametrize(
@@ -134,15 +137,19 @@ def test_create_default_permissions_with_limited_view_specific_classes(
     [
         (
             {"still_image": {STILL_IMAGE_IRI}, "moving_image": set(), "audio": set()},
-            _STILL_IMAGE_FILE_VALUE,
+            KNORA_API_HAS_STILL_IMAGE_FILE_VALUE,
             STILL_IMAGE_IRI,
         ),
         (
             {"still_image": set(), "moving_image": {MOVING_IMAGE_IRI}, "audio": set()},
-            _MOVING_IMAGE_FILE_VALUE,
+            KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE,
             MOVING_IMAGE_IRI,
         ),
-        ({"still_image": set(), "moving_image": set(), "audio": {AUDIO_IRI}}, _AUDIO_FILE_VALUE, AUDIO_IRI),
+        (
+            {"still_image": set(), "moving_image": set(), "audio": {AUDIO_IRI}},
+            KNORA_API_HAS_AUDIO_FILE_VALUE,
+            AUDIO_IRI,
+        ),
     ],
 )
 def test_create_default_permissions_with_single_media_type(

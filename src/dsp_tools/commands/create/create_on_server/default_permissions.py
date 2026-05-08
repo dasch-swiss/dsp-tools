@@ -14,14 +14,11 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
-from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_AUDIO_FILE_VALUE
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE
+from dsp_tools.utils.rdf_constants import KNORA_API_HAS_STILL_IMAGE_FILE_VALUE
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import should_retry_request
-
-# DSP-API accepts property IRIs in the knora-api v2 namespace when creating DOAPs
-_STILL_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasStillImageFileValue"
-_MOVING_IMAGE_FILE_VALUE = f"{KNORA_API_PREFIX}hasMovingImageFileValue"
-_AUDIO_FILE_VALUE = f"{KNORA_API_PREFIX}hasAudioFileValue"
 
 
 def create_default_permissions(
@@ -142,16 +139,20 @@ def _handle_limited_view_overrule(
     match overrule_limited_view:
         case LimitedViewClasses():
             groups = [
-                (_STILL_IMAGE_FILE_VALUE, overrule_limited_view.still_image),
-                (_MOVING_IMAGE_FILE_VALUE, overrule_limited_view.moving_image),
-                (_AUDIO_FILE_VALUE, overrule_limited_view.audio),
+                (KNORA_API_HAS_STILL_IMAGE_FILE_VALUE, overrule_limited_view.still_image),
+                (KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE, overrule_limited_view.moving_image),
+                (KNORA_API_HAS_AUDIO_FILE_VALUE, overrule_limited_view.audio),
             ]
             for prop_iri, iris in groups:
                 for iri in sorted(iris):
                     if not _create_one_limited_view_overrule(perm_client, prop_iri, iri):
                         overall_success = False
         case GlobalLimitedViewPermission.ALL:
-            for prop_iri in (_STILL_IMAGE_FILE_VALUE, _MOVING_IMAGE_FILE_VALUE, _AUDIO_FILE_VALUE):
+            for prop_iri in (
+                KNORA_API_HAS_STILL_IMAGE_FILE_VALUE,
+                KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE,
+                KNORA_API_HAS_AUDIO_FILE_VALUE,
+            ):
                 if not _create_one_limited_view_overrule(perm_client, prop_iri, None):
                     overall_success = False
         case _:

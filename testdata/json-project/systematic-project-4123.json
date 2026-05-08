@@ -29,7 +29,7 @@
                 "testonto:TestThing2",
                 "testonto:hasTextChild2"
             ],
-            "limited_view": "all"
+            "limited_view": ["testonto:AudioThing", "testonto:MovieThing"]
         },
         "groups": [
             {

@@ -1,11 +1,17 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+
 from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.import_zip import _check_import_progress
 from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
+
+# yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
+# this is expected in tests and does not affect behaviour.
+pytestmark = pytest.mark.filterwarnings("ignore::UserWarning:yaspin")
 
 TEST_SLEEP = 0
 SHORTCODE = "0099"

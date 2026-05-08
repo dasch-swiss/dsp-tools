@@ -16,6 +16,10 @@ from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
 
+# yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
+# this is expected in tests and does not affect behaviour.
+pytestmark = pytest.mark.filterwarnings("ignore::UserWarning:yaspin")
+
 TEST_SLEEP = 0
 
 

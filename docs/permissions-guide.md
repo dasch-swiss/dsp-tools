@@ -94,12 +94,11 @@ The two available restriction levels are:
 - **`private`**: A list of class or property names.
     - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
     - For a **property**: the property's content is hidden, but the rest of the resource remains public.
-- **`limited_view`**: A list of image classes whose images are blurred/watermarked for outsiders.
-  Only the image is affected — the rest of the resource stays public.
-  Use the special value `"all"` to apply this to every `StillImageRepresentation` subclass,
-  including ones created in the future.
-
-> We have to adapt DSP-TOOLS to also allow audio/video for `limited_view`.
+- **`limited_view`**: A list of multimedia classes whose files are restricted for outsiders.
+  For images: blurred or watermarked. For audio/video: streaming only, no download.
+  Only the multimedia file is affected — the rest of the resource stays public.
+  Use the special value `"all"` to apply this to every `StillImageRepresentation`,
+  `MovingImageRepresentation`, and `AudioRepresentation` subclass, including ones created in the future.
 
 ```json
 "default_permissions": "public",
@@ -348,12 +347,9 @@ reduced resolution for outsiders because the images are still under copyright.
 ```json
 "default_permissions": "public",
 "default_permissions_overrule": {
-    "limited_view": "all"
+    "limited_view": ["my-onto:Photo"]
 }
 ```
-
-`"all"` applies restricted view to every `StillImageRepresentation` subclass,
-including classes added in the future.
 
 **Layer 2 — XML**:
 
@@ -385,11 +381,7 @@ downloadable by outsiders — for example, in an oral history archive with copyr
 recordings.
 
 For audio and video, Restricted View (`RV`) means the file can be played in the browser but
-cannot be downloaded. Unlike images, the JSON `limited_view` setting does not yet cover
-audio/video, so restricted view must be applied via an XML `permissions` attribute on each
-bitstream.
-
-<!--TODO: Rewrite this section once https://linear.app/dasch/issue/DEV-6308/ is resolved -->
+cannot be downloaded.
 
 **Access goals**:
 
@@ -401,29 +393,26 @@ bitstream.
 **Layer 1 — JSON**:
 
 ```json
-"default_permissions": "public"
+"default_permissions": "public",
+"default_permissions_overrule": {
+    "limited_view": [
+        "my-onto:AudioRecording",
+        "my-onto:VideoRecording"
+    ]
+}
 ```
 
 **Layer 2 — XML**:
 
-Define a `limited_view` permission ID and apply it to audio/video bitstreams.
-The resource itself and its text properties carry no `permissions` attribute
-and remain fully public:
+No `permissions` attribute is needed on audio/video resources or their bitstreams.
+The JSON overrule handles restricted view automatically:
 
 ```xml
-<permissions id="limited_view">
-    <allow group="ProjectAdmin">CR</allow>
-    <allow group="ProjectMember">D</allow>
-    <allow group="KnownUser">RV</allow>
-    <allow group="UnknownUser">RV</allow>
-</permissions>
-
 <resource label="Interview Meier 2019" restype=":AudioRecording" id="audio_001">
     <bitstream
         license="http://rdfh.ch/licenses/cc-by-nc-4.0"
         copyright-holder="Research Project"
-        authorship-id="authorship_1"
-        permissions="limited_view">
+        authorship-id="authorship_1">
             audio/interview_meier_2019.mp3
     </bitstream>
     <text-prop name=":hasTitle">

@@ -8,7 +8,6 @@ from rdflib import URIRef
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_data_upload
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_upload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -19,6 +18,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -163,8 +163,8 @@ class TestExecuteOneUpload:
     ) -> None:
         ingest_client.get_bitstream_info.side_effect = KeyboardInterrupt()
         upload_state.pending_resources = [resource_with_file]
-        with pytest.warns(DspToolsUserWarning):
-            with pytest.raises(XmlUploadInterruptedError):
+        with pytest.raises(XmlUploadInterruptedError):
+            with pytest.warns(DspToolsUserWarning):
                 _execute_one_resource_upload(
                     resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
                 )
@@ -190,12 +190,12 @@ class TestExecuteOneUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = RES_IRI
-        with pytest.warns(DspToolsUserWarning):
-            with patch(
-                "dsp_tools.commands.xmlupload.execute_upload.tidy_up_resource_creation_idempotent",
-                side_effect=[KeyboardInterrupt(), None],
-            ) as mock_tidy:
-                with pytest.raises(XmlUploadInterruptedError):
+        with patch(
+            "dsp_tools.commands.xmlupload.execute_upload.tidy_up_resource_creation_idempotent",
+            side_effect=[KeyboardInterrupt(), None],
+        ) as mock_tidy:
+            with pytest.raises(XmlUploadInterruptedError):
+                with pytest.warns(DspToolsUserWarning):
                     _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
         assert mock_tidy.call_count == 2
 

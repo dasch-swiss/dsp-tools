@@ -309,6 +309,7 @@ class TestFindDate:
         assert find_dates_in_string("x 25/12/2022-25/12/2022 x") == {"GREGORIAN:CE:2022-12-25:CE:2022-12-25"}
         with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 25.12.2022-03.01.2022 x") == set()
+        with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 25/12/2022-03/01/2022 x") == set()
 
     def test_find_dates_in_string_eur_date_range_across_year_2_digit(self) -> None:
@@ -367,8 +368,11 @@ class TestFindDate:
         assert find_dates_in_string("x 1811/11 x") == {"GREGORIAN:CE:1811:CE:1811"}
         with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 1850-1849 x") == set()
+        with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 830-20 x") == set()
+        with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 1811-10 x") == set()
+        with pytest.warns(XmllibInputWarning):
             assert find_dates_in_string("x 1811/10 x") == set()
 
     @pytest.mark.parametrize("string", ["x 9 BC x", "9 B.C.", "9 BCE", "9 B.C.E."])

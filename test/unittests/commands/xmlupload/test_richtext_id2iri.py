@@ -26,6 +26,23 @@ TXT_THREE_LINKS_WITH_IRIS_AND_IDS = (
 
 TXT_NO_LINKS = "Normal text, no links."
 
+TXT_FOOTNOTE_ONE_ID = (
+    'Text <footnote content="See &lt;a class=&quot;salsah-link&quot; '
+    'href=&quot;IRI:r1_id:IRI&quot;&gt;r1_id&lt;/a&gt; for details."/> end text.'
+)
+
+TXT_FOOTNOTE_TWO_IDS = (
+    'Text <footnote content="See &lt;a class=&quot;salsah-link&quot; '
+    "href=&quot;IRI:r1_id:IRI&quot;&gt;r1_id&lt;/a&gt; and &lt;a class=&quot;salsah-link&quot; "
+    'href=&quot;IRI:r2_id:IRI&quot;&gt;r2_id&lt;/a&gt;."/> end text.'
+)
+
+TXT_MIXED_FOOTNOTE_AND_LINK = (
+    'Start <a class="salsah-link" href="IRI:r1_id:IRI">r1_id</a> '
+    '<footnote content="See &lt;a class=&quot;salsah-link&quot; '
+    'href=&quot;IRI:r2_id:IRI&quot;&gt;r2_id&lt;/a&gt;."/> end.'
+)
+
 
 @pytest.fixture
 def iri_resolver() -> IriResolver:
@@ -83,6 +100,35 @@ class TestReplaceIdIfFound:
         assert result == expected
         assert not_found == {"not_in_lookup"}
 
+    def test_footnote_one_id(self, iri_resolver):
+        expected = (
+            'Text <footnote content="See &lt;a class=&quot;salsah-link&quot; '
+            'href=&quot;r1_iri&quot;&gt;r1_id&lt;/a&gt; for details."/> end text.'
+        )
+        result, not_found = replace_ids_if_found(TXT_FOOTNOTE_ONE_ID, iri_resolver)
+        assert result == expected
+        assert not not_found
+
+    def test_footnote_two_ids(self, iri_resolver):
+        expected = (
+            'Text <footnote content="See &lt;a class=&quot;salsah-link&quot; '
+            "href=&quot;r1_iri&quot;&gt;r1_id&lt;/a&gt; and &lt;a class=&quot;salsah-link&quot; "
+            'href=&quot;r2_iri&quot;&gt;r2_id&lt;/a&gt;."/> end text.'
+        )
+        result, not_found = replace_ids_if_found(TXT_FOOTNOTE_TWO_IDS, iri_resolver)
+        assert result == expected
+        assert not not_found
+
+    def test_mixed_footnote_and_link(self, iri_resolver):
+        expected = (
+            'Start <a class="salsah-link" href="r1_iri">r1_id</a> '
+            '<footnote content="See &lt;a class=&quot;salsah-link&quot; '
+            'href=&quot;r2_iri&quot;&gt;r2_id&lt;/a&gt;."/> end.'
+        )
+        result, not_found = replace_ids_if_found(TXT_MIXED_FOOTNOTE_AND_LINK, iri_resolver)
+        assert result == expected
+        assert not not_found
+
 
 class TestReplaceOneId:
     def test_one_link(self):
@@ -124,3 +170,12 @@ class TestFindInternalIDs:
 
     def test_no_links(self):
         assert not find_internal_ids(TXT_NO_LINKS)
+
+    def test_footnote_one_id(self):
+        assert find_internal_ids(TXT_FOOTNOTE_ONE_ID) == {"r1_id"}
+
+    def test_footnote_two_ids(self):
+        assert find_internal_ids(TXT_FOOTNOTE_TWO_IDS) == {"r1_id", "r2_id"}
+
+    def test_mixed_footnote_and_link(self):
+        assert find_internal_ids(TXT_MIXED_FOOTNOTE_AND_LINK) == {"r1_id", "r2_id"}

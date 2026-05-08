@@ -144,14 +144,14 @@ def _create_graphs(
     onto_client = OntologyGetClientLive(auth.server, shortcode)
     ontologies, onto_stores, onto_iris = _get_project_ontos(onto_client)
     knora_ttl = onto_client.get_knora_api()
-    knora_api = Graph()
+    knora_api = Graph(store="Oxigraph")
     knora_api.parse(data=knora_ttl, format="ttl")
     knora_api_store = Store()
     knora_api_store.load(input=knora_ttl, format=RdfFormat.TURTLE)
-    api_shapes = Graph()
+    api_shapes = Graph(store="Oxigraph")
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
-    api_card_shapes = Graph()
+    api_card_shapes = Graph(store="Oxigraph")
     api_card_path = importlib.resources.files("dsp_tools").joinpath(
         "resources/validate_data/api-shapes-resource-cardinalities.ttl"
     )
@@ -196,10 +196,10 @@ def _bind_prefixes_to_graph(g: Graph, project_ontos: list[str]) -> Graph:
 def _get_project_ontos(onto_client: OntologyGetClient) -> tuple[Graph, Store, list[str]]:
     logger.debug("Get project ontologies from server.")
     all_ontos, onto_iris = onto_client.get_ontologies()
-    onto_g = Graph()
+    onto_g = Graph(store="Oxigraph")
     onto_stores = Store()
     for onto in all_ontos:
-        og = Graph()
+        og = Graph(store="Oxigraph")
         og.parse(data=onto, format="ttl")
         onto_g += og
         onto_stores.load(input=onto, format=RdfFormat.TURTLE)
@@ -214,7 +214,7 @@ def _get_license_iris(shortcode: str, auth: AuthenticationClient) -> EnabledLice
 
 
 def _make_resource_in_db_graph(resources_in_db: list[InfoForResourceInDB]) -> Graph:
-    g = Graph()
+    g = Graph(store="Oxigraph")
     for r in resources_in_db:
         g.add((URIRef(r.res_iri), RDF.type, URIRef(r.res_type)))
     return g

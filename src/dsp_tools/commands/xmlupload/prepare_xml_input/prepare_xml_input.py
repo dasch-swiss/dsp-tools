@@ -19,6 +19,7 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.projectContext import ProjectContext
+from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_lookups import get_permissions_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
@@ -31,10 +32,12 @@ def get_parsed_resources_and_mappers(
     root: etree._Element, clients: UploadClients
 ) -> tuple[list[ParsedResource], XmlReferenceLookups]:
     logger.debug("Get ParsedResource and XML-Lookups from root")
-    print("Parsing XML file for upload.")
-    parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
-    processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
-    return parsed_resources, processed_lookups
+    sp = get_default_spinner("Parsing XML file for upload.")
+    with sp:
+        parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
+        processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
+        sp.ok("✔")
+        return parsed_resources, processed_lookups
 
 
 def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:

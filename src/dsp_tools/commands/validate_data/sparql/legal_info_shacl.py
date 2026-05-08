@@ -31,6 +31,6 @@ def construct_allowed_licenses_shape(license_iris: EnabledLicenseIris) -> Graph:
           sh:severity  sh:Violation
                   ] .
     """ % {"license_str": license_str, "msg": msg_str}  # noqa: UP031 Use format specifiers instead of percent format
-    g = Graph()
+    g = Graph(store="Oxigraph")
     g.parse(data=ttl_str, format="turtle")
     return g

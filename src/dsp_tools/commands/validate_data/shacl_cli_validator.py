@@ -1,4 +1,5 @@
 import importlib.resources
+import os
 import subprocess
 from pathlib import Path
 
@@ -39,8 +40,10 @@ class ShaclCliValidator:
         docker_spec = yaml.safe_load(docker_file.read_bytes())
         docker_image = docker_spec["image"]
 
+        uid = os.getuid() if hasattr(os, "getuid") else None
+        user_flag = f"--user {uid}" if uid is not None else ""
         d_cmd = (
-            f"docker run --rm -v {file_paths.directory.absolute()}:/data:z {docker_image} "
+            f"docker run --rm {user_flag} -v {file_paths.directory.absolute()}:/data:z {docker_image} "
             f"validate --shacl {shacl_path} --data {data_path} --report {report_path}"
         )
         logger.debug(f"Running SHACL validation: {d_cmd}")
@@ -59,7 +62,7 @@ class ShaclCliValidator:
         if not filepath.exists():
             raise ShaclValidationError(f"SHACL file not found: {filepath}")
         logger.debug(f"Parse validation response: {filepath}.")
-        graph = Graph()
+        graph = Graph(store="Oxigraph")
         graph.parse(filepath)
         conforms = bool(next(graph.objects(None, SH.conforms)))
         return SHACLValidationReport(conforms=conforms, validation_graph=graph)

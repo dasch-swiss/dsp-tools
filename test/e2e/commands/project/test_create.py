@@ -13,7 +13,7 @@ PROJECT_SHORTCODE = "4125"
 E2E_TESTONTO_PREFIX = "e2e-testonto"
 SECOND_ONTO_PREFIX = "second-onto"
 PROPS_IN_E2E_TESTONTO_JSON = 1
-RESCLASSES_IN_E2E_TESTONTO_JSON = 3
+RESCLASSES_IN_E2E_TESTONTO_JSON = 5
 USER_IRI_PREFIX = "http://www.knora.org/ontology/knora-admin#"
 
 
@@ -107,7 +107,7 @@ def test_default_permissions(
         f"{creds.server}/admin/permissions/doap/{urllib.parse.quote_plus(project_iri)}", headers=auth_header, timeout=3
     )
     doaps: list[dict[str, Any]] = response.json()["default_object_access_permissions"]
-    NUM_OF_OVERRULES_IN_JSON_FILE = 3
+    NUM_OF_OVERRULES_IN_JSON_FILE = 5
     assert len(doaps) == NUM_OF_OVERRULES_IN_JSON_FILE + 1
 
     # There is only one standard public DOAP
@@ -133,6 +133,18 @@ def test_default_permissions(
     assert unordered(limited_view_doap["hasPermissions"]) == limited_view_permissions
     assert limited_view_doap["forProperty"] == "http://www.knora.org/ontology/knora-base#hasStillImageFileValue"
     assert not limited_view_doap.get("forGroup")
+
+    # DOAP for moving image: class + knora-base:hasMovingImageFileValue
+    movie_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("MovieResource"), doaps))
+    assert unordered(movie_doap["hasPermissions"]) == limited_view_permissions
+    assert movie_doap["forProperty"] == "http://www.knora.org/ontology/knora-base#hasMovingImageFileValue"
+    assert not movie_doap.get("forGroup")
+
+    # DOAP for audio: class + knora-base:hasAudioFileValue
+    audio_doap = next(filter(lambda x: x.get("forResourceClass", "").endswith("AudioResource"), doaps))
+    assert unordered(audio_doap["hasPermissions"]) == limited_view_permissions
+    assert audio_doap["forProperty"] == "http://www.knora.org/ontology/knora-base#hasAudioFileValue"
+    assert not audio_doap.get("forGroup")
 
 
 def _get_enabled_licenses(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:
@@ -164,9 +176,9 @@ def _check_props(props: list[dict[str, Any]]) -> None:
 
 def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert len(resclasses) == RESCLASSES_IN_E2E_TESTONTO_JSON
-    res_1, res_2, res_3 = resclasses
+    by_id = {r["@id"]: r for r in resclasses}
 
-    assert res_1["@id"] == f"{E2E_TESTONTO_PREFIX}:ImageResource"
+    res_1 = by_id[f"{E2E_TESTONTO_PREFIX}:ImageResource"]
     assert res_1["rdfs:label"] == "Image Resource"
     cards_1 = res_1["rdfs:subClassOf"]
     fileval_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"]
@@ -175,10 +187,10 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     hasText_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == f"{E2E_TESTONTO_PREFIX}:hasText"]
     assert len(hasText_card) == 1
 
-    assert res_2["@id"] == f"{E2E_TESTONTO_PREFIX}:PDFResource"
+    res_2 = by_id[f"{E2E_TESTONTO_PREFIX}:PDFResource"]
     assert res_2["rdfs:label"] == "PDF Resource"
 
-    assert res_3["@id"] == f"{E2E_TESTONTO_PREFIX}:ResourceWithPropFromSecondOnto"
+    res_3 = by_id[f"{E2E_TESTONTO_PREFIX}:ResourceWithPropFromSecondOnto"]
     assert res_3["rdfs:label"] == "Resource with a property from second ontology"
     cards_3 = res_3["rdfs:subClassOf"]
     other_onto_cards = [

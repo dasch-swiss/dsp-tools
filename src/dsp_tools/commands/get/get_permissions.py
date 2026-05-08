@@ -283,9 +283,10 @@ def _construct_overrule_object(
     if len(doap_categories.limited_view_all_classes_doaps) > 0:
         limited_views = "all"
     else:
-        limited_views = []
-        for media_doap in doap_categories.limited_view_specific_class_doaps:
-            limited_views.append(_get_prefixed_iri(media_doap["forResourceClass"], prefixes_knora_base_inverted))
+        limited_views = sorted(
+            _get_prefixed_iri(d["forResourceClass"], prefixes_knora_base_inverted)
+            for d in doap_categories.limited_view_specific_class_doaps
+        )
 
     result: dict[str, list[str] | Literal["all"]] = {}
     if privates:

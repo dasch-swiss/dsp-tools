@@ -113,7 +113,7 @@ def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exi
     )
     success = create_default_permissions(
         perm_client=perm_client,
-        parsed_permissions=parsed_project.permissions,
+        validated_permissions=parsed_project.permissions,
         created_iris=created_iris,
     )
     if not success:

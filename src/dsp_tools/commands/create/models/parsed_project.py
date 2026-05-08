@@ -45,10 +45,17 @@ class LimitedViewPermissionsSelection:
 
 
 @dataclass
+class LimitedViewClasses:
+    still_image: set[str]
+    moving_image: set[str]
+    audio: set[str]
+
+
+@dataclass
 class ParsedPermissions:
     default_permissions: DefaultPermissions
     overrule_private: list[str] | None
-    overrule_limited_view: LimitedViewPermissionsSelection | GlobalLimitedViewPermission
+    overrule_limited_view: LimitedViewPermissionsSelection | LimitedViewClasses | GlobalLimitedViewPermission
 
 
 @dataclass

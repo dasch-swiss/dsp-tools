@@ -21,7 +21,9 @@
                 "second-onto:privateProp"
             ],
             "limited_view": [
-                "e2e-testonto:ImageResource"
+                "e2e-testonto:AudioResource",
+                "e2e-testonto:ImageResource",
+                "e2e-testonto:MovieResource"
             ]
         },
         "users": [
@@ -77,6 +79,20 @@
                         },
                         "comments": {
                             "en": "This resource has a preview permission."
+                        }
+                    },
+                    {
+                        "name": "MovieResource",
+                        "super": "MovingImageRepresentation",
+                        "labels": {
+                            "en": "Movie Resource"
+                        }
+                    },
+                    {
+                        "name": "AudioResource",
+                        "super": "AudioRepresentation",
+                        "labels": {
+                            "en": "Audio Resource"
                         }
                     },
                     {

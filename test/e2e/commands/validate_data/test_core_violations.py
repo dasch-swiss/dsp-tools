@@ -138,6 +138,7 @@ class TestWithReportGraphs:
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/richtext_standoff_link_in_footnote_inexistent"), SH.ClassConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -195,6 +196,7 @@ class TestWithReportGraphs:
             ("link_to_resource_in_db", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
+            ("richtext_standoff_link_in_footnote_inexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
@@ -340,6 +342,11 @@ def test_reformat_content_violation(authentication) -> None:
             ),
         ),
         ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
+        (
+            "richtext_standoff_link_in_footnote_inexistent",
+            "hasStandoffLinkTo",
+            "inexistent_id_in_footnote",
+        ),
         (
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",

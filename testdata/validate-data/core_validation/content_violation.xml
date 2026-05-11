@@ -114,6 +114,16 @@
         </text-prop>
     </resource>
 
+    <!-- The target of the stand-off link does not exist. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_in_footnote_inexistent">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with a footnote.
+                <footnote content="oh no! &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:inexistent_id_in_footnote:IRI&quot;&gt;link to inexistent_id&lt;/a&gt;"/>
+            </text>
+        </text-prop>
+    </resource>
+
     <!-- The target of the stand-off link is a resource from another project. -->
     <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_to_other_project">
         <text-prop name=":testRichtext">

@@ -67,10 +67,29 @@ def _get_all_stand_off_links(values: list[ParsedValue]) -> list[PropertyObject]:
 
 
 def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
-    txt_wrapped = f"<wrapper>{text}</wrapper>"
-    text_tree = etree.fromstring(txt_wrapped)
+
+    def wrap_and_get_etree(txt: str) -> etree._Element:
+        txt_wrapped = f"<wrapper>{txt}</wrapper>"
+        return etree.fromstring(txt_wrapped)
+
+    main_text = wrap_and_get_etree(text)
+    all_elements = [main_text]
+
+    # All XML mark-up in attributes must be escaped. Therefore, the links are also escaped.
+    # To extract them we will have to parse the footnote content separately.
+    for f_note in main_text.iterdescendants(tag="footnote"):
+        if f_content := f_note.attrib.get("content"):
+            all_elements.append(wrap_and_get_etree(f_content))
+
     all_hrefs = set()
-    for a_link in text_tree.iterdescendants(tag="a"):
+    for txt_ele in all_elements:
+        all_hrefs.update(_get_all_relevant_info_from_tag_element(txt_ele))
+    return all_hrefs
+
+
+def _get_all_relevant_info_from_tag_element(ele: etree._Element) -> set[str]:
+    all_hrefs = set()
+    for a_link in ele.iterdescendants(tag="a"):
         if a_link.get("class") == "salsah-link":
             if found := a_link.get("href"):
                 all_hrefs.add(found)

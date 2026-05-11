@@ -545,24 +545,18 @@ class TestRichtextStandoff:
     def test_get_resource_ids_and_iri_strings_multiple_found(self):
         link = "IRI:link:IRI"
         res_link = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
+        footnote_link = "IRI:id_in_footnote:IRI"
         txt = (
             f'With <a class="salsah-link" href="{link}">link text</a>.'
             f'Some more text <a class="salsah-link" href="{link}">with the same link</a>.'
             f'Text with <a class="salsah-link" href="{res_link}"> stand off</a> to resource in DB.'
             f'Text with an external link: <a href="https://www.google.com/">Google</a>'
+            f'This is a text with a footnote.<footnote content="oh no! '
+            "&lt;a class=&quot;salsah-link&quot; href=&quot;IRI:id_in_footnote:IRI&quot;&gt;link to id_in_footnote"
+            '&lt;/a&gt;"/>'
         )
         result = _get_resource_ids_and_iri_strings(txt)
-        expected = {link, res_link}
-        assert result == expected
-
-    def test_get_resource_ids_and_iri_strings_in_footnote(self):
-        link = "IRI:id_in_footnote:IRI"
-        txt = (
-            "This is a text with a footnote."
-            '<footnote content="oh no! <a class="salsah-link" href="IRI:id_in_footnote:IRI">link to id_in_footnote</a>"/>'
-        )
-        result = _get_resource_ids_and_iri_strings(txt)
-        expected = {link}
+        expected = {link, res_link, footnote_link}
         assert result == expected
 
     def test_get_link_string_and_triple_object_type_internal_link(self):

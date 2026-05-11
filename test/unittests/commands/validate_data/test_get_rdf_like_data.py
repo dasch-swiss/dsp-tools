@@ -555,6 +555,16 @@ class TestRichtextStandoff:
         expected = {link, res_link}
         assert result == expected
 
+    def test_get_resource_ids_and_iri_strings_in_footnote(self):
+        link = "IRI:id_in_footnote:IRI"
+        txt = (
+            "This is a text with a footnote."
+            '<footnote content="oh no! <a class="salsah-link" href="IRI:id_in_footnote:IRI">link to id_in_footnote</a>"/>'
+        )
+        result = _get_resource_ids_and_iri_strings(txt)
+        expected = {link}
+        assert result == expected
+
     def test_get_link_string_and_triple_object_type_internal_link(self):
         link = "IRI:link:IRI"
         link_str, triple_type = _get_link_string_and_triple_object_type(link)

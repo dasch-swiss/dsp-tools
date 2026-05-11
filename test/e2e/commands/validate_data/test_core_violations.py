@@ -138,7 +138,12 @@ class TestWithReportGraphs:
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
-            (URIRef("http://data/richtext_standoff_link_in_footnote_inexistent"), SH.ClassConstraintComponent, None, None),
+            (
+                URIRef("http://data/richtext_standoff_link_in_footnote_inexistent"),
+                SH.ClassConstraintComponent,
+                None,
+                None,
+            ),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),

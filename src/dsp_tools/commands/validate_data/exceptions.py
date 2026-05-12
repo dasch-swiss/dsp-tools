@@ -25,5 +25,13 @@ class ShaclValidationError(InternalError):
     """This error is raised when an unexpected error occurs during the validation"""
 
 
-class FootnoteInputError(UserError):
-    """This error is raised when the content of the footnote cannot be parsed as an XML."""
+class FootnoteNotParsableError(UserError):
+    """This error is raised when the content of a richtext cannot be parsed."""
+
+    def __init__(self, res_id: str, footnote_str: str) -> None:
+        msg = (
+            "Your footnotes contain XML syntax errors, for example an unclosed tag. "
+            "This must be fixed before validation can continue.\n"
+            f"Resource ID: {res_id}, Original text: {footnote_str}"
+        )
+        super().__init__(msg)

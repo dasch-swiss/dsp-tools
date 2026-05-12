@@ -6,6 +6,7 @@ from typing import cast
 import regex
 from lxml import etree
 
+from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
@@ -43,7 +44,7 @@ def _get_one_resource(
         PropertyObject(TriplePropertyType.RDFS_LABEL, resource.label, TripleObjectType.STRING),
         PropertyObject(TriplePropertyType.RDF_TYPE, resource.res_type, TripleObjectType.IRI),
     ]
-    metadata.extend(_get_all_stand_off_links(resource.values))
+    metadata.extend(_get_all_stand_off_links(resource.values, resource.res_id))
     if resource.permissions_id is not None:
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
@@ -56,17 +57,17 @@ def _get_one_resource(
     )
 
 
-def _get_all_stand_off_links(values: list[ParsedValue]) -> list[PropertyObject]:
+def _get_all_stand_off_links(values: list[ParsedValue], res_id: str) -> list[PropertyObject]:
     stand_off_ids = set()
     for val in values:
         if val.value_type == KnoraValueType.RICHTEXT_VALUE:
             if isinstance(val.value, str):
-                new_ids = _get_resource_ids_and_iri_strings(val.value)
+                new_ids = _get_resource_ids_and_iri_strings(val.value, res_id)
                 stand_off_ids.update(new_ids)
     return [_get_stand_off_links(x) for x in stand_off_ids]
 
 
-def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
+def _get_resource_ids_and_iri_strings(text: str, res_id: str) -> set[str]:
 
     def wrap_and_get_etree(txt: str) -> etree._Element:
         txt_wrapped = f"<wrapper>{txt}</wrapper>"
@@ -79,7 +80,10 @@ def _get_resource_ids_and_iri_strings(text: str) -> set[str]:
     # To extract them we will have to parse the footnote content separately.
     for f_note in main_text.iterdescendants(tag="footnote"):
         if f_content := f_note.attrib.get("content"):
-            all_elements.append(wrap_and_get_etree(f_content))
+            try:
+                all_elements.append(wrap_and_get_etree(f_content))
+            except etree.XMLSyntaxError:
+                raise FootnoteNotParsableError(res_id, f_content) from None
 
     all_hrefs = set()
     for txt_ele in all_elements:

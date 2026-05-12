@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
@@ -558,6 +559,14 @@ class TestRichtextStandoff:
         result = _get_resource_ids_and_iri_strings(txt)
         expected = {link, res_link, footnote_link}
         assert result == expected
+
+    def test_get_resource_ids_and_iri_strings_malformed_footnote(self):
+        txt = (
+            'This is a text with a footnote.<footnote content="oh no! &lt;a class=&quot;salsah-link&quot; '
+            'href=&quot;IRI:inexistent_id_in_footnote:IRI&quot;&gt;link to inexistent_id"/>'
+        )
+        with pytest.raises(FootnoteNotParsableError):
+            _get_resource_ids_and_iri_strings(txt)
 
     def test_get_link_string_and_triple_object_type_internal_link(self):
         link = "IRI:link:IRI"

@@ -76,7 +76,7 @@ def _get_resource_ids_and_iri_strings(text: str, res_id: str) -> set[str]:
     main_text = wrap_and_get_etree(text)
     all_elements = [main_text]
 
-    # All XML mark-up in attributes must be escaped. Therefore, the links are also escaped.
+    # All XML mark-up in attributes, incl. the links, have been escaped.
     # To extract them we will have to parse the footnote content separately.
     for f_note in main_text.iterdescendants(tag="footnote"):
         if f_content := f_note.attrib.get("content"):

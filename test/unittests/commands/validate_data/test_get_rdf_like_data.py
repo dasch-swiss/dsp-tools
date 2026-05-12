@@ -553,7 +553,7 @@ class TestRichtextStandoff:
             f'Some more text <a class="salsah-link" href="{link}">with the same link</a>.'
             f'Text with <a class="salsah-link" href="{res_link}"> stand off</a> to resource in DB.'
             f'Text with an external link: <a href="https://www.google.com/">Google</a>'
-            f'This is a text with a footnote.<footnote content="oh no! '
+            f'This is a text with a footnote.<footnote content="text '
             f"&lt;a class=&quot;salsah-link&quot; href=&quot;{footnote_link}&quot;&gt;link to id_in_footnote"
             '&lt;/a&gt;"/>'
         )

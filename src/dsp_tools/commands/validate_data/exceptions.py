@@ -1,4 +1,5 @@
 from dsp_tools.error.exceptions import InternalError
+from dsp_tools.error.exceptions import UserError
 
 
 class ShaclValidationCliError(InternalError):
@@ -22,3 +23,7 @@ class ShaclValidationCliError(InternalError):
 
 class ShaclValidationError(InternalError):
     """This error is raised when an unexpected error occurs during the validation"""
+
+
+class FootnoteInputError(UserError):
+    """This error is raised when the content of the footnote cannot be parsed as an XML."""

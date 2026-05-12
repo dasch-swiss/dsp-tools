@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
@@ -13,6 +15,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 def stash_circular_references(resources: list[ProcessedResource], stash_lookup: dict[str, list[str]]) -> Stash | None:
     """Stash the values that would create circular references and remove them from the Resources."""
+    logger.debug("Creating Stash from stash lookup.")
     stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
 
@@ -26,6 +29,10 @@ def stash_circular_references(resources: list[ProcessedResource], stash_lookup: 
         stashed_link_values.extend(links)
         stashed_standoff_values.extend(standoff)
 
+    logger.debug(
+        f"{len(stashed_standoff_values)} texts with standoff links stashed. "
+        f"{len(stashed_link_values)} LinkValues stashed."
+    )
     standoff_stash = StandoffStash.make(stashed_standoff_values)
     link_value_stash = LinkValueStash.make(stashed_link_values)
     return Stash.make(standoff_stash=standoff_stash, link_value_stash=link_value_stash)

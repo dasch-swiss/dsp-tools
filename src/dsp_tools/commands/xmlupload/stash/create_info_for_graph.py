@@ -1,3 +1,5 @@
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
@@ -9,6 +11,7 @@ from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 def create_info_for_graph_from_processed_resources(resources: list[ProcessedResource]) -> InfoForGraph:
     """Extracts information to create the graph to analyse the circular references."""
+    logger.debug("Extract IDs from resources and values to create the dependency graph.")
     all_links = []
     all_stand_off = []
     all_resource_ids = []

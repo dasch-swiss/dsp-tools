@@ -341,6 +341,11 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
         (
+            "richtext_standoff_link_in_footnote_inexistent",
+            "hasStandoffLinkTo",
+            "inexistent_id_in_footnote",
+        ),
+        (
             "richtext_standoff_link_nonexistent",
             "hasStandoffLinkTo",
             "non_existing",

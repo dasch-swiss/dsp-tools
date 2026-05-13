@@ -184,7 +184,7 @@ class TestWithReportGraphs:
             ("date_range_wrong_yyyy", ProblemType.GENERIC),
             ("file_value_missing", ProblemType.FILE_VALUE_MISSING),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
-            ("identical_values", ProblemType.DUPLICATE_VALUE),
+            ("identical_values", ProblemType.GENERIC),
             ("iiif_invalid_characters_in_uri", ProblemType.GENERIC),
             ("label_empty", ProblemType.INPUT_REGEX),
             ("label_with_newline", ProblemType.GENERIC),
@@ -300,6 +300,7 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("label_empty", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("link_self_reference", "onto:testHasLinkTo", "A resource may not link to itself."),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         (
             "link_target_of_another_project",
@@ -484,7 +485,7 @@ def test_reformat_unique_value_violation(authentication) -> None:
     assert not sorted_problems.unexpected_shacl_validation_components
     alphabetically_sorted = sorted(sorted_problems.unique_violations, key=lambda x: str(x.res_id))
     for one_result, expected_id in zip(alphabetically_sorted, expected_ids):
-        assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
+        assert one_result.problem_type == ProblemType.GENERIC
         assert one_result.res_id == expected_id
     assert not _get_validation_status(sorted_problems, is_on_prod=True)
     assert not _get_validation_status(sorted_problems, is_on_prod=False)

@@ -134,7 +134,6 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
 
 RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.SEQNUM_IS_PART_OF: ProblemType.GENERIC,
-    ViolationType.UNIQUE_VALUE: ProblemType.DUPLICATE_VALUE,
     ViolationType.VALUE_TYPE: ProblemType.VALUE_TYPE_MISMATCH,
     ViolationType.PATTERN: ProblemType.INPUT_REGEX,
     ViolationType.GENERIC: ProblemType.GENERIC,

@@ -471,21 +471,6 @@ def _query_for_min_cardinality_violation(
     )
 
 
-def _query_for_unique_value_violation(
-    base_info: ValidationResultBaseInfo,
-    results_and_onto: Graph,
-) -> ValidationResult:
-    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    return ValidationResult(
-        violation_type=ViolationType.UNIQUE_VALUE,
-        res_iri=base_info.focus_node_iri,
-        res_class=base_info.focus_node_type,
-        severity=base_info.severity,
-        property=base_info.result_path,
-        input_value=val,
-    )
-
-
 def _query_for_coexists_with_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
 ) -> ValidationResult:

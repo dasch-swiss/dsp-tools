@@ -312,7 +312,7 @@ class TestQueryWithoutDetail:
         res, data, info = report_unique_value_literal
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.UNIQUE_VALUE
+        assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation
@@ -323,7 +323,7 @@ class TestQueryWithoutDetail:
         res, data, info = report_unique_value_iri
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.UNIQUE_VALUE
+        assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.severity == SH.Violation

@@ -841,7 +841,7 @@ def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, Valida
 @pytest.fixture
 def extracted_unique_value_literal() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.UNIQUE_VALUE,
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.identical_values_valueHas,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
@@ -886,7 +886,7 @@ def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, Validation
 @pytest.fixture
 def extracted_unique_value_iri() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.UNIQUE_VALUE,
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.identical_values_LinkValue,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,

@@ -141,12 +141,13 @@ def inexistent_linked_resource() -> InputProblem:
 @pytest.fixture
 def duplicate_value() -> InputProblem:
     return InputProblem(
-        problem_type=ProblemType.DUPLICATE_VALUE,
+        problem_type=ProblemType.GENERIC,
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
         severity=Severity.VIOLATION,
         input_value="Text",
+        message="Your input is duplicated.",
     )
 
 
@@ -481,7 +482,7 @@ class TestUserMessages:
         expected = (
             "Resource ID: res_id | Resource Type: onto:Class\n"
             "onto:hasProp\n"
-            "    - Your input is duplicated | Your input: 'Text'"
+            "    - Your input is duplicated. | Your input: 'Text'"
         )
         assert result == expected
 

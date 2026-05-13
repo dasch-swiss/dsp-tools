@@ -57,7 +57,7 @@
     </resource>
 
     <!-- Link is the resource class itself -->
-    <resource label="Target does not exist" restype=":ClassWithEverything" id="link_self_reference">
+    <resource label="Target is the resource itself" restype=":ClassWithEverything" id="link_self_reference">
         <resptr-prop name=":testHasLinkTo">
             <resptr>link_self_reference</resptr>
         </resptr-prop>

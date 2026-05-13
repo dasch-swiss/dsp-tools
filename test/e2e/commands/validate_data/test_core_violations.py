@@ -300,6 +300,7 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("label_empty", "rdfs:label", "The label must be a non-empty string without newlines."),
         ("label_with_newline", "rdfs:label", "The label must be a non-empty string without newlines."),
+        ("link_self_reference", "onto:testHasLinkTo", "link_self_reference"),
         ("link_target_non_existent", "onto:testHasLinkTo", "other"),
         (
             "link_target_of_another_project",

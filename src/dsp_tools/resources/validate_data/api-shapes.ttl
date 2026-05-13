@@ -22,7 +22,7 @@
 # therefore only the content is validated with the shapes for the resources.
 
 ########################
-# UNIQUE VALUE SHAPE
+# SPARQL SHAPES
 ########################
 
 api-shapes:UniqueValue_Shape
@@ -53,10 +53,11 @@ api-shapes:UniqueValue_Shape
             HAVING (COUNT(?value) > 1)
                     """ ;
                    sh:severity sh:Violation ;
-                   sh:message  "A resource may not have the same property and value more than one time." ;
+                   sh:message  "Your input is used multiple times for this property and resource." ;
                  ] .
 
-api-shapes:ProhibitSelfReferenceInLink_Shape
+
+api-shapes:ProhibitSelfReferenceInLinkValue_Shape
   a              sh:NodeShape ;
   sh:targetClass knora-api:Resource ;
   sh:sparql      [

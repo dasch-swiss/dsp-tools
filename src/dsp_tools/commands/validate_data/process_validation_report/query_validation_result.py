@@ -209,8 +209,6 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             return _query_for_less_than_or_equal_violation(base_info, results_and_onto, data, msg)
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto, data)
-        case SH.SPARQLConstraintComponent:
-            return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
             return _query_for_coexists_with_violation(base_info, results_and_onto, data, msg)
         case SH.ClassConstraintComponent:
@@ -223,6 +221,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             | SH.MaxInclusiveConstraintComponent
             | DASH.SingleLineConstraintComponent
             | SH.DatatypeConstraintComponent
+            | SH.SPARQLConstraintComponent
         ):
             return _query_general_violation_info(
                 base_info.result_bn, base_info, results_and_onto, ViolationType.GENERIC

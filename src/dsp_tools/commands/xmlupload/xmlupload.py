@@ -12,10 +12,10 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.ingest import DspIngestClientLive
 from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.execute_upload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload

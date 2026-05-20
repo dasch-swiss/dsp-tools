@@ -13,6 +13,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
+from dsp_tools.cli.exceptions import IngestNotReachableError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathMustNotExistError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
@@ -71,6 +72,8 @@ def _check_network_health(network_requirements: NetworkRequirements) -> None:
     if network_requirements.api_url == LOCALHOST_API or network_requirements.always_requires_docker:
         check_docker_health()
     _check_api_health(network_requirements.api_url)
+    if network_requirements.ingest_url is not None:
+        _check_ingest_health(network_requirements.ingest_url)
 
 
 def check_docker_health() -> None:
@@ -97,6 +100,27 @@ def _check_api_health(api_url: str) -> None:
         raise error
 
     logger.debug(f"DSP API health check passed: {health_url}")
+
+
+def _check_ingest_health(ingest_url: str) -> None:
+    health_url = f"{ingest_url}/health"
+
+    try:
+        response = requests.get(health_url, timeout=2)
+    except requests.exceptions.RequestException:
+        logger.exception(f"Failed to connect to DSP Ingest at {health_url}")
+        raise IngestNotReachableError(is_localhost=ingest_url == LOCALHOST_INGEST) from None
+
+    if not response.ok:
+        error = IngestNotReachableError(
+            is_localhost=bool(ingest_url == LOCALHOST_INGEST),
+            status_code=response.status_code,
+            response_text=response.text,
+        )
+        logger.error(str(error))
+        raise error
+
+    logger.debug(f"DSP Ingest health check passed: {health_url}")
 
 
 def get_canonical_server_and_dsp_ingest_url(

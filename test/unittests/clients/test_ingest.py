@@ -1,7 +1,9 @@
 import urllib
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+import requests
 from requests_mock import Mocker
 
 from dsp_tools.clients.ingest import DspIngestClientLive
@@ -65,3 +67,14 @@ def test_ingest_failure_when_other_error(
     requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=500)
     with pytest.raises(PermanentConnectionError):
         ingest_client._ingest(tmp_file)
+
+
+def test_ingest_logs_exception_on_request_failure(
+    dsp_ingest_url: str, ingest_client: DspIngestClientLive, requests_mock: Mocker, shortcode: str, tmp_file: Path
+) -> None:
+    tmp_file.write_text("<xml></xml>")
+    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), exc=requests.exceptions.ConnectionError)
+    with patch("dsp_tools.clients.ingest.logger.exception") as mock_exc:
+        with pytest.raises(PermanentConnectionError):
+            ingest_client._ingest(tmp_file)
+    assert mock_exc.call_count == 1

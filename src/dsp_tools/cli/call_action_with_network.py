@@ -241,14 +241,14 @@ def call_migration_complete(args: argparse.Namespace) -> bool:
             f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
             f"for the `migration` command."
         )
-    source_server, source_ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = source_server
-    target_server, target_ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = target_server
     check_input_dependencies(
         network_dependencies=[
-            NetworkRequirements(migration_info.source.server, ingest_url=source_ingest_url),
-            NetworkRequirements(migration_info.target.server, ingest_url=target_ingest_url),
+            NetworkRequirements(migration_info.source.server),
+            NetworkRequirements(migration_info.target.server),
         ],
         prohibited_paths=ProhibitedPaths(
             [
@@ -268,7 +268,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'source-server' section for the export command."
         )
-    server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
 
     prohibited_paths = [migration_info.config.export_savepath]
@@ -280,7 +280,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         prohibited_paths.append(migration_info.config.reference_savepath)
 
     check_input_dependencies(
-        network_dependencies=[NetworkRequirements(migration_info.source.server, ingest_url=ingest_url)],
+        network_dependencies=[NetworkRequirements(migration_info.source.server)],
         required_paths=required_paths,
         prohibited_paths=ProhibitedPaths(prohibited_paths),
     )
@@ -298,10 +298,10 @@ def call_migration_import(args: argparse.Namespace) -> bool:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'target-server' section for the import command."
         )
-    server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = server
     check_input_dependencies(
-        network_dependencies=[NetworkRequirements(migration_info.target.server, ingest_url=ingest_url)],
+        network_dependencies=[NetworkRequirements(migration_info.target.server)],
         required_paths=PathDependencies(
             [migration_info.config.reference_savepath, migration_info.config.export_savepath]
         ),

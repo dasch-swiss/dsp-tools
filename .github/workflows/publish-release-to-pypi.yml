@@ -7,6 +7,9 @@ on:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   UV_PUBLISH_TOKEN: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
@@ -36,3 +39,83 @@ jobs:
         uses: lakto/google-chat-action@main
         with:
           url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}
+
+  dispatch-dsp-docs-bump:
+    name: Dispatch dsp-docs bump
+    needs: [publish-release-to-pypi]
+    if: github.event_name == 'release' && github.event.action == 'published' && vars.DSP_DOCS_DISPATCH_ENABLED != 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: src/dsp_tools/resources/start-stack/versions.env
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Load versions.env into job env
+        # versions.env is the structured source of truth, written by
+        # scripts/bump_stack_versions.py. Keys: RELEASE, API, APP, DB.
+        # `grep` filters to KEY=VALUE lines (drops comments/blanks); appending
+        # to $GITHUB_ENV makes them visible to every subsequent step.
+        run: |
+          set -euo pipefail
+          grep -E '^[A-Z]+=' src/dsp_tools/resources/start-stack/versions.env >> "$GITHUB_ENV"
+          echo "TOOLS=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+
+      - name: Mint DaSCH Bot App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
+          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
+          owner: dasch-swiss
+          repositories: dsp-docs
+          permission-actions: write
+
+      - name: Preflight — skip if a bump is already in flight for this DSP
+        id: preflight
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          # `gh run list --status X` accepts a single value (cobra string flag),
+          # so we count in_progress and queued separately and sum. Using --arg
+          # for the RELEASE value keeps the jq filter shell-injection-safe.
+          count() {
+            gh run list --workflow=bump-release.yml --repo dasch-swiss/dsp-docs \
+              --status "$1" --json displayTitle \
+              | jq --arg d "$RELEASE" '[.[] | select(.displayTitle | contains($d))] | length'
+          }
+          active=$(( $(count in_progress) + $(count queued) ))
+          if [[ "$active" -gt 0 ]]; then
+            echo "::notice::active bump-release for DSP $RELEASE already running; skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger dsp-docs/bump-release.yml
+        if: steps.preflight.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          UPSTREAM_URL: ${{ github.event.release.html_url }}
+        run: |
+          gh workflow run bump-release.yml \
+            --repo dasch-swiss/dsp-docs \
+            --ref main \
+            -f dsp="$RELEASE" \
+            -f api="$API" \
+            -f app="$APP" \
+            -f tools="$TOOLS" \
+            -f upstream_url="$UPSTREAM_URL"
+
+      - name: Notify on failure (internal)
+        if: failure()
+        env:
+          INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
+          curl -fsSL -X POST -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg text "❌ dispatch-dsp-docs-bump failed for DSP=${RELEASE:-unknown} (TOOLS=${TOOLS:-unknown}) · <$run_url|view run>" '{text:$text}')" \
+            "$INTERNAL_WEBHOOK"

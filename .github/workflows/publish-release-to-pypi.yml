@@ -43,10 +43,14 @@ jobs:
   dispatch-dsp-docs-bump:
     name: Dispatch dsp-docs bump
     needs: [publish-release-to-pypi]
-    if: github.event_name == 'release' && github.event.action == 'published' && vars.DSP_DOCS_DISPATCH_ENABLED != 'false'
+    # Kill-switch comparisons enumerate case variants since GitHub Actions
+    # expressions don't have a tolower() function.
+    if: >-
+      github.event_name == 'release' && github.event.action == 'published'
+      && !contains(fromJSON('["false","False","FALSE"]'), vars.DSP_DOCS_DISPATCH_ENABLED)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
           sparse-checkout: src/dsp_tools/resources/start-stack/versions.env
           sparse-checkout-cone-mode: false
@@ -62,9 +66,10 @@ jobs:
           grep -E '^[A-Z]+=' src/dsp_tools/resources/start-stack/versions.env >> "$GITHUB_ENV"
           echo "TOOLS=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
 
+      # SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
       - name: Mint DaSCH Bot App token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
         with:
           app-id: ${{ secrets.DASCH_BOT_APP_ID }}
           private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}

@@ -80,11 +80,17 @@ def _require_env(name: str) -> str:
 
 def _write_versions_env(release: str, versions: dict[str, str]) -> None:
     # POSIX-shell-sourceable. Consumed by:
-    #   - docker-compose.yml at `docker compose --env-file versions.env up` time
+    #   - src/dsp_tools/resources/start-stack/docker-compose.yml at
+    #     `docker compose --env-file versions.env up` time
     #     (image: daschswiss/knora-api:${API} etc.)
-    #   - dsp_tools/commands/start_stack/start_stack.py at runtime (reads API to
-    #     construct the dsp-api raw-content URL prefix)
-    #   - the dsp-docs dispatcher (publish-release-to-pypi.yml) via `$GITHUB_ENV`
+    #   - src/dsp_tools/commands/start_stack/start_stack.py at runtime (reads API
+    #     to construct the dsp-api raw-content URL prefix)
+    #   - test/e2e/setup_testcontainers/setup.py for testcontainer image tags
+    #   - .github/workflows/publish-release-to-pypi.yml (dispatcher) via
+    #     `grep '^[A-Z]+=' >> $GITHUB_ENV` — keys flow into the dsp-docs bump
+    #
+    # Any change to the KEY=VALUE shape (quoting, multi-line values, extra
+    # whitespace) breaks the dispatcher's grep-into-$GITHUB_ENV pattern.
     content = (
         "# Auto-managed by .github/workflows/bump-stack-versions.yml. Do not edit by hand.\n"
         f"RELEASE={release}\n"

@@ -1,3 +1,4 @@
+import base64
 from typing import cast
 from uuid import uuid4
 
@@ -66,22 +67,20 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 
 
 def get_processed_resources(
-    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool, shortcode: str
 ) -> list[ProcessedResource]:
     logger.debug("Transform ParsedResource into ProcessedResource")
     progress_bar = tqdm(resources, desc="Preparing data for upload", dynamic_ncols=True)
-    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in progress_bar]
+    return [_get_one_resource(res, lookups, is_on_prod_like_server, shortcode) for res in progress_bar]
 
 
 def _get_one_resource(
-    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool, shortcode: str
 ) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
-    migration_metadata = None
+    migration_metadata = _get_resource_migration_metadata(shortcode)
     file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
-    if resource.migration_metadata:
-        migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,
@@ -94,7 +93,14 @@ def _get_one_resource(
     )
 
 
-def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
+def _get_resource_migration_metadata(shortcode: str) -> MigrationMetadata:
+    iri_start = f"http://rdfh.ch/{shortcode}"
+    encoded = base64.urlsafe_b64encode(uuid4().bytes_le)
+    iri = f"{iri_start}/{encoded}"
+    return MigrationMetadata(iri, None)
+
+
+def _get_resource_migration_metadata_old(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
     res_iri = metadata.iri
     # ARK takes precedence over the IRI,
     # but must be transformed into an IRI as it is only for external reference and not consistent with a DB IRI

@@ -57,11 +57,13 @@ class UploadConfig:
     validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
     id2iri_file: str | None = None
     do_not_request_resource_metadata_from_db: bool = False
+    xml_file: Path | None = None
 
     def with_server_info(
         self,
         server: str,
         shortcode: str,
+        xml_file: Path | None = None,
     ) -> UploadConfig:
         """Create a new UploadConfig with the given server."""
         server_as_foldername = _transform_server_url_to_foldername(server)
@@ -73,4 +75,4 @@ class UploadConfig:
             server_as_foldername=server_as_foldername,
             save_location=save_location,
         )
-        return dataclasses.replace(self, server=server, shortcode=shortcode, diagnostics=diagnostics)
+        return dataclasses.replace(self, server=server, shortcode=shortcode, diagnostics=diagnostics, xml_file=xml_file)

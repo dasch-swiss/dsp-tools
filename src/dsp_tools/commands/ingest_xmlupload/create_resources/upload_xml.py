@@ -78,6 +78,7 @@ def ingest_xmlupload(
     ).with_server_info(
         server=creds.server,
         shortcode=shortcode,
+        xml_file=xml_file,
     )
     clients = _get_live_clients(config, auth)
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)

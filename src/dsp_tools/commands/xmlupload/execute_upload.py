@@ -116,7 +116,7 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
             _upload_stash(upload_state, resource_client)
     except XmlUploadInterruptedError as err:
         handle_upload_error(err, upload_state)
-    write_resources_as_jsonld(collected_resources, upload_state.config.shortcode, upload_state.config.diagnostics)
+    write_resources_as_jsonld(collected_resources, upload_state.config.xml_file)
 
 
 def _execute_one_resource_upload(

@@ -69,7 +69,7 @@ def xmlupload(
     # verify that a project with the shortcode exists
     ProjectClientLive(creds.server, auth).get_project_iri(shortcode)
 
-    config = config.with_server_info(server=creds.server, shortcode=shortcode)
+    config = config.with_server_info(server=creds.server, shortcode=shortcode, xml_file=input_file)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)

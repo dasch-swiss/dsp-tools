@@ -28,16 +28,11 @@ def write_id2iri_mapping(id2iri_mapping: dict[str, str], shortcode: str, diagnos
         f.write(json_str)
 
 
-def write_resources_as_jsonld(
-    resources: list[dict[str, Any]],
-    shortcode: str,
-    diagnostics: DiagnosticsConfig,
-) -> None:
+def write_resources_as_jsonld(resources: list[dict[str, Any]], xml_file: Path | None) -> None:
     """Writes the serialised JSON-LD representations of all attempted resources to a file."""
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    servername = diagnostics.server_as_foldername
+    stem = xml_file.stem if xml_file is not None else "resources"
+    filename = Path(f"{stem}.jsonld")
     content = json.dumps(resources, ensure_ascii=False, indent=4)
-    filename = Path(f"resources_{shortcode}_{servername}_{timestamp}.jsonld")
     filename.write_text(content, encoding="utf-8")
     print(f"{datetime.now()}: The serialised resources were written to {filename}")
     logger.info(f"The serialised resources were written to {filename}")

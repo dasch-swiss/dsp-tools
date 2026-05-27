@@ -15,6 +15,19 @@
 
     <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
 
+    <resource label="Resource is private by default" restype=":ClassMixedCard" id="card_mixed">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>card_1</resptr>
+        </resptr-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+            <geoname>2222222</geoname>
+        </geoname-prop>
+    </resource>
+
     <resource label="id_permission_on_resource" restype=":ClassWithEverything" id="id_permission_on_resource"
               permissions="private"/>
 

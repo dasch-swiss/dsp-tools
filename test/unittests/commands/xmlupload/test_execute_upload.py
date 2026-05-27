@@ -1,4 +1,5 @@
 import os
+from typing import Any
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -107,7 +108,7 @@ class TestExecuteOneUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = RES_IRI
-        _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0, [])
         ingest_client.get_bitstream_info.assert_not_called()
         assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
@@ -122,7 +123,9 @@ class TestExecuteOneUpload:
         ingest_client.get_bitstream_info.return_value = BitstreamInfo("internal.jpg")
         resource_client.post_resource.return_value = RES_IRI
         upload_state.pending_resources = [resource_with_file]
-        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(
+            resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0, []
+        )
         assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
     def test_upload_ingest_returns_none(
@@ -135,7 +138,9 @@ class TestExecuteOneUpload:
     ) -> None:
         ingest_client.get_bitstream_info.return_value = None
         upload_state.pending_resources = [resource_with_file]
-        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(
+            resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0, []
+        )
         assert RES_ID in upload_state.failed_uploads
 
     def test_upload_ingest_permanent_connection_error(
@@ -150,7 +155,7 @@ class TestExecuteOneUpload:
         upload_state.pending_resources = [resource_with_file]
         with pytest.raises(XmlUploadInterruptedError):
             _execute_one_resource_upload(
-                resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
+                resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0, []
             )
 
     def test_upload_ingest_keyboard_interrupt(
@@ -166,7 +171,7 @@ class TestExecuteOneUpload:
         with pytest.raises(XmlUploadInterruptedError):
             with pytest.warns(DspToolsUserWarning):
                 _execute_one_resource_upload(
-                    resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
+                    resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0, []
                 )
 
     def test_upload_data_permanent_connection_error(
@@ -179,7 +184,7 @@ class TestExecuteOneUpload:
     ) -> None:
         resource_client.post_resource.side_effect = PermanentConnectionError("conn err")
         with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0, [])
 
     def test_upload_keyboard_interrupt_in_tidy_up(
         self,
@@ -196,7 +201,9 @@ class TestExecuteOneUpload:
         ) as mock_tidy:
             with pytest.raises(XmlUploadInterruptedError):
                 with pytest.warns(DspToolsUserWarning):
-                    _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+                    _execute_one_resource_upload(
+                        resource, upload_state, resource_client, ingest_client, iri_lookups, 0, []
+                    )
         assert mock_tidy.call_count == 2
 
 
@@ -208,7 +215,8 @@ class TestResourceDataUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = RES_IRI
-        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        collected: list[dict[str, Any]] = []
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, collected)
         assert result == RES_IRI
         assert resource_client.post_resource.call_count == 1
 
@@ -219,7 +227,7 @@ class TestResourceDataUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = ResponseCodeAndText(400, "bad")
-        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, [])
         assert result is None
         assert resource_client.post_resource.call_count == 1
 
@@ -230,7 +238,7 @@ class TestResourceDataUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.side_effect = [DspToolsRequestException("err"), RES_IRI]
-        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, [])
         assert result == RES_IRI
         assert resource_client.post_resource.call_count == 2
 
@@ -242,7 +250,7 @@ class TestResourceDataUpload:
     ) -> None:
         resource_client.post_resource.side_effect = DspToolsRequestException("err")
         with pytest.raises(PermanentConnectionError):
-            _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+            _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, [])
         assert resource_client.post_resource.call_count == 24
 
     def test_data_upload_try_again_later_is_retried(
@@ -255,6 +263,30 @@ class TestResourceDataUpload:
         # since we want to ensure that we will retry, this needs to be patched here
         with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "false"}):
             resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
-            result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+            result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, [])
             assert result == RES_IRI
             assert resource_client.post_resource.call_count == 2
+
+    def test_resource_dict_is_collected(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.return_value = RES_IRI
+        collected: list[dict[str, Any]] = []
+        _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, collected)
+        assert len(collected) == 1
+        assert isinstance(collected[0], dict)
+
+    def test_resource_dict_collected_even_on_permanent_connection_error(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = DspToolsRequestException("err")
+        collected: list[dict[str, Any]] = []
+        with pytest.raises(PermanentConnectionError):
+            _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups, collected)
+        assert len(collected) == 1

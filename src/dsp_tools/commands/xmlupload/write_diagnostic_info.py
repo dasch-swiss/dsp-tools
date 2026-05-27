@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
@@ -25,3 +26,18 @@ def write_id2iri_mapping(id2iri_mapping: dict[str, str], shortcode: str, diagnos
     id2iri_filename_for_user_home = f"id2iri_{timestamp}_{shortcode}_{servername}.json"
     with open(id_2_iri_folder / id2iri_filename_for_user_home, "w", encoding="utf-8") as f:
         f.write(json_str)
+
+
+def write_resources_as_jsonld(
+    resources: list[dict[str, Any]],
+    shortcode: str,
+    diagnostics: DiagnosticsConfig,
+) -> None:
+    """Writes the serialised JSON-LD representations of all attempted resources to a file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    servername = diagnostics.server_as_foldername
+    content = json.dumps(resources, ensure_ascii=False, indent=4)
+    filename = Path(f"resources_{shortcode}_{servername}_{timestamp}.jsonld")
+    filename.write_text(content, encoding="utf-8")
+    print(f"{datetime.now()}: The serialised resources were written to {filename}")
+    logger.info(f"The serialised resources were written to {filename}")

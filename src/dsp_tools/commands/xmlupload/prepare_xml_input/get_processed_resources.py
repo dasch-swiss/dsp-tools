@@ -95,7 +95,7 @@ def _get_one_resource(
 
 def _get_resource_migration_metadata(shortcode: str) -> MigrationMetadata:
     iri_start = f"http://rdfh.ch/{shortcode}"
-    encoded = base64.urlsafe_b64encode(uuid4().bytes_le)
+    encoded = base64.urlsafe_b64encode(uuid4().bytes_le).decode()
     iri = f"{iri_start}/{encoded}"
     return MigrationMetadata(iri, None)
 

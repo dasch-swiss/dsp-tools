@@ -28,6 +28,12 @@
         </geoname-prop>
     </resource>
 
+    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
     <resource label="id_permission_on_resource" restype=":ClassWithEverything" id="id_permission_on_resource"
               permissions="private"/>
 
@@ -61,7 +67,7 @@
         </color-prop>
     </resource>
 
-    <resource label="Date" restype=":ClassWithEverything" id="id_date">
+    <resource label="Date-is-private-as doap" restype=":ClassWithEverything" id="id_date_private_doap">
         <date-prop name=":testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>

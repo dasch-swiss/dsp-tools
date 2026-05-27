@@ -6,7 +6,23 @@
        shortcode="9999"
        default-ontology="onto">
 
+
+    <permissions id="private">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+
     <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
+
+    <resource label="id_permission_on_resource" restype=":ClassWithEverything" id="id_permission_on_resource"
+              permissions="private"/>
+
+    <resource label="id_permissions_on_value" restype=":ClassWithEverything" id="id_permissions_on_value">
+        <boolean-prop name=":testBoolean">
+            <boolean permissions="private">true</boolean>
+        </boolean-prop>
+    </resource>
 
     <resource label="Bool True" restype=":ClassWithEverything" id="id_bool_true">
         <boolean-prop name=":testBoolean">
@@ -78,27 +94,33 @@
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
-            <text encoding="xml"> Text line 1
+            <text encoding="xml">Text line 1
 
-            line2 </text>
+                line2
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
         <text-prop name=":testRichtext">
-            <text encoding="xml"><p>Text</p></text>
+            <text encoding="xml">
+                <p>Text</p>
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off_url">
         <text-prop name=":testRichtext">
-            <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
+            <text encoding="xml">Text with an external link:
+                <a href="https://www.google.com/">Google</a>
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off">
         <text-prop name=":testRichtext">
-            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.</text>
+            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.
+            </text>
         </text-prop>
     </resource>
 
@@ -115,7 +137,8 @@
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text line 1
 
-            line 2  </text>
+                line 2
+            </text>
         </text-prop>
     </resource>
 
@@ -128,7 +151,8 @@
         </text-prop>
     </resource>
 
-    <resource label="same_comment_on_different_values" restype=":ClassWithEverything" id="same_comment_on_different_values">
+    <resource label="same_comment_on_different_values" restype=":ClassWithEverything"
+              id="same_comment_on_different_values">
         <text-prop name=":testSimpleText">
             <text encoding="utf8" comment="comment">Text 1</text>
             <text encoding="utf8" comment="comment">Text 2</text>

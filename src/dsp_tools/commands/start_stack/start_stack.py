@@ -25,6 +25,18 @@ MAX_FILE_SIZE = 100_000
 MINUTE = 60
 
 
+def _read_env_var(content: str, key: str) -> str:
+    """Read a single KEY=value entry from a POSIX-shell-style env file."""
+    for line in content.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        k, sep, v = stripped.partition("=")
+        if sep and k.strip() == key:
+            return v.strip()
+    raise StartStackInputError(f"Key {key!r} not found in versions.env")
+
+
 @dataclass(frozen=True)
 class StackConfiguration:
     """
@@ -89,8 +101,10 @@ class StackHandler:
         For this reason, we need to know the commit hash of the DSP-API version that is currently deployed,
         so that the files can be retrieved from the correct commit.
 
-        This function reads the version tag in the docker-compose.yml file,
-        and constructs the URL prefix necessary to retrieve the files from the DSP-API repository.
+        This function reads the API version tag from versions.env (the structured
+        source of truth, also consumed by docker-compose's --env-file at runtime),
+        and constructs the URL prefix necessary to retrieve the files from the
+        DSP-API repository.
 
         If the latest development version of DSP-API is started,
         the URL prefix points to the main branch of the DSP-API repository.
@@ -103,9 +117,8 @@ class StackHandler:
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
 
-        docker_compose_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.yml")
-        docker_compose = yaml.safe_load(docker_compose_pth.read_bytes())
-        tag = docker_compose["services"]["api"]["image"].split(":")[-1]
+        versions_env_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/versions.env")
+        tag = _read_env_var(versions_env_pth.read_text(encoding="utf-8"), "API")
 
         return f"{url_prefix_base}/{tag}/"
 
@@ -234,7 +247,7 @@ class StackHandler:
             FusekiStartUpError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = "docker compose up -d db".split()
+        cmd = "docker compose --env-file versions.env up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
@@ -348,10 +361,17 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
-        compose_str = "docker compose -f docker-compose.yml"
+        # --env-file feeds versions.env into docker-compose's ${API}/${APP}/${DB}
+        # interpolation. versions.env is copied into the user's start-stack dir
+        # alongside docker-compose.yml by _copy_resources_to_home_dir.
+        compose_str = "docker compose --env-file versions.env -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
             logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
-            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
+            subprocess.run(
+                "docker compose --env-file versions.env pull".split(),
+                cwd=self.__docker_path_of_user,
+                check=True,
+            )
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
@@ -464,7 +484,11 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        subprocess.run("docker compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
+        subprocess.run(
+            "docker compose --env-file versions.env down --volumes".split(),
+            cwd=self.__docker_path_of_user,
+            check=True,
+        )
         shutil.rmtree(self.__docker_path_of_user / "sipi", ignore_errors=True)
         # ignore all errors, because the dir cannot be found if this function is called multiple times,
         # and because in GitHub CI, python lacks permissions to delete this dir

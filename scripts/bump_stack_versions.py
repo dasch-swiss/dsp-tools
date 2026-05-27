@@ -3,8 +3,9 @@ Script to automate bumping the Docker image versions of DSP components.
 This script is meant to be run in the GitHub Actions CI. See `.github/workflows/bump-stack-versions.yml`.
 
 Reads the release version and component versions from environment variables,
-updates src/dsp_tools/resources/start-stack/docker-compose.yml,
-creates a branch, commits, pushes, and opens a pull request.
+writes src/dsp_tools/resources/start-stack/versions.env, creates a branch,
+commits, pushes, and opens a pull request. The docker-compose.yml interpolates
+the version values at `docker compose up` time via `--env-file versions.env`.
 
 Prerequisites:
 - RELEASE, API, APP, DB env vars must be set
@@ -18,37 +19,25 @@ import subprocess
 import sys
 from pathlib import Path
 
-DOCKER_COMPOSE_PATH = Path("src/dsp_tools/resources/start-stack/docker-compose.yml")
+VERSIONS_ENV_PATH = Path("src/dsp_tools/resources/start-stack/versions.env")
 
-# Each entry maps a regex pattern (capturing the image prefix up to and including the colon)
-# to the corresponding key in RELEASE.json.
-IMAGE_SUBSTITUTIONS: list[tuple[str, str]] = [
-    (r"(daschswiss/knora-api:)[^\s]+", "api"),
-    (r"(daschswiss/knora-sipi:)[^\s]+", "api"),
-    (r"(daschswiss/dsp-ingest:)[^\s]+", "api"),
-    (r"(daschswiss/dsp-app:)[^\s]+", "app"),
-    (r"(daschswiss/apache-jena-fuseki:)[^\s]+", "db"),
-]
+_RELEASE_RE: re.Pattern[str] = re.compile(r"\d{4}\.\d{2}\.\d{2}")
 
 
 def main() -> None:
     print("Bumping versions ...")
 
-    version_key, versions = _get_versions_from_env()
-
-    old_content = DOCKER_COMPOSE_PATH.read_text(encoding="utf-8")
-    new_content = _update_compose_content(old_content, versions)
-    DOCKER_COMPOSE_PATH.write_text(new_content, encoding="utf-8")
+    release, versions = _get_versions_from_env()
+    _write_versions_env(release, versions)
 
     if not _has_diff():
-        print("docker-compose.yml is already up to date. Nothing to do.")
+        print("versions.env is already up to date. Nothing to do.")
         sys.exit(0)
 
-    git_msg = f"chore(start-stack): bump versions to {version_key}"
-
-    branch_name = f"chore/bump-version-{version_key}"
+    git_msg = f"chore(start-stack): bump versions to {release}"
+    branch_name = f"chore/bump-version-{release}"
     subprocess.run(["git", "checkout", "-b", branch_name], check=True)
-    subprocess.run(["git", "add", str(DOCKER_COMPOSE_PATH)], check=True)
+    subprocess.run(["git", "add", str(VERSIONS_ENV_PATH)], check=True)
     subprocess.run(["git", "commit", "-m", git_msg], check=True)
     subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
 
@@ -71,6 +60,9 @@ def main() -> None:
 
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:
     release = _require_env("RELEASE")
+    if not _RELEASE_RE.fullmatch(release):
+        print(f"ERROR: RELEASE must match YYYY.MM.DD, got: {release!r}")
+        sys.exit(1)
     return release, {
         "api": _require_env("API"),
         "app": _require_env("APP"),
@@ -86,15 +78,34 @@ def _require_env(name: str) -> str:
     return value
 
 
-def _update_compose_content(content: str, versions: dict[str, str]) -> str:
-    for pattern, version_key in IMAGE_SUBSTITUTIONS:
-        content = re.sub(pattern, r"\g<1>" + versions[version_key], content)
-    return content
+def _write_versions_env(release: str, versions: dict[str, str]) -> None:
+    # POSIX-shell-sourceable. Consumed by:
+    #   - src/dsp_tools/resources/start-stack/docker-compose.yml at
+    #     `docker compose --env-file versions.env up` time
+    #     (image: daschswiss/knora-api:${API} etc.)
+    #   - src/dsp_tools/commands/start_stack/start_stack.py at runtime (reads API
+    #     to construct the dsp-api raw-content URL prefix)
+    #   - test/e2e/setup_testcontainers/setup.py for testcontainer image tags
+    #   - .github/workflows/publish-release-to-pypi.yml (dispatcher) via
+    #     `grep '^[A-Z]+=' >> $GITHUB_ENV` — keys flow into the dsp-docs bump
+    #
+    # Any change to the KEY=VALUE shape (quoting, multi-line values, extra
+    # whitespace) breaks the dispatcher's grep-into-$GITHUB_ENV pattern.
+    content = (
+        "# Auto-managed by .github/workflows/bump-stack-versions.yml. Do not edit by hand.\n"
+        f"RELEASE={release}\n"
+        f"API={versions['api']}\n"
+        f"APP={versions['app']}\n"
+        f"DB={versions['db']}\n"
+    )
+    # newline="\n" guarantees LF output on every platform so the file is
+    # byte-identical across CI and local runs.
+    VERSIONS_ENV_PATH.write_text(content, encoding="utf-8", newline="\n")
 
 
 def _has_diff() -> bool:
     result = subprocess.run(
-        ["git", "diff", "--quiet", str(DOCKER_COMPOSE_PATH)],
+        ["git", "diff", "--quiet", "--", str(VERSIONS_ENV_PATH)],
         check=False,
     )
     return result.returncode != 0

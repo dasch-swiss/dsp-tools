@@ -47,6 +47,11 @@ The `<knora>` element may look as follows:
 
 The DSP server provides access control for every resource and every property.
 
+!!! tip
+
+    Looking for a user-friendly introduction to the permissions system? 
+    Head over to the [Permissions Guide](../permissions-guide.md).
+
 
 ### Groups
 
@@ -83,6 +88,11 @@ Every right of this row includes all previous rights.
 
 
 ### Defining Permissions With the `<permissions>` Element
+
+!!! tip
+
+    Looking for a user-friendly introduction to the permissions system? 
+    Head over to the [Permissions Guide](../permissions-guide.md).
 
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
@@ -140,6 +150,11 @@ A project specific group name has the form `project-shortname:groupname`:
 
 
 ### Using Permissions With the `permissions` Attribute
+
+!!! tip
+
+    Looking for a user-friendly introduction to the permissions system? 
+    Head over to the [Permissions Guide](../permissions-guide.md).
 
 Once defined, the permission IDs can be used as `permissions` attribute
 in the `<resource>` and `<xyz-prop>` tags.

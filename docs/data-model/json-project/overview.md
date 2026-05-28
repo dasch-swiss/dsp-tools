@@ -225,6 +225,11 @@ this setting is available in the [`json_header.xlsx` file](../excel2json.md#the-
     it is possible to overrule this default with `<resource permissions="something-else">`.
     See [here](../../data-file/xml-data-file.md#defining-permissions-with-the-permissions-element) for details.
 
+!!! tip
+
+    Looking for a user-friendly introduction to the permissions system? 
+    Head over to the [Permissions Guide](../../permissions-guide.md).
+
 
 ### `default_permissions_overrule`
 

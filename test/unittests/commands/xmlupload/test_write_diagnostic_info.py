@@ -48,3 +48,27 @@ class TestWriteResourcesAsJsonld:
         monkeypatch.chdir(tmp_path)
         write_resources_as_jsonld([], None)
         assert (tmp_path / "resources.jsonld").exists()
+
+    def test_output_dir_writes_api_data_jsonld(self, tmp_path: Path) -> None:
+        output_dir = tmp_path / "my_data"
+        write_resources_as_jsonld([{"key": "val"}], Path("my_data.xml"), output_dir)
+        assert (output_dir / "api-data.jsonld").exists()
+
+    def test_output_dir_is_created_if_missing(self, tmp_path: Path) -> None:
+        output_dir = tmp_path / "nonexistent_dir"
+        assert not output_dir.exists()
+        write_resources_as_jsonld([], Path("upload.xml"), output_dir)
+        assert output_dir.exists()
+
+    def test_output_dir_content_is_correct(self, tmp_path: Path) -> None:
+        resources = [{"@id": "http://iri/1"}]
+        output_dir = tmp_path / "export"
+        write_resources_as_jsonld(resources, Path("upload.xml"), output_dir)
+        loaded = json.loads((output_dir / "api-data.jsonld").read_text(encoding="utf-8"))
+        assert loaded == resources
+
+    def test_output_dir_does_not_write_stem_jsonld(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.chdir(tmp_path)
+        output_dir = tmp_path / "export"
+        write_resources_as_jsonld([], Path("my_data.xml"), output_dir)
+        assert not (tmp_path / "my_data.jsonld").exists()

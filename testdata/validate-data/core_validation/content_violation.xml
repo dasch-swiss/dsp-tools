@@ -56,6 +56,13 @@
         </resptr-prop>
     </resource>
 
+    <!-- Link is the resource class itself -->
+    <resource label="Target is the resource itself" restype=":ClassWithEverything" id="link_self_reference">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>link_self_reference</resptr>
+        </resptr-prop>
+    </resource>
+
     <!-- Link target is not the range class -->
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
     <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_wrong_class">
@@ -110,6 +117,16 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 This is a text with <a class="salsah-link" href="IRI:non_existing:IRI">standoff</a>.
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- The target of the stand-off link does not exist. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_in_footnote_inexistent">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with a footnote.
+                <footnote content="oh no! &lt;a class=&quot;salsah-link&quot; href=&quot;IRI:inexistent_id_in_footnote:IRI&quot;&gt;link to inexistent_id&lt;/a&gt;"/>
             </text>
         </text-prop>
     </resource>

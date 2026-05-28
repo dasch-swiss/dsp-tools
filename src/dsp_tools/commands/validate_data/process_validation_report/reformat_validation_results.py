@@ -39,7 +39,6 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             ViolationType.MAX_CARD
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
-            | ViolationType.UNIQUE_VALUE
             | ViolationType.VALUE_TYPE as violation
         ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]

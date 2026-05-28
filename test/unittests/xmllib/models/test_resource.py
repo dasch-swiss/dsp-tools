@@ -286,13 +286,14 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_simple_text_warns(self) -> None:
-        with pytest.warns(
-            XmllibInputWarning,
-            match=regex.escape(
-                "The input should be a valid non empty string, your input '<NA>' does not match the type."
-            ),
-        ):
-            res = Resource.create_new("res_id", "restype", "label").add_simpletext("", pd.NA)  # type: ignore[arg-type]
+        with pytest.warns(XmllibInputInfo):
+            with pytest.warns(
+                XmllibInputWarning,
+                match=regex.escape(
+                    "The input should be a valid non empty string, your input '<NA>' does not match the type."
+                ),
+            ):
+                res = Resource.create_new("res_id", "restype", "label").add_simpletext("", pd.NA)  # type: ignore[arg-type]
         assert res.values[0].value == ""
 
     def test_add_simple_text_multiple(self) -> None:

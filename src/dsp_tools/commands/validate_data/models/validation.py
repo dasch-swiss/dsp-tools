@@ -94,7 +94,6 @@ class ValidationResult:
 
 class ViolationType(Enum):
     SEQNUM_IS_PART_OF = auto()
-    UNIQUE_VALUE = auto()
     VALUE_TYPE = auto()
     PATTERN = auto()
     GENERIC = auto()

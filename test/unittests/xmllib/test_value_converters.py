@@ -275,7 +275,8 @@ class TestFindDate:
         assert find_dates_in_string("x 25.-26.2.0800 x") == {"GREGORIAN:CE:0800-02-25:CE:0800-02-26"}
         assert find_dates_in_string("x 25. - 26.2.0800 x") == {"GREGORIAN:CE:0800-02-25:CE:0800-02-26"}
         assert find_dates_in_string("x 25.-25.2.0800 x") == {"GREGORIAN:CE:0800-02-25:CE:0800-02-25"}
-        assert find_dates_in_string("x 25.-24.2.0800 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 25.-24.2.0800 x") == set()
 
     def test_find_dates_in_string_eur_date_range_2_digit(self) -> None:
         cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
@@ -289,7 +290,8 @@ class TestFindDate:
         assert find_dates_in_string("x (01.03. - 25.04.2022) x") == {"GREGORIAN:CE:2022-03-01:CE:2022-04-25"}
         assert find_dates_in_string("x 28.2.-1.12.1515 x") == {"GREGORIAN:CE:1515-02-28:CE:1515-12-01"}
         assert find_dates_in_string("x 28.2.-28.2.1515 x") == {"GREGORIAN:CE:1515-02-28:CE:1515-02-28"}
-        assert find_dates_in_string("x 28.2.-26.2.1515 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 28.2.-26.2.1515 x") == set()
 
     def test_find_dates_in_string_eur_date_range_across_month_2_digit(self) -> None:
         cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
@@ -305,8 +307,10 @@ class TestFindDate:
         assert find_dates_in_string("x 25/12/2022 - 3/1/2024 x") == {"GREGORIAN:CE:2022-12-25:CE:2024-01-03"}
         assert find_dates_in_string("x 25.12.2022-25.12.2022 x") == {"GREGORIAN:CE:2022-12-25:CE:2022-12-25"}
         assert find_dates_in_string("x 25/12/2022-25/12/2022 x") == {"GREGORIAN:CE:2022-12-25:CE:2022-12-25"}
-        assert find_dates_in_string("x 25.12.2022-03.01.2022 x") == set()
-        assert find_dates_in_string("x 25/12/2022-03/01/2022 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 25.12.2022-03.01.2022 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 25/12/2022-03/01/2022 x") == set()
 
     def test_find_dates_in_string_eur_date_range_across_year_2_digit(self) -> None:
         cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
@@ -362,10 +366,14 @@ class TestFindDate:
         assert find_dates_in_string("x 830-30 x") == {"GREGORIAN:CE:830:CE:830"}
         assert find_dates_in_string("x 1811-11 x") == {"GREGORIAN:CE:1811:CE:1811"}
         assert find_dates_in_string("x 1811/11 x") == {"GREGORIAN:CE:1811:CE:1811"}
-        assert find_dates_in_string("x 1850-1849 x") == set()
-        assert find_dates_in_string("x 830-20 x") == set()
-        assert find_dates_in_string("x 1811-10 x") == set()
-        assert find_dates_in_string("x 1811/10 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 1850-1849 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 830-20 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 1811-10 x") == set()
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string("x 1811/10 x") == set()
 
     @pytest.mark.parametrize("string", ["x 9 BC x", "9 B.C.", "9 BCE", "9 B.C.E."])
     def test_find_dates_in_string_bc_different_notations(self, string: str) -> None:
@@ -387,13 +395,15 @@ class TestFindDate:
             ("x 20 BCE-50 CE x", {"GREGORIAN:BC:20:CE:50"}),
             ("x 20 BCE - 50 C.E. x", {"GREGORIAN:BC:20:CE:50"}),
             ("x 20 BCE - 20 BC x", {"GREGORIAN:BC:20:BC:20"}),
-            ("x 20 BCE - 50 BC x", set()),
-            ("x 50 AD - 20 AD x", set()),
-            ("x 50 CE - 20 CE x", set()),
         ],
     )
     def test_find_dates_in_string_ce_and_bc_ranges(self, string: str, expected: set[str]) -> None:
         assert find_dates_in_string(string) == expected
+
+    @pytest.mark.parametrize("string", ["x 20 BCE - 50 BC x", "x 50 AD - 20 AD x", "x 50 CE - 20 CE x"])
+    def test_find_dates_in_string_ce_and_bc_ranges_invalid(self, string: str) -> None:
+        with pytest.warns(XmllibInputWarning):
+            assert find_dates_in_string(string) == set()
 
     def test_find_dates_in_string_french_bc(self) -> None:
         assert find_dates_in_string("Text 12345 av. J.-C. text") == {"GREGORIAN:BC:12345:BC:12345"}

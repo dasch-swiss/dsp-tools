@@ -97,7 +97,7 @@ class TestReformatResult:
 
     def test_unique_value_literal(self, extracted_unique_value_literal: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_literal)
-        assert result.problem_type == ProblemType.DUPLICATE_VALUE
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
@@ -106,7 +106,7 @@ class TestReformatResult:
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_iri)
-        assert result.problem_type == ProblemType.DUPLICATE_VALUE
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"

@@ -109,6 +109,7 @@ class DspIngestClientLive(AssetClient):
                 )
                 log_response(res)
             except requests.exceptions.RequestException as e:
+                logger.exception(f"Ingest request failed: {url}")
                 raise PermanentConnectionError() from e
 
             if res.ok:

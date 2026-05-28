@@ -1,5 +1,30 @@
 # Changelog
 
+## [18.15.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.14.0...v18.15.0) (2026-05-22)
+
+
+### Enhancements
+
+* **create:** extend limited_view to MovingImageRepresentation and AudioRepresentation (DEV-6308) ([#2281](https://github.com/dasch-swiss/dsp-tools/issues/2281)) ([e8c1f4d](https://github.com/dasch-swiss/dsp-tools/commit/e8c1f4dc0168b02c1e0570deb775b0d8f874aa57))
+* **validate-data:** prevent resources from linking to themselves (DEV-6323) ([#2299](https://github.com/dasch-swiss/dsp-tools/issues/2299)) ([d332c62](https://github.com/dasch-swiss/dsp-tools/commit/d332c62f6db08566a774acdf36e38fd95937f9e1))
+* **xmlupload:** improve error message when no project with the shortcode exists (DEV-6530) ([#2302](https://github.com/dasch-swiss/dsp-tools/issues/2302)) ([a6f728e](https://github.com/dasch-swiss/dsp-tools/commit/a6f728e4d9a6e9c8083c5f5f3682a6081f422ed6))
+
+
+### Bug Fixes
+
+* **validate-data:** parse stand-off link to resources in footnotes (DEV-6332) ([#2295](https://github.com/dasch-swiss/dsp-tools/issues/2295)) ([36c1f43](https://github.com/dasch-swiss/dsp-tools/commit/36c1f43b0c4d955382bde59d5e60a732c3c3d5cb))
+* **validate-data:** use correct printing message for yaspin (DEV-6548) ([#2301](https://github.com/dasch-swiss/dsp-tools/issues/2301)) ([e2fa6ac](https://github.com/dasch-swiss/dsp-tools/commit/e2fa6ac5a87c413fb597b41a90ba25b61c740b3d))
+
+
+### Maintenance
+
+* bump dependencies ([#2309](https://github.com/dasch-swiss/dsp-tools/issues/2309)) ([16644f5](https://github.com/dasch-swiss/dsp-tools/commit/16644f5512711d609cd78bc1b218e6b162af8d62))
+* **cli:** add ingest health check before commands that may handle assets ([#2308](https://github.com/dasch-swiss/dsp-tools/issues/2308)) ([56087a8](https://github.com/dasch-swiss/dsp-tools/commit/56087a8282bf4559064e7f4b7e4310894657ca69))
+* **client:** remove token from logging in authentication client ([#2292](https://github.com/dasch-swiss/dsp-tools/issues/2292)) ([c3523cd](https://github.com/dasch-swiss/dsp-tools/commit/c3523cda338ebf8c97c037c8dc5aca9f1b12fc50))
+* **start-stack:** bump versions to 2026.05.02 ([#2311](https://github.com/dasch-swiss/dsp-tools/issues/2311)) ([322b0f7](https://github.com/dasch-swiss/dsp-tools/commit/322b0f7f1f80776374ab4423d16bd032997ec9fa))
+* **xmlupload:** add log statements to stash generation ([#2297](https://github.com/dasch-swiss/dsp-tools/issues/2297)) ([bec68d6](https://github.com/dasch-swiss/dsp-tools/commit/bec68d66a182e3c55abb2e54b2936d65881d0ab6))
+* **xmlupload:** log ingest server response on upload failure ([#2304](https://github.com/dasch-swiss/dsp-tools/issues/2304)) ([c33fe6f](https://github.com/dasch-swiss/dsp-tools/commit/c33fe6f9867f4eb417d97158522ab7b124d1bffe))
+
 ## [18.14.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.13.0...v18.14.0) (2026-05-06)
 
 

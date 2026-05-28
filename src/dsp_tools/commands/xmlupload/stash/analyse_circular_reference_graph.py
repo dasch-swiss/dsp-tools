@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 import rustworkx as rx
+from loguru import logger
 
 from dsp_tools.commands.xmlupload.stash.graph_models import Cost
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
@@ -22,6 +23,7 @@ def generate_upload_order(info_for_graph: InfoForGraph) -> tuple[dict[str, list[
         - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
         - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
     """
+    logger.debug("Generate upload order.")
     graph, node_to_id, edges = _make_graph(info_for_graph)
     stash_lookup, upload_order, _ = _generate_upload_order_from_graph(graph, node_to_id, edges)
     return stash_lookup, upload_order
@@ -43,6 +45,7 @@ def _make_graph(
         - A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
         - A list with all the edges in the graph.
     """
+    logger.debug("Create graph for upload order and stash generation.")
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = [(id_, None, None) for id_ in info_for_graph.all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
@@ -73,12 +76,14 @@ def _generate_upload_order_from_graph(
         - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
         - The number of links in the stash.
     """
+    logger.debug("Generate upload order from graph.")
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}
     node_indices = set(node_to_id.keys())
     leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
     upload_order.extend(leaf_nodes)
     stash_counter = 0
+    removal_iteration_count = 0
     while remaining_node_indices:
         cycle = list(rx.digraph_find_cycle(graph))
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
@@ -92,6 +97,8 @@ def _generate_upload_order_from_graph(
         stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
         leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
         upload_order.extend(leaf_nodes)
+        removal_iteration_count += 1
+    logger.debug(f"{removal_iteration_count} iterations required to extract all stash items.")
     return stash_lookup, upload_order, stash_counter
 
 

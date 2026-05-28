@@ -87,7 +87,8 @@ def _check_export_progress(
                         "It will not be possible to start a new export until the history has been erased."
                     )
                     logger.error(err_msg)
-                    sp.write(f"{BACKGROUND_BOLD_RED}{err_msg}{RESET_TO_DEFAULT}")
+                    sp.fail("✘")
+                    print(f"{BACKGROUND_BOLD_RED}{err_msg}{RESET_TO_DEFAULT}")
                     return False
                 case _:
                     raise UnreachableCodeError()

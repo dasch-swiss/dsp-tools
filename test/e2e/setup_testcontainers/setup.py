@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
 
-import regex
 from testcontainers.core.network import Network
 
 from test.e2e.setup_testcontainers.artifacts import get_artifact_dirs
@@ -46,16 +45,21 @@ def _get_container_metadata() -> ContainerMetadata:
 
 
 def _get_image_versions() -> ImageVersions:
-    def _get_version(docker_compose_content: str, component: str) -> str:
-        match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
-        return match.group(1) if match else "latest"
-
-    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
-    fuseki = _get_version(docker_compose_content, "apache-jena-fuseki")
-    sipi = _get_version(docker_compose_content, "knora-sipi")
-    ingest = _get_version(docker_compose_content, "dsp-ingest")
-    api = _get_version(docker_compose_content, "knora-api")
-    return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
+    versions_env_pth = Path("src/dsp_tools/resources/start-stack/versions.env")
+    versions: dict[str, str] = {}
+    for line in versions_env_pth.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        key, sep, value = stripped.partition("=")
+        if sep:
+            versions[key.strip()] = value.strip()
+    return ImageVersions(
+        fuseki=versions["DB"],
+        sipi=versions["API"],
+        ingest=versions["API"],
+        api=versions["API"],
+    )
 
 
 def _get_container_names(_uuid: str) -> ContainerNames:

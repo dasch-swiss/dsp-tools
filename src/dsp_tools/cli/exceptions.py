@@ -46,5 +46,40 @@ class DspApiNotReachableError(UserError):
         self.response_text = response_text
 
 
+class IngestNotReachableError(UserError):
+    """This error is raised when the DSP Ingest service could not be reached"""
+
+    is_localhost: bool
+    status_code: int | None
+    response_text: str | None
+
+    def __init__(
+        self,
+        is_localhost: bool,
+        status_code: int | None = None,
+        response_text: str | None = None,
+    ) -> None:
+        if is_localhost:
+            base_msg = (
+                "Cannot connect to the local DSP Ingest service. "
+                "Please check in Docker Desktop if the ingest container is healthy "
+                "or start a stack with 'dsp-tools start-stack' if no stack is running."
+            )
+        else:
+            base_msg = (
+                "Cannot connect to the remote DSP Ingest service. Please contact the DaSCH engineering team for help."
+            )
+
+        if status_code:
+            base_msg += f"\nStatus code: {status_code}"
+        if response_text:
+            base_msg += f"\nResponse text: {response_text}"
+
+        super().__init__(base_msg)
+        self.is_localhost = is_localhost
+        self.status_code = status_code
+        self.response_text = response_text
+
+
 class CliCommandNotInvokableError(CliUserError):
     """When the user calls a command that is not usable with this configuration."""

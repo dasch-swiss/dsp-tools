@@ -18,6 +18,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -163,9 +164,10 @@ class TestExecuteOneUpload:
         ingest_client.get_bitstream_info.side_effect = KeyboardInterrupt()
         upload_state.pending_resources = [resource_with_file]
         with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(
-                resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
-            )
+            with pytest.warns(DspToolsUserWarning):
+                _execute_one_resource_upload(
+                    resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
+                )
 
     def test_upload_data_permanent_connection_error(
         self,
@@ -193,7 +195,8 @@ class TestExecuteOneUpload:
             side_effect=[KeyboardInterrupt(), None],
         ) as mock_tidy:
             with pytest.raises(XmlUploadInterruptedError):
-                _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+                with pytest.warns(DspToolsUserWarning):
+                    _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
         assert mock_tidy.call_count == 2
 
 

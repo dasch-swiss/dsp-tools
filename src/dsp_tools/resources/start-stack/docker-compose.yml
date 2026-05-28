@@ -1,9 +1,10 @@
+# Image tags are interpolated from versions.env (RELEASE / API / APP / DB),
+# which is the structured source of truth managed by
+# .github/workflows/bump-stack-versions.yml.
 ---
 services:
   api:
-    # on the verge of every deployment, update the "image" value from the "api" value of
-    # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/knora-api:v35.8.1
+    image: daschswiss/knora-api:${API}
     depends_on:
       - sipi
       - db
@@ -27,8 +28,7 @@ services:
       - DSP_API_LOG_LEVEL=INFO
 
   sipi:
-    # on the verge of every deployment, take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v35.8.1
+    image: daschswiss/knora-sipi:${API}
     ports:
       - "1024:1024"
     volumes:
@@ -42,8 +42,7 @@ services:
     command: --config=/sipi/config/sipi.docker-config.lua
 
   ingest:
-    # on the verge of every deployment, take the same tag as DSP-API
-    image: daschswiss/dsp-ingest:v35.8.1
+    image: daschswiss/dsp-ingest:${API}
     ports:
       - "3340:3340"
     volumes:
@@ -65,18 +64,14 @@ services:
       - DSP_API_URL=http://host.docker.internal:3333
 
   app:
-    # on the verge of every deployment, update the "image" value from the "app" value of
-    # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-app:v13.3.0
+    image: daschswiss/dsp-app:${APP}
     volumes:
       - ./dsp-app-config.json:/public/config/config.prod.json
     ports:
       - "4200:4200"
 
   db:
-    # on the verge of every deployment, update the "image" value from the "db" value of
-    # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:5.5.0-3
+    image: daschswiss/apache-jena-fuseki:${DB}
     ports:
       - "3030:3030"
     environment:

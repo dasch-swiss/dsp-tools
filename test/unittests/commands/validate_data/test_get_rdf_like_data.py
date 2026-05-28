@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
@@ -29,6 +30,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
+RES_ID = "res_id"
 
 
 AUTHORSHIP_LOOKUP = {"auth_id": ["Author Resolved"]}
@@ -526,11 +528,11 @@ class TestRichtextStandoff:
     def test_get_all_stand_off_links_no_links(self):
         val_str = ParsedValue(HAS_PROP, "text", KnoraValueType.RICHTEXT_VALUE, None, None)
         val_none = ParsedValue(HAS_PROP, None, KnoraValueType.RICHTEXT_VALUE, None, None)
-        result = _get_all_stand_off_links([val_none, val_str])
+        result = _get_all_stand_off_links([val_none, val_str], RES_ID)
         assert not result
 
     def test_get_all_stand_off_links_(self, richtext_with_standoff, bool_value):
-        result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff, bool_value])
+        result = _get_all_stand_off_links([richtext_with_standoff, richtext_with_standoff, bool_value], RES_ID)
         assert len(result) == 1
         prop_obj = result.pop(0)
         assert prop_obj.property_type == TriplePropertyType.KNORA_STANDOFF_LINK
@@ -539,21 +541,33 @@ class TestRichtextStandoff:
 
     def test_get_resource_ids_and_iri_strings_none_found(self):
         txt = "text"
-        result = _get_resource_ids_and_iri_strings(txt)
+        result = _get_resource_ids_and_iri_strings(txt, RES_ID)
         assert not result
 
     def test_get_resource_ids_and_iri_strings_multiple_found(self):
         link = "IRI:link:IRI"
         res_link = "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
+        footnote_link = "IRI:id_in_footnote:IRI"
         txt = (
             f'With <a class="salsah-link" href="{link}">link text</a>.'
             f'Some more text <a class="salsah-link" href="{link}">with the same link</a>.'
             f'Text with <a class="salsah-link" href="{res_link}"> stand off</a> to resource in DB.'
             f'Text with an external link: <a href="https://www.google.com/">Google</a>'
+            f'This is a text with a footnote.<footnote content="text '
+            f"&lt;a class=&quot;salsah-link&quot; href=&quot;{footnote_link}&quot;&gt;link to id_in_footnote"
+            '&lt;/a&gt;"/>'
         )
-        result = _get_resource_ids_and_iri_strings(txt)
-        expected = {link, res_link}
+        result = _get_resource_ids_and_iri_strings(txt, RES_ID)
+        expected = {link, res_link, footnote_link}
         assert result == expected
+
+    def test_get_resource_ids_and_iri_strings_malformed_footnote(self):
+        txt = (
+            'This is a text with a footnote.<footnote content="oh no! &lt;a class=&quot;salsah-link&quot; '
+            'href=&quot;IRI:inexistent_id_in_footnote:IRI&quot;&gt;link to inexistent_id"/>'
+        )
+        with pytest.raises(FootnoteNotParsableError):
+            _get_resource_ids_and_iri_strings(txt, RES_ID)
 
     def test_get_link_string_and_triple_object_type_internal_link(self):
         link = "IRI:link:IRI"

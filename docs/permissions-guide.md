@@ -15,7 +15,7 @@ Every user on DSP belongs to exactly one built-in group:
 
 | Group           | Who is in it                                           |
 | --------------- | ------------------------------------------------------ |
-| `SystemAdmin`   | System-level administrators                            |
+| `SystemAdmin`   | System-level administrators (DaSCH staff only)         |
 | `ProjectAdmin`  | Project administrators                                 |
 | `ProjectMember` | Logged-in users who belong to the project              |
 | `KnownUser`     | Logged-in users who are **not** members of the project |
@@ -23,29 +23,33 @@ Every user on DSP belongs to exactly one built-in group:
 
 ### Rights Hierarchy
 
-A group can hold exactly one right, and each right includes all the rights below it:
+A group can hold exactly one right. For most rights, each right implies all the rights below it —
+but `RV` (Restricted View) is a separate, more restrictive tier that does not follow from `V`:
 
-| Right | Name                  | What it allows                                                                   |
-| ----- | --------------------- | -------------------------------------------------------------------------------- |
-| `CR`  | Change Rights         | Change the access permissions on a resource or value                             |
-| `D`   | Delete                | Mark a resource/value as deleted (original is preserved)                         |
-| `M`   | Modify                | Edit a resource/value                                                            |
-| `V`   | View                  | View at full quality                                                             |
-| `RV`  | Restricted View       | Images: view at reduced resolution or with a watermark; Video/Audio: No download |
-| —     | _(no right assigned)_ | No access at all                                                                 |
+| Right | Name                  | What it allows                                                               |
+| ----- | --------------------- | ---------------------------------------------------------------------------- |
+| `CR`  | Change Rights         | Change the access permissions on a resource or value                         |
+| `D`   | Delete                | Mark a resource/value as deleted (original is preserved)                     |
+| `M`   | Modify                | Edit a resource/value (original is preserved)                                |
+| `V`   | View                  | Full-quality access to all content — images, video, audio, and values        |
+| `RV`  | Restricted View       | Images: no download + reduced resolution/watermark; Video/Audio: no download |
+| —     | _(no right assigned)_ | No access at all                                                             |
 
-> `CR` implies `D`, which implies `M`, which implies `V`.
-> `RV` is a separate, more restrictive access level — it does not follow from `V`.
+`CR` implies `D`, which implies `M`, which implies `V`. `RV` stands apart — it is not implied by `V`.
+
+> **Note**: The rights hierarchy governs access to _existing_ resources and values.
+> The right to _create_ new resources is governed by project membership
+> (Administrative Permissions), which is separate from this hierarchy.
 
 ### The Three Access Tiers
 
 Most DSP projects are configured around three conventional access tiers:
 
-| Tier | Who can access it |
-| -------------- | ------------------------------------------------------------------------------- |
-| `public` | Everyone, including anonymous visitors |
-| `limited_view` | Everyone, but outsiders see images at reduced quality (blurred or watermarked) and cannot download audio or video files |
-| `private` | Project members and project admins only — invisible to all outsiders |
+| Tier           | Who can access it                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public`       | Everyone, including anonymous visitors                                                                                                      |
+| `limited_view` | Everyone, but `UnknownUser` and `KnownUser` see images at reduced quality (blurred or watermarked) and cannot download audio or video files |
+| `private`      | Project members and project admins only — invisible to `UnknownUser` and `KnownUser`                                                        |
 
 These are the permission IDs used as conventions throughout DSP-TOOLS documentation and tooling.
 The technical definitions are in [Defining Permission IDs With `<permissions>`](#defining-permission-ids-with-permissions).
@@ -73,7 +77,10 @@ or
 - **`private`**: Only `ProjectMember` and `ProjectAdmin` can view anything.
   Everything is locked down by default for `UnknownUser` and `KnownUser`.
 
-### `default_permissions_overrule` (only when `default_permissions` is `"public"`)
+### `default_permissions_overrule` (optional)
+
+**This field can only be set when `default_permissions` is `"public"`.
+If your project is private, no overrule is possible.**
 
 When your project is public, you may still want to restrict certain classes or properties.
 Use `default_permissions_overrule` to carve out exceptions:
@@ -92,11 +99,16 @@ Use `default_permissions_overrule` to carve out exceptions:
 The two available restriction levels are:
 
 - **`private`**: A list of class or property names.
-    - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
-    - For a **property**: the property's content is hidden, but the rest of the resource remains public.
-- **`limited_view`**: A list of multimedia classes whose files are restricted for outsiders.
-  For images: blurred or watermarked. For audio/video: streaming only, no download.
-  Only the multimedia file is affected — the rest of the resource stays public.
+  - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
+  - For a **property**: the property's content is hidden, but the rest of the resource
+    remains accessible to `UnknownUser` and `KnownUser`.
+- **`limited_view`**: A list of multimedia classes whose files are restricted for
+  `UnknownUser` and `KnownUser`:
+  - Images: streaming only, no download, blurred or watermarked
+  - Video/Audio: streaming only, no download
+
+  Only the multimedia file is affected — the rest of the resource remains accessible to
+  `UnknownUser` and `KnownUser`.
   Use the special value `"all"` to apply this to every `StillImageRepresentation`,
   `MovingImageRepresentation`, and `AudioRepresentation` subclass, including ones created in the future.
 
@@ -117,7 +129,8 @@ The two available restriction levels are:
 ## Layer 2: Per-Resource Overrides (XML)
 
 The XML data file lets you override the project defaults for individual resources, values,
-and multimedia assets. This layer uses two constructs: **permission IDs** and the **`permissions` attribute**.
+and multimedia assets. This layer has two parts: defining named **permission IDs** with
+`<permissions>` blocks, and applying them via the **`permissions` attribute** on resources and values.
 
 ### Defining Permission IDs With `<permissions>`
 
@@ -156,6 +169,10 @@ Treating them as a shared vocabulary keeps projects readable and consistent acro
 
 ### Applying Permissions With the `permissions` Attribute
 
+**Properties do not inherit permissions from their resource.**
+Each value needs its own `permissions` attribute to control access at value level.
+If the attribute is omitted on any element, the project-wide defaults apply.
+
 Use the IDs you defined as a `permissions` attribute on `<resource>` elements or value elements:
 
 ```xml
@@ -169,11 +186,8 @@ Use the IDs you defined as a `permissions` attribute on `<resource>` elements or
 </resource>
 ```
 
-Notice that `<resource permissions="public">` only sets the resource's own permission.
-**Properties do not inherit from their resource** — each value
-must have its own `permissions` attribute if you want to control access at that level.
-
-If you omit the `permissions` attribute entirely, the project defaults apply.
+Notice that `<resource permissions="public">` only sets the resource's own permission —
+the values above each carry their own explicit `permissions` attribute.
 
 ## Custom Groups
 
@@ -183,6 +197,11 @@ they let you grant finer-grained rights to a subset of project members.
 
 A custom group cannot hold fewer rights than `ProjectMember`, and cannot hold more rights than
 `ProjectAdmin`.
+
+!!! info
+
+    For an example when to use custom groups, see [here](#3-private-project-with-external-academic-access)
+
 
 ### Defining Custom Groups in JSON
 
@@ -201,7 +220,10 @@ The `name` and `descriptions` fields are mandatory.
 
 ### Using Custom Groups in XML
 
-Reference a custom group as `project-shortname:groupname` in a `<permissions>` block:
+Reference a custom group as `project-shortname:groupname` in a `<permissions>` block.
+The `"name"` field from JSON (here `"editors"`) becomes the second part of the reference —
+so `"name": "editors"` in JSON becomes `my-project:editors` in the XML,
+where `my-project` is your project's shortname.
 
 ```xml
 <permissions id="editors_only">
@@ -306,7 +328,9 @@ Define the custom group alongside the private default:
 After project creation, the `ProjectAdmin` adds the actual team to the `editors` group
 via DSP-APP, and adds external academics as `ProjectMember`.
 
-**Permissions script (after project creation)**:
+**Permissions script**:
+
+> The permissions script must be run after project creation and before `xmlupload`.
 
 Since custom groups are a rare edge case, their rights cannot be configured in the JSON.
 The server's Administrative Permissions and Default Object Access Permissions (DOAPs) need
@@ -333,7 +357,7 @@ The defaults set by the permissions-scripts apply automatically:
 ### 4. Public Project With Watermarked Images
 
 **Situation**: All metadata is freely accessible, but image files are served watermarked or at
-reduced resolution for outsiders because the images are still under copyright.
+reduced resolution for `UnknownUser` and `KnownUser` because the images are still under copyright.
 
 **Access goals**:
 
@@ -377,8 +401,8 @@ The JSON overrule handles restricted view automatically:
 ### 5. Public Project With Audio/Video Restricted to Streaming Only
 
 **Situation**: All metadata is freely accessible, but audio or video files must not be
-downloadable by outsiders — for example, in an oral history archive with copyright-restricted
-recordings.
+downloadable by `UnknownUser` and `KnownUser` — for example, in an oral history archive with
+copyright-restricted recordings.
 
 For audio and video, Restricted View (`RV`) means the file can be played in the browser but
 cannot be downloaded.
@@ -424,7 +448,7 @@ The JSON overrule handles restricted view automatically:
 ### 6. Property-Level Confidentiality
 
 **Situation**: Resources are publicly visible, but certain properties must be hidden from
-outsiders — for example, donor names, curatorial notes, or personal data in an archive.
+`UnknownUser` and `KnownUser` — for example, donor names, curatorial notes, or personal data in an archive.
 
 **Access goals**:
 
@@ -504,7 +528,6 @@ In-progress resources use `permissions="private"`:
 
 > **Note**: Properties do not inherit permissions from their resource.
 > If a resource is marked private, its values must each carry `permissions="private"` as well.
-
 
 ## Further Reading
 

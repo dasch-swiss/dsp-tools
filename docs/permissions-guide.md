@@ -99,18 +99,17 @@ Use `default_permissions_overrule` to carve out exceptions:
 The two available restriction levels are:
 
 - **`private`**: A list of class or property names.
-  - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
-  - For a **property**: the property's content is hidden, but the rest of the resource
-    remains accessible to `UnknownUser` and `KnownUser`.
+    - For a **class**: resources of that class are invisible to `UnknownUser` and `KnownUser`.
+    - For a **property**: the property's content is hidden, but the rest of the resource
+      remains accessible to `UnknownUser` and `KnownUser`.
 - **`limited_view`**: A list of multimedia classes whose files are restricted for
   `UnknownUser` and `KnownUser`:
-  - Images: streaming only, no download, blurred or watermarked
-  - Video/Audio: streaming only, no download
-
-  Only the multimedia file is affected — the rest of the resource remains accessible to
-  `UnknownUser` and `KnownUser`.
-  Use the special value `"all"` to apply this to every `StillImageRepresentation`,
-  `MovingImageRepresentation`, and `AudioRepresentation` subclass, including ones created in the future.
+    - Images: streaming only, no download, blurred or watermarked
+    - Video/Audio: streaming only, no download
+    - Only the multimedia file is affected — the rest of the resource remains accessible to
+      `UnknownUser` and `KnownUser`.
+    - Use the special value `"all"` to apply this to every `StillImageRepresentation`,
+      `MovingImageRepresentation`, and `AudioRepresentation` subclass, including ones created in the future.
 
 ```json
 "default_permissions": "public",

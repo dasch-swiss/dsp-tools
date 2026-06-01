@@ -35,7 +35,7 @@ class ParsedValue:
 @dataclass
 class ParsedFileValue:
     value: str | None
-    value_type: KnoraValueType | None
+    value_type: KnoraFileValueType | None
     metadata: ParsedFileValueMetadata
 
 
@@ -67,11 +67,12 @@ class KnoraValueType(Enum):
     TIME_VALUE = auto()
     URI_VALUE = auto()
 
+
+class KnoraFileValueType(Enum):
     ARCHIVE_FILE = auto()
     AUDIO_FILE = auto()
     DOCUMENT_FILE = auto()
     MOVING_IMAGE_FILE = auto()
     STILL_IMAGE_FILE = auto()
     STILL_IMAGE_IIIF = auto()
-    STILL_IMAGE_SVG = auto()
     TEXT_FILE = auto()

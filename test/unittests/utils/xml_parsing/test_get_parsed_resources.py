@@ -15,6 +15,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -105,7 +106,7 @@ class TestParseResource:
         assert not resource.migration_metadata
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
-        assert file_val.value_type == KnoraValueType.AUDIO_FILE
+        assert file_val.value_type == KnoraFileValueType.AUDIO_FILE
         assert file_val.value == "testdata/bitstreams/test.wav"
 
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
@@ -122,7 +123,7 @@ class TestParseResource:
         assert not resource.migration_metadata
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
-        assert file_val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert file_val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
 
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
@@ -542,7 +543,7 @@ class TestParseFileValues:
         """)
         val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
-        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
@@ -559,7 +560,7 @@ class TestParseFileValues:
         """)
         val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
-        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert val.metadata.license_iri == "license_iri"
         assert val.metadata.copyright_holder == "copy"
         assert val.metadata.authorship_id == "auth"
@@ -573,7 +574,7 @@ class TestParseFileValues:
         """)
         val = _parse_file_values(xml_val)
         assert val.value == "this/is/filepath/file.z"
-        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
@@ -590,7 +591,7 @@ class TestParseFileValues:
         """)
         val = _parse_file_values(xml_val)
         assert val.value == "this/is/filepath/file.z"
-        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"
         assert val.metadata.authorship_id == "authorship_1"
@@ -602,30 +603,30 @@ class TestFileTypeInfo:
         "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
     )
     def test_archive(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.ARCHIVE_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.ARCHIVE_FILE
 
     @pytest.mark.parametrize("file_name", ["test.mp3", "test.wav"])
     def test_audio(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.AUDIO_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.AUDIO_FILE
 
     @pytest.mark.parametrize(
         "file_name",
         ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx", "test.epub"],
     )
     def test_document(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.DOCUMENT_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.DOCUMENT_FILE
 
     def test_moving_image(self):
-        assert _get_file_value_type("test.mp4") == KnoraValueType.MOVING_IMAGE_FILE
+        assert _get_file_value_type("test.mp4") == KnoraFileValueType.MOVING_IMAGE_FILE
 
     @pytest.mark.parametrize(
         "file_name", ["test.jpg", "test.jpeg", "path/test.jp2", "test.png", "test.tif", "test.tiff", "test.jpx"]
     )
     def test_still_image(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.STILL_IMAGE_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.STILL_IMAGE_FILE
 
     def test_svg_image(self):
-        assert _get_file_value_type("test.svg") == KnoraValueType.STILL_IMAGE_SVG
+        assert _get_file_value_type("test.svg") == KnoraFileValueType.STILL_IMAGE_FILE
 
     @pytest.mark.parametrize(
         "file_name",
@@ -643,7 +644,7 @@ class TestFileTypeInfo:
         ],
     )
     def test_text(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.TEXT_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.TEXT_FILE
 
     def test_unknown(self):
         assert not _get_file_value_type("file.unknown")

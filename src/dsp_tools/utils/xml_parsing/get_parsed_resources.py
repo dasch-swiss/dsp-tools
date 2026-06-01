@@ -7,6 +7,7 @@ from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPE
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.exceptions import MalformedPrefixedIriError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -309,19 +310,17 @@ def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noq
     file_extension = Path(file_name).suffix[1:].lower()
     match file_extension:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            return KnoraValueType.ARCHIVE_FILE
+            return KnoraFileValueType.ARCHIVE_FILE
         case "mp3" | "wav":
-            return KnoraValueType.AUDIO_FILE
+            return KnoraFileValueType.AUDIO_FILE
         case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx" | "epub":
-            return KnoraValueType.DOCUMENT_FILE
+            return KnoraFileValueType.DOCUMENT_FILE
         case "mp4":
-            return KnoraValueType.MOVING_IMAGE_FILE
+            return KnoraFileValueType.MOVING_IMAGE_FILE
         # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            return KnoraValueType.STILL_IMAGE_FILE
-        case "svg":
-            return KnoraValueType.STILL_IMAGE_SVG
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx" | "svg":
+            return KnoraFileValueType.STILL_IMAGE_FILE
         case "odd" | "rng" | "txt" | "xml" | "htm" | "html" | "xsd" | "xsl" | "csv" | "json":
-            return KnoraValueType.TEXT_FILE
+            return KnoraFileValueType.TEXT_FILE
         case _:
             return None

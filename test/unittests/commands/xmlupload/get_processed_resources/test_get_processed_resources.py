@@ -36,6 +36,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -65,7 +66,7 @@ def lookups() -> XmlReferenceLookups:
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
-    return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -76,7 +77,7 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
 
 
 class TestResources:
@@ -264,7 +265,7 @@ class TestOneResource:
 
     def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        parsed_file = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        parsed_file = ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,

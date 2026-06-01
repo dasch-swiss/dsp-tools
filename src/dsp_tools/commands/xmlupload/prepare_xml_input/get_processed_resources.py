@@ -43,6 +43,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -115,7 +116,7 @@ def _resolve_file_value(
         metadata = _get_file_metadata(resource.file_value.metadata, lookups)
     else:
         metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
-    if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
+    if resource.file_value.value_type == KnoraFileValueType.STILL_IMAGE_IIIF:
         iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
     else:
         file_val = _get_file_value(
@@ -127,7 +128,7 @@ def _resolve_file_value(
 def _get_file_value(
     val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
-    file_type = cast(KnoraValueType, val.value_type)
+    file_type = cast(KnoraFileValueType, val.value_type)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,

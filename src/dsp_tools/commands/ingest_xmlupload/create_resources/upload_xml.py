@@ -78,6 +78,7 @@ def ingest_xmlupload(
     ).with_server_info(
         server=creds.server,
         shortcode=shortcode,
+        xml_file=xml_file,
     )
     clients = _get_live_clients(config, auth)
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
@@ -128,7 +129,7 @@ def ingest_xmlupload(
     if not is_on_prod_like_server:
         enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
 
-    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server, shortcode)
 
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
 

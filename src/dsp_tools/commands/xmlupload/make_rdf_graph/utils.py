@@ -1,8 +1,11 @@
+import base64
 import json
 from typing import Any
+from uuid import uuid4
 
 from pyld import jsonld
 from rdflib import Graph
+from rdflib import URIRef
 
 
 def serialise_jsonld_for_resource(rdf_graph: Graph) -> dict[str, Any]:
@@ -42,3 +45,9 @@ def _serialise_json(rdf_graph: Graph) -> list[dict[str, Any]]:
     graph_bytes = rdf_graph.serialize(format="json-ld", encoding="utf-8")
     json_graph: list[dict[str, Any]] = json.loads(graph_bytes)
     return json_graph
+
+
+def make_value_iri(res_iri: URIRef) -> URIRef:
+    encoded = base64.urlsafe_b64encode(uuid4().bytes_le).decode().rstrip("=")
+    val_iri = f"{res_iri!s}/values/{encoded}"
+    return URIRef(val_iri)

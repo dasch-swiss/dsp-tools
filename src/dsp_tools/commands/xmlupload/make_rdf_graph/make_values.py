@@ -13,6 +13,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import make_value_iri
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
@@ -53,7 +54,7 @@ type LiteralValueTypesAlias = Union[
 ]
 
 
-def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
+def make_values(values: list[ProcessedValue], res_node: URIRef, lookups: IRILookups) -> Graph:
     """
     Serialise the values of a resource.
 
@@ -72,7 +73,7 @@ def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups:
     return properties_graph
 
 
-def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
+def _make_one_value_graph(val: ProcessedValue, res_node: URIRef, iri_lookups: IRILookups) -> Graph:
     match val:
         case (
             ProcessedBoolean()
@@ -97,14 +98,14 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
             properties_graph = make_link_value_graph(
                 val=val,
-                val_node=BNode(),
+                val_node=make_value_iri(res_node),
                 res_node=res_node,
                 target_iri=URIRef(target_iri),
             )
         case ProcessedRichtext():
             properties_graph = make_richtext_value_graph(
                 val=val,
-                val_node=BNode(),
+                val_node=make_value_iri(res_node),
                 res_node=res_node,
                 iri_resolver=iri_lookups.id_to_iri,
             )
@@ -125,9 +126,9 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
 
 def _make_base_value_graph(
     val: ProcessedValue,
-    val_node: BNode | URIRef,
+    val_node: URIRef,
     prop_type_info: RDFPropTypeInfo,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
 ) -> Graph:
     g = _add_optional_triples(val_node, val.permissions, val.comment)
     g.add((res_node, URIRef(val.prop_iri), val_node))
@@ -135,7 +136,7 @@ def _make_base_value_graph(
     return g
 
 
-def _add_optional_triples(val_bn: BNode | URIRef, permissions: Permissions | None, comment: str | None) -> Graph:
+def _add_optional_triples(val_bn: URIRef, permissions: Permissions | None, comment: str | None) -> Graph:
     g = Graph()
     if permissions:
         g.add((val_bn, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))
@@ -147,9 +148,10 @@ def _add_optional_triples(val_bn: BNode | URIRef, permissions: Permissions | Non
 def _make_value_graph_with_literal_object(
     val: LiteralValueTypesAlias,
     prop_type_info: RDFPropTypeInfo,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
 ) -> Graph:
-    val_bn = BNode()
+
+    val_bn = make_value_iri(res_node)
     g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
     g.add((val_bn, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
     return g
@@ -157,10 +159,10 @@ def _make_value_graph_with_literal_object(
 
 def _make_list_value_graph(
     val: ProcessedList,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
-    val_bn = BNode()
+    val_bn = make_value_iri(res_node)
     g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
     g.add((val_bn, prop_type_info.knora_prop, URIRef(val.value)))
     return g
@@ -168,8 +170,8 @@ def _make_list_value_graph(
 
 def make_link_value_graph(
     val: ProcessedLink,
-    val_node: BNode | URIRef,
-    res_node: BNode | URIRef,
+    val_node: URIRef,
+    res_node: URIRef,
     target_iri: URIRef,
 ) -> Graph:
     """Make a LinkValue Graph"""
@@ -193,9 +195,9 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
 
 def _make_date_value_graph(
     val: ProcessedDate,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
 ) -> Graph:
-    val_bn = BNode()
+    val_bn = make_value_iri(res_node)
     date = val.value
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_node, URIRef(val.prop_iri), val_bn))
@@ -226,9 +228,9 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 def _make_interval_value_graph(
     val: ProcessedInterval,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
 ) -> Graph:
-    val_bn = BNode()
+    val_bn = make_value_iri(res_node)
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
@@ -239,8 +241,8 @@ def _make_interval_value_graph(
 
 def make_richtext_value_graph(
     val: ProcessedRichtext,
-    val_node: BNode | URIRef,
-    res_node: BNode | URIRef,
+    val_node: URIRef,
+    res_node: URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
     """

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 from loguru import logger
 from rdflib import URIRef
@@ -15,6 +17,7 @@ from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
+from dsp_tools.commands.xmlupload.fuseki_export import export_graphs_to_folder
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
 from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_connection_error
 from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout_or_keyboard_interrupt
@@ -23,8 +26,8 @@ from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_cre
 from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
 from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
 from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_resource
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import serialise_jsonld_for_resource
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
@@ -33,6 +36,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
+from dsp_tools.commands.xmlupload.write_diagnostic_info import write_resources_as_jsonld
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -57,16 +61,26 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
     logger.debug("Start uploading data")
+    is_localhost = clients.legal_info_client.server == "http://0.0.0.0:3333"
     db_metrics = None
-    if clients.legal_info_client.server == "http://0.0.0.0:3333":
+    if is_localhost:
         db_metrics = FusekiMetrics()
         db_metrics.try_get_start_size()
     upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
-    _upload_all_resources(clients, upload_state)
+    output_dir = _get_localhost_output_dir(upload_state.config.xml_file) if is_localhost else None
+    _upload_all_resources(clients, upload_state, output_dir)
     if db_metrics is not None:
         db_metrics.try_get_end_size()
         communicate_fuseki_bloating(db_metrics)
+    if is_localhost and output_dir is not None:
+        export_graphs_to_folder(output_dir)
     return cleanup_upload(upload_state)
+
+
+def _get_localhost_output_dir(xml_file: Path | None) -> Path | None:
+    if xml_file is None:
+        return None
+    return Path(xml_file.stem)
 
 
 def upload_copyright_holders(resources: list[ProcessedResource], legal_info_client: LegalInfoClient) -> None:
@@ -85,7 +99,7 @@ def _get_copyright_holders(resources: list[ProcessedResource]) -> list[str]:
     return [x for x in copyright_holders if x]
 
 
-def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> None:
+def _upload_all_resources(clients: UploadClients, upload_state: UploadState, output_dir: Path | None = None) -> None:
     project_client = ProjectClientLive(clients.legal_info_client.server, clients.legal_info_client.auth)
     project_iri = project_client.get_project_iri(upload_state.config.shortcode)
 
@@ -96,6 +110,7 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
 
     resource_client = ResourceClientLive(clients.legal_info_client.server, clients.legal_info_client.auth)
 
+    collected_resources: list[dict[str, Any]] = []
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
@@ -106,12 +121,14 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
                 asset_client=clients.asset_client,
                 iri_lookups=iri_lookup,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
+                collected_resources=collected_resources,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
             _upload_stash(upload_state, resource_client)
     except XmlUploadInterruptedError as err:
         handle_upload_error(err, upload_state)
+    write_resources_as_jsonld(collected_resources, upload_state.config.xml_file, output_dir)
 
 
 def _execute_one_resource_upload(
@@ -121,6 +138,7 @@ def _execute_one_resource_upload(
     asset_client: AssetClient,
     iri_lookups: IRILookups,
     creation_attempts_of_this_round: int,
+    collected_resources: list[dict[str, Any]],
 ) -> None:
     media_info = None
     if resource.file_value:
@@ -137,7 +155,7 @@ def _execute_one_resource_upload(
 
     iri = None
     try:
-        iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups)
+        iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups, collected_resources)
     except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
         handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
@@ -159,6 +177,7 @@ def _execute_one_resource_data_upload(
     media_info: BitstreamInfo | None,
     resource_client: ResourceClient,
     iri_lookups: IRILookups,
+    collected_resources: list[dict[str, Any]],
 ) -> str | None:
     resource_graph = create_resource_with_values(
         resource=resource,
@@ -166,6 +185,7 @@ def _execute_one_resource_data_upload(
         lookups=iri_lookups,
     )
     resource_dict = serialise_jsonld_for_resource(resource_graph)
+    collected_resources.append(resource_dict)
     logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
     num_of_retries = 24
     for retry_counter in range(num_of_retries):

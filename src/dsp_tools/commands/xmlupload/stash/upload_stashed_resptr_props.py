@@ -11,8 +11,8 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.clients.value_client import ValueClient
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem

@@ -6,7 +6,42 @@
        shortcode="9999"
        default-ontology="onto">
 
+
+    <permissions id="private">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+
     <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
+
+    <resource label="Resource is private by default" restype=":ClassMixedCard" id="card_mixed">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>card_1</resptr>
+        </resptr-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+            <geoname>2222222</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="id_permission_on_resource" restype=":ClassWithEverything" id="id_permission_on_resource"
+              permissions="private"/>
+
+    <resource label="id_permissions_on_value" restype=":ClassWithEverything" id="id_permissions_on_value">
+        <boolean-prop name=":testBoolean">
+            <boolean permissions="private">true</boolean>
+        </boolean-prop>
+    </resource>
 
     <resource label="Bool True" restype=":ClassWithEverything" id="id_bool_true">
         <boolean-prop name=":testBoolean">
@@ -32,7 +67,7 @@
         </color-prop>
     </resource>
 
-    <resource label="Date" restype=":ClassWithEverything" id="id_date">
+    <resource label="Date-is-private-as doap" restype=":ClassWithEverything" id="id_date_private_doap">
         <date-prop name=":testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
@@ -78,27 +113,33 @@
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
-            <text encoding="xml"> Text line 1
+            <text encoding="xml">Text line 1
 
-            line2 </text>
+                line2
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
         <text-prop name=":testRichtext">
-            <text encoding="xml"><p>Text</p></text>
+            <text encoding="xml">
+                <p>Text</p>
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off_url">
         <text-prop name=":testRichtext">
-            <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
+            <text encoding="xml">Text with an external link:
+                <a href="https://www.google.com/">Google</a>
+            </text>
         </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off">
         <text-prop name=":testRichtext">
-            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.</text>
+            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.
+            </text>
         </text-prop>
     </resource>
 
@@ -115,7 +156,8 @@
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text line 1
 
-            line 2  </text>
+                line 2
+            </text>
         </text-prop>
     </resource>
 
@@ -128,7 +170,8 @@
         </text-prop>
     </resource>
 
-    <resource label="same_comment_on_different_values" restype=":ClassWithEverything" id="same_comment_on_different_values">
+    <resource label="same_comment_on_different_values" restype=":ClassWithEverything"
+              id="same_comment_on_different_values">
         <text-prop name=":testSimpleText">
             <text encoding="utf8" comment="comment">Text 1</text>
             <text encoding="utf8" comment="comment">Text 2</text>
@@ -198,12 +241,6 @@
     <resource label="date_mixed_precision" restype=":ClassWithEverything" id="date_mixed_precision">
         <date-prop name=":testSubDate1">
             <date>GREGORIAN:CE:1800-01-01:CE:1900</date>
-        </date-prop>
-    </resource>
-
-    <resource label="date_only_start" restype=":ClassWithEverything" id="date_only_start">
-        <date-prop name=":testSubDate1">
-            <date>GREGORIAN:CE:1800</date>
         </date-prop>
     </resource>
 

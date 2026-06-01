@@ -13,8 +13,8 @@ from tqdm import tqdm
 from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem

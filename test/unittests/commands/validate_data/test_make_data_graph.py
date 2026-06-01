@@ -21,7 +21,7 @@ from dsp_tools.utils.rdf_constants import DATA
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
 from test.unittests.commands.validate_data.constants import ONTO
 
 LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
@@ -453,7 +453,7 @@ class TestFileValue:
         file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_PREFIX}hasArchiveFileValue",
             user_facing_value="test.zip",
-            knora_type=KnoraValueType.ARCHIVE_FILE,
+            knora_type=KnoraFileValueType.ARCHIVE_FILE,
             value_metadata=[],
         )
         g = Graph(store="Oxigraph")
@@ -468,7 +468,7 @@ class TestFileValue:
         file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_PREFIX}hasStillImageFileValue",
             user_facing_value=uri,
-            knora_type=KnoraValueType.STILL_IMAGE_IIIF,
+            knora_type=KnoraFileValueType.STILL_IMAGE_IIIF,
             value_metadata=[],
         )
         g = Graph(store="Oxigraph")

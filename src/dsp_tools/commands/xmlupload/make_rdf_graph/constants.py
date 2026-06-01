@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdf_constants import KNORA_API
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
 
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
@@ -57,11 +57,11 @@ IIIF_URI_VALUE = RDFPropTypeInfo(KNORA_API.StillImageExternalFileValue, KNORA_AP
 
 
 FILE_TYPE_TO_RDF_MAPPER = {
-    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
-    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
-    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
-    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
-    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
-    KnoraValueType.STILL_IMAGE_SVG: STILL_IMAGE_VECTOR_FILE_VALUE,
-    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
+    KnoraFileValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraFileValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraFileValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraFileValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraFileValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraFileValueType.STILL_IMAGE_SVG: STILL_IMAGE_VECTOR_FILE_VALUE,
+    KnoraFileValueType.TEXT_FILE: TEXT_FILE_VALUE,
 }

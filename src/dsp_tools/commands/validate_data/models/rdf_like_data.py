@@ -7,7 +7,7 @@ from enum import auto
 from uuid import uuid4
 
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
 
 
 @dataclass

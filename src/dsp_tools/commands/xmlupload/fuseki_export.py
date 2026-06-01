@@ -41,7 +41,9 @@ def export_graphs_to_folder(output_dir: Path) -> None:
 def _fetch_graph(iri: str) -> str | None:
     url = f"{_FUSEKI_URL}/{_DATASET}/data"
     try:
-        response = requests.get(url, params={"graph": iri}, headers={"Accept": "text/turtle"}, timeout=30)
+        response = requests.get(
+            url, params={"graph": iri}, headers={"Accept": "text/turtle"}, auth=("admin", "test"), timeout=30
+        )
     except requests.RequestException as err:
         logger.warning(f"Could not fetch Fuseki graph {iri}: {err}")
         return None

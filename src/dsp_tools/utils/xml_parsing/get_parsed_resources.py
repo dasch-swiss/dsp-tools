@@ -281,7 +281,7 @@ def _get_simpletext_as_string(value: etree._Element) -> str | None:
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
     return ParsedFileValue(
         value=iiif_uri.text.strip() if iiif_uri.text else None,
-        value_type=KnoraValueType.STILL_IMAGE_IIIF,
+        value_type=KnoraFileValueType.STILL_IMAGE_IIIF,
         metadata=_parse_file_metadata(iiif_uri),
     )
 
@@ -304,7 +304,7 @@ def _parse_file_metadata(file_value: etree._Element) -> ParsedFileValueMetadata:
     )
 
 
-def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noqa:PLR0911 (Too many return statements)
+def _get_file_value_type(file_name: str | None) -> KnoraFileValueType | None:  # noqa:PLR0911 (Too many return statements)
     if not file_name:
         return None
     file_extension = Path(file_name).suffix[1:].lower()

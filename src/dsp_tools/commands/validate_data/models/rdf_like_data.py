@@ -7,6 +7,7 @@ from enum import auto
 from uuid import uuid4
 
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
@@ -75,7 +76,7 @@ class RdfLikeValue:
 
     user_facing_prop: str
     user_facing_value: str | None
-    knora_type: KnoraValueType
+    knora_type: KnoraValueType | KnoraFileValueType
     value_metadata: list[PropertyObject]
     value_uuid: str = field(default_factory=lambda: str(uuid4()))
 

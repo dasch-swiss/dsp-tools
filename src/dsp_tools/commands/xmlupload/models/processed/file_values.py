@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 
 
 @dataclass
@@ -17,7 +17,7 @@ class ProcessedFileMetadata:
 @dataclass
 class ProcessedFileValue:
     value: str
-    file_type: KnoraValueType
+    file_type: KnoraFileValueType
     metadata: ProcessedFileMetadata
     res_id: str
     res_label: str

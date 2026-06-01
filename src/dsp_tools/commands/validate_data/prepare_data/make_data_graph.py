@@ -17,7 +17,7 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeValue
 from dsp_tools.commands.validate_data.models.rdf_like_data import TripleObjectType
 from dsp_tools.commands.validate_data.models.rdf_like_data import TriplePropertyType
 from dsp_tools.utils.rdf_constants import DATA
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 def make_data_graph(data: RdfLikeData) -> Graph:

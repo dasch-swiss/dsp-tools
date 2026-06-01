@@ -43,7 +43,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata

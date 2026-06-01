@@ -15,7 +15,8 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 

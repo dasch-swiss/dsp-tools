@@ -4,7 +4,7 @@ import pytest
 
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 

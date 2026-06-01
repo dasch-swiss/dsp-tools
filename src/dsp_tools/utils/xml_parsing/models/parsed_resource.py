@@ -67,6 +67,7 @@ class KnoraValueType(Enum):
     TIME_VALUE = auto()
     URI_VALUE = auto()
 
+
 class KnoraFileValueType(Enum):
     ARCHIVE_FILE = auto()
     AUDIO_FILE = auto()

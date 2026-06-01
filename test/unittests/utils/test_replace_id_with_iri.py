@@ -7,7 +7,7 @@ from dsp_tools.utils.replace_id_with_iri import _process_link_value
 from dsp_tools.utils.replace_id_with_iri import _process_one_resource
 from dsp_tools.utils.replace_id_with_iri import _process_richtext_value
 from dsp_tools.utils.replace_id_with_iri import _replace_all_ids_with_iris
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 

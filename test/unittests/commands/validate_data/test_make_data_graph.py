@@ -21,7 +21,8 @@ from dsp_tools.utils.rdf_constants import DATA
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 
 LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)

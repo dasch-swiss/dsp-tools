@@ -7,7 +7,8 @@ from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPE
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.exceptions import MalformedPrefixedIriError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata

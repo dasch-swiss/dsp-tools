@@ -22,7 +22,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType, KnoraFileValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 
 RES_ID = "res_id"
 RES_IRI = "http://iri/res_id"

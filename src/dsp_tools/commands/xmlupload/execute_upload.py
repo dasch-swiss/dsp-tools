@@ -26,8 +26,8 @@ from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_cre
 from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
 from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
 from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_resource
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import serialise_jsonld_for_resource
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource

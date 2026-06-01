@@ -101,7 +101,6 @@ def _make_resource(resource: ProcessedResource, res_node: BNode | URIRef, projec
     g = Graph()
     g.add((res_node, RDF.type, URIRef(resource.type_iri)))
     g.add((res_node, RDFS.label, Literal(resource.label, datatype=XSD.string)))
-    g.add((res_node, KNORA_API.attachedToProject, project_iri))
     if resource.permissions:
         g.add((res_node, KNORA_API.hasPermissions, Literal(str(resource.permissions), datatype=XSD.string)))
     return g

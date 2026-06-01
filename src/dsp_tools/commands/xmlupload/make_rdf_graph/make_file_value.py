@@ -6,6 +6,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.utils import make_value_iri
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
@@ -13,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdf_constants import KNORA_API
 
 
-def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URIRef) -> Graph:
+def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: URIRef) -> Graph:
     """
     Creates a graph with the IIIF-URI Link
 
@@ -55,10 +56,10 @@ def make_file_value_graph(
 def _make_abstract_file_value_graph(
     file_value: AbstractFileValue,
     type_info: RDFPropTypeInfo,
-    res_node: BNode | URIRef,
+    res_node: URIRef,
     has_file_name_prop: URIRef = KNORA_API.fileValueHasFilename,
 ) -> Graph:
-    file_bn = BNode()
+    file_bn = make_value_iri(res_node)
     g = _add_metadata(file_bn, file_value.metadata)
     g.add((res_node, type_info.knora_prop, file_bn))
     g.add((file_bn, RDF.type, type_info.knora_type))
@@ -66,7 +67,7 @@ def _make_abstract_file_value_graph(
     return g
 
 
-def _add_metadata(file_bn: BNode, metadata: FileValueMetadata) -> Graph:
+def _add_metadata(file_bn: URIRef, metadata: FileValueMetadata) -> Graph:
     g = Graph()
     g.add((file_bn, KNORA_API.hasLicense, URIRef(metadata.license_iri)))
     g.add((file_bn, KNORA_API.hasCopyrightHolder, Literal(metadata.copyright_holder, datatype=XSD.string)))

@@ -11,11 +11,12 @@ _DATASET = "dsp-repo"
 
 _GRAPH_URIS: list[str] = [
     "http://www.knora.org/ontology/9999/second-onto",
-    "http://www.knora.org/data/9999/core-validation",
     "http://www.knora.org/ontology/9999/onto",
     "http://www.knora.org/ontology/9999/in-built",
     "http://www.knora.org/data/permissions",
 ]
+
+_DATA_GRAPH_IRI = "http://www.knora.org/data/9999/core-validation"
 
 
 def export_graphs_to_folder(output_dir: Path) -> None:
@@ -34,6 +35,12 @@ def export_graphs_to_folder(output_dir: Path) -> None:
         (output_dir / filename).write_text(ttl_content, encoding="utf-8")
         logger.info(f"Saved Fuseki graph {iri} to {output_dir / filename}")
         fetched.append({"iri": iri, "file": filename})
+
+    data_graph = _fetch_graph(_DATA_GRAPH_IRI)
+    if data_graph:
+        (output_dir / "data.ttl").write_text(data_graph, encoding="utf-8")
+        fetched.append({"iri": _DATA_GRAPH_IRI, "file": "data.ttl"})
+
     if fetched:
         _write_graph_manifest(output_dir, fetched)
 

@@ -186,7 +186,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >seqnum_isPartOf_direct_usage.jpg</bitstream>
+        >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -203,7 +203,7 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >seqnum_isPartOf_sub_prop_usage.jpg</bitstream>
+        >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -234,7 +234,7 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
                    permissions="public"
-        >bitstream_permissions.jpg</bitstream>
+        >testdata/bitstreams/test.jpg</bitstream>
     </resource>
 
     <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">

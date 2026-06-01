@@ -19,6 +19,7 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import TripleProperty
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import parse_date_string
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
@@ -260,7 +261,7 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
 def _get_file_value(file_value: ParsedFileValue, authorship_lookup: dict[str, list[str]]) -> RdfLikeValue | None:
     if not all([file_value.value, file_value.value_type]):
         return None
-    file_type = cast(KnoraValueType, file_value.value_type)
+    file_type = cast(KnoraFileValueType, file_value.value_type)
     user_prop = FILE_TYPE_TO_PROP[file_type]
     return RdfLikeValue(
         user_facing_prop=user_prop,

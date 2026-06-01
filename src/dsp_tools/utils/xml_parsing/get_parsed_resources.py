@@ -304,7 +304,7 @@ def _parse_file_metadata(file_value: etree._Element) -> ParsedFileValueMetadata:
     )
 
 
-def _get_file_value_type(file_name: str | None) -> KnoraValueType | None:  # noqa:PLR0911 (Too many return statements)
+def _get_file_value_type(file_name: str | None) -> KnoraFileValueType | None:  # noqa:PLR0911 (Too many return statements)
     if not file_name:
         return None
     file_extension = Path(file_name).suffix[1:].lower()

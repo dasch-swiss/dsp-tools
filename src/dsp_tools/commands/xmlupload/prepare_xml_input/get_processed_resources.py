@@ -128,7 +128,7 @@ def _resolve_file_value(
 def _get_file_value(
     val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
 ) -> ProcessedFileValue:
-    file_type = cast(KnoraValueType, val.value_type)
+    file_type = cast(KnoraFileValueType, val.value_type)
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,

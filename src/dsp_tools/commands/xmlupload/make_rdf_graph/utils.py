@@ -10,8 +10,7 @@ from rdflib import URIRef
 
 def serialise_jsonld_for_resource(rdf_graph: Graph) -> dict[str, Any]:
     json_graph = _serialise_json(rdf_graph)
-    return json_graph
-    #return _frame_graph_for_resource(json_graph)
+    return _frame_graph_for_resource(json_graph)
 
 
 def _frame_graph_for_resource(serialised_json: list[dict[str, Any]]) -> dict[str, Any]:

@@ -27,21 +27,21 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >target_empty_image.jpg</bitstream>
+        >testdata/bitstreams/test.jpg</bitstream>
     </resource>
 
     <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >target_empty_movie.mp4</bitstream>
+        >testdata/bitstreams/test.mp4</bitstream>
     </resource>
 
     <resource label="Target Audio" restype="onto:TestAudioRepresentation" id="target_empty_audio">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >target_empty_audio.mp3</bitstream>
+        >testdata/bitstreams/test.mp3</bitstream>
     </resource>
 
     <!-- LinkObj -->

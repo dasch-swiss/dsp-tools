@@ -9,6 +9,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.validation.python_checks import _get_filepaths_with_more_than_one_usage
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -39,12 +40,12 @@ FILEPATH_2 = "file_path_2.jpg"
 
 @pytest.fixture
 def file_value_1():
-    return ParsedFileValue(FILEPATH_1, None, ParsedFileValueMetadata(None, None, None, None))
+    return ParsedFileValue(ParsedFileBitstream(FILEPATH_1), None, ParsedFileValueMetadata(None, None, None, None))
 
 
 @pytest.fixture
 def file_value_2():
-    return ParsedFileValue(FILEPATH_2, None, ParsedFileValueMetadata(None, None, None, None))
+    return ParsedFileValue(ParsedFileBitstream(FILEPATH_2), None, ParsedFileValueMetadata(None, None, None, None))
 
 
 class TestCheckDuplicates:

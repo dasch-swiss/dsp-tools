@@ -38,6 +38,8 @@ from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -66,7 +68,7 @@ def lookups() -> XmlReferenceLookups:
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
-    return ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -77,7 +79,9 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue(
+        ParsedFileIiifUri("https://this/is/a/uri.jpg"), KnoraFileValueType.STILL_IMAGE_IIIF, metadata
+    )
 
 
 class TestResources:
@@ -265,7 +269,7 @@ class TestOneResource:
 
     def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        parsed_file = ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+        parsed_file = ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -283,7 +287,7 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert file_val.value.value == "file.jpg"
         assert not file_val.metadata.permissions
         assert file_val.metadata.copyright_holder == "DUMMY"
         assert file_val.metadata.authorships == ["DUMMY"]

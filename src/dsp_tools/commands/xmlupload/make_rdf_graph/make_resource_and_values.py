@@ -90,7 +90,9 @@ def _make_file_value_graph(
             bitstream = cast(BitstreamInfo, bitstream_information)
             prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
             abstract_value = AbstractFileValue(
-                value=bitstream.internal_file_name, metadata=metadata, prop_to_filename=KNORA_API.fileValueHasFilename
+                value=bitstream.internal_file_name,
+                metadata=metadata,
+                prop_to_filename=KNORA_API.fileValueHasFilename,
             )
         case _:
             raise UnreachableCodeError()

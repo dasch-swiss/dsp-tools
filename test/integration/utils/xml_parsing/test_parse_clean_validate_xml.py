@@ -261,6 +261,14 @@ class TestBitstreamPlaceholderFile:
         )
         assert _validate_root_get_validation_messages(root) is None
 
+    def test_placeholder_file_and_path_fails(self) -> None:
+        root = _make_root_with_bitstream(
+            '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'
+            '<placeholder-file type="StillImageRepresentation"/>this/is/filepath'
+            "</bitstream>"
+        )
+        assert _validate_root_get_validation_messages(root) is not None
+
     def test_placeholder_file_invalid_type_is_rejected(self) -> None:
         root = _make_root_with_bitstream('<bitstream><placeholder-file type="InvalidType"/></bitstream>')
         assert _validate_root_get_validation_messages(root) is not None

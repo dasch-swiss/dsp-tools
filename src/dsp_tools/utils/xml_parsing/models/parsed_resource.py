@@ -40,21 +40,18 @@ class ParsedFileValue:
     metadata: ParsedFileValueMetadata
 
 
-class ParsedFileValueValue(ABC): ...
+class ParsedFileValueValue(ABC):
+    value: str | None
 
 
 @dataclass
 class ParsedFileBitstream(ParsedFileValueValue):
     """Content of the bitstream tag, i.e. the filepath."""
 
-    value: str | None
-
 
 @dataclass
 class ParsedFileIiifUri(ParsedFileValueValue):
     """Content of the iiif-uri tag, i.e. the IIIF-URI."""
-
-    value: str | None
 
 
 @dataclass

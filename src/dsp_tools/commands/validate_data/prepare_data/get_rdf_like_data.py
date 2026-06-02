@@ -265,7 +265,7 @@ def _get_file_value(file_value: ParsedFileValue, authorship_lookup: dict[str, li
     user_prop = FILE_TYPE_TO_PROP[file_type]
     return RdfLikeValue(
         user_facing_prop=user_prop,
-        user_facing_value=file_value.value,
+        user_facing_value=file_value.value.value,
         knora_type=file_type,
         value_metadata=_get_file_metadata(file_value.metadata, authorship_lookup),
     )

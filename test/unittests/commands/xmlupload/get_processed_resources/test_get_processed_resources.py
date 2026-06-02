@@ -311,7 +311,6 @@ class TestOneResource:
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
-        assert not result.file_value
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
         assert isinstance(file_val.value, ProcessedFileIIIFUri)

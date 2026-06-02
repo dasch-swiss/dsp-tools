@@ -37,7 +37,6 @@ def test_make_resource_mandatory_only() -> None:
         permissions=None,
         values=[],
         file_value=None,
-        iiif_uri=None,
         migration_metadata=None,
     )
     res_bn = BNode()
@@ -56,7 +55,6 @@ def test_make_resource_permissions() -> None:
         permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         values=[],
         file_value=None,
-        iiif_uri=None,
         migration_metadata=None,
     )
     res_bn = BNode()
@@ -77,7 +75,6 @@ def test_make_resource_migration_metadata() -> None:
         permissions=None,
         values=[],
         file_value=None,
-        iiif_uri=None,
         migration_metadata=None,
     )
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")

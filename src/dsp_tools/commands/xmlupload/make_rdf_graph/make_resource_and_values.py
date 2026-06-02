@@ -14,6 +14,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iii
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
@@ -65,10 +66,11 @@ def _make_values_graph_from_resource(
 ) -> Graph:
     properties_graph = make_values(resource.values, res_node, lookups)
 
-    if resource.iiif_uri:
-        metadata = _make_file_value_metadata(resource.iiif_uri.metadata)
-        iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.iiif_uri.value.value, metadata), res_node)
-        properties_graph += iiif_g
+    if resource.file_value:
+        metadata = _make_file_value_metadata(resource.file_value.metadata)
+        if isinstance(resource.file_value.value, ProcessedFileIIIFUri):
+            iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.file_value.value.value, metadata), res_node)
+            properties_graph += iiif_g
 
     elif bitstream_information:
         file_val = cast(ProcessedFileValue, resource.file_value)

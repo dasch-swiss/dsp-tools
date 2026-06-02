@@ -7,6 +7,7 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFound
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
@@ -264,7 +265,6 @@ class TestOneResource:
         assert isinstance(file_val, ProcessedFileValue)
         assert file_val.value.value == "file.jpg"
         assert file_val.metadata.permissions
-        assert not result.iiif_uri
         assert not result.migration_metadata
 
     def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
@@ -287,12 +287,12 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
+        assert isinstance(file_val.value, ProcessedFileBitstream)
         assert file_val.value.value == "file.jpg"
         assert not file_val.metadata.permissions
         assert file_val.metadata.copyright_holder == "DUMMY"
         assert file_val.metadata.authorships == ["DUMMY"]
         assert file_val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
-        assert not result.iiif_uri
         assert not result.migration_metadata
 
     def test_with_iiif_uri(self, iiif_file_value, lookups: XmlReferenceLookups):
@@ -312,7 +312,7 @@ class TestOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
-        file_val = result.iiif_uri
+        file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
         assert isinstance(file_val.value, ProcessedFileIIIFUri)
         assert not result.migration_metadata
@@ -329,8 +329,7 @@ class TestFileValue:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
-        assert file_res is None
+        iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert isinstance(iiif_res, ProcessedFileValue)
         iiif_val = iiif_res.value
         assert isinstance(iiif_val, ProcessedFileIIIFUri)
@@ -351,9 +350,8 @@ class TestFileValue:
             file_value=None,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
-        assert iiif_res is None
 
     def test_resolve_file_value_file(self, file_with_permission, lookups):
         resource = ParsedResource(
@@ -365,8 +363,7 @@ class TestFileValue:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
-        assert iiif_res is None
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata
         assert file_res.value == file_res.value

@@ -58,7 +58,7 @@ class ParsedFileIiifUri(ParsedFileValueValue):
 class ParsedFilePlaceholder(ParsedFileValueValue):
     """Placeholder type"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.value = None
 
 

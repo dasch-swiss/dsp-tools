@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FI
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_VECTOR_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _add_metadata
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _make_abstract_file_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_abstract_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
@@ -109,7 +109,7 @@ class TestMakeFileValueGraph:
     )
     def test_with_permissions(self, abstract_file_with_permissions, type_info):
         res_bn = BNode()
-        g = _make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
+        g = make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
         assert len(g) == 8
         val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
@@ -132,7 +132,7 @@ class TestMakeFileValueGraph:
     )
     def test_no_permissions(self, abstract_file_no_permissions, type_info):
         res_bn = BNode()
-        g = _make_abstract_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
+        g = make_abstract_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
         assert len(g) == 7
         val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type

@@ -17,6 +17,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
@@ -68,26 +69,33 @@ def _make_values_graph_from_resource(
     properties_graph = make_values(resource.values, res_node, lookups)
 
     if file_found := resource.file_value:
-        match file_found.value:
-            case ProcessedFileIIIFUri():
-                metadata = _make_file_value_metadata(file_found.metadata)
-                iiif_g = make_iiif_uri_value_graph(AbstractFileValue(file_found.value.value, metadata), res_node)
-                properties_graph += iiif_g
-            case ProcessedFileBitstream():
-                bitstream = cast(BitstreamInfo, bitstream_information)
-                metadata = _make_file_value_metadata(file_found.metadata)
-                prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_found.value_type]
-                file_g = make_file_value_graph(
-                    bitstream_info=bitstream,
-                    rdf_prop_type_info=prop_type_info,
-                    file_value_metadata=metadata,
-                    res_node=res_node,
-                )
-                properties_graph += file_g
-            case _:
-                raise UnreachableCodeError()
+        properties_graph += _make_file_value_graph(file_found, bitstream_information, res_node)
 
     return properties_graph
+
+
+def _make_file_value_graph(
+    file_val: ProcessedFileValue, bitstream_information: BitstreamInfo | None, res_node: URIRef | BNode
+) -> Graph:
+    metadata = _make_file_value_metadata(file_val.metadata)
+    match file_val.value_type:
+        case ProcessedFileIIIFUri():
+            iiif_g = make_iiif_uri_value_graph(
+                AbstractFileValue(file_val.value.value, metadata, KNORA_API.stillImageFileValueHasExternalUrl), res_node
+            )
+            return iiif_g
+        case ProcessedFileBitstream():
+            bitstream = cast(BitstreamInfo, bitstream_information)
+            prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
+            file_g = make_file_value_graph(
+                bitstream_info=bitstream,
+                rdf_prop_type_info=prop_type_info,
+                file_value_metadata=metadata,
+                res_node=res_node,
+            )
+            return file_g
+        case _:
+            raise UnreachableCodeError()
 
 
 def _make_file_value_metadata(processed_metadata: ProcessedFileMetadata) -> FileValueMetadata:

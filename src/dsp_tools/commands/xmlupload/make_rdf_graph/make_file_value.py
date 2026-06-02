@@ -24,9 +24,7 @@ def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URI
     Returns:
         Graph with the IIIF-URI Value
     """
-    return _make_abstract_file_value_graph(
-        iiif_uri, IIIF_URI_VALUE, res_node, KNORA_API.stillImageFileValueHasExternalUrl
-    )
+    return make_abstract_file_value_graph(iiif_uri, IIIF_URI_VALUE, res_node)
 
 
 def make_file_value_graph(
@@ -48,21 +46,20 @@ def make_file_value_graph(
         Graph with the File Value
     """
     internal_filename = bitstream_info.internal_file_name
-    file_value = AbstractFileValue(internal_filename, file_value_metadata)
-    return _make_abstract_file_value_graph(file_value, rdf_prop_type_info, res_node)
+    file_value = AbstractFileValue(internal_filename, file_value_metadata, KNORA_API.fileValueHasFilename)
+    return make_abstract_file_value_graph(file_value, rdf_prop_type_info, res_node)
 
 
-def _make_abstract_file_value_graph(
+def make_abstract_file_value_graph(
     file_value: AbstractFileValue,
     type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
-    has_file_name_prop: URIRef = KNORA_API.fileValueHasFilename,
 ) -> Graph:
     file_bn = BNode()
     g = _add_metadata(file_bn, file_value.metadata)
     g.add((res_node, type_info.knora_prop, file_bn))
     g.add((file_bn, RDF.type, type_info.knora_type))
-    g.add((file_bn, has_file_name_prop, Literal(file_value.value, datatype=XSD.string)))
+    g.add((file_bn, file_value.prop_to_filename, Literal(file_value.value, datatype=XSD.string)))
     return g
 
 

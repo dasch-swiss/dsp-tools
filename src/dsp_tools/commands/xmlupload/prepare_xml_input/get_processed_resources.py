@@ -9,9 +9,9 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadListNodeNotFoundErr
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFoundError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
@@ -107,7 +107,7 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
 
 def _resolve_file_value(
     resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
-) -> tuple[None | ProcessedFileValue, None | ProcessedIIIFUri]:
+) -> tuple[None | ProcessedFileValue, None | ProcessedFileIIIFUri]:
     file_val, iiif_uri = None, None
     if not resource.file_value:
         return file_val, iiif_uri
@@ -132,16 +132,16 @@ def _get_file_value(
     file_val = assert_is_string(val.value)
     return ProcessedFileValue(
         value=file_val,
-        file_type=file_type,
+        value_type=file_type,
         metadata=metadata,
         res_id=res_id,
         res_label=res_label,
     )
 
 
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedIIIFUri:
+def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedFileIIIFUri:
     file_val = assert_is_string(iiif_uri.value)
-    return ProcessedIIIFUri(file_val, metadata)
+    return ProcessedFileIIIFUri(file_val, metadata)
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:

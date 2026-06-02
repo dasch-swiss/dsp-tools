@@ -73,7 +73,7 @@ def _make_values_graph_from_resource(
     elif bitstream_information:
         file_val = cast(ProcessedFileValue, resource.file_value)
         metadata = _make_file_value_metadata(file_val.metadata)
-        prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.file_type]
+        prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
         file_g = make_file_value_graph(
             bitstream_info=bitstream_information,
             rdf_prop_type_info=prop_type_info,

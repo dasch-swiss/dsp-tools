@@ -7,8 +7,8 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFound
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
@@ -308,7 +308,7 @@ class TestOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
-        assert isinstance(result.iiif_uri, ProcessedIIIFUri)
+        assert isinstance(result.iiif_uri, ProcessedFileIIIFUri)
         assert not result.migration_metadata
 
 
@@ -325,7 +325,7 @@ class TestFileValue:
         )
         file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
-        assert isinstance(iiif_res, ProcessedIIIFUri)
+        assert isinstance(iiif_res, ProcessedFileIIIFUri)
         result_metadata = iiif_res.metadata
         assert not result_metadata.permissions
         assert iiif_res.value == iiif_file_value.value
@@ -362,7 +362,7 @@ class TestFileValue:
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata
         assert file_res.value == file_res.value
-        assert file_res.file_type == file_with_permission.value_type
+        assert file_res.value_type == file_with_permission.value_type
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"

@@ -49,7 +49,7 @@ def resource_with_file() -> ProcessedResource:
     )
     file_value = ProcessedFileValue(
         value="test.jpg",
-        file_type=KnoraFileValueType.STILL_IMAGE_FILE,
+        value_type=KnoraFileValueType.STILL_IMAGE_FILE,
         metadata=metadata,
         res_id=RES_ID,
         res_label="label",

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import cast
 
 from loguru import logger
 from rdflib import URIRef
@@ -123,20 +122,18 @@ def _execute_one_resource_upload(
     creation_attempts_of_this_round: int,
 ) -> None:
     media_info = None
-    if resource.file_value:
-        try:
-            processed_bitstream = cast(ProcessedFileBitstream, resource.file_value.value)
-            ingest_result = asset_client.get_bitstream_info(
-                processed_bitstream, resource.file_value.metadata.permissions
-            )
-        except PermanentConnectionError as err:
-            handle_permanent_connection_error(err)
-        except KeyboardInterrupt:
-            handle_keyboard_interrupt()
-        if not ingest_result:
-            upload_state.failed_uploads.append(resource.res_id)
-            return
-        media_info = ingest_result
+    if file_found := resource.file_value:
+        if isinstance(file_found.value, ProcessedFileBitstream):
+            try:
+                ingest_result = asset_client.get_bitstream_info(file_found.value, file_found.metadata.permissions)
+            except PermanentConnectionError as err:
+                handle_permanent_connection_error(err)
+            except KeyboardInterrupt:
+                handle_keyboard_interrupt()
+            if not ingest_result:
+                upload_state.failed_uploads.append(resource.res_id)
+                return
+            media_info = ingest_result
 
     iri = None
     try:

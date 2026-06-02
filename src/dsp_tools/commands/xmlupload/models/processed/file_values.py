@@ -21,7 +21,7 @@ class ProcessedFileValue:
     value_type: KnoraFileValueType
     metadata: ProcessedFileMetadata
 
-
+@dataclass
 class ProcessedFileValueValue(ABC):
     value: str
 
@@ -35,5 +35,5 @@ class ProcessedFileBitstream(ProcessedFileValueValue):
 
 
 @dataclass
-class ProcessedFileIIIFUri:
+class ProcessedFileIIIFUri(ProcessedFileValueValue):
     """Used for the IIIF-URI, that do not require separate upload."""

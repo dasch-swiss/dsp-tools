@@ -435,13 +435,15 @@
     </xs:complexType>
 
     <!-- bitstream tag -->
-    <xs:complexType name="bitstream_type">
-        <xs:simpleContent>
-            <xs:extension base="nonEmptyString_pretty_printed">
-                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
-                <xs:attribute name="license" type="xs:string" use="optional"/>
-                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
-                <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
+    <!-- mixed="true" allows either a file path as text content or a <placeholder-file> child element -->
+    <xs:complexType name="bitstream_type" mixed="true">
+        <xs:sequence>
+            <xs:element name="placeholder-file" type="placeholder_file_type" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="license" type="xs:string" use="optional"/>
+        <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- iiif-uri tag -->

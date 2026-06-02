@@ -267,11 +267,17 @@ class TestBitstreamPlaceholderFile:
             '<placeholder-file type="StillImageRepresentation"/>this/is/filepath'
             "</bitstream>"
         )
-        assert _validate_root_get_validation_messages(root) is not None
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "bitstream"
 
     def test_placeholder_file_invalid_type_is_rejected(self) -> None:
         root = _make_root_with_bitstream('<bitstream><placeholder-file type="InvalidType"/></bitstream>')
-        assert _validate_root_get_validation_messages(root) is not None
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "placeholder-file"
 
 
 if __name__ == "__main__":

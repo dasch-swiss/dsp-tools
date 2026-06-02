@@ -75,7 +75,7 @@ class TestCheckDuplicates:
         assert problem.prop_name == "bitstream / iiif-uri"
         assert problem.severity == Severity.WARNING
         assert problem.message == expected_msg
-        assert problem.input_value == file_value_1.value
+        assert problem.input_value == file_value_1.value.value
 
     def test_several_duplicates(self, file_value_1, file_value_2):
         resources = [
@@ -89,9 +89,9 @@ class TestCheckDuplicates:
         result = check_for_duplicate_files(resources)
         assert isinstance(result, DuplicateFileWarning)
         assert len(result.problems) == 2
-        file_1 = next(x for x in result.problems if x.input_value == file_value_1.value)
+        file_1 = next(x for x in result.problems if x.input_value == file_value_1.value.value)
         assert file_1.message == "value used 3 times"
-        file_2 = next(x for x in result.problems if x.input_value == file_value_2.value)
+        file_2 = next(x for x in result.problems if x.input_value == file_value_2.value.value)
         assert file_2.message == "value used 2 times"
 
 

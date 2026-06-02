@@ -21,6 +21,7 @@ class ProcessedFileValue:
     value_type: KnoraFileValueType
     metadata: ProcessedFileMetadata
 
+
 @dataclass
 class ProcessedFileValueValue(ABC):
     value: str

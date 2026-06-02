@@ -312,7 +312,9 @@ class TestOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
-        assert isinstance(result.iiif_uri, ProcessedFileIIIFUri)
+        file_val = result.iiif_uri
+        assert isinstance(file_val, ProcessedFileValue)
+        assert isinstance(file_val.value, ProcessedFileIIIFUri)
         assert not result.migration_metadata
 
 
@@ -329,10 +331,12 @@ class TestFileValue:
         )
         file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
-        assert isinstance(iiif_res, ProcessedFileIIIFUri)
+        assert isinstance(iiif_res, ProcessedFileValue)
+        iiif_val = iiif_res.value
+        assert isinstance(iiif_val, ProcessedFileIIIFUri)
         result_metadata = iiif_res.metadata
         assert not result_metadata.permissions
-        assert iiif_res.value == iiif_file_value.value
+        assert iiif_val.value == iiif_file_value.value.value
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]

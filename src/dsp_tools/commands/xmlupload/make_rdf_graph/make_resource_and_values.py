@@ -66,10 +66,10 @@ def _make_values_graph_from_resource(
 ) -> Graph:
     properties_graph = make_values(resource.values, res_node, lookups)
 
-    if resource.file_value:
-        metadata = _make_file_value_metadata(resource.file_value.metadata)
-        if isinstance(resource.file_value.value, ProcessedFileIIIFUri):
-            iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.file_value.value.value, metadata), res_node)
+    if file_found := resource.file_value:
+        if isinstance(file_found.value, ProcessedFileIIIFUri):
+            metadata = _make_file_value_metadata(file_found.metadata)
+            iiif_g = make_iiif_uri_value_graph(AbstractFileValue(file_found.value.value, metadata), res_node)
             properties_graph += iiif_g
 
     elif bitstream_information:

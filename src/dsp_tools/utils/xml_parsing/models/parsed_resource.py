@@ -51,7 +51,7 @@ class ParsedFileBitstream(ParsedFileValueValue):
 
 
 @dataclass
-class ParsedFileIiif(ParsedFileValueValue):
+class ParsedFileIiifUri(ParsedFileValueValue):
     """Content of the iiif-uri tag, i.e. the IIIF-URI."""
 
     value: str | None

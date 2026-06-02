@@ -10,7 +10,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_typ
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_value_bitstream
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
@@ -572,7 +572,7 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
+        val = _parse_file_value_bitstream(xml_val)
         assert val.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
@@ -589,7 +589,7 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
+        val = _parse_file_value_bitstream(xml_val)
         assert val.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"

@@ -9,6 +9,8 @@ from dsp_tools.utils.exceptions import MalformedPrefixedIriError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -147,7 +149,7 @@ def _parse_values(
     for val in resource.iterchildren():
         match val.tag:
             case "bitstream":
-                asset_value = _parse_file_values(val)
+                asset_value = _parse_file_value_bitstream(val)
             case "iiif-uri":
                 asset_value = _parse_iiif_uri(val)
             case _:
@@ -279,17 +281,18 @@ def _get_simpletext_as_string(value: etree._Element) -> str | None:
 
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
+    uri = iiif_uri.text.strip() if iiif_uri.text else None
     return ParsedFileValue(
-        value=iiif_uri.text.strip() if iiif_uri.text else None,
+        value=ParsedFileIiifUri(uri),
         value_type=KnoraFileValueType.STILL_IMAGE_IIIF,
         metadata=_parse_file_metadata(iiif_uri),
     )
 
 
-def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
+def _parse_file_value_bitstream(file_value: etree._Element) -> ParsedFileValue:
     val = file_value.text.strip() if file_value.text else None
     return ParsedFileValue(
-        value=val,
+        value=ParsedFileBitstream(val),
         value_type=_get_file_value_type(val),
         metadata=_parse_file_metadata(file_value),
     )

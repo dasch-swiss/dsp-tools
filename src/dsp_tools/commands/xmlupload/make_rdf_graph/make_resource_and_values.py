@@ -9,8 +9,8 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import FILE_TYPE_TO_RDF_MAPPER
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_abstract_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -80,22 +80,21 @@ def _make_file_value_graph(
     metadata = _make_file_value_metadata(file_val.metadata)
     match file_val.value_type:
         case ProcessedFileIIIFUri():
-            iiif_g = make_iiif_uri_value_graph(
-                AbstractFileValue(file_val.value.value, metadata, KNORA_API.stillImageFileValueHasExternalUrl), res_node
+            prop_type_info = IIIF_URI_VALUE
+            abstract_value = AbstractFileValue(
+                value=file_val.value.value,
+                metadata=metadata,
+                prop_to_filename=KNORA_API.stillImageFileValueHasExternalUrl,
             )
-            return iiif_g
         case ProcessedFileBitstream():
             bitstream = cast(BitstreamInfo, bitstream_information)
             prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
-            file_g = make_file_value_graph(
-                bitstream_info=bitstream,
-                rdf_prop_type_info=prop_type_info,
-                file_value_metadata=metadata,
-                res_node=res_node,
+            abstract_value = AbstractFileValue(
+                value=bitstream.internal_file_name, metadata=metadata, prop_to_filename=KNORA_API.fileValueHasFilename
             )
-            return file_g
         case _:
             raise UnreachableCodeError()
+    return make_abstract_file_value_graph(file_value=abstract_value, type_info=prop_type_info, res_node=res_node)
 
 
 def _make_file_value_metadata(processed_metadata: ProcessedFileMetadata) -> FileValueMetadata:

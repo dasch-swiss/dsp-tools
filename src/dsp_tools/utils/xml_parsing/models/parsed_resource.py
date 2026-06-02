@@ -55,6 +55,13 @@ class ParsedFileIiifUri(ParsedFileValueValue):
     """Content of the iiif-uri tag, i.e. the IIIF-URI."""
 
 
+class ParsedFilePlaceholder(ParsedFileValueValue):
+    """Placeholder type"""
+
+    def __init__(self):
+        self.value = None
+
+
 @dataclass
 class ParsedFileValueMetadata:
     license_iri: str | None

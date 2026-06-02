@@ -3,6 +3,7 @@ from pathlib import Path
 import regex
 from lxml import etree
 
+from dsp_tools.commands.validate_data.mappers import PLACEHOLDER_TYPE_TO_FILE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.exceptions import MalformedPrefixedIriError
@@ -11,6 +12,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -149,7 +151,7 @@ def _parse_values(
     for val in resource.iterchildren():
         match val.tag:
             case "bitstream":
-                asset_value = _parse_file_value_bitstream(val)
+                asset_value = _parse_bitstream_tag(val)
             case "iiif-uri":
                 asset_value = _parse_iiif_uri(val)
             case _:
@@ -289,12 +291,22 @@ def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
     )
 
 
-def _parse_file_value_bitstream(file_value: etree._Element) -> ParsedFileValue:
+def _parse_bitstream_tag(file_value: etree._Element) -> ParsedFileValue:
+    metadata = _parse_file_metadata(file_value)
+
+    if placeholder_children := list(file_value.iterchildren()):
+        placeholder_file_type = placeholder_children[0].attrib["type"]
+        return ParsedFileValue(
+            value=ParsedFilePlaceholder(),
+            value_type=PLACEHOLDER_TYPE_TO_FILE_TYPE_MAPPER[placeholder_file_type],
+            metadata=metadata,
+        )
+
     val = file_value.text.strip() if file_value.text else None
     return ParsedFileValue(
         value=ParsedFileBitstream(val),
         value_type=_get_file_value_type(val),
-        metadata=_parse_file_metadata(file_value),
+        metadata=metadata,
     )
 
 

@@ -10,13 +10,14 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_typ
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_value_bitstream
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_bitstream_tag
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 
@@ -572,7 +573,7 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_value_bitstream(xml_val)
+        val = _parse_bitstream_tag(xml_val)
         assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
@@ -589,12 +590,27 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_value_bitstream(xml_val)
+        val = _parse_bitstream_tag(xml_val)
         assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"
         assert val.metadata.authorship_id == "authorship_1"
+        assert not val.metadata.permissions_id
+
+    def test_bitstream_placeholder(self):
+        xml_val = etree.fromstring("""
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+        ><placeholder-file type="StillImageRepresentation"/></bitstream>
+        """)
+        val = _parse_bitstream_tag(xml_val)
+        assert isinstance(val.value, ParsedFilePlaceholder)
+        assert val.value.value is None
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_FILE
+        assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert val.metadata.copyright_holder == "DaSCH"
+        assert val.metadata.authorship_id is None
         assert not val.metadata.permissions_id
 
 

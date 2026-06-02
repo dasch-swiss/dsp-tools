@@ -16,7 +16,6 @@ class ProcessedResource:
     permissions: Permissions | None
     values: list[ProcessedValue]
     file_value: ProcessedFileValue | None = None
-    iiif_uri: ProcessedFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
 
 

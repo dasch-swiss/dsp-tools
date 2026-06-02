@@ -32,7 +32,6 @@ class ProcessedFileBitstream(ProcessedFileValueValue):
     """Used for bitstream files, that require upload through ingest."""
 
     res_id: str
-    res_label: str
 
 
 @dataclass

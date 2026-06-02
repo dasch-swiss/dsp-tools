@@ -38,7 +38,6 @@ def resource_graph() -> Graph:
         permissions=None,
         values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
         file_value=None,
-        iiif_uri=None,
         migration_metadata=None,
     )
     return create_resource_with_values(res, None, lookups)

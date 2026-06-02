@@ -13,6 +13,7 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValueValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
@@ -46,7 +47,6 @@ from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -81,7 +81,7 @@ def _get_one_resource(
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
     migration_metadata = None
-    file_val, iiif_uri = _resolve_file_value(resource, lookups, is_on_prod_like_server)
+    file_val = _resolve_file_value(resource, lookups, is_on_prod_like_server)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
     return ProcessedResource(
@@ -91,7 +91,6 @@ def _get_one_resource(
         permissions=permissions,
         values=values,
         file_value=file_val,
-        iiif_uri=iiif_uri,
         migration_metadata=migration_metadata,
     )
 
@@ -108,40 +107,25 @@ def _get_resource_migration_metadata(metadata: ParsedMigrationMetadata) -> Migra
 
 def _resolve_file_value(
     resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
-) -> tuple[None | ProcessedFileValue, None | ProcessedFileValue]:
-    file_val, iiif_uri = None, None
-    if not resource.file_value:
-        return file_val, iiif_uri
+) -> ProcessedFileValue | None:
+    parsed_file_val = resource.file_value
+    if not parsed_file_val:
+        return None
+
+    file_type = cast(KnoraFileValueType, parsed_file_val.value_type)
 
     if is_on_prod_like_server:
-        metadata = _get_file_metadata(resource.file_value.metadata, lookups)
+        metadata = _get_file_metadata(parsed_file_val.metadata, lookups)
     else:
-        metadata = _get_file_metadata_for_test_environments(resource.file_value.metadata, lookups)
-    if resource.file_value.value_type == KnoraFileValueType.STILL_IMAGE_IIIF:
-        iiif_uri = _get_iiif_uri_value(resource.file_value, metadata)
+        metadata = _get_file_metadata_for_test_environments(parsed_file_val.metadata, lookups)
+
+    if file_type == KnoraFileValueType.STILL_IMAGE_IIIF:
+        iiif_uri = assert_is_string(parsed_file_val.value.value)
+        file_value_value: ProcessedFileValueValue = ProcessedFileIIIFUri(iiif_uri)
     else:
-        file_val = _get_file_value(
-            val=resource.file_value, metadata=metadata, res_id=resource.res_id, res_label=resource.label
-        )
-    return file_val, iiif_uri
-
-
-def _get_file_value(
-    val: ParsedFileValue, metadata: ProcessedFileMetadata, res_id: str, res_label: str
-) -> ProcessedFileValue:
-    file_type = cast(KnoraFileValueType, val.value_type)
-    file_val = assert_is_string(val.value.value)
-    file_bitstream = ProcessedFileBitstream(file_val, res_id, res_label)
-    return ProcessedFileValue(
-        value=file_bitstream,
-        value_type=file_type,
-        metadata=metadata,
-    )
-
-
-def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedFileValue:
-    file_val = assert_is_string(iiif_uri.value.value)
-    return ProcessedFileValue(ProcessedFileIIIFUri(file_val), KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
+        file_path = assert_is_string(parsed_file_val.value.value)
+        file_value_value = ProcessedFileBitstream(file_path, resource.res_id)
+    return ProcessedFileValue(file_value_value, file_type, metadata)
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:

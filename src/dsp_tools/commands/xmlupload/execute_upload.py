@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import cast
 
 from loguru import logger
 from rdflib import URIRef
@@ -82,8 +81,6 @@ def _get_copyright_holders(resources: list[ProcessedResource]) -> list[str]:
     for res in resources:
         if res.file_value:
             copyright_holders.add(res.file_value.metadata.copyright_holder)
-        elif res.iiif_uri:
-            copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
     return [x for x in copyright_holders if x]
 
 
@@ -125,20 +122,18 @@ def _execute_one_resource_upload(
     creation_attempts_of_this_round: int,
 ) -> None:
     media_info = None
-    if resource.file_value:
-        try:
-            processed_bitstream = cast(ProcessedFileBitstream, resource.file_value.value)
-            ingest_result = asset_client.get_bitstream_info(
-                processed_bitstream, resource.file_value.metadata.permissions
-            )
-        except PermanentConnectionError as err:
-            handle_permanent_connection_error(err)
-        except KeyboardInterrupt:
-            handle_keyboard_interrupt()
-        if not ingest_result:
-            upload_state.failed_uploads.append(resource.res_id)
-            return
-        media_info = ingest_result
+    if file_found := resource.file_value:
+        if isinstance(file_found.value, ProcessedFileBitstream):
+            try:
+                ingest_result = asset_client.get_bitstream_info(file_found.value, file_found.metadata.permissions)
+            except PermanentConnectionError as err:
+                handle_permanent_connection_error(err)
+            except KeyboardInterrupt:
+                handle_keyboard_interrupt()
+            if not ingest_result:
+                upload_state.failed_uploads.append(resource.res_id)
+                return
+            media_info = ingest_result
 
     iri = None
     try:
@@ -241,7 +236,7 @@ def cleanup_upload(upload_state: UploadState) -> bool:
 def enable_unknown_license_if_any_are_missing(
     legal_info_client: LegalInfoClient, parsed_resources: list[ParsedResource]
 ) -> None:
-    all_license_infos = [x.file_value.metadata.license_iri for x in parsed_resources if x.file_value]
+    all_license_infos = [file_found.metadata.license_iri for x in parsed_resources if (file_found := x.file_value)]
     if not all(all_license_infos):
         legal_info_client.enable_unknown_license()
         msg = (

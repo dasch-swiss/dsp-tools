@@ -48,7 +48,7 @@ def resource_with_file() -> ProcessedResource:
         copyright_holder="Test Author",
         authorships=["Test Author"],
     )
-    processed_bitstream = ProcessedFileBitstream("test.jpg", RES_ID, "label")
+    processed_bitstream = ProcessedFileBitstream("test.jpg", RES_ID)
     file_value = ProcessedFileValue(
         value=processed_bitstream,
         value_type=KnoraFileValueType.STILL_IMAGE_FILE,

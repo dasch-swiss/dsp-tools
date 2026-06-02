@@ -72,17 +72,17 @@ def _make_values_graph_from_resource(
             iiif_g = make_iiif_uri_value_graph(AbstractFileValue(file_found.value.value, metadata), res_node)
             properties_graph += iiif_g
 
-    elif bitstream_information:
-        file_val = cast(ProcessedFileValue, resource.file_value)
-        metadata = _make_file_value_metadata(file_val.metadata)
-        prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
-        file_g = make_file_value_graph(
-            bitstream_info=bitstream_information,
-            rdf_prop_type_info=prop_type_info,
-            file_value_metadata=metadata,
-            res_node=res_node,
-        )
-        properties_graph += file_g
+        elif bitstream_information:
+            file_val = cast(ProcessedFileValue, resource.file_value)
+            metadata = _make_file_value_metadata(file_val.metadata)
+            prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
+            file_g = make_file_value_graph(
+                bitstream_info=bitstream_information,
+                rdf_prop_type_info=prop_type_info,
+                file_value_metadata=metadata,
+                res_node=res_node,
+            )
+            properties_graph += file_g
 
     return properties_graph
 

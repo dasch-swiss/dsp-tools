@@ -141,7 +141,7 @@ def _get_file_value(
 
 def _get_iiif_uri_value(iiif_uri: ParsedFileValue, metadata: ProcessedFileMetadata) -> ProcessedFileValue:
     file_val = assert_is_string(iiif_uri.value.value)
-    return ProcessedFileValue(ProcessedFileIIIFUri(file_val), metadata)
+    return ProcessedFileValue(ProcessedFileIIIFUri(file_val), KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
 
 
 def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups) -> ProcessedFileMetadata:

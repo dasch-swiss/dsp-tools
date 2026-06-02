@@ -40,6 +40,7 @@ class ParsedFileValue:
     metadata: ParsedFileValueMetadata
 
 
+@dataclass
 class ParsedFileValueValue(ABC):
     value: str | None
 

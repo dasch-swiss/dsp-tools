@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import cast
 
 from loguru import logger
 from rdflib import URIRef
@@ -27,6 +28,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_j
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -125,7 +127,10 @@ def _execute_one_resource_upload(
     media_info = None
     if resource.file_value:
         try:
-            ingest_result = asset_client.get_bitstream_info(resource.file_value)
+            processed_bitstream = cast(ProcessedFileBitstream, resource.file_value.value)
+            ingest_result = asset_client.get_bitstream_info(
+                processed_bitstream, resource.file_value.metadata.permissions
+            )
         except PermanentConnectionError as err:
             handle_permanent_connection_error(err)
         except KeyboardInterrupt:

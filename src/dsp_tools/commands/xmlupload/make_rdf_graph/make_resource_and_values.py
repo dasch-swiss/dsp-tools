@@ -67,7 +67,7 @@ def _make_values_graph_from_resource(
 
     if resource.iiif_uri:
         metadata = _make_file_value_metadata(resource.iiif_uri.metadata)
-        iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.iiif_uri.value, metadata), res_node)
+        iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.iiif_uri.value.value, metadata), res_node)
         properties_graph += iiif_g
 
     elif bitstream_information:

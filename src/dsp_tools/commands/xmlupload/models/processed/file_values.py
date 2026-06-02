@@ -22,14 +22,14 @@ class ProcessedFileValue:
     metadata: ProcessedFileMetadata
 
 
-class ProcessedFileValueValue(ABC): ...
+class ProcessedFileValueValue(ABC):
+    value: str
 
 
 @dataclass
 class ProcessedFileBitstream(ProcessedFileValueValue):
     """Used for bitstream files, that require upload through ingest."""
 
-    value: str
     res_id: str
     res_label: str
 
@@ -37,5 +37,3 @@ class ProcessedFileBitstream(ProcessedFileValueValue):
 @dataclass
 class ProcessedFileIIIFUri:
     """Used for the IIIF-URI, that do not require separate upload."""
-
-    value: str

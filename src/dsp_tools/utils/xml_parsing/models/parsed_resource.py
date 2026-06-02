@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
@@ -34,9 +35,26 @@ class ParsedValue:
 
 @dataclass
 class ParsedFileValue:
-    value: str | None
+    value: ParsedFileValueValue
     value_type: KnoraFileValueType | None
     metadata: ParsedFileValueMetadata
+
+
+class ParsedFileValueValue(ABC): ...
+
+
+@dataclass
+class ParsedFileBitstream(ParsedFileValueValue):
+    """Content of the bitstream tag, i.e. the filepath."""
+
+    value: str | None
+
+
+@dataclass
+class ParsedFileIiif(ParsedFileValueValue):
+    """Content of the iiif-uri tag, i.e. the IIIF-URI."""
+
+    value: str | None
 
 
 @dataclass

@@ -295,6 +295,7 @@ def _parse_bitstream_tag(file_value: etree._Element) -> ParsedFileValue:
     metadata = _parse_file_metadata(file_value)
 
     if placeholder_children := list(file_value.iterchildren()):
+        # the xsd file disallows more than one child
         placeholder_file_type = placeholder_children[0].attrib["type"]
         return ParsedFileValue(
             value=ParsedFilePlaceholder(),

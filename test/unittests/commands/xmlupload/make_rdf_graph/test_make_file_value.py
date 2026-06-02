@@ -31,12 +31,12 @@ def metadata_without_permissions() -> FileValueMetadata:
 
 
 @pytest.fixture
-def abstract_file_with_permissions(metadata_with_permissions) -> AbstractFileValue:
-    return AbstractFileValue("value", metadata_with_permissions, KNORA_API.stillImageFileValueHasExternalUrl)
+def abstract_bitstream_file_with_permissions(metadata_with_permissions) -> AbstractFileValue:
+    return AbstractFileValue("value", metadata_with_permissions, KNORA_API.fileValueHasFilename)
 
 
 @pytest.fixture
-def abstract_file_no_permissions(metadata_without_permissions) -> AbstractFileValue:
+def abstract_bitstream_file_no_permissions(metadata_without_permissions) -> AbstractFileValue:
     return AbstractFileValue("value", metadata_without_permissions, KNORA_API.fileValueHasFilename)
 
 
@@ -99,9 +99,9 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_with_permissions(self, abstract_file_with_permissions, type_info):
+    def test_with_permissions(self, abstract_bitstream_file_with_permissions, type_info):
         res_bn = BNode()
-        g = make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
+        g = make_abstract_file_value_graph(abstract_bitstream_file_with_permissions, type_info, res_bn)
         assert len(g) == 8
         val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
@@ -122,9 +122,9 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_no_permissions(self, abstract_file_no_permissions, type_info):
+    def test_no_permissions(self, abstract_bitstream_file_no_permissions, type_info):
         res_bn = BNode()
-        g = make_abstract_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
+        g = make_abstract_file_value_graph(abstract_bitstream_file_no_permissions, type_info, res_bn)
         assert len(g) == 7
         val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type

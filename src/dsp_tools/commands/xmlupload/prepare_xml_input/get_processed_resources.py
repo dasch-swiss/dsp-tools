@@ -124,7 +124,7 @@ def _resolve_file_value(
         file_value_value: ProcessedFileValueValue = ProcessedFileIIIFUri(iiif_uri)
     else:
         file_path = assert_is_string(parsed_file_val.value.value)
-        file_value_value = ProcessedFileBitstream(file_path, resource.res_id, resource.label)
+        file_value_value = ProcessedFileBitstream(file_path, resource.res_id)
     return ProcessedFileValue(file_value_value, file_type, metadata)
 
 

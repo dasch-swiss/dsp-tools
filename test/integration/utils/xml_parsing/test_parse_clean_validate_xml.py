@@ -261,6 +261,18 @@ class TestBitstreamPlaceholderFile:
         )
         assert _validate_root_get_validation_messages(root) is None
 
+    def test_placeholder_file_with_metadata_attributes_is_duplicated(self) -> None:
+        root = _make_root_with_bitstream(
+            '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'
+            '<placeholder-file type="StillImageRepresentation"/>'
+            '<placeholder-file type="StillImageRepresentation"/>'
+            "</bitstream>"
+        )
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "placeholder-file"
+
     def test_placeholder_file_and_path_fails(self) -> None:
         root = _make_root_with_bitstream(
             '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'

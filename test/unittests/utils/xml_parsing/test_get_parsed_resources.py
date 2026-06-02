@@ -107,7 +107,7 @@ class TestParseResource:
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
         assert file_val.value_type == KnoraFileValueType.AUDIO_FILE
-        assert file_val.value == "testdata/bitstreams/test.wav"
+        assert file_val.value.value == "testdata/bitstreams/test.wav"
 
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
@@ -542,7 +542,7 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
@@ -559,7 +559,7 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert val.metadata.license_iri == "license_iri"
         assert val.metadata.copyright_holder == "copy"
@@ -573,7 +573,7 @@ class TestParseFileValues:
         </bitstream>
         """)
         val = _parse_file_value_bitstream(xml_val)
-        assert val.value == "this/is/filepath/file.z"
+        assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
@@ -590,7 +590,7 @@ class TestParseFileValues:
         </bitstream>
         """)
         val = _parse_file_value_bitstream(xml_val)
-        assert val.value == "this/is/filepath/file.z"
+        assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"

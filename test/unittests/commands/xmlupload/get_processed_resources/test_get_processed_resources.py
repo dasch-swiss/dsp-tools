@@ -262,7 +262,7 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert file_val.value.value == "file.jpg"
         assert file_val.metadata.permissions
         assert not result.iiif_uri
         assert not result.migration_metadata

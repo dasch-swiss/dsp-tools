@@ -10,7 +10,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_typ
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_value_bitstream
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
@@ -107,7 +107,7 @@ class TestParseResource:
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
         assert file_val.value_type == KnoraFileValueType.AUDIO_FILE
-        assert file_val.value == "testdata/bitstreams/test.wav"
+        assert file_val.value.value == "testdata/bitstreams/test.wav"
 
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
@@ -542,7 +542,7 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
@@ -559,7 +559,7 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert val.metadata.license_iri == "license_iri"
         assert val.metadata.copyright_holder == "copy"
@@ -572,8 +572,8 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
-        assert val.value == "this/is/filepath/file.z"
+        val = _parse_file_value_bitstream(xml_val)
+        assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
@@ -589,8 +589,8 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
-        assert val.value == "this/is/filepath/file.z"
+        val = _parse_file_value_bitstream(xml_val)
+        assert val.value.value == "this/is/filepath/file.z"
         assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"

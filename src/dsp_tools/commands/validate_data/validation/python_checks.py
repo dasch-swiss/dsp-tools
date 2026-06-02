@@ -34,8 +34,8 @@ def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> Duplica
 def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResource]) -> dict[str, int]:
     count_dict: dict[str, int] = defaultdict(int)
     for res in parsed_resources:
-        if res.file_value and res.file_value.value:
-            count_dict[res.file_value.value] += 1
+        if res.file_value and res.file_value.value.value:
+            count_dict[res.file_value.value.value] += 1
     return {f_path: count for f_path, count in count_dict.items() if count > 1}
 
 

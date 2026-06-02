@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
@@ -17,7 +16,7 @@ class ProcessedResource:
     permissions: Permissions | None
     values: list[ProcessedValue]
     file_value: ProcessedFileValue | None = None
-    iiif_uri: ProcessedIIIFUri | None = None
+    iiif_uri: ProcessedFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
 
 

@@ -23,6 +23,7 @@ from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -41,7 +42,7 @@ LIST_LOOKUP = ListLookup({("list", "node"): "http://rdfh.ch/lists/9999/n1"})
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
-    return ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -454,7 +455,9 @@ class TestValues:
 class TestFileValue:
     def test_iiif(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
+        val = ParsedFileValue(
+            ParsedFileBitstream("https://this/is/a/uri.jpg"), KnoraFileValueType.STILL_IMAGE_IIIF, metadata
+        )
         res = _get_file_value(val, AUTHORSHIP_LOOKUP)
         assert isinstance(res, RdfLikeValue)
         assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasStillImageFileValue"
@@ -464,7 +467,7 @@ class TestFileValue:
 
     def test_svg(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        val = ParsedFileValue("image.svg", KnoraFileValueType.STILL_IMAGE_SVG, metadata)
+        val = ParsedFileValue(ParsedFileBitstream("image.svg"), KnoraFileValueType.STILL_IMAGE_SVG, metadata)
         res = _get_file_value(val, AUTHORSHIP_LOOKUP)
         assert isinstance(res, RdfLikeValue)
         assert res.user_facing_prop == f"{KNORA_API_PREFIX}hasStillImageFileValue"
@@ -502,12 +505,12 @@ class TestFileValue:
 
     def test_no_file(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        val = ParsedFileValue(None, None, metadata)
+        val = ParsedFileValue(ParsedFileBitstream(None), None, metadata)
         assert not _get_file_value(val, AUTHORSHIP_LOOKUP)
 
     def test_unknown_extension(self):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        val = ParsedFileValue("unknown.extension", None, metadata)
+        val = ParsedFileValue(ParsedFileBitstream("unknown.extension"), None, metadata)
         assert not _get_file_value(val, AUTHORSHIP_LOOKUP)
 
 

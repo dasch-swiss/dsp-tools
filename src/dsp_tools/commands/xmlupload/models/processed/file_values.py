@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -16,14 +17,24 @@ class ProcessedFileMetadata:
 
 @dataclass
 class ProcessedFileValue:
-    value: str
-    file_type: KnoraFileValueType
+    value: ProcessedFileValueValue
+    value_type: KnoraFileValueType
     metadata: ProcessedFileMetadata
+
+
+@dataclass
+class ProcessedFileValueValue(ABC):
+    value: str
+
+
+@dataclass
+class ProcessedFileBitstream(ProcessedFileValueValue):
+    """Used for bitstream files, that require upload through ingest."""
+
     res_id: str
     res_label: str
 
 
 @dataclass
-class ProcessedIIIFUri:
-    value: str
-    metadata: ProcessedFileMetadata
+class ProcessedFileIIIFUri(ProcessedFileValueValue):
+    """Used for the IIIF-URI, that do not require separate upload."""

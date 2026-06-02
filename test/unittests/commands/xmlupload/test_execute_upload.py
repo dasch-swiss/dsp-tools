@@ -13,6 +13,7 @@ from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_up
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
@@ -47,12 +48,11 @@ def resource_with_file() -> ProcessedResource:
         copyright_holder="Test Author",
         authorships=["Test Author"],
     )
+    processed_bitstream = ProcessedFileBitstream("test.jpg", RES_ID, "label")
     file_value = ProcessedFileValue(
-        value="test.jpg",
-        file_type=KnoraFileValueType.STILL_IMAGE_FILE,
+        value=processed_bitstream,
+        value_type=KnoraFileValueType.STILL_IMAGE_FILE,
         metadata=metadata,
-        res_id=RES_ID,
-        res_label="label",
     )
     return ProcessedResource(
         res_id=RES_ID,

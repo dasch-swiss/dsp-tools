@@ -7,8 +7,8 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFound
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
@@ -38,6 +38,8 @@ from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -66,7 +68,7 @@ def lookups() -> XmlReferenceLookups:
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
-    return ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -77,7 +79,9 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraFileValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue(
+        ParsedFileIiifUri("https://this/is/a/uri.jpg"), KnoraFileValueType.STILL_IMAGE_IIIF, metadata
+    )
 
 
 class TestResources:
@@ -258,14 +262,14 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert file_val.value.value == "file.jpg"
         assert file_val.metadata.permissions
         assert not result.iiif_uri
         assert not result.migration_metadata
 
     def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        parsed_file = ParsedFileValue("file.jpg", KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+        parsed_file = ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -283,7 +287,7 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert file_val.value.value == "file.jpg"
         assert not file_val.metadata.permissions
         assert file_val.metadata.copyright_holder == "DUMMY"
         assert file_val.metadata.authorships == ["DUMMY"]
@@ -308,7 +312,9 @@ class TestOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
-        assert isinstance(result.iiif_uri, ProcessedIIIFUri)
+        file_val = result.iiif_uri
+        assert isinstance(file_val, ProcessedFileValue)
+        assert isinstance(file_val.value, ProcessedFileIIIFUri)
         assert not result.migration_metadata
 
 
@@ -325,10 +331,12 @@ class TestFileValue:
         )
         file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
-        assert isinstance(iiif_res, ProcessedIIIFUri)
+        assert isinstance(iiif_res, ProcessedFileValue)
+        iiif_val = iiif_res.value
+        assert isinstance(iiif_val, ProcessedFileIIIFUri)
         result_metadata = iiif_res.metadata
         assert not result_metadata.permissions
-        assert iiif_res.value == iiif_file_value.value
+        assert iiif_val.value == iiif_file_value.value.value
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
@@ -362,7 +370,7 @@ class TestFileValue:
         assert isinstance(file_res, ProcessedFileValue)
         result_metadata = file_res.metadata
         assert file_res.value == file_res.value
-        assert file_res.file_type == file_with_permission.value_type
+        assert file_res.value_type == file_with_permission.value_type
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"

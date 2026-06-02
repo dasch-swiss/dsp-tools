@@ -9,6 +9,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.validation.python_checks import _get_filepaths_with_more_than_one_usage
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -39,12 +40,12 @@ FILEPATH_2 = "file_path_2.jpg"
 
 @pytest.fixture
 def file_value_1():
-    return ParsedFileValue(FILEPATH_1, None, ParsedFileValueMetadata(None, None, None, None))
+    return ParsedFileValue(ParsedFileBitstream(FILEPATH_1), None, ParsedFileValueMetadata(None, None, None, None))
 
 
 @pytest.fixture
 def file_value_2():
-    return ParsedFileValue(FILEPATH_2, None, ParsedFileValueMetadata(None, None, None, None))
+    return ParsedFileValue(ParsedFileBitstream(FILEPATH_2), None, ParsedFileValueMetadata(None, None, None, None))
 
 
 class TestCheckDuplicates:
@@ -74,7 +75,7 @@ class TestCheckDuplicates:
         assert problem.prop_name == "bitstream / iiif-uri"
         assert problem.severity == Severity.WARNING
         assert problem.message == expected_msg
-        assert problem.input_value == file_value_1.value
+        assert problem.input_value == file_value_1.value.value
 
     def test_several_duplicates(self, file_value_1, file_value_2):
         resources = [
@@ -88,9 +89,9 @@ class TestCheckDuplicates:
         result = check_for_duplicate_files(resources)
         assert isinstance(result, DuplicateFileWarning)
         assert len(result.problems) == 2
-        file_1 = next(x for x in result.problems if x.input_value == file_value_1.value)
+        file_1 = next(x for x in result.problems if x.input_value == file_value_1.value.value)
         assert file_1.message == "value used 3 times"
-        file_2 = next(x for x in result.problems if x.input_value == file_value_2.value)
+        file_2 = next(x for x in result.problems if x.input_value == file_value_2.value.value)
         assert file_2.message == "value used 2 times"
 
 

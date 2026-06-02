@@ -16,7 +16,8 @@ from requests.adapters import Retry
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.exceptions import InvalidIngestFileNameError
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.request_utils import RequestParameters
@@ -34,11 +35,14 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo | None:
+    def get_bitstream_info(
+        self, file_info: ProcessedFileBitstream, permissions: Permissions | None
+    ) -> BitstreamInfo | None:
         """Uploads the file to the ingest server if applicable, and returns the upload results.
 
         Args:
             file_info: Information required for ingesting an asset
+            permissions: Permission information of the File
         """
 
 
@@ -121,12 +125,14 @@ class DspIngestClientLive(AssetClient):
             else:
                 raise PermanentConnectionError()
 
-    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo | None:
+    def get_bitstream_info(
+        self, file_info: ProcessedFileBitstream, permissions: Permissions | None
+    ) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")
-            return BitstreamInfo(res.internal_filename, file_info.metadata.permissions)
+            return BitstreamInfo(res.internal_filename, permissions)
         except InvalidIngestFileNameError:
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
@@ -139,6 +145,6 @@ class DspIngestClientLive(AssetClient):
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(self, file_info: ProcessedFileValue) -> BitstreamInfo:
+    def get_bitstream_info(self, file_info: ProcessedFileBitstream, permissions: Permissions | None) -> BitstreamInfo:
         """Returns the BitstreamInfo of the already ingested file based on the `ProcessedFileValue.value`."""
-        return BitstreamInfo(file_info.value, file_info.metadata.permissions)
+        return BitstreamInfo(file_info.value, permissions)

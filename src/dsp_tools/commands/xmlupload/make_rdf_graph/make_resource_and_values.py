@@ -78,7 +78,7 @@ def _make_file_value_graph(
     file_val: ProcessedFileValue, bitstream_information: BitstreamInfo | None, res_node: URIRef | BNode
 ) -> Graph:
     metadata = _make_file_value_metadata(file_val.metadata)
-    match file_val.value_type:
+    match file_val.value:
         case ProcessedFileIIIFUri():
             prop_type_info = IIIF_URI_VALUE
             abstract_value = AbstractFileValue(

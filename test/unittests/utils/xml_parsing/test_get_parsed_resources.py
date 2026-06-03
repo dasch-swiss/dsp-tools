@@ -4,6 +4,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
@@ -606,7 +607,7 @@ class TestParseFileValues:
         """)
         val = _parse_bitstream_tag(xml_val)
         assert isinstance(val.value, ParsedFilePlaceholder)
-        assert val.value.value is None
+        assert val.value.value == URN_DASCH_PLACEHOLDER
         assert val.value_type == KnoraFileValueType.STILL_IMAGE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"

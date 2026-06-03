@@ -37,13 +37,13 @@ def validate_iiif_uris(root: etree._Element) -> None:
         logger.warning(msg)
 
 
-def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
+def check_if_bitstreams_exist(root: etree._Element, imgdir: Path) -> None:
     """
     Make sure that all bitstreams referenced in the XML file exist in the imgdir.
 
     Args:
         root: parsed XML file
-        imgdir: folder where the bitstreams are stored
+        imgdir: path to the folder where the bitstreams are stored
 
     Raises:
         InputError: if a bitstream does not exist in the imgdir
@@ -53,8 +53,8 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     progress_bar = tqdm(multimedia_resources, desc="Checking multimedia filepaths", dynamic_ncols=True)
     all_problems = []
     for res in progress_bar:
-        pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and (x.text or "").strip())
+        pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text and x.text.strip())
         if not Path(imgdir / pth).is_file():
             all_problems.append(MultimediaFileNotFoundProblem(res.attrib["id"], str(pth)))
     if all_problems:
-        raise MultimediaFileNotFound(imgdir, all_problems)
+        raise MultimediaFileNotFound(str(imgdir), all_problems)

@@ -103,8 +103,7 @@ def _check_bitstream_placeholder_conflict(data_xml: etree._Element) -> list[XSDV
         placeholder = bitstream.find(f"{{{ns}}}placeholder-file")
         if placeholder is None:
             continue
-        has_text = bitstream.text is not None or placeholder.tail is not None
-        if has_text:
+        if (bitstream.text or "").strip() or (placeholder.tail or "").strip():
             result.append(
                 XSDValidationMessage(
                     line_number=bitstream.sourceline or 0,

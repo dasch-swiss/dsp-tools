@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
+
 
 @dataclass
 class ParsedResource:
@@ -59,7 +61,7 @@ class ParsedFilePlaceholder(ParsedFileValueValue):
     """Placeholder type"""
 
     def __init__(self) -> None:
-        self.value = None
+        self.value = URN_DASCH_PLACEHOLDER
 
 
 @dataclass

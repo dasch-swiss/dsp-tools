@@ -418,32 +418,16 @@
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasColor"/>
     </xs:complexType>
 
-    <!-- placeholder-file tag -->
-    <xs:complexType name="placeholder_file_type">
-        <xs:attribute name="type" use="required">
-            <xs:simpleType>
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="StillImageRepresentation"/>
-                    <xs:enumeration value="MovingImageRepresentation"/>
-                    <xs:enumeration value="AudioRepresentation"/>
-                    <xs:enumeration value="DocumentRepresentation"/>
-                    <xs:enumeration value="TextRepresentation"/>
-                    <xs:enumeration value="ArchiveRepresentation"/>
-                </xs:restriction>
-            </xs:simpleType>
-        </xs:attribute>
-    </xs:complexType>
-
     <!-- bitstream tag -->
-    <!-- mixed="true" allows either a file path as text content or a <placeholder-file> child element -->
-    <xs:complexType name="bitstream_type" mixed="true">
-        <xs:sequence>
-            <xs:element name="placeholder-file" type="placeholder_file_type" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
-        <xs:attribute name="license" type="xs:string" use="optional"/>
-        <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
-        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
+    <xs:complexType name="bitstream_type">
+        <xs:simpleContent>
+            <xs:extension base="nonEmptyString_pretty_printed">
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="license" type="xs:string" use="optional"/>
+                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
+                <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <!-- iiif-uri tag -->

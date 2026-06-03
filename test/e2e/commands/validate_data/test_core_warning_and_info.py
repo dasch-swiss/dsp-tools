@@ -126,6 +126,12 @@ class TestSortedProblems:
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
+            ("placeholder_archive", ProblemType.GENERIC),
+            ("placeholder_audio", ProblemType.GENERIC),
+            ("placeholder_document", ProblemType.GENERIC),
+            ("placeholder_still_image", ProblemType.GENERIC),
+            ("placeholder_text", ProblemType.GENERIC),
+            ("placeholder_video", ProblemType.GENERIC),
         ]
         sorted_problems = no_violations_with_warnings_do_not_ignore_duplicate_files.problems
         assert isinstance(sorted_problems, SortedProblems)
@@ -154,7 +160,17 @@ class TestSortedProblems:
         result = _validate_data(
             graphs, triple_stores, used_iris, parsed_resources, config, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
         )
-        expected_res_ids = {"no_legal_info_archive", "no_legal_info_iiif", "no_legal_info_image_file"}
+        expected_res_ids = {
+            "no_legal_info_archive",
+            "no_legal_info_iiif",
+            "no_legal_info_image_file",
+            "placeholder_archive",
+            "placeholder_audio",
+            "placeholder_document",
+            "placeholder_still_image",
+            "placeholder_text",
+            "placeholder_video",
+        }
         sorted_problems = result.problems
         assert isinstance(sorted_problems, SortedProblems)
         warnings_ids = {x.res_id for x in sorted_problems.user_warnings}

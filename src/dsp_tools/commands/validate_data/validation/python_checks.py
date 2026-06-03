@@ -9,6 +9,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 
@@ -36,7 +37,10 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
     for res in parsed_resources:
         if res.file_value and res.file_value.value.value:
             count_dict[res.file_value.value.value] += 1
-    return {f_path: count for f_path, count in count_dict.items() if count > 1}
+    duplicates = {
+        f_path: count for f_path, count in count_dict.items() if count > 1 and f_path != URN_DASCH_PLACEHOLDER
+    }
+    return duplicates
 
 
 def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:

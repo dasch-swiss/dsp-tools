@@ -457,6 +457,22 @@ Second Line"""
         assert result.message == Literal("A stand-off link must target an existing resource.")
         assert result.input_value == URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
 
+    def test_report_placeholder_value(
+        self, report_placeholder_value: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_placeholder_value
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property is None
+        assert result.severity == SH.Warning
+        assert result.message == Literal(
+            "You used a placeholder for the file, please note that this is only allowed on test environments."
+        )
+        assert result.input_value is None
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())

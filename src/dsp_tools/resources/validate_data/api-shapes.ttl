@@ -489,6 +489,17 @@ api-shapes:FileValue_ClassShape
                   ] .
 
 
+api-shapes:PlaceholderFileValue_NodeShape
+                    a              sh:NodeShape ;
+                    sh:targetClass knora-api:FileValue ;
+                    sh:not [
+                             sh:path        knora-api:fileValueHasFilename ;
+                             sh:hasValue    "urn:dasch:placeholder"^^xsd:string
+                           ] ;
+                    sh:severity    sh:Warning ;
+                    sh:message     """You used a placeholder for the file, please note that this is only allowed on test environments.""".
+
+
 api-shapes:ArchiveFileValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the class type" ;
@@ -497,7 +508,7 @@ api-shapes:ArchiveFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(zip|tar|gz|z|tgz|gzip|7z)$" ;
+                    sh:pattern  "(.+\\.(zip|tar|gz|z|tgz|gzip|7z)$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -516,7 +527,7 @@ api-shapes:AudioFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(mp3|wav)$" ;
+                    sh:pattern  "(.+\\.(mp3|wav)$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -532,7 +543,7 @@ api-shapes:DocumentFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx|epub)$" ;
+                    sh:pattern  "(.+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx|epub)$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -551,7 +562,7 @@ api-shapes:MovingImageFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.mp4$" ;
+                    sh:pattern  "(.+\\.mp4$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -567,7 +578,7 @@ api-shapes:StillImageFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$" ; # jpx is the extension of the files returned by dsp-ingest
+                    sh:pattern  "(.+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$)|urn:dasch:placeholder" ; # jpx is the extension of the files returned by dsp-ingest
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -586,7 +597,7 @@ api-shapes:StillImageVectorFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.svg$" ;
+                    sh:pattern  "(.+\\.svg$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
@@ -622,7 +633,7 @@ api-shapes:TextFileValue_ClassShape
                     a           sh:PropertyShape ;
                     sh:path     knora-api:fileValueHasFilename ;
                     sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(odd|rng|txt|xml|htm|html|xsd|xsl|csv|json)$" ;
+                    sh:pattern  "(.+\\.(odd|rng|txt|xml|htm|html|xsd|xsl|csv|json)$)|urn:dasch:placeholder" ;
                     sh:flags    "i" ; # case insensitive
                     sh:minCount 1 ;
                     sh:maxCount 1 ;

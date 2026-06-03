@@ -10,6 +10,7 @@ from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.validation.python_checks import _get_filepaths_with_more_than_one_usage
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -48,12 +49,19 @@ def file_value_2():
     return ParsedFileValue(ParsedFileBitstream(FILEPATH_2), None, ParsedFileValueMetadata(None, None, None, None))
 
 
+@pytest.fixture
+def file_value_placeholder():
+    return ParsedFileValue(ParsedFilePlaceholder(), None, ParsedFileValueMetadata(None, None, None, None))
+
+
 class TestCheckDuplicates:
-    def test_no_duplicates(self, file_value_1, file_value_2):
+    def test_no_duplicates(self, file_value_1, file_value_2, file_value_placeholder):
         resources = [
             ParsedResource("no_file", ":type", "lbl", None, [], None, None),
             ParsedResource("file_value_1", ":type", "lbl", None, [], file_value_1, None),
             ParsedResource("file_value_2", ":type", "lbl", None, [], file_value_2, None),
+            ParsedResource("file_value_3", ":type", "lbl", None, [], file_value_placeholder, None),
+            ParsedResource("file_value_4", ":type", "lbl", None, [], file_value_placeholder, None),
         ]
         result = check_for_duplicate_files(resources)
         assert not result

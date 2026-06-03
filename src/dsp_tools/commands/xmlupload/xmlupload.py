@@ -88,7 +88,7 @@ def xmlupload(
     if not validation_ok:
         return False
 
-    check_if_bitstreams_exist(root, imgdir)
+    check_if_bitstreams_exist(root, Path(imgdir))
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 

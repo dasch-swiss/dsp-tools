@@ -12,7 +12,9 @@ permissions:
 
 env:
   DSP_TOOLS_TESTING: true
-  DSP_USER_PASSWORD: ${{ secrets.DSP_USER_PASSWORD }}
+  # Literal, not a secret: Dependabot PRs cannot read Actions secrets, and this value only creates
+  # a test user on an ephemeral DSP-API stack.
+  DSP_USER_PASSWORD: pw
 
 jobs:
   ingest-xmlupload:

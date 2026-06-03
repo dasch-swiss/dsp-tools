@@ -47,6 +47,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
@@ -156,10 +157,10 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _get_file_metadata_for_test_environments(
     metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
 ) -> ProcessedFileMetadata:
-    lic_iri = metadata.license_iri or "http://rdfh.ch/licenses/unknown"
-    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    lic_iri = metadata.license_iri or URN_DASCH_PLACEHOLDER
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else URN_DASCH_PLACEHOLDER
     if not metadata.authorship_id:
-        authorship = ["DUMMY"]
+        authorship = [URN_DASCH_PLACEHOLDER]
     else:
         authorship = _resolve_authorship(metadata.authorship_id, lookups.authorships)
     permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)

@@ -38,6 +38,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
@@ -298,9 +299,9 @@ class TestOneResource:
         assert isinstance(file_val.value, ProcessedFileBitstream)
         assert file_val.value.value == "file.jpg"
         assert not file_val.metadata.permissions
-        assert file_val.metadata.copyright_holder == "DUMMY"
-        assert file_val.metadata.authorships == ["DUMMY"]
-        assert file_val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert file_val.metadata.copyright_holder == URN_DASCH_PLACEHOLDER
+        assert file_val.metadata.authorships == [URN_DASCH_PLACEHOLDER]
+        assert file_val.metadata.license_iri == URN_DASCH_PLACEHOLDER
         assert not result.migration_metadata
 
     def test_with_iiif_uri(self, iiif_file_value, lookups: XmlReferenceLookups):
@@ -430,17 +431,17 @@ class TestFileMetadata:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
-        assert result_metadata.copyright_holder == "DUMMY"
-        assert result_metadata.authorships == ["DUMMY"]
+        assert result_metadata.license_iri == URN_DASCH_PLACEHOLDER
+        assert result_metadata.copyright_holder == URN_DASCH_PLACEHOLDER
+        assert result_metadata.authorships == [URN_DASCH_PLACEHOLDER]
 
     def test_get_file_metadata_for_test_environments_some_values(self, lookups):
         metadata = ParsedFileValueMetadata(None, "copy", None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert result_metadata.license_iri == URN_DASCH_PLACEHOLDER
         assert result_metadata.copyright_holder == "copy"
-        assert result_metadata.authorships == ["DUMMY"]
+        assert result_metadata.authorships == [URN_DASCH_PLACEHOLDER]
 
     def test_get_file_metadata_for_test_environments_all_values(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")

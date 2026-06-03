@@ -469,6 +469,17 @@
         </text-prop>
     </resource>
 
+    <resource label="Imagething-with placeholder"
+              restype=":ImageThing"
+              id="image_thing_placeholder">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            <placeholder-file type="StillImageRepresentation"/>
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is a resource with a placeholder image</text>
+        </text-prop>
+    </resource>
+
     <resource label="Test Link to special characters"
               restype=":TestThing"
               id="test_link_to_special_chars">

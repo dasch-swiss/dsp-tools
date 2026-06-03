@@ -160,8 +160,11 @@ def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAl
 
 
 def _get_resource_iri_and_type(
-    info: QueryInfo, path: SubjectObjectTypeAlias, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
-) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    info: QueryInfo,
+    path: SubjectObjectTypeAlias | None,
+    data_onto_graph: Graph,
+    value_types: set[SubjectObjectTypeAlias],
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias | None]:
     resource_iri, resource_type, user_facing_prop = info.focus_iri, info.focus_rdf_type, path
     if info.focus_rdf_type in value_types:
         resource_iri, predicate = next(data_onto_graph.subject_predicates(object=info.focus_iri))

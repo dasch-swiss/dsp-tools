@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class PlaceholderFiles(StrEnum):
+class PlaceholderFile(StrEnum):
     ARCHIVE_REPRESENTATION = "ArchiveRepresentation"
     AUDIO_REPRESENTATION = "AudioRepresentation"
     DOCUMENT_REPRESENTATION = "DocumentRepresentation"

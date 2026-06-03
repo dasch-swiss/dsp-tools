@@ -11,6 +11,7 @@ from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 
 
 @pytest.fixture
@@ -120,6 +121,18 @@ class TestFileValue:
         with pytest.warns(XmllibInputWarning, match=expected):
             val = FileValue.new(None, metadata, None, "id")  # type: ignore[arg-type]
         assert val.value == "None"
+
+    def test_path_is_placeholder(self, metadata):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            val = FileValue.new(
+                PlaceholderFile.STILL_IMAGE_REPRESENTATION,
+                metadata,
+                None,  # type: ignore[arg-type]
+                "id",
+            )
+        assert len(caught_warnings) == 0
+        assert val.comment is None
+        assert val.value == PlaceholderFile.STILL_IMAGE_REPRESENTATION
 
 
 class TestIIIFUri:

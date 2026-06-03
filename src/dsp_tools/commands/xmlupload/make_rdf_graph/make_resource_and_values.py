@@ -100,7 +100,10 @@ def _get_abstract_file_value(
             raise UnreachableCodeError()
 
     return AbstractFileValue(
-        value=file_value_string, metadata=metadata, prop_to_filename=prop_to_filename, prop_type_info=prop_type_info
+        value=file_value_string,
+        metadata=metadata,
+        prop_to_filename=prop_to_filename,
+        prop_type_info=prop_type_info,
     )
 
 

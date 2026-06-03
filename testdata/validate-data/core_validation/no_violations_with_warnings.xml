@@ -24,7 +24,8 @@
         <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
     </resource>
 
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="no_legal_info_image_file">
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation"
+              id="no_legal_info_image_file">
         <bitstream>no_legal_info_image_file.jp2</bitstream>
     </resource>
 
@@ -68,6 +69,64 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >triplicate_file.zip
+        </bitstream>
+    </resource>
+
+
+    <!-- placeholder files -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="placeholder_archive">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="ArchiveRepresentation"/>
+        </bitstream>
+    </resource>
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="placeholder_audio">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="AudioRepresentation"/>
+        </bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="placeholder_document">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="DocumentRepresentation"/>
+        </bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File jpg" restype=":TestStillImageRepresentation"
+              id="placeholder_still_image">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="StillImageRepresentation"/>
+        </bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation odd" restype=":TestTextRepresentation" id="placeholder_text">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="TextRepresentation"/>
+        </bitstream>
+    </resource>
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="placeholder_video">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="MovingImageRepresentation"/>
         </bitstream>
     </resource>
 

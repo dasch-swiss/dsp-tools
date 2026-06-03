@@ -253,6 +253,12 @@ class TestBitstreamPlaceholderFile:
         root = _make_root_with_bitstream(f'<bitstream><placeholder-file type="{representation_type}"/></bitstream>')
         assert _validate_root_get_validation_messages(root) is None
 
+    def test_placeholder_file_valid_type_is_accepted_with_pretty_print(self) -> None:
+        root = _make_root_with_bitstream("""<bitstream>
+        <placeholder-file type="ArchiveRepresentation"/>
+        </bitstream>""")
+        assert _validate_root_get_validation_messages(root) is None
+
     def test_placeholder_file_with_metadata_attributes_is_valid(self) -> None:
         root = _make_root_with_bitstream(
             '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'

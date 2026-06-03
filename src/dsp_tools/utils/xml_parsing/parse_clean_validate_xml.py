@@ -90,30 +90,7 @@ def validate_root_emit_user_message(root: etree._Element, save_path: Path) -> bo
 def _validate_root_get_validation_messages(data_xml: etree._Element) -> list[XSDValidationMessage] | None:
     if errors := _validate_xml_tree_against_schema(data_xml):
         return _reformat_validation_errors(errors.error_log)
-    if conflicts := _check_bitstream_placeholder_conflict(data_xml):
-        return conflicts
     return None
-
-
-def _check_bitstream_placeholder_conflict(data_xml: etree._Element) -> list[XSDValidationMessage]:
-    ns = "https://dasch.swiss/schema"
-    result = []
-    user_msg = "'bitstream' cannot contain both a file path and a <placeholder-file> element — use one or the other"
-    for bitstream in data_xml.iter(f"{{{ns}}}bitstream"):
-        placeholder = bitstream.find(f"{{{ns}}}placeholder-file")
-        if placeholder is None:
-            continue
-        has_text = bitstream.text is not None or placeholder.tail is not None
-        if has_text:
-            result.append(
-                XSDValidationMessage(
-                    line_number=bitstream.sourceline or 0,
-                    element="bitstream",
-                    attribute=None,
-                    message=user_msg,
-                )
-            )
-    return result
 
 
 def _emit_validation_errors(validation_errors: list[XSDValidationMessage], save_path: Path) -> None:

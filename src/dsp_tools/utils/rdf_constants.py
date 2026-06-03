@@ -6,6 +6,9 @@ from rdflib import Namespace
 from rdflib import Variable
 from rdflib.term import Node
 
+# placeholder string to be used when interacting with the API
+URN_DASCH_PLACEHOLDER = "urn:dasch:placeholder"
+
 # naming conventions of prefixes and namespaces
 
 # a prefix as a string is called [...]_PREFIX

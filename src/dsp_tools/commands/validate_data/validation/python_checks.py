@@ -37,8 +37,9 @@ def _get_filepaths_with_more_than_one_usage(parsed_resources: list[ParsedResourc
     for res in parsed_resources:
         if res.file_value and res.file_value.value.value:
             count_dict[res.file_value.value.value] += 1
-    duplicates = {f_path: count for f_path, count in count_dict.items() if count > 1}
-    duplicates.pop(URN_DASCH_PLACEHOLDER)
+    duplicates = {
+        f_path: count for f_path, count in count_dict.items() if count > 1 and f_path != URN_DASCH_PLACEHOLDER
+    }
     return duplicates
 
 

@@ -7,19 +7,17 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdf_constants import KNORA_API
 
 
 def make_abstract_file_value_graph(
     file_value: AbstractFileValue,
-    type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
 ) -> Graph:
     file_bn = BNode()
     g = _add_metadata(file_bn, file_value.metadata)
-    g.add((res_node, type_info.knora_prop, file_bn))
-    g.add((file_bn, RDF.type, type_info.knora_type))
+    g.add((res_node, file_value.prop_type_info.knora_prop, file_bn))
+    g.add((file_bn, RDF.type, file_value.prop_type_info.knora_type))
     g.add((file_bn, file_value.prop_to_filename, Literal(file_value.value, datatype=XSD.string)))
     return g
 

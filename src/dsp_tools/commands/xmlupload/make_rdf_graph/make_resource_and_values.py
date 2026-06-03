@@ -70,10 +70,8 @@ def _make_values_graph_from_resource(
 
     if file_found := resource.file_value:
         abstract_value = _get_abstract_file_value(file_found, bitstream_information)
-        prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_found.value_type]
         properties_graph += make_abstract_file_value_graph(
             file_value=abstract_value,
-            type_info=prop_type_info,
             res_node=res_node,
         )
     return properties_graph
@@ -84,6 +82,7 @@ def _get_abstract_file_value(
 ) -> AbstractFileValue:
     metadata = _make_file_value_metadata(file_val.metadata)
     prop_to_filename = KNORA_API.fileValueHasFilename
+    prop_type_info = FILE_TYPE_TO_RDF_MAPPER[file_val.value_type]
 
     match file_val.value:
         case ProcessedFileIIIFUri():
@@ -101,9 +100,7 @@ def _get_abstract_file_value(
             raise UnreachableCodeError()
 
     return AbstractFileValue(
-        value=file_value_string,
-        metadata=metadata,
-        prop_to_filename=prop_to_filename,
+        value=file_value_string, metadata=metadata, prop_to_filename=prop_to_filename, prop_type_info=prop_type_info
     )
 
 

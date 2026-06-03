@@ -109,7 +109,10 @@ def _extract_one_base_info(
     info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
 ) -> list[ValidationResultBaseInfo]:
     results = []
-    path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
+    path = None
+    result_path = list(results_and_onto.objects(info.validation_bn, SH.resultPath))
+    if result_path:
+        path = result_path.pop(0)
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
     severity = next(results_and_onto.objects(info.validation_bn, SH.resultSeverity))
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
@@ -229,6 +232,14 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.OrConstraintComponent:
             return _query_general_violation_info_with_value_as_string(
                 base_info.result_bn, base_info, results_and_onto, data
+            )
+        case SH.NotConstraintComponent:
+            return ValidationResult(
+                violation_type=ViolationType.GENERIC,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
+                severity=base_info.severity,
+                message=msg,
             )
         case _:
             return UnexpectedComponent(str(component))

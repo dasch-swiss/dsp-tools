@@ -497,7 +497,7 @@ api-shapes:PlaceholderFileValue_NodeShape
                              sh:hasValue    "urn:dasch:placeholder"^^xsd:string
                            ] ;
                     sh:severity    sh:Warning ;
-                    sh:message     """You used a placeholder for the image file, please note that this is only allowed on test environments.""".
+                    sh:message     """You used a placeholder for the file, please note that this is only allowed on test environments.""".
 
 
 api-shapes:ArchiveFileValue_ClassShape

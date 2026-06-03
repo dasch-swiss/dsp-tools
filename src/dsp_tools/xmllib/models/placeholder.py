@@ -1,11 +1,10 @@
-from enum import Enum
-from enum import auto
+from enum import StrEnum
 
 
-class PlaceholderFiles(Enum):
-    ARCHIVE_REPRESENTATION = auto()
-    AUDIO_REPRESENTATION = auto()
-    DOCUMENT_REPRESENTATION = auto()
-    MOVING_IMAGE_REPRESENTATION = auto()
-    STILL_IMAGE_REPRESENTATION = auto()
-    TEXT_REPRESENTATION = auto()
+class PlaceholderFiles(StrEnum):
+    ARCHIVE_REPRESENTATION = "ArchiveRepresentation"
+    AUDIO_REPRESENTATION = "AudioRepresentation"
+    DOCUMENT_REPRESENTATION = "DocumentRepresentation"
+    MOVING_IMAGE_REPRESENTATION = "MovingImageRepresentation"
+    STILL_IMAGE_REPRESENTATION = "StillImageRepresentation"
+    TEXT_REPRESENTATION = "TextRepresentation"

@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFilePlaceholder
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValueValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
@@ -44,9 +45,14 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -119,12 +125,18 @@ def _resolve_file_value(
     else:
         metadata = _get_file_metadata_for_test_environments(parsed_file_val.metadata, lookups)
 
-    if file_type == KnoraFileValueType.STILL_IMAGE_IIIF:
-        iiif_uri = assert_is_string(parsed_file_val.value.value)
-        file_value_value: ProcessedFileValueValue = ProcessedFileIIIFUri(iiif_uri)
-    else:
-        file_path = assert_is_string(parsed_file_val.value.value)
-        file_value_value = ProcessedFileBitstream(file_path, resource.res_id)
+    match parsed_file_val.value:
+        case ParsedFileBitstream():
+            file_path = assert_is_string(parsed_file_val.value.value)
+            file_value_value: ProcessedFileValueValue = ProcessedFileBitstream(file_path, resource.res_id)
+        case ParsedFileIiifUri():
+            iiif_uri = assert_is_string(parsed_file_val.value.value)
+            file_value_value = ProcessedFileIIIFUri(iiif_uri)
+        case ParsedFilePlaceholder():
+            file_value_value = ProcessedFilePlaceholder()
+        case _:
+            raise UnreachableCodeError()
+
     return ProcessedFileValue(file_value_value, file_type, metadata)
 
 
@@ -145,10 +157,10 @@ def _get_file_metadata(file_metadata: ParsedFileValueMetadata, lookups: XmlRefer
 def _get_file_metadata_for_test_environments(
     metadata: ParsedFileValueMetadata, lookups: XmlReferenceLookups
 ) -> ProcessedFileMetadata:
-    lic_iri = metadata.license_iri or "http://rdfh.ch/licenses/unknown"
-    copy_right = metadata.copyright_holder if metadata.copyright_holder else "DUMMY"
+    lic_iri = metadata.license_iri or URN_DASCH_PLACEHOLDER
+    copy_right = metadata.copyright_holder if metadata.copyright_holder else URN_DASCH_PLACEHOLDER
     if not metadata.authorship_id:
-        authorship = ["DUMMY"]
+        authorship = [URN_DASCH_PLACEHOLDER]
     else:
         authorship = _resolve_authorship(metadata.authorship_id, lookups.authorships)
     permissions = _resolve_permission(metadata.permissions_id, lookups.permissions)

@@ -1,5 +1,26 @@
 # Changelog
 
+## [18.16.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.15.0...v18.16.0) (2026-06-03)
+
+
+### Enhancements
+
+* dispatch dsp-docs bump on release publish (DEV-6438) ([#2303](https://github.com/dasch-swiss/dsp-tools/issues/2303)) ([6cdda44](https://github.com/dasch-swiss/dsp-tools/commit/6cdda44617d4fa4142618f55419872db32bd2feb))
+
+
+### Maintenance
+
+* change parsing and processing of FileValues ([#2318](https://github.com/dasch-swiss/dsp-tools/issues/2318)) ([96c73e1](https://github.com/dasch-swiss/dsp-tools/commit/96c73e122adcbcdd7102dcb8d4906f84341b87b8))
+* split `KnoraValueType` enum ([#2317](https://github.com/dasch-swiss/dsp-tools/issues/2317)) ([2359090](https://github.com/dasch-swiss/dsp-tools/commit/2359090b0a596ec29227c5e05a4e03c867497821))
+* **start-stack:** bump versions to 2026.06.01 ([#2324](https://github.com/dasch-swiss/dsp-tools/issues/2324)) ([7cfa28d](https://github.com/dasch-swiss/dsp-tools/commit/7cfa28d710d3f961b2340809d0acccf3cdaa3fb3))
+* **xmlupload:** make one field for FileValue instead of two ([#2319](https://github.com/dasch-swiss/dsp-tools/issues/2319)) ([4afe1b7](https://github.com/dasch-swiss/dsp-tools/commit/4afe1b7bd138dfc241372c29284696391eb3514e))
+* **xmlupload:** optimise FileValue graph creation ([#2320](https://github.com/dasch-swiss/dsp-tools/issues/2320)) ([744d5bd](https://github.com/dasch-swiss/dsp-tools/commit/744d5bd64aaacb1430148b48faeef7c1d70a16f6))
+
+
+### Documentation
+
+* add permissions guide (RDU-169) ([#2278](https://github.com/dasch-swiss/dsp-tools/issues/2278)) ([394b2bf](https://github.com/dasch-swiss/dsp-tools/commit/394b2bf1286e8e5cfe2fbf8d3e6ddd3ee70d4061))
+
 ## [18.15.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.14.0...v18.15.0) (2026-05-22)
 
 

@@ -17,6 +17,7 @@ class AbstractFileValue:
     value: str
     metadata: FileValueMetadata
     prop_to_filename: URIRef
+    prop_type_info: RDFPropTypeInfo
 
 
 @dataclass

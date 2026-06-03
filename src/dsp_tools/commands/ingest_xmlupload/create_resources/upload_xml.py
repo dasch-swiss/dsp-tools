@@ -17,7 +17,6 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
-from dsp_tools.commands.xmlupload.execute_upload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -124,9 +123,6 @@ def ingest_xmlupload(
 
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
-
-    if not is_on_prod_like_server:
-        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
 
     processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
 

@@ -42,6 +42,16 @@ FILE_TYPE_TO_PROP = {
     KnoraFileValueType.TEXT_FILE: f"{KNORA_API_PREFIX}hasTextFileValue",
 }
 
+
+PLACEHOLDER_TYPE_TO_FILE_TYPE_MAPPER = {
+    "ArchiveRepresentation": KnoraFileValueType.ARCHIVE_FILE,
+    "AudioRepresentation": KnoraFileValueType.AUDIO_FILE,
+    "DocumentRepresentation": KnoraFileValueType.DOCUMENT_FILE,
+    "MovingImageRepresentation": KnoraFileValueType.MOVING_IMAGE_FILE,
+    "StillImageRepresentation": KnoraFileValueType.STILL_IMAGE_FILE,
+    "TextRepresentation": KnoraFileValueType.TEXT_FILE,
+}
+
 # Mappers from internal representation to API format
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "boolean-prop": KnoraValueType.BOOLEAN_VALUE,
@@ -56,6 +66,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "time-prop": KnoraValueType.TIME_VALUE,
     "uri-prop": KnoraValueType.URI_VALUE,
 }
+
 
 TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDF_TYPE: RDF.type,

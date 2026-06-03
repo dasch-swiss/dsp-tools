@@ -4,6 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 
 
@@ -37,3 +38,11 @@ class ProcessedFileBitstream(ProcessedFileValueValue):
 @dataclass
 class ProcessedFileIIIFUri(ProcessedFileValueValue):
     """Used for the IIIF-URI, that do not require separate upload."""
+
+
+@dataclass
+class ProcessedFilePlaceholder(ProcessedFileValueValue):
+    """Placeholder type"""
+
+    def __init__(self) -> None:
+        self.value = URN_DASCH_PLACEHOLDER

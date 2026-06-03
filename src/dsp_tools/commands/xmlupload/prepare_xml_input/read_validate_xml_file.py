@@ -49,11 +49,11 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
         InputError: if a bitstream does not exist in the imgdir
     """
     logger.debug("Checking if filepaths exist.")
-    multimedia_resources = [x for x in root if any(y.tag == "bitstream" for y in x.iter())]
+    multimedia_resources = [x for x in root if any(y.tag == "bitstream" and not len(y) for y in x.iter())]
     progress_bar = tqdm(multimedia_resources, desc="Checking multimedia filepaths", dynamic_ncols=True)
     all_problems = []
     for res in progress_bar:
-        pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
+        pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and (x.text or "").strip())
         if not Path(imgdir / pth).is_file():
             all_problems.append(MultimediaFileNotFoundProblem(res.attrib["id"], str(pth)))
     if all_problems:

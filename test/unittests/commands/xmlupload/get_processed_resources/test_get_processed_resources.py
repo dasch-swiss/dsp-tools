@@ -9,6 +9,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFilePlaceholder
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
@@ -41,6 +42,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -70,6 +72,12 @@ def lookups() -> XmlReferenceLookups:
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
     return ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+
+
+@pytest.fixture
+def file_placeholder() -> ParsedFileValue:
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
+    return ParsedFileValue(ParsedFilePlaceholder(), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -364,9 +372,31 @@ class TestFileValue:
         )
         file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert isinstance(file_res, ProcessedFileValue)
+        assert isinstance(file_res.value, ProcessedFileBitstream)
         result_metadata = file_res.metadata
         assert file_res.value == file_res.value
         assert file_res.value_type == file_with_permission.value_type
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
+
+    def test_resolve_file_value_placeholder(self, file_placeholder, lookups):
+        resource = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=file_placeholder,
+            migration_metadata=None,
+        )
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
+        assert isinstance(file_res, ProcessedFileValue)
+        assert isinstance(file_res.value, ProcessedFilePlaceholder)
+        result_metadata = file_res.metadata
+        assert file_res.value == file_res.value
+        assert file_res.value_type == file_placeholder.value_type
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"

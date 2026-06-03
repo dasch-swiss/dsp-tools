@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.exceptions import MultimediaFileNotFound
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 
 
 def _make_root(resources_xml: str) -> etree._Element:

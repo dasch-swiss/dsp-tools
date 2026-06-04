@@ -138,6 +138,10 @@ class TestWithReportGraphs:
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_produces_warning"), SH.NotConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), SH.NotConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), DASH.ClosedByTypesConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -159,6 +163,12 @@ class TestWithReportGraphs:
                 assert result_info.source_constraint_component in [
                     SH.MinInclusiveConstraintComponent,
                     SH.MinExclusiveConstraintComponent,
+                ]
+            elif result_info.focus_node_iri == URIRef("http://data/placeholder_type_wrong"):
+                assert result_info.source_constraint_component in [
+                    SH.NotConstraintComponent,
+                    SH.MinCountConstraintComponent,
+                    DASH.ClosedByTypesConstraintComponent,
                 ]
             else:
                 assert result_info.source_constraint_component == expected[1], result_info.focus_node_iri

@@ -115,7 +115,7 @@ class TestFileValue:
             val = FileValue.new(
                 PlaceholderFile.STILL_IMAGE_REPRESENTATION,
                 metadata,
-                None,  # type: ignore[arg-type]
+                None,
                 "id",
             )
         assert len(caught_warnings) == 0

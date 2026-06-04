@@ -8,6 +8,7 @@ from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 
 
 @pytest.fixture
@@ -115,6 +116,37 @@ def test_serialise_file_value_iiif_without_legal_info() -> None:
         b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
     )
     assert etree.tostring(result) == expected
+
+
+@pytest.mark.parametrize(
+    "input_enum",
+    [
+        PlaceholderFile.ARCHIVE_REPRESENTATION,
+        PlaceholderFile.AUDIO_REPRESENTATION,
+        PlaceholderFile.DOCUMENT_REPRESENTATION,
+        PlaceholderFile.MOVING_IMAGE_REPRESENTATION,
+        PlaceholderFile.STILL_IMAGE_REPRESENTATION,
+        PlaceholderFile.TEXT_REPRESENTATION,
+    ],
+)
+def test_serialise_file_value_placeholder(input_enum) -> None:
+    meta = Metadata(
+        license=None,
+        copyright_holder=None,
+        authorship=None,
+        permissions=Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+    )
+    val = FileValue(input_enum, meta, None)
+    result = serialise_file_value(val, None)
+    expected = (
+        '<bitstream xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'license="http://rdfh.ch/licenses/unknown" '
+        'copyright-holder="copyright" '
+        'authorship-id="authorship_1" '
+        'comment="comment"'
+        f'><placeholder-file type="{input_enum!s}"/></bitstream>'
+    )
+    assert etree.tostring(result) == bytes(expected)
 
 
 if __name__ == "__main__":

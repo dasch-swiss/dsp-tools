@@ -211,7 +211,7 @@ class TestWithReportGraphs:
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
-            ("placeholder_produces_warning", ProblemType.GENERIC),
+            ("placeholder_produces_warning", ProblemType.FILE_VALUE_PLACEHOLDER),
         ]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)

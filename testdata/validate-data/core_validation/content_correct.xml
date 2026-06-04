@@ -162,6 +162,23 @@
     </resource>
 
     <!--
+    When ensuring that for each value  we do not have duplicates,
+    we must also ensure that one class can have the same order across multiple properties and
+    that two classes can have the identical order for the same property
+    -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_on_text_2">
+        <!-- This is identical to the resource "value_order_on_text" and must be allowed -->
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="1">Second text</text>
+        </text-prop>
+        <text-prop name=":testTextarea">
+            <text encoding="utf8" order="0">Text 1</text>
+            <text encoding="utf8" order="1">Text 2</text>
+        </text-prop>
+    </resource>
+
+    <!--
     A check is conducted that ensures that the start date is equal or before the end date.
     This is implemented for CE dates only. BCE will be ignored.
     All calendars are treated the same, as they can all be parsed into a standard xsd date format.

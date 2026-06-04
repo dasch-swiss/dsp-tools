@@ -6,8 +6,6 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 16 Violations -->
-
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="label_empty"/>
 
@@ -109,6 +107,22 @@
 
                 have newlines
             </text>
+        </text-prop>
+    </resource>
+    
+    <!-- The value order must be a full range without gaps -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_skips_number">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="2">Third text</text>
+        </text-prop>
+    </resource>
+
+    <!-- The value order has duplicates -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_has_duplicates">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="0">Second text</text>
         </text-prop>
     </resource>
 

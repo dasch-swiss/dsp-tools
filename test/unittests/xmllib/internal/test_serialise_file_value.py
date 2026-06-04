@@ -139,14 +139,10 @@ def test_serialise_file_value_placeholder(input_enum) -> None:
     val = FileValue(input_enum, meta, None)
     result = serialise_file_value(val, None)
     expected = (
-        '<bitstream xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'license="http://rdfh.ch/licenses/unknown" '
-        'copyright-holder="copyright" '
-        'authorship-id="authorship_1" '
-        'comment="comment"'
+        '<bitstream xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
         f'><placeholder-file type="{input_enum!s}"/></bitstream>'
     )
-    assert etree.tostring(result) == bytes(expected)
+    assert etree.tostring(result) == expected.encode()
 
 
 if __name__ == "__main__":

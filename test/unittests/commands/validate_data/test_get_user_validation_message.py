@@ -590,7 +590,7 @@ class TestFilterOutDuplicateWrongFileTypeProblems:
             severity=Severity.VIOLATION,
         )
         placeholder_warning = InputProblem(
-            problem_type=ProblemType.GENERIC,
+            problem_type=ProblemType.FILE_VALUE_PLACEHOLDER,
             res_id="placeholder_type_wrong",
             res_type="onto:Class",
             prop_name="bitstream / iiif-uri",

@@ -107,6 +107,7 @@ class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE_MISSING = "file problem"
     FILE_DUPLICATE = "Duplicate Filepath / IIIF-URI"
+    FILE_VALUE_PLACEHOLDER = "placeholder used"
     FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
     FILE_VALUE_PLACEHOLDER_TYPE_WRONG = (
         "The file type of the placeholder is wrong, please choose the type that aligns with the ontology."

@@ -375,6 +375,8 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("textarea_empty", "onto:testTextarea", "The value must be a non-empty string"),
         ("textarea_only_whitespace", "onto:testTextarea", "The value must be a non-empty string"),
+        # ("value_order_skips_number", "onto:testSimpleText", "to be defined"), # TODO: activate
+        # ("value_order_has_duplicates", "onto:testSimpleText", "to be defined"), # TODO: activate
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)

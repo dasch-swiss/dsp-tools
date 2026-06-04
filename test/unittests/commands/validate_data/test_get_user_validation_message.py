@@ -580,3 +580,25 @@ class TestFilterOutDuplicateWrongFileTypeProblems:
         assert problem_types == {ProblemType.FILE_VALUE_MISSING, ProblemType.MIN_CARD}
         merged = next(p for p in result if p.problem_type == ProblemType.FILE_VALUE_MISSING)
         assert merged.input_value == "image.jpg"
+
+    def test_placeholder_used_with_wrong_file_type(self, file_value_missing):
+        file_value_placeholder_type_wrong = InputProblem(
+            problem_type=ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG,
+            res_id="placeholder_type_wrong",
+            res_type="onto:Class",
+            prop_name="bitstream / iiif-uri",
+            severity=Severity.VIOLATION,
+        )
+        placeholder_warning = InputProblem(
+            problem_type=ProblemType.GENERIC,
+            res_id="placeholder_type_wrong",
+            res_type="onto:Class",
+            prop_name="bitstream / iiif-uri",
+            severity=Severity.WARNING,
+            message="msg",
+        )
+        result = _filter_out_duplicate_wrong_file_type_problems(
+            [file_value_placeholder_type_wrong, file_value_missing, placeholder_warning]
+        )
+        assert len(result) == 1
+        assert result[0].problem_type == ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG

@@ -85,6 +85,7 @@ def file_value_prohibited() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
+        input_value="image.jpg",
         severity=Severity.VIOLATION,
     )
 
@@ -438,7 +439,7 @@ class TestUserMessages:
         expected = (
             "Resource ID: res_id | Resource Type: onto:Class\n"
             "bitstream / iiif-uri\n"
-            "    - A file was added to the resource. This resource type must not have a file."
+            "    - A file was added to the resource. This resource type must not have a file. | Your input: 'image.jpg'"
         )
         assert result == expected
 
@@ -570,7 +571,7 @@ class TestFilterOutDuplicateWrongFileTypeProblems:
         merged = result[0]
         assert merged.problem_type == ProblemType.FILE_VALUE_MISSING
         assert merged.input_value == "image.jpg"
-        assert merged.expected == "An AudioRepresentation requires a file with the extension 'mp3'."
+        assert merged.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
     def test_both_present_other_problems_are_preserved(self, file_value_missing, file_value_prohibited, min_card):
         result = _filter_out_duplicate_wrong_file_type_problems([file_value_missing, file_value_prohibited, min_card])

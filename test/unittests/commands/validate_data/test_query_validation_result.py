@@ -463,7 +463,7 @@ Second Line"""
         res, data, info = report_placeholder_value
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
+        assert result.violation_type == ViolationType.FILE_VALUE_PLACEHOLDER
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property is None

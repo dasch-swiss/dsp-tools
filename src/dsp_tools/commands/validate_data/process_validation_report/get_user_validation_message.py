@@ -18,6 +18,7 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
+# For these ProblemTypes the user message from the SHACL validation report is used and not the string from the enum
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {
     ProblemType.GENERIC,
     ProblemType.FILE_VALUE_MISSING,

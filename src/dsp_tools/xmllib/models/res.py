@@ -32,6 +32,7 @@ from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
@@ -1658,7 +1659,7 @@ class Resource:
 
     def add_file(
         self,
-        filename: str | Path,
+        filename: str | Path | PlaceholderFile,
         license: License | None = None,
         copyright_holder: str | None = None,
         authorship: list[str] | None = None,
@@ -1703,6 +1704,16 @@ class Resource:
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.LIMITED_VIEW,
+            )
+            ```
+
+            ```python
+            # when the real file is not available yet, use a placeholder file
+            resource = resource.add_file(
+                filename=PlaceholderFile.STILL_IMAGE_REPRESENTATION,
+                license=xmllib.LicenseRecommended.CC.BY_NC_ND,
+                copyright_holder="Bark University",
+                authorship=["Bark McDog"],
             )
             ```
         """

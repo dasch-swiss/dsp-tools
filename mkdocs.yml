@@ -32,6 +32,7 @@ nav:
           - Licenses:
               - Recommended: xmllib-docs/licenses/recommended.md
               - Other: xmllib-docs/licenses/other.md
+          - Placeholder Files: xmllib-docs/placeholder.md
           - Data Processing Functions:
               - General Functions: xmllib-docs/general-functions.md
               - Value Checkers: xmllib-docs/value-checkers.md

@@ -8,6 +8,7 @@ from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
@@ -40,7 +41,14 @@ def _serialise_file_value(value: AbstractFileValue, authorship_id: str | None, t
     if is_nonempty_value(value.comment):
         attribs["comment"] = str(value.comment)
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-    ele.text = str(value.value)
+    if isinstance(value.value, PlaceholderFile):
+        file_type_attrib = {"type": str(value.value)}
+        placeholder_ele = etree.Element(
+            f"{DASCH_SCHEMA}placeholder-file", attrib=file_type_attrib, nsmap=XML_NAMESPACE_MAP
+        )
+        ele.append(placeholder_ele)
+    else:
+        ele.text = str(value.value)
     return ele
 
 

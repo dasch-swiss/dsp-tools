@@ -220,6 +220,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.BOOLEAN_VALUE
         assert val.permissions_id == "public"
         assert val.comment == "Comment on Value"
+        assert val.value_order is None
 
     def test_color_value(self):
         xml_val = etree.fromstring("""
@@ -235,6 +236,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.COLOR_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_color_value_several(self):
         xml_val = etree.fromstring("""
@@ -257,6 +259,7 @@ class TestParseValues:
         assert val2.value_type == KnoraValueType.COLOR_VALUE
         assert not val2.permissions_id
         assert not val2.comment
+        assert val2.value_order is None
 
     def test_date_value(self):
         xml_val = etree.fromstring("""
@@ -272,6 +275,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.DATE_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_decimal_value(self):
         xml_val = etree.fromstring("""
@@ -287,6 +291,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.DECIMAL_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_geometry_value(self):
         xml_val = etree.fromstring("""
@@ -302,6 +307,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.GEOM_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_geoname_value(self):
         xml_val = etree.fromstring("""
@@ -317,6 +323,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.GEONAME_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_integer_value(self):
         xml_val = etree.fromstring("""
@@ -332,6 +339,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.INT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value(self):
         xml_val = etree.fromstring("""
@@ -347,6 +355,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_none(self):
         xml_val = etree.fromstring("""
@@ -362,6 +371,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_iri(self):
         xml_val = etree.fromstring("""
@@ -377,12 +387,13 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_several(self):
         xml_val = etree.fromstring("""
         <list-prop list="firstList" name=":hasProp">
-            <list>n1</list>
-            <list>n2</list>
+            <list order="0">n1</list>
+            <list order="1">n2</list>
         </list-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -393,12 +404,14 @@ class TestParseValues:
         assert val1.value_type == KnoraValueType.LIST_VALUE
         assert not val1.permissions_id
         assert not val1.comment
+        assert val1.value_order == 0
         val2 = result[1]
         assert val2.prop_name == HAS_PROP
         assert val2.value == ("firstList", "n2")
         assert val2.value_type == KnoraValueType.LIST_VALUE
         assert not val2.permissions_id
         assert not val2.comment
+        assert val2.value_order == 1
 
     def test_resptr_value(self):
         xml_val = etree.fromstring("""
@@ -414,6 +427,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LINK_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_resptr_value_none(self):
         xml_val = etree.fromstring("""
@@ -429,6 +443,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LINK_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_value(self):
         xml_val = etree.fromstring("""
@@ -444,6 +459,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_value_none(self):
         xml_val = etree.fromstring("""
@@ -459,6 +475,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_escaped_characters(self):
         xml_val = etree.fromstring("""
@@ -474,6 +491,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
@@ -489,6 +507,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""
@@ -504,6 +523,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_time_value(self):
         xml_val = etree.fromstring("""
@@ -519,6 +539,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.TIME_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_uri_value(self):
         xml_val = etree.fromstring("""
@@ -534,6 +555,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.URI_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
 
 class TestParseFileValues:

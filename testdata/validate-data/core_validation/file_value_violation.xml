@@ -71,7 +71,8 @@
     </resource>
 
 
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="copyright_holder_with_newline">
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation"
+              id="copyright_holder_with_newline">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="FirstLine&#10;Second Line"
                    authorship-id="authorship_1"
@@ -81,20 +82,24 @@
 
     <!-- Resource Without Representation -->
 
-    <resource label="Resource Without Representation" restype=":ClassWithEverything" id="resource_without_representation_has_file">
+    <resource label="Resource Without Representation" restype=":ClassWithEverything"
+              id="resource_without_representation_has_file">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >resource_without_representation_has_file.mp4</bitstream>
+        >resource_without_representation_has_file.mp4
+        </bitstream>
     </resource>
 
     <!-- Wrong file type -->
 
-    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="wrong_file_type">
+    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation"
+              id="wrong_file_type">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.mp4</bitstream>
+        >this/is/filepath/file.mp4
+        </bitstream>
     </resource>
 
     <!-- ArchiveRepresentation -->
@@ -105,7 +110,8 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >archive_unknown.unknown</bitstream>
+        >archive_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- AudioRepresentation -->
@@ -116,7 +122,8 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >audio_unknown.unknown</bitstream>
+        >audio_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- DocumentRepresentation -->
@@ -127,7 +134,8 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >document_unknown.unknown</bitstream>
+        >document_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- MovingImageRepresentation -->
@@ -138,7 +146,8 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >video_unknown.unknown</bitstream>
+        >video_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- TextRepresentation -->
@@ -149,18 +158,22 @@
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >text_unknown.unknown</bitstream>
+        >text_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->
 
-    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="still_image_missing"/>
+    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation"
+              id="still_image_missing"/>
 
-    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="still_image_unknown">
+    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation"
+              id="still_image_unknown">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >still_image_unknown.unknown</bitstream>
+        >still_image_unknown.unknown
+        </bitstream>
     </resource>
 
     <!-- IIIF-URI with invalid characters -->
@@ -173,6 +186,18 @@
                   authorship-id="authorship_1"
         >https://iiif.[this-is-not-allowed]/a.jp2/full/max/0/default.jpg
         </iiif-uri>
+    </resource>
+
+    <!-- The placeholder type is wrong -->
+    <resource label="TestStillImageRepresentation with a movie placeholder"
+              restype=":TestStillImageRepresentation"
+              id="placeholder_video_in_image_class">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >
+            <placeholder-file type="MovingImageRepresentation"/>
+        </bitstream>
     </resource>
 
 </knora>

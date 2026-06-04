@@ -431,7 +431,7 @@ class TestAddFiles:
     def test_add_file_warns(self) -> None:
         with pytest.warns(
             XmllibInputWarning,
-            match=regex.escape("Field 'bitstream' | Your input '<NA>' is empty. Please enter a valid file name."),
+            match=regex.escape("Field 'bitstream' | Your input '<NA>' is empty. Please enter a valid file path."),
         ):
             res = Resource.create_new("res_id", "restype", "label").add_file(
                 pd.NA,  # type: ignore[arg-type]

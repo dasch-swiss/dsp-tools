@@ -128,11 +128,12 @@ class FileValue(AbstractFileValue):
         match value:
             case Path():
                 if str(value) == ".":
-                    emit_xmllib_input_type_mismatch_warning(
-                        expected_type="non-empty filepath",
-                        value=value,
-                        res_id=resource_id,
+                    msg_info = MessageInfo(
+                        message=f"Your input '{value}' is empty. Please enter a valid file path.",
+                        resource_id=resource_id,
+                        field="bitstream",
                     )
+                    emit_xmllib_input_warning(msg_info)
                     value = ""
                 else:
                     value = str(value)
@@ -142,9 +143,10 @@ class FileValue(AbstractFileValue):
                 check_and_warn_potentially_empty_string(
                     value=value,
                     res_id=resource_id,
-                    expected="file name",
+                    expected="file path",
                     field="bitstream",
                 )
+                value = str(value)
         if is_nonempty_value_internal(comment):
             fixed_comment = str(comment)
             check_and_warn_if_a_string_contains_a_potentially_empty_value(

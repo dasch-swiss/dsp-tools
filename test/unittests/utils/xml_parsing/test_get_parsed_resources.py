@@ -11,6 +11,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_typ
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_value_order
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_bitstream_tag
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
@@ -788,4 +789,18 @@ def test_cleanup_formatted_text():
         '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
     )
     result = _cleanup_formatted_text(original)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("inpt", "expected"),
+    [
+        ({}, None),
+        ({"permissions": "public"}, None),
+        ({"order": "0"}, 0),
+        ({"order": "5"}, 5),
+    ],
+)
+def test_get_value_order(inpt, expected):
+    result = _get_value_order(inpt)
     assert result == expected

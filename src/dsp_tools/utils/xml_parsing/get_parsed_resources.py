@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import regex
 from lxml import etree
@@ -113,7 +114,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
-                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
+                value_order=_get_value_order(val.attrib),
             )
         )
     return values
@@ -182,7 +183,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
-                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
+                value_order=_get_value_order(val.attrib),
             )
         )
     return parsed_values
@@ -200,7 +201,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
-                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
+                value_order=_get_value_order(val.attrib),
             )
         )
     return parsed_values
@@ -222,7 +223,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
-                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
+                value_order=_get_value_order(val.attrib),
             )
         )
     return parsed_values
@@ -346,3 +347,7 @@ def _get_file_value_type(file_name: str | None) -> KnoraFileValueType | None:  #
             return KnoraFileValueType.TEXT_FILE
         case _:
             return None
+
+
+def _get_value_order(attribs: dict[str, Any]) -> int | None:
+    return int(found) if (found := attribs.get("order")) is not None else None

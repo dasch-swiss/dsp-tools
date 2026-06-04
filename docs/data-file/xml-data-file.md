@@ -364,14 +364,14 @@ with a `type` attribute whose value must match the representation type of the re
 
 The `type` attribute accepts the following values:
 
-| Representation type             | `type` value                    |
-| ------------------------------- | ------------------------------- |
-| `ArchiveRepresentation`         | `ArchiveRepresentation`         |
-| `AudioRepresentation`           | `AudioRepresentation`           |
-| `DocumentRepresentation`        | `DocumentRepresentation`        |
-| `MovingImageRepresentation`     | `MovingImageRepresentation`     |
-| `StillImageRepresentation`      | `StillImageRepresentation`      |
-| `TextRepresentation`            | `TextRepresentation`            |
+| Representation type         | `type` value                |
+|-----------------------------|-----------------------------|
+| `ArchiveRepresentation`     | `ArchiveRepresentation`     |
+| `AudioRepresentation`       | `AudioRepresentation`       |
+| `DocumentRepresentation`    | `DocumentRepresentation`    |
+| `MovingImageRepresentation` | `MovingImageRepresentation` |
+| `StillImageRepresentation`  | `StillImageRepresentation`  |
+| `TextRepresentation`        | `TextRepresentation`        |
 
 A file path and a placeholder are mutually exclusive: a `<bitstream>` element must contain either one or the other.
 

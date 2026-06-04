@@ -238,7 +238,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.NotConstraintComponent:
             return ValidationResult(
-                violation_type=ViolationType.GENERIC,
+                violation_type=ViolationType.FILE_VALUE_PLACEHOLDER,
                 res_iri=base_info.focus_node_iri,
                 res_class=base_info.focus_node_type,
                 severity=base_info.severity,

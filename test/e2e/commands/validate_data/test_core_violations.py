@@ -138,6 +138,10 @@ class TestWithReportGraphs:
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/no_legal_info_image"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_produces_warning"), SH.NotConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), SH.NotConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), SH.MinCountConstraintComponent, None, None),
+            (URIRef("http://data/placeholder_type_wrong"), DASH.ClosedByTypesConstraintComponent, None, None),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -159,6 +163,12 @@ class TestWithReportGraphs:
                 assert result_info.source_constraint_component in [
                     SH.MinInclusiveConstraintComponent,
                     SH.MinExclusiveConstraintComponent,
+                ]
+            elif result_info.focus_node_iri == URIRef("http://data/placeholder_type_wrong"):
+                assert result_info.source_constraint_component in [
+                    SH.NotConstraintComponent,
+                    SH.MinCountConstraintComponent,
+                    DASH.ClosedByTypesConstraintComponent,
                 ]
             else:
                 assert result_info.source_constraint_component == expected[1], result_info.focus_node_iri
@@ -195,6 +205,7 @@ class TestWithReportGraphs:
             ("link_to_resource_in_db", ProblemType.LINK_TARGET_NOT_FOUND_IN_DB),
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
+            ("placeholder_type_wrong", ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG),
             ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
@@ -210,6 +221,7 @@ class TestWithReportGraphs:
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
             ("no_legal_info_image", ProblemType.GENERIC),
+            ("placeholder_produces_warning", ProblemType.FILE_VALUE_PLACEHOLDER),
         ]
         result = reformat_validation_graph(report)
         duplicate_files = check_for_duplicate_files(parsed_resources)
@@ -513,6 +525,7 @@ def test_reformat_file_value_violation(authentication) -> None:
         ("license_empty", ProblemType.GENERIC),
         ("license_iri_inexistent", ProblemType.GENERIC),
         ("license_not_enabled", ProblemType.GENERIC),
+        ("placeholder_type_wrong", ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG),
         ("resource_without_representation_has_file", ProblemType.FILE_VALUE_PROHIBITED),
         ("still_image_iiif_invalid_characters_in_uri", ProblemType.GENERIC),
         ("still_image_missing", ProblemType.FILE_VALUE_MISSING),

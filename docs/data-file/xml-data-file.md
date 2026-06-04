@@ -331,6 +331,9 @@ For more details, please consult the [API docs](https://docs.dasch.swiss/latest/
 
 Attributes:
 
+- `license` : License URI (optional)
+- `copyright-holder` : Name of the copyright holder (optional)
+- `authorship-id` : Reference to an `<authorship>` element defined at the top of the file (optional)
 - `permissions` : Permission ID (optional)
 
 Example of an image inside a `StillImageRepresentation`:
@@ -345,6 +348,48 @@ Example of an image inside a `StillImageRepresentation`:
     </bitstream>
 </resource>
 ```
+
+#### `<placeholder-file>`
+
+A placeholder can be used instead of a real file path when the actual file is not yet available at upload time.
+It acts as a temporary stand-in so that resources can be created now and the real file can be provided later.
+
+Instead of a file path as text content, the `<bitstream>` element contains a `<placeholder-file>` child element
+with a `type` attribute whose value must match the representation type of the resource.
+
+!!! warning
+
+    Placeholders are only accepted on localhost and test servers.
+    Production environments reject resources that contain a placeholder.
+
+The `type` attribute accepts the following values:
+
+| Representation type             | `type` value                    |
+| ------------------------------- | ------------------------------- |
+| `ArchiveRepresentation`         | `ArchiveRepresentation`         |
+| `AudioRepresentation`           | `AudioRepresentation`           |
+| `DocumentRepresentation`        | `DocumentRepresentation`        |
+| `MovingImageRepresentation`     | `MovingImageRepresentation`     |
+| `StillImageRepresentation`      | `StillImageRepresentation`      |
+| `TextRepresentation`            | `TextRepresentation`            |
+
+A file path and a placeholder are mutually exclusive: a `<bitstream>` element must contain either one or the other.
+
+Example of a `MovingImageRepresentation` with a placeholder:
+
+```xml
+<resource restype=":Film" id="film_1" label="film_1">
+    <bitstream
+        license="http://rdfh.ch/licenses/unknown"
+        copyright-holder="DaSCH"
+        authorship-id="authorship_1">
+        <placeholder-file type="MovingImageRepresentation"/>
+    </bitstream>
+</resource>
+```
+
+If you are creating the XML file programmatically via `xmllib`,
+use [`PlaceholderFile`](../xmllib-docs/placeholder.md) to pass the placeholder value to `add_file()`.
 
 ### `<iiif-uri>`
 
@@ -365,8 +410,10 @@ Please consult the official documentation for details regarding the URI syntax:
 
 Attributes:
 
+- `license` : License URI (optional)
+- `copyright-holder` : Name of the copyright holder (optional)
+- `authorship-id` : Reference to an `<authorship>` element defined at the top of the file (optional)
 - `permissions` : Permission ID (optional)
-
 
 Example of an image inside a `StillImageRepresentation`:
 

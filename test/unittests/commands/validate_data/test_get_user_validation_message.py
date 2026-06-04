@@ -8,6 +8,9 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import (
+    _filter_out_duplicate_wrong_file_type_problems,
+)
+from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import (
     _get_message_for_one_resource,
 )
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import _shorten_input
@@ -29,7 +32,7 @@ def generic_problem() -> InputProblem:
 
 
 @pytest.fixture
-def file_value() -> InputProblem:
+def file_value_missing() -> InputProblem:
     return InputProblem(
         problem_type=ProblemType.FILE_VALUE_MISSING,
         res_id="res_id",
@@ -82,6 +85,7 @@ def file_value_prohibited() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
+        input_value="image.jpg",
         severity=Severity.VIOLATION,
     )
 
@@ -394,8 +398,8 @@ class TestUserMessages:
         )
         assert result == expected
 
-    def test_get_message_for_one_resource_file_value(self, file_value):
-        result = _get_message_for_one_resource([file_value])
+    def test_get_message_for_one_resource_file_value(self, file_value_missing):
+        result = _get_message_for_one_resource([file_value_missing])
         expected = (
             "Resource ID: res_id | Resource Type: onto:Class\n"
             "bitstream / iiif-uri\n"
@@ -435,7 +439,7 @@ class TestUserMessages:
         expected = (
             "Resource ID: res_id | Resource Type: onto:Class\n"
             "bitstream / iiif-uri\n"
-            "    - A file was added to the resource. This resource type must not have a file."
+            "    - A file was added to the resource. This resource type must not have a file. | Your input: 'image.jpg'"
         )
         assert result == expected
 
@@ -486,8 +490,8 @@ class TestUserMessages:
         )
         assert result == expected
 
-    def test_get_message_for_one_resource_several_problems(self, file_value, inexistent_linked_resource):
-        result = _get_message_for_one_resource([file_value, inexistent_linked_resource])
+    def test_get_message_for_one_resource_several_problems(self, file_value_missing, inexistent_linked_resource):
+        result = _get_message_for_one_resource([file_value_missing, inexistent_linked_resource])
         expected = (
             "Resource ID: res_id | Resource Type: onto:Class\n"
             "bitstream / iiif-uri\n"
@@ -550,3 +554,51 @@ class TestUserMessages:
     def test_shorten_input(self, user_input, problem_type, expected):
         result = _shorten_input(user_input, problem_type)
         assert result == expected
+
+
+class TestFilterOutDuplicateWrongFileTypeProblems:
+    def test_only_file_value_missing_returns_unchanged(self, file_value_missing):
+        result = _filter_out_duplicate_wrong_file_type_problems([file_value_missing])
+        assert result == [file_value_missing]
+
+    def test_only_file_value_prohibited_returns_unchanged(self, file_value_prohibited):
+        result = _filter_out_duplicate_wrong_file_type_problems([file_value_prohibited])
+        assert result == [file_value_prohibited]
+
+    def test_both_present_merges_into_one_problem(self, file_value_missing, file_value_prohibited):
+        result = _filter_out_duplicate_wrong_file_type_problems([file_value_missing, file_value_prohibited])
+        assert len(result) == 1
+        merged = result[0]
+        assert merged.problem_type == ProblemType.FILE_VALUE_MISSING
+        assert merged.input_value == "image.jpg"
+        assert merged.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+    def test_both_present_other_problems_are_preserved(self, file_value_missing, file_value_prohibited, min_card):
+        result = _filter_out_duplicate_wrong_file_type_problems([file_value_missing, file_value_prohibited, min_card])
+        assert len(result) == 2
+        problem_types = {p.problem_type for p in result}
+        assert problem_types == {ProblemType.FILE_VALUE_MISSING, ProblemType.MIN_CARD}
+        merged = next(p for p in result if p.problem_type == ProblemType.FILE_VALUE_MISSING)
+        assert merged.input_value == "image.jpg"
+
+    def test_placeholder_used_with_wrong_file_type(self, file_value_missing):
+        file_value_placeholder_type_wrong = InputProblem(
+            problem_type=ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG,
+            res_id="placeholder_type_wrong",
+            res_type="onto:Class",
+            prop_name="bitstream / iiif-uri",
+            severity=Severity.VIOLATION,
+        )
+        placeholder_warning = InputProblem(
+            problem_type=ProblemType.FILE_VALUE_PLACEHOLDER,
+            res_id="placeholder_type_wrong",
+            res_type="onto:Class",
+            prop_name="bitstream / iiif-uri",
+            severity=Severity.WARNING,
+            message="msg",
+        )
+        result = _filter_out_duplicate_wrong_file_type_problems(
+            [file_value_placeholder_type_wrong, file_value_missing, placeholder_warning]
+        )
+        assert len(result) == 1
+        assert result[0].problem_type == ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG

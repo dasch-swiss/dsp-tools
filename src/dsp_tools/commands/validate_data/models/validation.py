@@ -103,6 +103,7 @@ class ViolationType(Enum):
     NON_EXISTING_CARD = auto()
     FILE_VALUE_PROHIBITED = auto()
     FILE_VALUE_MISSING = auto()
+    FILE_VALUE_PLACEHOLDER = auto()
 
 
 @dataclass

@@ -126,12 +126,12 @@ class TestSortedProblems:
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
             ("no_legal_info_image_file", ProblemType.GENERIC),
-            ("placeholder_archive", ProblemType.GENERIC),
-            ("placeholder_audio", ProblemType.GENERIC),
-            ("placeholder_document", ProblemType.GENERIC),
-            ("placeholder_still_image", ProblemType.GENERIC),
-            ("placeholder_text", ProblemType.GENERIC),
-            ("placeholder_video", ProblemType.GENERIC),
+            ("placeholder_archive", ProblemType.FILE_VALUE_PLACEHOLDER),
+            ("placeholder_audio", ProblemType.FILE_VALUE_PLACEHOLDER),
+            ("placeholder_document", ProblemType.FILE_VALUE_PLACEHOLDER),
+            ("placeholder_still_image", ProblemType.FILE_VALUE_PLACEHOLDER),
+            ("placeholder_text", ProblemType.FILE_VALUE_PLACEHOLDER),
+            ("placeholder_video", ProblemType.FILE_VALUE_PLACEHOLDER),
         ]
         sorted_problems = no_violations_with_warnings_do_not_ignore_duplicate_files.problems
         assert isinstance(sorted_problems, SortedProblems)

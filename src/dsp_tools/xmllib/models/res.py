@@ -1708,7 +1708,7 @@ class Resource:
             ```
 
             ```python
-            # a file with a placeholder file
+            # when the real file is not available yet, use a placeholder file
             resource = resource.add_file(
                 filename=PlaceholderFile.STILL_IMAGE_REPRESENTATION,
                 license=xmllib.LicenseRecommended.CC.BY_NC_ND,

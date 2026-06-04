@@ -284,6 +284,17 @@
             <list>second subnode</list>
         </list-prop>
     </resource>
+
+    <resource label="Test thing with explicit value order" restype=":TestThing" id="res_with_value_order">
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="1">Second text</text>
+            <text encoding="utf8" order="2">Third text</text>
+        </text-prop>
+    </resource>
   
     <resource label="Imagething-tif"
               restype=":ImageThing"

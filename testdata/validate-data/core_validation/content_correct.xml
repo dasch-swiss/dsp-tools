@@ -153,6 +153,14 @@
         </uri-prop>
     </resource>
 
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_on_text">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="1">Second text</text>
+            <text encoding="utf8" order="2">Third text</text>
+        </text-prop>
+    </resource>
+
     <!--
     A check is conducted that ensures that the start date is equal or before the end date.
     This is implemented for CE dates only. BCE will be ignored.

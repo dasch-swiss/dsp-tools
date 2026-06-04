@@ -18,7 +18,12 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_DUPLICATE}
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {
+    ProblemType.GENERIC,
+    ProblemType.FILE_VALUE_MISSING,
+    ProblemType.FILE_DUPLICATE,
+    ProblemType.FILE_VALUE_PLACEHOLDER,
+}
 
 
 def sort_user_problems(

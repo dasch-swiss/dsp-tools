@@ -108,7 +108,9 @@ class ProblemType(StrEnum):
     FILE_VALUE_MISSING = "file problem"
     FILE_DUPLICATE = "Duplicate Filepath / IIIF-URI"
     FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
-    FILE_VALUE_PLACEHOLDER_TYPE_WRONG = "The file type of the placeholder is wrong."
+    FILE_VALUE_PLACEHOLDER_TYPE_WRONG = (
+        "The file type of the placeholder is wrong, please choose the type that aligns with the ontology."
+    )
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."

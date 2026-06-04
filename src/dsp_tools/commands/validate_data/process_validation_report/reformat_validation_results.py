@@ -17,7 +17,8 @@ from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.error.exceptions import UnreachableCodeError
-from dsp_tools.utils.rdf_constants import KNORA_API, URN_DASCH_PLACEHOLDER
+from dsp_tools.utils.rdf_constants import KNORA_API
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
 
 SEVERITY_MAPPER: dict[SubjectObjectTypeAlias, Severity] = {
@@ -31,7 +32,7 @@ def reformat_extracted_results(results: list[ValidationResult]) -> list[InputPro
     return [_reformat_one_validation_result(x) for x in results]
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa:PLR0911
     match validation_result.violation_type:
         case ViolationType.MIN_CARD:
             return _reformat_min_card(validation_result)
@@ -48,15 +49,13 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             if validation_result.property in LEGAL_INFO_PROPS or validation_result.property in FILE_VALUE_PROPERTIES:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
-        case (
-            ViolationType.FILE_VALUE_MISSING
-            | ViolationType.FILE_VALUE_PLACEHOLDER as violation
-        ):
+        case ViolationType.FILE_VALUE_MISSING | ViolationType.FILE_VALUE_PLACEHOLDER as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.FILE_VALUE_PROHIBITED:
             if str(validation_result.input_value) == URN_DASCH_PLACEHOLDER:
                 problem_type = ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG
+                validation_result.input_value = None
             else:
                 problem_type = ProblemType.FILE_VALUE_PROHIBITED
             return _reformat_generic(validation_result, problem_type, prop_string="bitstream / iiif-uri")
@@ -72,6 +71,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_file_value_problems(result: ValidationResult, problem_type: ProblemType) -> InputProblem:
     pass
+
 
 def _reformat_min_card(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)

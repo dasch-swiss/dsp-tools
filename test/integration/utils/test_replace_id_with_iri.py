@@ -19,8 +19,8 @@ MAPPING_PATH = Path("testdata/id2iri/test-id2iri-mapping.json")
 
 def test_with_replacement():
     orig_list_val = ("list", "node")
-    link_val = ParsedValue(HAS_PROP, "test_thing_1", KnoraValueType.LINK_VALUE, None, None)
-    list_val = ParsedValue(HAS_PROP, orig_list_val, KnoraValueType.LIST_VALUE, None, None)
+    link_val = ParsedValue(HAS_PROP, "test_thing_1", KnoraValueType.LINK_VALUE, None, None, None)
+    list_val = ParsedValue(HAS_PROP, orig_list_val, KnoraValueType.LIST_VALUE, None, None, None)
     res = ParsedResource(
         res_id="id",
         res_type=RES_TYPE,

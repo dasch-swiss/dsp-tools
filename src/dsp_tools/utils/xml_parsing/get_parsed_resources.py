@@ -113,6 +113,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
+                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
             )
         )
     return values
@@ -181,6 +182,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
+                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
             )
         )
     return parsed_values
@@ -198,6 +200,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
+                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
             )
         )
     return parsed_values
@@ -219,6 +222,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
+                value_order=int(found) if (found := val.attrib.get("order") is not None) else None,
             )
         )
     return parsed_values

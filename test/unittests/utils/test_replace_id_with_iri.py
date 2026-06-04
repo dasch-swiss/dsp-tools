@@ -59,8 +59,8 @@ class TestReplaceAllIds:
 class TestReplaceIdsWithIris:
     def test_with_values(self, iri_resolver):
         orig_list_val = ("list", "node")
-        link_val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.LINK_VALUE, None, None)
-        list_val = ParsedValue(HAS_PROP, orig_list_val, KnoraValueType.LIST_VALUE, "public", "cmt")
+        link_val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.LINK_VALUE, None, None, None)
+        list_val = ParsedValue(HAS_PROP, orig_list_val, KnoraValueType.LIST_VALUE, "public", "cmt", None)
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -93,12 +93,12 @@ class TestReplaceIdsWithIris:
 
 class TestProcessLinkValue:
     def test_in_lookup(self, iri_resolver):
-        val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.LINK_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.LINK_VALUE, None, None, None)
         result = _process_link_value(val, iri_resolver)
         assert result.value == "r1_iri"
 
     def test_not_in_lookup(self, iri_resolver):
-        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None, None)
         result = _process_link_value(val, iri_resolver)
         assert result.value == "other_id"
 
@@ -106,14 +106,14 @@ class TestProcessLinkValue:
 class TestProcessRichtextValue:
     def test_in_lookup(self, iri_resolver):
         text_str = 'Comment with <a class="salsah-link" href="IRI:r1_id:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None, None)
         expected = 'Comment with <a class="salsah-link" href="r1_iri">link text</a>.'
         result = _process_richtext_value(val, iri_resolver)
         assert result.value == expected
 
     def test_not_in_lookup(self, iri_resolver):
         text_str = 'Comment with <a class="salsah-link" href="IRI:other:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None, None)
         result = _process_richtext_value(val, iri_resolver)
         assert result.value == text_str
 
@@ -123,7 +123,7 @@ class TestProcessRichtextValue:
             'This remains <a class="salsah-link" href="IRI:other:IRI">other</a> now finished. '
             f'This is already an IRI <a class="salsah-link" href="{RES_IRI}">Resource IRI</a>.'
         )
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None, None)
         expected = (
             'This should be replaced <a class="salsah-link" href="r1_iri">r1_id</a>. '
             'This remains <a class="salsah-link" href="IRI:other:IRI">other</a> now finished. '

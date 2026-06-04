@@ -802,5 +802,6 @@ def test_cleanup_formatted_text():
     ],
 )
 def test_get_value_order(inpt, expected):
-    result = _get_value_order(inpt)
+    # creating an element and adding it as an attribute is necessary for typing
+    result = _get_value_order(etree.Element("val", attrib=inpt).attrib)
     assert result == expected

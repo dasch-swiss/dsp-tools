@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 import regex
 from lxml import etree
@@ -349,5 +348,5 @@ def _get_file_value_type(file_name: str | None) -> KnoraFileValueType | None:  #
             return None
 
 
-def _get_value_order(attribs: dict[str, Any]) -> int | None:
+def _get_value_order(attribs: etree._Attrib) -> int | None:
     return int(found) if (found := attribs.get("order")) is not None else None

@@ -168,6 +168,18 @@ def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem])
     idx_prohibited = next(
         (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
     )
+    idx_placeholder_warning = next(
+        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PLACEHOLDER), None
+    )
+    idx_placeholder_type_wrong = next(
+        (x for x in problems if x.problem_type == ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG), None
+    )
+    if idx_placeholder_type_wrong is not None:
+        # if the placeholder type is wrong, we get a warning that a placeholder is used,
+        # this just duplicates a message for this resource
+        # in that case we also do not want to print the information that the correct value type is missing
+        return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_placeholder_warning}]
+
     if idx_missing is None or idx_prohibited is None:
         return problems
     missing_problem = problems[idx_missing]

@@ -69,10 +69,6 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             raise UnreachableCodeError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
-def _reformat_file_value_problems(result: ValidationResult, problem_type: ProblemType) -> InputProblem:
-    pass
-
-
 def _reformat_min_card(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):

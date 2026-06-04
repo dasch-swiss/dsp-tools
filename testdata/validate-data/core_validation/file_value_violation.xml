@@ -15,8 +15,6 @@
         <author>Author&#10;Newline</author>
     </authorship>
 
-    <!-- 21 Violations -->
-
     <!-- Legal Info Violations -->
 
     <!--
@@ -191,7 +189,7 @@
     <!-- The placeholder type is wrong -->
     <resource label="TestStillImageRepresentation with a movie placeholder"
               restype=":TestStillImageRepresentation"
-              id="placeholder_video_in_image_class">
+              id="placeholder_type_wrong">
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"

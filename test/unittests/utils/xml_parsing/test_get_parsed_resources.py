@@ -497,7 +497,7 @@ class TestParseValues:
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">
-            <text encoding="utf8"> Text</text>
+            <text encoding="utf8" order="0"> Text</text>
         </text-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -508,7 +508,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
-        assert val.value_order is None
+        assert val.value_order == 0
 
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""

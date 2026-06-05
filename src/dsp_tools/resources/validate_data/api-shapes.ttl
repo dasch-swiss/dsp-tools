@@ -137,6 +137,14 @@ api-shapes:Value_ClassShape
                     sh:maxInclusive "2147483647"^^xsd:int ; # maximum allowed number for this datatype
                     sh:severity     sh:Violation ;
                     sh:message      "The order on the value must be a positive integer."
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:valueHasOrder ;
+                    sh:minCount 0 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A value may have a maximum of 1 order triple."
                  ] .
 
 

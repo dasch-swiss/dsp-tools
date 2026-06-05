@@ -375,7 +375,11 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("textarea_empty", "onto:testTextarea", "The value must be a non-empty string"),
         ("textarea_only_whitespace", "onto:testTextarea", "The value must be a non-empty string"),
-        # ("value_order_skips_number", "onto:testSimpleText", "to be defined"),
+        (
+            "value_order_skips_number",
+            "onto:testSimpleText",
+            "The order of the values must form a continuous sequence starting at 0.",
+        ),
         ("value_order_has_duplicates", "onto:testSimpleText", "The order of the values may not be duplicated."),
     ]
     sorted_problems = result.problems

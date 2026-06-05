@@ -106,23 +106,40 @@ api-shapes:ValueHasOrder_NoGap_Shape
   sh:targetClass knora-api:Resource ;
   sh:sparql [
     a sh:SPARQLConstraint ;
+    sh:severity sh:Violation ;
+    sh:message "The order of the values must form a continuous sequence starting at 0." ;
     sh:select """
       PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-      SELECT $this ?path
+      SELECT $this ?path ?value
       WHERE {
-        $this ?path ?valueClass .
-        ?valueClass knora-api:valueHasOrder ?order .
+        {
+          SELECT $this ?path
+                 (MAX(xsd:integer(?order)) AS ?maxOrder)
+                 (COUNT(DISTINCT xsd:integer(?order)) AS ?countOrder)
+          WHERE {
+            $this ?path ?valueNode .
+            ?valueNode knora-api:valueHasOrder ?order .
+          }
+          GROUP BY $this ?path
+          HAVING (
+            MAX(xsd:integer(?order)) != COUNT(DISTINCT xsd:integer(?order)) - 1
+          )
+        }
+
+        BIND(
+          CONCAT(
+            "Maximum order: ",
+            STR(?maxOrder),
+            ", value order count: ",
+            STR(?countOrder)
+          )
+          AS ?value
+        )
       }
-      GROUP BY $this ?path
-      HAVING (
-        MAX(xsd:integer(?order)) != COUNT(DISTINCT ?order) - 1
-      )
     """ ;
-  ] ;
-    sh:severity sh:Violation ;
-    sh:message "The order of the values must form a continuous sequence starting at 0." .
+  ] .
 
 ########################
 # GENERIC RESOURCE SHAPE

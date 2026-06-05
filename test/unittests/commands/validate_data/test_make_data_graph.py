@@ -96,6 +96,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
             Literal("", datatype=XSD.string),
         ),
         (
+            "",
+            TripleObjectType.IRI,
+            None,
+            Literal("", datatype=XSD.string),
+        ),
+        (
             "res_id",
             TripleObjectType.INTERNAL_ID,
             TriplePropertyType.KNORA_STANDOFF_LINK,

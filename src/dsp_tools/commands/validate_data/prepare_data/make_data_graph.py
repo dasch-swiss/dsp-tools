@@ -65,9 +65,8 @@ def _add_property_objects(g: Graph, property_objects: list[PropertyObject], subj
 def _make_one_rdflib_object(
     object_value: str | int | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None = None
 ) -> Literal | URIRef:
-    if object_value is None:
+    if object_value is None or len(str_val := str(object_value)) == 0:
         return Literal("", datatype=XSD.string)
-    str_val = str(object_value)
     if object_type == TripleObjectType.IRI:
         return URIRef(str_val)
     if object_type == TripleObjectType.INTERNAL_ID:

@@ -150,7 +150,7 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
 
 
 def _convert_rdflib_input_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
-    if not input_val:
+    if input_val is None:
         return None
     if isinstance(input_val, URIRef):
         return reformat_any_iri(input_val)

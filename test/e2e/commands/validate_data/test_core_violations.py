@@ -384,7 +384,8 @@ def test_reformat_content_violation(authentication) -> None:
         (
             "value_order_one_value_no_order",
             "onto:testSimpleText",
-            "If one value of a property has an order, all values of that property must have an order to prevent conflicts in the database.",
+            "If one value of a property has an order, "
+            "all values of that property must have an order to prevent conflicts in the database.",
         ),
     ]
     sorted_problems = result.problems

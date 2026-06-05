@@ -58,7 +58,7 @@ class PropertyObject:
     """
 
     property_type: TriplePropertyType
-    object_value: str | None
+    object_value: str | int | None
     object_type: TripleObjectType
 
 
@@ -91,6 +91,7 @@ class TriplePropertyType(Enum):
     RDF_TYPE = auto()
     KNORA_PERMISSIONS = auto()
     KNORA_COMMENT_ON_VALUE = auto()
+    KNORA_VALUE_ORDER = auto()
     KNORA_INTERVAL_START = auto()
     KNORA_INTERVAL_END = auto()
     KNORA_STANDOFF_LINK = auto()

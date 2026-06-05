@@ -235,6 +235,18 @@ class TestValues:
         assert res.knora_type == KnoraValueType.COLOR_VALUE
         assert not res.value_metadata
 
+    def test_color_corr_with_value_order(self):
+        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "#5d1f1e"
+        assert res.knora_type == KnoraValueType.COLOR_VALUE
+        assert len(res.value_metadata)
+        val_order = res.value_metadata[0]
+        assert val_order.property_type == TriplePropertyType.KNORA_VALUE_ORDER
+        assert val_order.object_value == 0
+        assert val_order.object_type == TripleObjectType.INTEGER
+
     def test_date_corr_with_date_range_yyyy(self):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None, None)
         res = _get_one_value(val, LIST_LOOKUP)

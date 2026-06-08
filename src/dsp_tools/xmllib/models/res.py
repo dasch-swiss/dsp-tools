@@ -6,6 +6,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any
 
+from dsp_tools.xmllib.internal.checkers import check_raise_if_input_value_for_value_order_is_incorrect
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
@@ -239,7 +240,12 @@ class Resource:
         """
         self.values.append(
             ColorValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -274,8 +280,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -334,7 +340,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
-            order: int | None = None
+        order: int | None = None,
     ) -> Resource:
         """
         Add a date value to the resource.
@@ -364,7 +370,12 @@ class Resource:
         """
         self.values.append(
             DateValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, order=order, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -399,8 +410,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -459,6 +470,7 @@ class Resource:
         value: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a decimal value to the resource.
@@ -485,7 +497,12 @@ class Resource:
         """
         self.values.append(
             DecimalValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -521,7 +538,9 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+        if (include_value_order and not isinstance(values, list)) or (
+            include_value_order and not isinstance(values, tuple)
+        ):
             raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
@@ -582,6 +601,7 @@ class Resource:
         value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a [geonames.org](https://www.geonames.org/) value to the resource.
@@ -610,7 +630,12 @@ class Resource:
         """
         self.values.append(
             GeonameValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -647,8 +672,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -709,6 +734,7 @@ class Resource:
         value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add an integer value to the resource.
@@ -735,7 +761,12 @@ class Resource:
         """
         self.values.append(
             IntValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -771,8 +802,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -832,6 +863,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a link value to the resource, in the form of an ID of another resource.
@@ -857,7 +889,12 @@ class Resource:
         """
         self.values.append(
             LinkValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -892,8 +929,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -954,6 +991,7 @@ class Resource:
         value: str | int | float,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a list value to the resource, i.e. a name of a list node.
@@ -990,6 +1028,7 @@ class Resource:
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
+                order=order,
                 resource_id=self.res_id,
             )
         )
@@ -1028,8 +1067,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -1092,6 +1131,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a simple text value to the resource.
@@ -1117,7 +1157,12 @@ class Resource:
         """
         self.values.append(
             SimpleText.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1152,8 +1197,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -1212,6 +1257,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a textarea value to the resource.
@@ -1320,6 +1366,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1368,6 +1415,7 @@ class Resource:
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
+                order=order,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -1414,8 +1462,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -1431,7 +1479,6 @@ class Resource:
                     resource_id=self.res_id,
                     newline_replacement=newline_replacement,
                 )
-
                 for v, o in zip(vals, val_order)
             ]
         )
@@ -1497,6 +1544,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a time value to the resource.
@@ -1522,7 +1570,12 @@ class Resource:
         """
         self.values.append(
             TimeValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1557,8 +1610,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -1617,6 +1670,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a URI value to the resource.
@@ -1642,7 +1696,12 @@ class Resource:
         """
         self.values.append(
             UriValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1677,8 +1736,8 @@ class Resource:
             )
             ```
         """
-        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)

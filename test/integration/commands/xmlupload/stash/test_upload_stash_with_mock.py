@@ -43,7 +43,7 @@ def resource_client(auth) -> ResourceClientLive:
 
 @pytest.fixture
 def link_val_stash_target_id_2():
-    val = ProcessedLink("002", SOME_PROP_STR, None, None, str(uuid4()))
+    val = ProcessedLink("002", SOME_PROP_STR, None, None, None, str(uuid4()))
     return LinkValueStashItem("001", "sometype", val)
 
 
@@ -79,13 +79,13 @@ class TestUploadLinkValueStashes:
                 [
                     link_val_stash_target_id_2,
                     LinkValueStashItem(
-                        "001", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, str(uuid4()))
+                        "001", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "002", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, str(uuid4()))
+                        "002", "sometype", ProcessedLink("003", SOME_PROP_STR, None, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "004", "sometype", ProcessedLink("002", SOME_PROP_STR, None, None, str(uuid4()))
+                        "004", "sometype", ProcessedLink("002", SOME_PROP_STR, None, None, None, str(uuid4()))
                     ),
                 ],
             ),
@@ -113,6 +113,7 @@ class TestUploadTextValueStashes:
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
             value_uuid=VALUE_UUID,
+            value_order=None,
             resource_references=set(),
             permissions=None,
             comment=None,
@@ -156,6 +157,7 @@ class TestUploadTextValueStashes:
             prop_iri=property_name,
             value_uuid=VALUE_UUID,
             resource_references=set(),
+            value_order=None,
             permissions=None,
             comment=None,
         )

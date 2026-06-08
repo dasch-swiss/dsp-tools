@@ -7,6 +7,8 @@ import regex
 
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
+from dsp_tools.xmllib.internal.checkers import check_raise_if_input_value_for_value_order_is_incorrect
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 
@@ -62,3 +64,14 @@ def test_check_and_inform_about_angular_brackets_informs(in_val):
     )
     with pytest.warns(XmllibInputInfo, match=expected):
         check_and_inform_about_angular_brackets(in_val, "id", "prp")
+
+
+@pytest.mark.parametrize("in_val", [[1, 2, 3], (1, 2, 3), [], ()])
+def test_check_raise_if_input_value_for_value_order_is_incorrect_good(in_val):
+    check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "res")
+
+
+@pytest.mark.parametrize("in_val", [{1, 2, 3}, {"a": 1}, "string", 42])
+def test_check_raise_if_input_value_for_value_order_is_incorrect_raises(in_val):
+    with pytest.raises(XmllibInputError, match=type(in_val).__name__):
+        check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "res")

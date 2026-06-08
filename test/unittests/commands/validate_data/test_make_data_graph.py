@@ -78,6 +78,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
             Literal("label", datatype=XSD.string),
         ),
         (
+            0,
+            TripleObjectType.INTEGER,
+            None,
+            Literal(0, datatype=XSD.int),
+        ),
+        (
             RESOURCE_TYPE_STR,
             TripleObjectType.IRI,
             None,
@@ -85,6 +91,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
         ),
         (
             None,
+            TripleObjectType.IRI,
+            None,
+            Literal("", datatype=XSD.string),
+        ),
+        (
+            "",
             TripleObjectType.IRI,
             None,
             Literal("", datatype=XSD.string),
@@ -180,6 +192,27 @@ class TestColorValue:
         bn = next(g.objects(RES_IRI, ONTO.testColor))
         assert next(g.objects(bn, RDF.type)) == KNORA_API.ColorValue
         assert next(g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("#00ff00", datatype=XSD.string)
+
+    def test_corr_with_order(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
+            "#00ff00",
+            KnoraValueType.COLOR_VALUE,
+            [
+                PropertyObject(
+                    property_type=TriplePropertyType.KNORA_VALUE_ORDER,
+                    object_value=0,
+                    object_type=TripleObjectType.INTEGER,
+                )
+            ],
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_value(g, val, RES_IRI)
+        assert len(g) == 4
+        bn = next(g.objects(RES_IRI, ONTO.testColor))
+        assert next(g.objects(bn, RDF.type)) == KNORA_API.ColorValue
+        assert next(g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("#00ff00", datatype=XSD.string)
+        assert next(g.objects(bn, KNORA_API.valueHasOrder)) == Literal(0, datatype=XSD.integer)
 
 
 class TestDateValue:

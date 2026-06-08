@@ -63,17 +63,17 @@ def _add_property_objects(g: Graph, property_objects: list[PropertyObject], subj
 
 
 def _make_one_rdflib_object(
-    object_value: str | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None = None
+    object_value: str | int | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None = None
 ) -> Literal | URIRef:
-    if not object_value:
+    if object_value is None or len(str_val := str(object_value)) == 0:
         return Literal("", datatype=XSD.string)
     if object_type == TripleObjectType.IRI:
-        return URIRef(object_value)
+        return URIRef(str_val)
     if object_type == TripleObjectType.INTERNAL_ID:
-        return DATA[object_value]
+        return DATA[str_val]
     if prop_type in (TriplePropertyType.KNORA_DATE_START, TriplePropertyType.KNORA_DATE_END):
-        return _process_date_string(object_value, object_type)
-    return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
+        return _process_date_string(str_val, object_type)
+    return Literal(str_val, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
 
 
 def _process_date_string(object_value: str, object_type: TripleObjectType) -> Literal:

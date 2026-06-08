@@ -375,8 +375,18 @@ def test_reformat_content_violation(authentication) -> None:
         ),
         ("textarea_empty", "onto:testTextarea", "The value must be a non-empty string"),
         ("textarea_only_whitespace", "onto:testTextarea", "The value must be a non-empty string"),
-        # ("value_order_skips_number", "onto:testSimpleText", "to be defined"),
-        # ("value_order_has_duplicates", "onto:testSimpleText", "to be defined"),
+        ("value_order_has_duplicates", "onto:testSimpleText", "The order of the values may not be duplicated."),
+        (
+            "value_order_one_value_no_order",
+            "onto:testSimpleText",
+            "If one value of a property has an order, "
+            "all values of that property must have an order to prevent conflicts in the database.",
+        ),
+        (
+            "value_order_skips_number",
+            "onto:testSimpleText",
+            "The order of the values must form a continuous sequence starting at 0.",
+        ),
     ]
     sorted_problems = result.problems
     assert isinstance(sorted_problems, SortedProblems)

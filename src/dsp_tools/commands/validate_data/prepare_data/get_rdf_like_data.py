@@ -255,6 +255,14 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
                 object_type=TripleObjectType.STRING,
             )
         )
+    if value.value_order is not None:
+        metadata.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_VALUE_ORDER,
+                object_value=value.value_order,
+                object_type=TripleObjectType.INTEGER,
+            )
+        )
     return metadata
 
 

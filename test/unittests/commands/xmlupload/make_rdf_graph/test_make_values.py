@@ -161,14 +161,16 @@ class TestMakeOneValueGraphSuccess:
 
     def test_list(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = ProcessedList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None, None)
+        prop = ProcessedList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None, 3)
         result = _make_one_value_graph(prop, res_bn, lookups)
-        assert len(result) == 3
+        assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasListItem))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.ListValue
         value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
         assert value == URIRef("http://rdfh.ch/9999/node")
+        order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
+        assert order == Literal(3, datatype=XSD.integer)
 
     def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
@@ -224,12 +226,12 @@ class TestMakeOneValueGraphSuccess:
             absolute_iri("hasRichtext"),
             None,
             None,
-            None,
+            value_order=1,
             resource_references=set("res_one"),
             value_uuid=str(uuid4()),
         )
         result = _make_one_value_graph(prop, res_bn, lookups)
-        assert len(result) == 4
+        assert len(result) == 5
         val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
@@ -242,6 +244,8 @@ class TestMakeOneValueGraphSuccess:
         assert value == Literal(expected_text, datatype=XSD.string)
         mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
         assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
+        order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
+        assert order == Literal(1, datatype=XSD.integer)
 
     def test_date(self, lookups: IRILookups) -> None:
         res_bn = BNode()

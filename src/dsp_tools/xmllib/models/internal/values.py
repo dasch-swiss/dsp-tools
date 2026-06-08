@@ -33,6 +33,7 @@ class Value(Protocol):
     prop_name: str
     permissions: Permissions
     comment: str | None
+    order: int | None = None
 
 
 @dataclass

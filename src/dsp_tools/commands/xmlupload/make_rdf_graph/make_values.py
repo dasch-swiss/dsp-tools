@@ -129,18 +129,25 @@ def _make_base_value_graph(
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
 ) -> Graph:
-    g = _add_optional_triples(val_node, val.permissions, val.comment)
+    g = _add_optional_triples(val_node, val.permissions, val.comment, val.value_order)
     g.add((res_node, URIRef(val.prop_iri), val_node))
     g.add((val_node, RDF.type, prop_type_info.knora_type))
     return g
 
 
-def _add_optional_triples(val_bn: BNode | URIRef, permissions: Permissions | None, comment: str | None) -> Graph:
+def _add_optional_triples(
+    val_bn: BNode | URIRef,
+    permissions: Permissions | None,
+    comment: str | None,
+    value_order: int | None,
+) -> Graph:
     g = Graph()
-    if permissions:
+    if permissions is not None:
         g.add((val_bn, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))
-    if comment:
+    if comment is not None:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
+    if value_order is not None:
+        g.add((val_bn, KNORA_API.valueHasOrder, Literal(value_order, datatype=XSD.integer)))
     return g
 
 
@@ -197,7 +204,7 @@ def _make_date_value_graph(
 ) -> Graph:
     val_bn = BNode()
     date = val.value
-    g = _add_optional_triples(val_bn, val.permissions, val.comment)
+    g = _add_optional_triples(val_bn, val.permissions, val.comment, val.value_order)
     g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.DateValue))
     if cal := date.calendar:
@@ -229,7 +236,7 @@ def _make_interval_value_graph(
     res_node: BNode | URIRef,
 ) -> Graph:
     val_bn = BNode()
-    g = _add_optional_triples(val_bn, val.permissions, val.comment)
+    g = _add_optional_triples(val_bn, val.permissions, val.comment, val.value_order)
     g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
     g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.decimal)))

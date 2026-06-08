@@ -669,6 +669,8 @@ class TestPermissions:
 
 
 class TestValueOrder:
+    """Each of these values are processed in a different function, therefore warrant a separate test."""
+
     def test_list_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt", 1)
         result = _get_one_processed_value(val, lookups)
@@ -702,6 +704,7 @@ class TestValueOrder:
         assert result.value_order == 4
 
     def test_uri_value(self, lookups: XmlReferenceLookups):
+        """This value is processed by the function shared by all other values except those above."""
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None, 3)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedUri)

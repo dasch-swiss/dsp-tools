@@ -23,6 +23,7 @@ class ProcessedValue:
     prop_iri: str
     comment: str | None
     permissions: Permissions | None
+    value_order: int | None
 
 
 @dataclass

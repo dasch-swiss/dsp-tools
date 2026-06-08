@@ -23,7 +23,7 @@ def test_make_link_value_create_graph():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, value_uuid=str(uuid4()), value_order=None),
     )
     result = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     assert len(result) == 4

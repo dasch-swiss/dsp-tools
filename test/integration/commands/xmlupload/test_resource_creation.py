@@ -141,7 +141,7 @@ def test_one_resource_with_link_to_existing_resource(
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [ProcessedLink("foo_2_id", LINK_PROP, None, None, None, str(uuid4()))],
+            [ProcessedLink("foo_2_id", LINK_PROP, None, None, value_order=1, value_uuid=str(uuid4()))],
         )
     ]
     upload_state = UploadState(
@@ -177,6 +177,10 @@ def test_one_resource_with_link_to_existing_resource(
             "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
             "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
                 "@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 1,
             },
         },
     }

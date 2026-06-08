@@ -360,17 +360,32 @@ class TestMakeOptionalTriples:
     def test_all(self):
         val_bn = BNode()
         result = _add_optional_triples(val_bn, DUMMY_PERMISSION, "comment", 0)
-        assert len(result)
+        assert len(result) == 3
+        triples = [
+            (val_bn, KNORA_API.hasPermissions, PERMISSION_LITERAL),
+            (val_bn, KNORA_API.valueHasComment, Literal("comment", datatype=XSD.string)),
+            (val_bn, KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
+        ]
+        for t in triples:
+            assert t in result
 
     def test_permissions_comment(self):
         val_bn = BNode()
         result = _add_optional_triples(val_bn, DUMMY_PERMISSION, "comment", None)
-        assert len(result)
+        assert len(result) == 2
+        triples = [
+            (val_bn, KNORA_API.hasPermissions, PERMISSION_LITERAL),
+            (val_bn, KNORA_API.valueHasComment, Literal("comment", datatype=XSD.string)),
+        ]
+        for t in triples:
+            assert t in result
 
     def test_value_order(self):
         val_bn = BNode()
         result = _add_optional_triples(val_bn, None, None, 1)
-        assert len(result)
+        assert len(result) == 1
+        trip = (val_bn, KNORA_API.valueHasOrder, Literal(1, datatype=XSD.integer))
+        assert trip in result
 
     def test_none(self):
         val_bn = BNode()

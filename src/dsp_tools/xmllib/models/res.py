@@ -223,7 +223,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -266,7 +267,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -355,7 +357,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -398,7 +401,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -484,7 +488,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -528,7 +533,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -617,7 +623,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -662,7 +669,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -750,7 +758,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -794,7 +803,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -880,7 +890,8 @@ class Resource:
             value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -923,7 +934,8 @@ class Resource:
             values: list of target resources IDs
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -1015,7 +1027,8 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -1062,7 +1075,8 @@ class Resource:
             values: names of list nodes (N.B. not the labels, but the names of the list nodes)
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -1152,7 +1166,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -1195,7 +1210,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -1280,7 +1296,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -1314,7 +1331,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -1400,7 +1418,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1463,7 +1482,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1526,7 +1546,8 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1573,7 +1594,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -1616,7 +1638,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values
@@ -1701,7 +1724,8 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: display all the values with this property in a specific order
+            order: Position at which this value is displayed in the app, relative to other values of the same property.
+                   If None, the display order is not guaranteed.
 
         Returns:
             The original resource, with the added value
@@ -1744,7 +1768,8 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
 
         Returns:
             The original resource, with the added values

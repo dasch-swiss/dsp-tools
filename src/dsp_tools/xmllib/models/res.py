@@ -11,6 +11,9 @@ from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empt
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
+from dsp_tools.xmllib.internal.xmllib_warnings_util import (
+    raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered,
+)
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.internal.file_values import FileValue
@@ -210,6 +213,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a color value to the resource.
@@ -246,6 +250,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several color values to the resource.
@@ -269,9 +274,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_color(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_color(prop_name, v, permissions, comment, o)
         return self
 
     def add_color_optional(
@@ -324,6 +334,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+            order: int | None = None
     ) -> Resource:
         """
         Add a date value to the resource.
@@ -353,7 +364,7 @@ class Resource:
         """
         self.values.append(
             DateValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, order=order, resource_id=self.res_id
             )
         )
         return self
@@ -364,6 +375,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several date values to the resource.
@@ -387,9 +399,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_date(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_date(prop_name, v, permissions, comment, o)
         return self
 
     def add_date_optional(
@@ -479,6 +496,7 @@ class Resource:
         values: Collection[float | int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several decimal values to the resource.
@@ -503,9 +521,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_decimal(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_decimal(prop_name, v, permissions, comment, o)
         return self
 
     def add_decimal_optional(
@@ -598,6 +621,7 @@ class Resource:
         values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several [geonames.org](https://www.geonames.org/) values to the resource.
@@ -623,9 +647,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_geoname(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_geoname(prop_name, v, permissions, comment, o)
         return self
 
     def add_geoname_optional(
@@ -717,6 +746,7 @@ class Resource:
         values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several integer values to the resource.
@@ -741,9 +771,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_integer(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_integer(prop_name, v, permissions, comment, o)
         return self
 
     def add_integer_optional(
@@ -833,6 +868,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several link values to the resource, in the form of IDs of other resources.
@@ -856,9 +892,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_link(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_link(prop_name, v, permissions, comment, o)
         return self
 
     def add_link_optional(
@@ -961,6 +1002,7 @@ class Resource:
         values: Collection[str | int | float],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several list values to the resource, i.e. names of list nodes.
@@ -986,9 +1028,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_list(prop_name, list_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_list(prop_name, list_name, v, permissions, comment, o)
         return self
 
     def add_list_optional(
@@ -1081,6 +1128,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several simple text values to the resource.
@@ -1104,9 +1152,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_simpletext(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_simpletext(prop_name, v, permissions, comment, o)
         return self
 
     def add_simpletext_optional(
@@ -1191,6 +1244,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several textarea values to the resource.
@@ -1214,7 +1268,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext_multiple(prop_name, values, permissions, comment)
+        self.add_simpletext_multiple(prop_name, values, permissions, comment, include_value_order)
         return self
 
     def add_textarea_optional(
@@ -1326,6 +1380,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1359,6 +1414,11 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend(
             [
@@ -1367,10 +1427,12 @@ class Resource:
                     prop_name=prop_name,
                     permissions=permissions,
                     comment=comment,
+                    order=o,
                     resource_id=self.res_id,
                     newline_replacement=newline_replacement,
                 )
-                for v in vals
+
+                for v, o in zip(vals, val_order)
             ]
         )
         return self
@@ -1471,6 +1533,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several time values to the resource.
@@ -1494,9 +1557,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_time(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_time(prop_name, v, permissions, comment, o)
         return self
 
     def add_time_optional(
@@ -1585,6 +1653,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several URI values to the resource.
@@ -1608,9 +1677,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order and not isinstance(values, list) or not isinstance(values, tuple):
+            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+            val_order = range(len(values))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_uri(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_uri(prop_name, v, permissions, comment, o)
         return self
 
     def add_uri_optional(

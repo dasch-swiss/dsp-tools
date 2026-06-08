@@ -116,6 +116,18 @@ def raise_xmllib_input_error(msg: MessageInfo) -> Never:
     raise XmllibInputError(msg_str)
 
 
+def raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(
+    input_values: Any, prop_name: str, res_id: str
+) -> None:
+    msg_str = (
+        f"You set the parameter 'add_value_order' to true when using the ..._multiple() method. "
+        f"The only acceptable input of the values if the order is wished is a list. "
+        f"Your input with the type '{type(input_values).__name__}' is not acceptable."
+    )
+    msg_info = MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name)
+    raise_xmllib_input_error(msg_info)
+
+
 def emit_xmllib_input_warning(msg: MessageInfo) -> None:
     """These are to be used if the error is caused by user input."""
     if str(os.getenv("XMLLIB_IGNORE_USER_WARNING")).lower() == "true":

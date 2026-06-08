@@ -67,6 +67,7 @@ class ColorValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -75,12 +76,22 @@ class ColorValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> ColorValue:
         if not is_color(value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
+        if order is not None:
+            if not is_integer(order):
+                emit_xmllib_input_type_mismatch_warning(
+                    expected_type="integer",
+                    value=order,
+                    res_id=resource_id,
+                    prop_name=prop_name,
+                    value_field="order on value",
+                )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
@@ -91,6 +102,7 @@ class DateValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -99,6 +111,7 @@ class DateValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> DateValue:
         if not is_date(value):
@@ -115,6 +128,7 @@ class DecimalValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -123,6 +137,7 @@ class DecimalValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> DecimalValue:
         if not is_decimal(value):
@@ -139,6 +154,7 @@ class GeonameValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -147,6 +163,7 @@ class GeonameValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> GeonameValue:
         if not is_geoname(value):
@@ -163,6 +180,7 @@ class IntValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -171,6 +189,7 @@ class IntValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> IntValue:
         if not is_integer(value):
@@ -187,6 +206,7 @@ class LinkValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -195,6 +215,7 @@ class LinkValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> LinkValue:
         if not is_link_value(value):
@@ -212,6 +233,7 @@ class ListValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -221,6 +243,7 @@ class ListValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> ListValue:
         if str(value).startswith("http://rdfh.ch/lists/"):
@@ -251,6 +274,7 @@ class SimpleText(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -259,6 +283,7 @@ class SimpleText(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> SimpleText:
         converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
@@ -273,6 +298,7 @@ class Richtext(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -281,6 +307,7 @@ class Richtext(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
         newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
     ) -> Richtext:
@@ -299,6 +326,7 @@ class TimeValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -307,6 +335,7 @@ class TimeValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> TimeValue:
         if not is_timestamp(value):
@@ -323,6 +352,7 @@ class UriValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -331,6 +361,7 @@ class UriValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> UriValue:
         v = str(value)

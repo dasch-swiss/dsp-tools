@@ -33,7 +33,7 @@ def text_value_with_link() -> ProcessedValue:
 
 @pytest.fixture
 def text_value_no_link() -> ProcessedValue:
-    return ProcessedRichtext(FormattedTextValue("Text"), "prop", None, None, set(), str(uuid4()))
+    return ProcessedRichtext(FormattedTextValue("Text"), "prop", None, None, None, set(), str(uuid4()))
 
 
 @pytest.fixture
@@ -128,6 +128,7 @@ def test_process_one_resource_with_iris() -> None:
         "prop",
         None,
         None,
+        None,
         {resource_iri},
         str(uuid4()),
     )
@@ -148,8 +149,9 @@ def test_process_one_resource_with_mixed_iri_and_id() -> None:
         "prop",
         None,
         None,
-        {resource_iri, "res_id_target"},
-        str(uuid4()),
+        value_order=None,
+        resource_references={resource_iri, "res_id_target"},
+        value_uuid=str(uuid4()),
     )
     resource = ProcessedResource("res_id", "res_type", "lbl", None, [richtext])
     link_list, standoff_list = _process_one_resource(resource)

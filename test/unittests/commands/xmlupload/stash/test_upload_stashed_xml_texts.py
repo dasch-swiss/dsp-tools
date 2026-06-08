@@ -37,6 +37,7 @@ def standoff_stash_item() -> StandoffStashItem:
         value_uuid=str(uuid4()),
         comment=None,
         permissions=None,
+        value_order=None,
     )
     return StandoffStashItem("res_one", str(RES_TYPE), val)
 

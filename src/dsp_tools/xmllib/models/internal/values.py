@@ -8,6 +8,7 @@ from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_input_order
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
@@ -84,18 +85,14 @@ class ColorValue(Value):
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -121,18 +118,14 @@ class DateValue(Value):
                 expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -158,18 +151,14 @@ class DecimalValue(Value):
                 expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -195,18 +184,14 @@ class GeonameValue(Value):
                 expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -232,18 +217,14 @@ class IntValue(Value):
                 expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -269,18 +250,14 @@ class LinkValue(Value):
                 expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -316,24 +293,14 @@ class ListValue(Value):
                     expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
                 )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
         return cls(
             value=str(value),
             list_name=str(list_str),
             prop_name=prop_name,
             permissions=permissions,
             comment=fixed_comment,
-            order=order,
+            order=fixed_order,
         )
 
 
@@ -358,19 +325,13 @@ class SimpleText(Value):
         converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
         check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
         return cls(
-            value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order
+            value=converted_val,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
         )
 
 
@@ -399,19 +360,13 @@ class Richtext(Value):
         if isinstance(result, MessageInfo):
             raise_xmllib_input_error(result)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
         return cls(
-            value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order
+            value=converted_val,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
         )
 
 
@@ -438,18 +393,14 @@ class TimeValue(Value):
                 expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -476,15 +427,11 @@ class UriValue(Value):
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        if order is not None:
-            if not is_integer(order) or not is_decimal(order):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="integer",
-                    value=order,
-                    res_id=resource_id,
-                    prop_name=prop_name,
-                    value_field="order on value",
-                )
-            else:
-                order = int(order)
-        return cls(value=v, prop_name=prop_name, permissions=permissions, comment=fixed_comment, order=order)
+        fixed_order = check_and_fix_input_order(order, prop_name, resource_id)
+        return cls(
+            value=v,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )

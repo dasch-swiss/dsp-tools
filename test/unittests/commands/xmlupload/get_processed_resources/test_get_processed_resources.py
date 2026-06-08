@@ -460,6 +460,7 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_bool_value_with_comment(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment", None)

@@ -36,7 +36,7 @@ def resource_graph() -> Graph:
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Special Characters: äöüéèà",
         permissions=None,
-        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None, None)],
+        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None, 1)],
         file_value=None,
         migration_metadata=None,
     )
@@ -52,6 +52,10 @@ def test_serialise_jsonld_for_resource(resource_graph: Graph) -> None:
             "http://api.knora.org/ontology/knora-api/v2#booleanValueAsBoolean": {
                 "@type": "http://www.w3.org/2001/XMLSchema#boolean",
                 "@value": True,
+            },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 1,
             },
         },
         "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": "http://rdfh.ch/9999/project"},

@@ -226,6 +226,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -268,6 +269,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -356,6 +358,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -398,6 +401,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -483,6 +487,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -526,6 +531,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -538,10 +544,8 @@ class Resource:
             )
             ```
         """
-        if (include_value_order and not isinstance(values, list)) or (
-            include_value_order and not isinstance(values, tuple)
-        ):
-            raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(values, prop_name, self.res_id)
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
             val_order = range(len(values))
         else:
             val_order = [None] * len(values)
@@ -616,6 +620,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -660,6 +665,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -747,6 +753,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -790,6 +797,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -875,6 +883,7 @@ class Resource:
             value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -917,6 +926,7 @@ class Resource:
             values: list of target resources IDs
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -1008,6 +1018,7 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -1054,6 +1065,7 @@ class Resource:
             values: names of list nodes (N.B. not the labels, but the names of the list nodes)
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -1143,6 +1155,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -1185,6 +1198,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -1269,6 +1283,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -1281,7 +1296,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext(prop_name, value, permissions, comment)
+        self.add_simpletext(prop_name, value, permissions, comment, order)
         return self
 
     def add_textarea_multiple(
@@ -1302,6 +1317,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -1387,6 +1403,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1449,6 +1466,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1490,6 +1508,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1510,6 +1529,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1531,7 +1551,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            return self.add_richtext(prop_name, value, permissions, comment, newline_replacement)
+            return self.add_richtext(prop_name, value, permissions, comment, order, newline_replacement)
         return self
 
     #######################
@@ -1556,6 +1576,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -1598,6 +1619,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values
@@ -1682,6 +1704,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: display all the values with this property in a specific order
 
         Returns:
             The original resource, with the added value
@@ -1724,6 +1747,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: add a permanent order to the values, the order is determined by the order of the input values
 
         Returns:
             The original resource, with the added values

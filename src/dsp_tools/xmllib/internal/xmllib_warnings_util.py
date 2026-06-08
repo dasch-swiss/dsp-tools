@@ -119,6 +119,7 @@ def raise_xmllib_input_error(msg: MessageInfo) -> Never:
 def raise_xmllib_input_error_multiple_value_input_must_be_list_if_ordered(
     input_values: Any, prop_name: str, res_id: str
 ) -> None:
+    """Raises the error with the message if """
     msg_str = (
         f"You set the parameter 'add_value_order' to true when using the ..._multiple() method. "
         f"The only acceptable input of the values if the order is wished is a list. "

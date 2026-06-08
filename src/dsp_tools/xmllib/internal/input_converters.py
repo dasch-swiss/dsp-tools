@@ -155,7 +155,8 @@ def numeric_entities(text: str) -> str:
     return text
 
 
-def check_and_fix_input_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
+def check_and_fix_value_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
+    """Check if the value order is correct and convert to an int if it is not none. Else raise an error."""
 
     def _is_convertable_value(inpt: Any) -> bool:
         match inpt:

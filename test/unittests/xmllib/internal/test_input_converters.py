@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
-from dsp_tools.xmllib.internal.input_converters import check_and_fix_input_order
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_value_order
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
@@ -53,7 +53,7 @@ def test_check_and_fix_is_non_empty_string_warns(original: str):
 
 class TestCheckAndFixInputOrder:
     def test_none_returns_none(self) -> None:
-        assert check_and_fix_input_order(None, "prop", "res") is None
+        assert check_and_fix_value_order(None, "prop", "res") is None
 
     @pytest.mark.parametrize(
         ("input_order", "expected"),
@@ -65,7 +65,7 @@ class TestCheckAndFixInputOrder:
         ],
     )
     def test_valid_inputs_return_int(self, input_order: int | float | str, expected: int) -> None:
-        assert check_and_fix_input_order(input_order, "prop", "res") == expected
+        assert check_and_fix_value_order(input_order, "prop", "res") == expected
 
     @pytest.mark.parametrize(
         "input_order",
@@ -81,4 +81,4 @@ class TestCheckAndFixInputOrder:
     )
     def test_invalid_inputs_raise_error(self, input_order: object) -> None:
         with pytest.raises(XmllibInputError, match=type(input_order).__name__):
-            check_and_fix_input_order(input_order, "prop", "res")
+            check_and_fix_value_order(input_order, "prop", "res")

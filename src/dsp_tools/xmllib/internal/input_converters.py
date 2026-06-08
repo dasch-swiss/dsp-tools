@@ -3,6 +3,7 @@ from __future__ import annotations
 from html.entities import html5
 from typing import Any
 
+import pandas as pd
 import regex
 
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
@@ -153,3 +154,33 @@ def numeric_entities(text: str) -> str:
         text,
     )
     return text
+
+
+def check_and_fix_input_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
+
+    def _is_convertable_value(inpt: Any) -> bool:
+        if pd.isna(inpt):
+            return False
+
+        match inpt:
+            case bool():
+                # a bool is a valid 'int' in Python
+                return False
+            case int() | float():
+                return True
+            case str():
+                return bool(regex.search(r"^\d+$", inpt))
+            case _:
+                return False
+
+    if input_order is None:
+        return None
+    if not _is_convertable_value(input_order):
+        msg = (
+            f"The order must be a valid integer or 'None',"
+            f" your input of the type {type(input_order).__name__} is not allowed."
+        )
+        msg_info = MessageInfo(message=msg, resource_id=res_id, prop_name=prop_name, field="order")
+        raise_xmllib_input_error(msg_info)
+    else:
+        return int(input_order)

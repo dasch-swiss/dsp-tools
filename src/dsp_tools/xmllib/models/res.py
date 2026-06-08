@@ -280,8 +280,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "color", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -412,8 +412,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "date", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -542,8 +542,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "decimal", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -676,8 +676,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geoname", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -808,8 +808,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "integer", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -937,8 +937,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "link", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -1077,8 +1077,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "list", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -1209,8 +1209,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "simpletext", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -1478,8 +1478,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "richtext", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -1630,8 +1630,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "time", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
@@ -1758,8 +1758,8 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, self.res_id)
-            val_order = range(len(values))
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "uri", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)

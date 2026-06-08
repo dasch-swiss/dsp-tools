@@ -68,10 +68,10 @@ def test_check_and_inform_about_angular_brackets_informs(in_val):
 
 @pytest.mark.parametrize("in_val", [[1, 2, 3], (1, 2, 3), [], ()])
 def test_check_raise_if_input_value_for_value_order_is_incorrect_good(in_val):
-    check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "res")
+    check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "test", "res")
 
 
 @pytest.mark.parametrize("in_val", [{1, 2, 3}, {"a": 1}, "string", 42])
 def test_check_raise_if_input_value_for_value_order_is_incorrect_raises(in_val):
     with pytest.raises(XmllibInputError, match=type(in_val).__name__):
-        check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "res")
+        check_raise_if_input_value_for_value_order_is_incorrect(in_val, "prop", "test", "res")

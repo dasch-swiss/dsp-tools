@@ -3,7 +3,6 @@ from __future__ import annotations
 from html.entities import html5
 from typing import Any
 
-import pandas as pd
 import regex
 
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
@@ -159,14 +158,11 @@ def numeric_entities(text: str) -> str:
 def check_and_fix_input_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
 
     def _is_convertable_value(inpt: Any) -> bool:
-        if pd.isna(inpt):
-            return False
-
         match inpt:
             case bool():
                 # a bool is a valid 'int' in Python
                 return False
-            case int() | float():
+            case int():
                 return True
             case str():
                 return bool(regex.search(r"^\d+$", inpt))

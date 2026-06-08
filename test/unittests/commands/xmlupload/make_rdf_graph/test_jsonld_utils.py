@@ -36,7 +36,7 @@ def resource_graph() -> Graph:
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Special Characters: äöüéèà",
         permissions=None,
-        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
+        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None, None)],
         file_value=None,
         migration_metadata=None,
     )
@@ -67,7 +67,7 @@ def test_serialise_jsonld_for_value():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, None, str(uuid4())),
     )
     graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     expected = {

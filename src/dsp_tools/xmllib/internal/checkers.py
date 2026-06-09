@@ -8,6 +8,7 @@ import regex
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 
 
 def is_nonempty_value_internal(value: Any) -> bool:
@@ -160,3 +161,17 @@ def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop
             prop_name=prop_name,
         )
         emit_xmllib_input_info(msg_info)
+
+
+def check_raise_if_input_value_for_value_order_is_incorrect(
+    input_values: Any, prop_name: str, value_type: str, res_id: str
+) -> None:
+    """Raises an error if the input for ...multiple() method is not an ordered collection (list or tuple)."""
+    if not isinstance(input_values, (list, tuple)):
+        msg_str = (
+            f"You set the parameter 'add_value_order' to true when using the 'add_{value_type}_multiple()' method. "
+            f"This is only possible if the values are in an ordered collection (like a list or a tuple). "
+            f"Your input with the type '{type(input_values).__name__}' is not acceptable, because it is unordered."
+        )
+        msg_info = MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name)
+        raise_xmllib_input_error(msg_info)

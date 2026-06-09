@@ -108,6 +108,8 @@ def _serialise_generic_element(value: Value, prop_type: str) -> etree._Element:
         attribs["permissions"] = value.permissions.value
     if value.comment is not None:
         attribs["comment"] = str(value.comment)
+    if value.order is not None:
+        attribs["order"] = str(value.order)
     ele = etree.Element(f"{DASCH_SCHEMA}{prop_type}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
     ele.text = str(value.value)
     return ele

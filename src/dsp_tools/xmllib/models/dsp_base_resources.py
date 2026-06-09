@@ -78,7 +78,12 @@ class RegionResource:
             label=lbl,
             values=[
                 LinkValue.new(
-                    value=region_of, prop_name="isRegionOf", resource_id=res_id, comment=None, permissions=permissions
+                    value=region_of,
+                    prop_name="isRegionOf",
+                    resource_id=res_id,
+                    comment=None,
+                    order=None,
+                    permissions=permissions,
                 )
             ],
             geometry=None,
@@ -274,6 +279,7 @@ class RegionResource:
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -311,6 +317,7 @@ class RegionResource:
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -396,7 +403,9 @@ class LinkResource:
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals: list[Value] = [
-            LinkValue.new(value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, permissions=permissions)
+            LinkValue.new(
+                value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, order=None, permissions=permissions
+            )
             for x in links_to
         ]
         return LinkResource(
@@ -440,6 +449,7 @@ class LinkResource:
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -581,7 +591,12 @@ class VideoSegmentResource:
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
-            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+            value=segment_of,
+            prop_name="isSegmentOf",
+            permissions=permissions,
+            comment=None,
+            order=None,
+            resource_id=res_id,
         )
         return VideoSegmentResource(
             res_id=res_id,
@@ -624,6 +639,7 @@ class VideoSegmentResource:
                 prop_name="hasTitle",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )
@@ -689,6 +705,7 @@ class VideoSegmentResource:
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -786,6 +803,7 @@ class VideoSegmentResource:
                 prop_name="hasDescription",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -881,6 +899,7 @@ class VideoSegmentResource:
                 prop_name="hasKeyword",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )
@@ -971,6 +990,7 @@ class VideoSegmentResource:
                 prop_name="relatesTo",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )
@@ -1072,7 +1092,12 @@ class AudioSegmentResource:
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         segment_of_val = LinkValue.new(
-            value=segment_of, prop_name="isSegmentOf", permissions=permissions, comment=None, resource_id=res_id
+            value=segment_of,
+            prop_name="isSegmentOf",
+            permissions=permissions,
+            comment=None,
+            order=None,
+            resource_id=res_id,
         )
         return AudioSegmentResource(
             res_id=res_id,
@@ -1115,6 +1140,7 @@ class AudioSegmentResource:
                 prop_name="hasTitle",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )
@@ -1180,6 +1206,7 @@ class AudioSegmentResource:
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -1277,6 +1304,7 @@ class AudioSegmentResource:
                 prop_name="hasDescription",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -1372,6 +1400,7 @@ class AudioSegmentResource:
                 prop_name="hasKeyword",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )
@@ -1462,6 +1491,7 @@ class AudioSegmentResource:
                 prop_name="relatesTo",
                 permissions=permissions,
                 comment=comment,
+                order=None,
                 resource_id=self.res_id,
             )
         )

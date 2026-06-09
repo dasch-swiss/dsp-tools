@@ -234,7 +234,7 @@ relative to other values of the same property on the same resource.
 Without the `order` attribute, the display order of values is not guaranteed.
 Use `order` when a consistent, meaningful display sequence matters.
 
-### Rules
+**Rules**
 
 - The attribute is optional.
   If omitted for all values of a property, display order is not guaranteed.
@@ -246,14 +246,14 @@ Use `order` when a consistent, meaningful display sequence matters.
 - `order` is scoped per property per resource:
   different resources, or different properties on the same resource, may reuse the same numbers.
 
-### Limitations
+**Limitations**
 
 The `order` attribute is not applicable to:
 
 - **Boolean values**: a boolean property can only hold one value, so ordering is not meaningful.
 - **DSP built-in resources** (`<region>`, `<link>`, `<video-segment>`, `<audio-segment>`).
 
-### Example
+**Example**
 
 ```xml
 <resource label="Ordered values" restype=":MyClass" id="res_1">

@@ -226,49 +226,6 @@ The authorship can be defined in the following way:
 These identifiers can later be referenced in the `<bitstream>` and `<iiif-uri>` elements.
 
 
-## Value Order
-
-The optional `order` attribute on value elements specifies the position at which a value is displayed in the DSP app,
-relative to other values of the same property on the same resource.
-
-Without the `order` attribute, the display order of values is not guaranteed.
-Use `order` when a consistent, meaningful display sequence matters.
-
-<!-- markdownlint-disable MD036 -->
-
-**Rules**
-
-- The attribute is optional.
-  If omitted for all values of a property, display order is not guaranteed.
-- If `order` is specified for any value of a property within a resource,
-  it **must** be specified for all values of that property within the same resource.
-- The values must form a complete sequence starting at `0` with no gaps:
-  `0, 1, 2` is valid; `0, 2` or `1, 2` are not.
-- The values must be unique within the same property of a resource.
-- `order` is scoped per property per resource:
-  different resources, or different properties on the same resource, may reuse the same numbers.
-
-**Limitations**
-
-The `order` attribute is not applicable to:
-
-- **Boolean values**: a boolean property can only hold one value, so ordering is not meaningful.
-- **DSP built-in resources** (`<region>`, `<link>`, `<video-segment>`, `<audio-segment>`).
-
-**Example**
-
-```xml
-<resource label="Ordered values" restype=":MyClass" id="res_1">
-    <text-prop name=":hasText">
-        <text encoding="utf8" order="0">First entry</text>
-        <text encoding="utf8" order="1">Second entry</text>
-        <text encoding="utf8" order="2">Third entry</text>
-    </text-prop>
-</resource>
-```
-
-<!-- markdownlint-enable MD036 -->
-
 ## Describing Resources With the `<resource>` Element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
@@ -1323,6 +1280,48 @@ Technical notes:
   In the background, DSP-TOOLS converts it to `isVideoSegmentOf` / `isAudioSegmentOf`.
 
 
+## Value Order
+
+The optional `order` attribute on value elements specifies the position at which a value is displayed in the DSP app,
+relative to other values of the same property on the same resource.
+
+Without the `order` attribute, the display order of values is not guaranteed.
+Use `order` when a consistent, meaningful display sequence matters.
+
+<!-- markdownlint-disable MD036 -->
+
+**Rules**
+
+- The attribute is optional.
+  If omitted for all values of a property, display order is not guaranteed.
+- If `order` is specified for any value of a property within a resource,
+  it **must** be specified for all values of that property within the same resource.
+- The values must form a complete sequence starting at `0` with no gaps:
+  `0, 1, 2` is valid; `0, 2` or `1, 2` are not.
+- The values must be unique within the same property of a resource.
+- `order` is scoped per property per resource:
+  different resources, or different properties on the same resource, may reuse the same numbers.
+
+**Limitations**
+
+The `order` attribute is not applicable to:
+
+- **Boolean values**: a boolean property can only hold one value, so ordering is not meaningful.
+- **DSP built-in resources** (`<region>`, `<link>`, `<video-segment>`, `<audio-segment>`).
+
+**Example**
+
+```xml
+<resource label="Ordered values" restype=":MyClass" id="res_1">
+    <text-prop name=":hasText">
+        <text encoding="utf8" order="0">First entry</text>
+        <text encoding="utf8" order="1">Second entry</text>
+        <text encoding="utf8" order="2">Third entry</text>
+    </text-prop>
+</resource>
+```
+
+<!-- markdownlint-enable MD036 -->
 
 ## Complete Example
 

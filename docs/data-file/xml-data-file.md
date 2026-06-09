@@ -234,6 +234,8 @@ relative to other values of the same property on the same resource.
 Without the `order` attribute, the display order of values is not guaranteed.
 Use `order` when a consistent, meaningful display sequence matters.
 
+<!-- markdownlint-disable MD036 -->
+
 **Rules**
 
 - The attribute is optional.
@@ -265,6 +267,7 @@ The `order` attribute is not applicable to:
 </resource>
 ```
 
+<!-- markdownlint-enable MD036 -->
 
 ## Describing Resources With the `<resource>` Element
 

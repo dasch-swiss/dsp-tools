@@ -223,7 +223,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -359,7 +359,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -492,7 +492,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -629,7 +629,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -766,7 +766,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -900,7 +900,7 @@ class Resource:
             value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -1039,7 +1039,7 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -1180,7 +1180,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -1312,7 +1312,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -1436,7 +1436,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
@@ -1566,7 +1566,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
@@ -1615,7 +1615,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
@@ -1747,7 +1747,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app (starting at 0), 
+            order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 

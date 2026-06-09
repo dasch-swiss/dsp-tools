@@ -475,6 +475,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 color values:
 
@@ -540,6 +541,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 date values:
 
@@ -569,6 +571,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 decimal values:
 
@@ -673,6 +676,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with a link to Vienna and one to Basel:
 
@@ -702,6 +706,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 integer values:
 
@@ -733,6 +738,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 list values:
 
@@ -776,6 +782,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with a link to `<resource id="res_1" ...>` 
 and a link to `<resource id="res_2" ...>`:
@@ -808,6 +815,7 @@ The `<text>` element has the following attributes:
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 text values:
 
@@ -1099,6 +1107,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 time values:
 
@@ -1128,6 +1137,7 @@ Attributes:
 
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
 Example of a property with 2 URI values:
 
@@ -1270,6 +1280,48 @@ Technical notes:
   In the background, DSP-TOOLS converts it to `isVideoSegmentOf` / `isAudioSegmentOf`.
 
 
+## Value Order
+
+The optional `order` attribute on value elements specifies the position at which a value is displayed in the DSP app,
+relative to other values of the same property on the same resource.
+
+Without the `order` attribute, the display order of values is not guaranteed.
+Use `order` when a consistent, meaningful display sequence matters.
+
+<!-- markdownlint-disable MD036 -->
+
+**Rules**
+
+- The attribute is optional.
+  If omitted for all values of a property, display order is not guaranteed.
+- If `order` is specified for any value of a property within a resource,
+  it **must** be specified for all values of that property within the same resource.
+- The values must form a complete sequence starting at `0` with no gaps:
+  `0, 1, 2` is valid; `0, 2` or `1, 2` are not.
+- The values must be unique within the same property of a resource.
+- `order` is scoped per property per resource:
+  different resources, or different properties on the same resource, may reuse the same numbers.
+
+**Limitations**
+
+The `order` attribute is not applicable to:
+
+- **Boolean values**: a boolean property can only hold one value, so ordering is not meaningful.
+- **DSP built-in resources** (`<region>`, `<link>`, `<video-segment>`, `<audio-segment>`).
+
+**Example**
+
+```xml
+<resource label="Ordered values" restype=":MyClass" id="res_1">
+    <text-prop name=":hasText">
+        <text encoding="utf8" order="0">First entry</text>
+        <text encoding="utf8" order="1">Second entry</text>
+        <text encoding="utf8" order="2">Third entry</text>
+    </text-prop>
+</resource>
+```
+
+<!-- markdownlint-enable MD036 -->
 
 ## Complete Example
 

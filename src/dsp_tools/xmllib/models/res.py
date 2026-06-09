@@ -223,8 +223,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -269,6 +270,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -357,8 +359,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -403,6 +406,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -488,8 +492,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -535,6 +540,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -623,8 +629,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -671,6 +678,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -758,8 +766,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -805,6 +814,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -890,8 +900,9 @@ class Resource:
             value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -936,6 +947,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1027,8 +1039,9 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1077,6 +1090,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1166,8 +1180,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1212,6 +1227,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1296,8 +1312,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1333,6 +1350,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1418,8 +1436,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1484,6 +1503,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1546,8 +1566,9 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1594,8 +1615,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1640,6 +1662,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1724,8 +1747,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            order: Position at which this value is displayed in the app, relative to other values of the same property.
-                   If None, the display order is not guaranteed.
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1770,6 +1794,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values

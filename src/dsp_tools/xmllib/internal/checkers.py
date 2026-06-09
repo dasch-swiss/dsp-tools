@@ -170,8 +170,8 @@ def check_raise_if_input_value_for_value_order_is_incorrect(
     if not isinstance(input_values, (list, tuple)):
         msg_str = (
             f"You set the parameter 'add_value_order' to true when using the 'add_{value_type}_multiple()' method. "
-            f"The only acceptable input of the values if the order is wished is a list or tuple. "
-            f"Your input with the type '{type(input_values).__name__}' is not acceptable."
+            f"This is only possible if the values are in an ordered collection (like a list or a tuple). "
+            f"Your input with the type '{type(input_values).__name__}' is not acceptable, because it is unordered."
         )
         msg_info = MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name)
         raise_xmllib_input_error(msg_info)

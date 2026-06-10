@@ -33,6 +33,7 @@ class ParsedValue:
     value_type: KnoraValueType
     permissions_id: str | None
     comment: str | None
+    value_order: int | None
 
 
 @dataclass

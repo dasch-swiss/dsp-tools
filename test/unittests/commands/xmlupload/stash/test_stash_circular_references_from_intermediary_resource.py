@@ -20,9 +20,9 @@ PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 @pytest.fixture
 def resource_1() -> ProcessedResource:
-    link_value_to_resource_no_links = ProcessedLink("res_no_links", "prop", None, None, str(uuid4()))
-    link_value_with_permissions_to_res_2 = ProcessedLink("res_2", "prop", None, PERMISSION, "link_to_res_2_uuid")
-    simple_text_value = ProcessedSimpleText("Text", "prop", None, None)
+    link_value_to_resource_no_links = ProcessedLink("res_no_links", "prop", None, None, None, str(uuid4()))
+    link_value_with_permissions_to_res_2 = ProcessedLink("res_2", "prop", None, PERMISSION, None, "link_to_res_2_uuid")
+    simple_text_value = ProcessedSimpleText("Text", "prop", None, None, None)
     return ProcessedResource(
         res_id="res_1",
         type_iri="type",
@@ -35,12 +35,13 @@ def resource_1() -> ProcessedResource:
 @pytest.fixture
 def resource_2() -> ProcessedResource:
     val = ProcessedRichtext(
-        FormattedTextValue('Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'),
-        "prop",
-        None,
-        None,
-        set("res_3"),
-        "standoff_link_to_res_3_uuid",
+        value=FormattedTextValue('Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'),
+        prop_iri="prop",
+        comment=None,
+        permissions=None,
+        resource_references=set("res_3"),
+        value_uuid="standoff_link_to_res_3_uuid",
+        value_order=None,
     )
     return ProcessedResource(
         res_id="res_2",
@@ -53,7 +54,7 @@ def resource_2() -> ProcessedResource:
 
 @pytest.fixture
 def resource_3() -> ProcessedResource:
-    link_value_to_res_1 = ProcessedLink("res_1", "prop", None, None, "link_to_res_1_uuid")
+    link_value_to_res_1 = ProcessedLink("res_1", "prop", None, None, value_uuid="link_to_res_1_uuid", value_order=None)
     return ProcessedResource(
         res_id="res_3",
         type_iri="type",

@@ -83,7 +83,7 @@ def file_placeholder() -> ParsedFileValue:
 
 @pytest.fixture
 def bool_value() -> ParsedValue:
-    return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
+    return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None, None)
 
 
 @pytest.fixture
@@ -460,84 +460,95 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_bool_value_with_comment(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
+        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment", None)
         result = _get_one_processed_value(val, lookups)
         assert result.value == False  # noqa:E712 (Avoid equality comparisons)
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert result.comment == "comment"
+        assert result.value_order is None
 
     def test_bool_value_with_permissions(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None, None)
         result = _get_one_processed_value(val, lookups)
         assert result.value == True  # noqa:E712 (Avoid equality comparisons)
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert not result.comment
+        assert result.value_order is None
 
     def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None, None)
         with pytest.raises(XmlUploadPermissionsNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_color_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedColor)
         assert result.value == "#5d1f1e"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_date_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedDate)
         assert isinstance(result.value, Date)
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_decimal_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedDecimal)
         assert result.value == 1.4
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_geometry_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeometry)
         assert result.value == "{}"
         assert result.prop_iri == f"{KNORA_API_PREFIX}hasGeometry"
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_geoname_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeoname)
         assert result.value == "5416656"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_integer_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedInt)
         assert result.value == 1
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_interval_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
+        val = ParsedValue(
+            f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None, None
+        )
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedInterval)
         assert result.value.start == 1.0
@@ -545,42 +556,46 @@ class TestValues:
         assert result.prop_iri == f"{KNORA_API_PREFIX}hasSegmentBounds"
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_list_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_list_value_raises(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None, None)
         with pytest.raises(XmlUploadListNodeNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_simple_text_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedSimpleText)
         assert result.value == "text"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_richtext_value(self, lookups: XmlReferenceLookups):
         text_str = "<text>this is text</text>"
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -588,10 +603,11 @@ class TestValues:
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
         assert result.resource_references == set()
+        assert result.value_order is None
 
     def test_richtext_value_with_standoff(self, lookups: XmlReferenceLookups):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -599,33 +615,37 @@ class TestValues:
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
         assert result.resource_references == {"link"}
+        assert result.value_order is None
 
     def test_link_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedLink)
         assert result.value == "other_id"
         assert result.prop_iri == f"{HAS_PROP}Value"
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_time_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedTime)
         assert result.value == "2019-10-23T13:45:12.01-14:00"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_uri_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedUri)
         assert result.value == "https://dasch.swiss"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
 
 class TestPermissions:
@@ -646,3 +666,50 @@ class TestPermissions:
         msg = regex.escape("Could not find permissions for value: inexistent")
         with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _resolve_permission("inexistent", lookups.permissions)
+
+
+class TestValueOrder:
+    """Each of these values are processed in a different function, therefore warrant a separate test."""
+
+    def test_list_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt", 1)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedList)
+        assert result.value == "http://rdfh.ch/9999/node"
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order == 1
+
+    def test_link_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt", 3)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedLink)
+        assert result.value == "other_id"
+        assert result.prop_iri == f"{HAS_PROP}Value"
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order == 3
+
+    def test_richtext_value(self, lookups: XmlReferenceLookups):
+        text_str = "<text>this is text</text>"
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", 4)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedRichtext)
+        assert result.value.xmlstr == text_str
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.resource_references == set()
+        assert result.value_order == 4
+
+    def test_uri_value(self, lookups: XmlReferenceLookups):
+        """This value is processed by the function shared by all other values except those above."""
+        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None, 3)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedUri)
+        assert result.value == "https://dasch.swiss"
+        assert result.prop_iri == HAS_PROP
+        assert not result.permissions
+        assert not result.comment
+        assert result.value_order == 3

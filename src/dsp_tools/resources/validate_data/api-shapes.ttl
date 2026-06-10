@@ -80,6 +80,99 @@ api-shapes:ProhibitSelfReferenceInLinkValue_Shape
                    sh:message  "A resource may not link to itself." ;
                  ] .
 
+api-shapes:ValueHasOrder_Duplicates_Shape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:Resource ;
+  sh:sparql      [
+                   a          sh:SPARQLConstraint ;
+                   sh:select  """
+                PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+
+                SELECT $this ?path ?value WHERE {
+
+                  $this ?path ?valueClass .
+
+                  ?valueClass knora-api:valueHasOrder ?value .
+
+                }	GROUP BY $this ?path ?value
+                    HAVING (COUNT(?value) > 1)
+                    """ ;
+                   sh:severity sh:Violation ;
+                   sh:message  "The order of the values may not be duplicated." ;
+                 ] .
+
+api-shapes:ValueHasOrder_NoGap_Shape
+  a sh:NodeShape ;
+  sh:targetClass knora-api:Resource ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:severity sh:Violation ;
+    sh:message "The order of the values must form a continuous sequence starting at 0." ;
+    sh:select """
+      PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+      SELECT $this ?path ?value
+      WHERE {
+        {
+          SELECT $this ?path
+                 (MAX(xsd:integer(?order)) AS ?maxOrder)
+                 (COUNT(DISTINCT xsd:integer(?order)) AS ?countOrder)
+          WHERE {
+            $this ?path ?valueNode .
+            ?valueNode knora-api:valueHasOrder ?order .
+          }
+          GROUP BY $this ?path
+          HAVING (
+            MAX(xsd:integer(?order)) != COUNT(DISTINCT xsd:integer(?order)) - 1
+          )
+        }
+
+        BIND(
+          CONCAT(
+            "Maximum order: ",
+            STR(?maxOrder),
+            ", value order count: ",
+            STR(?countOrder)
+          )
+          AS ?value
+        )
+      }
+    """ ;
+  ] .
+
+
+api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape
+  a sh:NodeShape ;
+  sh:targetClass knora-api:Resource ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+
+      SELECT $this ?path ?value
+      WHERE {
+        $this ?path ?valueClass .
+
+        # The value currently being checked has no order
+        FILTER NOT EXISTS {
+          ?valueClass knora-api:valueHasOrder ?order .
+        }
+
+        # But at least one sibling value of the same property does have an order
+        FILTER EXISTS {
+          $this ?path ?otherValueClass .
+          FILTER(?otherValueClass != ?valueClass)
+          ?otherValueClass knora-api:valueHasOrder ?otherOrder .
+        }
+        # if we do not bind it as an empty string we get the IRI bound as sh:value in the results
+        # which is annoying when querying the validation results
+        BIND("" AS ?value)
+      }
+    """ ;
+    sh:severity sh:Violation ;
+    sh:message "If one value of a property has an order, all values of that property must have an order to prevent conflicts in the database."
+  ] .
 
 ########################
 # GENERIC RESOURCE SHAPE
@@ -128,6 +221,23 @@ api-shapes:Value_ClassShape
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "The comment on the value must be a non-empty string"
+                 ] ,
+                 [
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:valueHasOrder ;
+                    sh:datatype     xsd:integer ;
+                    sh:minInclusive "0"^^xsd:int ;
+                    sh:maxInclusive "2147483647"^^xsd:int ; # maximum allowed number for this datatype
+                    sh:severity     sh:Violation ;
+                    sh:message      "The order on the value must be a positive integer."
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:valueHasOrder ;
+                    sh:minCount 0 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A value may have a maximum of 1 order triple."
                  ] .
 
 

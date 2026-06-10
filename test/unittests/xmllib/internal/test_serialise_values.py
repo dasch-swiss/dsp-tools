@@ -353,5 +353,63 @@ class TestSerialiseValues:
         assert res_str == expected
 
 
+class TestSerialiseValueOrder:
+    """These four value are seralised using different functions."""
+
+    def test_list(self):
+        v: list[Value] = [ListValue("item1", "listName", ":listProp", permissions=Permissions.PUBLIC, order=1)]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<list-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":listProp" list="listName">'
+            b'<list permissions="public" order="1">item1</list>'
+            b"</list-prop>"
+        )
+        res_str = etree.tostring(result.pop(0))
+        assert res_str == expected
+
+    def test_simpletext(self):
+        v: list[Value] = [SimpleText("Hello World", ":simpleTextProp", permissions=Permissions.PUBLIC, order=1)]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<text-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":simpleTextProp">'
+            b'<text permissions="public" order="1" encoding="utf8">Hello World</text>'
+            b"</text-prop>"
+        )
+        res_str = etree.tostring(result.pop(0))
+        assert res_str == expected
+
+    def test_richtext(self):
+        result = serialise_values([Richtext("one", ":richtextProp", order=1)])
+        assert len(result) == 1
+        expected_xml = (
+            '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            'name=":richtextProp">'
+            '<text order="1" encoding="xml">one</text></text-prop>'
+        )
+        res_str = etree.tostring(result.pop(0), encoding="unicode")
+        assert res_str == expected_xml
+
+    def test_generic(self):
+        v: list[Value] = [LinkValue("res_link_1", ":linkProp", order=0), LinkValue("res_link_2", ":linkProp", order=1)]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<resptr-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":linkProp">'
+            b'<resptr order="0">res_link_1</resptr>'
+            b'<resptr order="1">res_link_2</resptr>'
+            b"</resptr-prop>"
+        )
+        res_str = etree.tostring(result.pop(0))
+        assert res_str == expected
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

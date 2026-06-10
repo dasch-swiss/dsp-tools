@@ -9,6 +9,7 @@ from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_br
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_value_order
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
@@ -32,6 +33,7 @@ class Value(Protocol):
     prop_name: str
     permissions: Permissions
     comment: str | None
+    order: int | None = None
 
 
 @dataclass
@@ -67,6 +69,7 @@ class ColorValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -75,6 +78,7 @@ class ColorValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> ColorValue:
         if not is_color(value):
@@ -82,7 +86,14 @@ class ColorValue(Value):
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -91,6 +102,7 @@ class DateValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -99,6 +111,7 @@ class DateValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> DateValue:
         if not is_date(value):
@@ -106,7 +119,14 @@ class DateValue(Value):
                 expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -115,6 +135,7 @@ class DecimalValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -123,6 +144,7 @@ class DecimalValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> DecimalValue:
         if not is_decimal(value):
@@ -130,7 +152,14 @@ class DecimalValue(Value):
                 expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -139,6 +168,7 @@ class GeonameValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -147,6 +177,7 @@ class GeonameValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> GeonameValue:
         if not is_geoname(value):
@@ -154,7 +185,14 @@ class GeonameValue(Value):
                 expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -163,6 +201,7 @@ class IntValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -171,6 +210,7 @@ class IntValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> IntValue:
         if not is_integer(value):
@@ -178,7 +218,14 @@ class IntValue(Value):
                 expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -187,6 +234,7 @@ class LinkValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -195,6 +243,7 @@ class LinkValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> LinkValue:
         if not is_link_value(value):
@@ -202,7 +251,14 @@ class LinkValue(Value):
                 expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -212,6 +268,7 @@ class ListValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -221,6 +278,7 @@ class ListValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> ListValue:
         if str(value).startswith("http://rdfh.ch/lists/"):
@@ -236,12 +294,14 @@ class ListValue(Value):
                     expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
                 )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
         return cls(
             value=str(value),
             list_name=str(list_str),
             prop_name=prop_name,
             permissions=permissions,
             comment=fixed_comment,
+            order=fixed_order,
         )
 
 
@@ -251,6 +311,7 @@ class SimpleText(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -259,12 +320,20 @@ class SimpleText(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> SimpleText:
         converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
         check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=converted_val,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -273,6 +342,7 @@ class Richtext(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -281,6 +351,7 @@ class Richtext(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
         newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
     ) -> Richtext:
@@ -290,7 +361,14 @@ class Richtext(Value):
         if isinstance(result, MessageInfo):
             raise_xmllib_input_error(result)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=converted_val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=converted_val,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -299,6 +377,7 @@ class TimeValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -307,6 +386,7 @@ class TimeValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> TimeValue:
         if not is_timestamp(value):
@@ -314,7 +394,14 @@ class TimeValue(Value):
                 expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=str(value), prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
 
 
 @dataclass
@@ -323,6 +410,7 @@ class UriValue(Value):
     prop_name: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
+    order: int | None = None
 
     @classmethod
     def new(
@@ -331,6 +419,7 @@ class UriValue(Value):
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
+        order: int | None,
         resource_id: str | None,
     ) -> UriValue:
         v = str(value)
@@ -339,4 +428,11 @@ class UriValue(Value):
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        return cls(value=v, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=v,
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )

@@ -72,6 +72,7 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDF_TYPE: RDF.type,
     TriplePropertyType.RDFS_LABEL: RDFS.label,
     TriplePropertyType.KNORA_COMMENT_ON_VALUE: KNORA_API.valueHasComment,
+    TriplePropertyType.KNORA_VALUE_ORDER: KNORA_API.valueHasOrder,
     TriplePropertyType.KNORA_PERMISSIONS: KNORA_API.hasPermissions,
     TriplePropertyType.KNORA_INTERVAL_START: KNORA_API.intervalValueHasStart,
     TriplePropertyType.KNORA_INTERVAL_END: KNORA_API.intervalValueHasEnd,

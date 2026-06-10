@@ -102,6 +102,7 @@
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
     </xs:complexType>
 
     <!-- xml encoding value type -->
@@ -113,6 +114,7 @@
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
     </xs:complexType>
 
     <!-- formatted text type -->
@@ -122,6 +124,7 @@
         </xs:sequence>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
     </xs:complexType>
 
     <!-- unformatted text type -->
@@ -130,6 +133,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -140,6 +144,7 @@
             <xs:extension base="knoracolor_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -150,6 +155,7 @@
             <xs:extension base="knoradate_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -160,6 +166,7 @@
             <xs:extension base="xs:float">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -170,6 +177,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -180,6 +188,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -190,6 +199,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -200,6 +210,7 @@
             <xs:extension base="xs:integer">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -229,6 +240,7 @@
             <xs:extension base="resptr_datatype">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -239,6 +251,7 @@
             <xs:extension base="knoratime_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -249,6 +262,7 @@
             <xs:extension base="xs:decimal">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -259,6 +273,7 @@
             <xs:extension base="knorauri_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

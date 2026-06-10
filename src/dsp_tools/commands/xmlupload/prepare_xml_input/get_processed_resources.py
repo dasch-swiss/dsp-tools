@@ -196,7 +196,13 @@ def _get_generic_value(
 ) -> ProcessedValue:
     transformed_value = transformation_mapper.val_transformer(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
-    return transformation_mapper.val_type(transformed_value, val.prop_name, val.comment, permission_val)
+    return transformation_mapper.val_type(
+        transformed_value,
+        val.prop_name,
+        val.comment,
+        permission_val,
+        val.value_order,
+    )
 
 
 def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
@@ -207,6 +213,7 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
+        value_order=val.value_order,
         value_uuid=str(uuid4()),
     )
     return link_val
@@ -222,6 +229,7 @@ def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
+        value_order=val.value_order,
     )
     return list_val
 
@@ -234,6 +242,7 @@ def _get_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Proce
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
+        value_order=val.value_order,
         resource_references=find_internal_ids(transformed_value.xmlstr),
         value_uuid=str(uuid4()),
     )

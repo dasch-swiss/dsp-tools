@@ -35,11 +35,12 @@ services:
       - ./tmp:/tmp
       - ./sipi.docker-config.lua:/sipi/config/sipi.docker-config.lua
       - ./sipi/images:/sipi/images
+      - ./sipi/cache:/sipi/cache
     environment:
       - TZ=Europe/Zurich
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
-    command: --config=/sipi/config/sipi.docker-config.lua
+    command: server --config=/sipi/config/sipi.docker-config.lua
 
   ingest:
     image: daschswiss/dsp-ingest:${API}

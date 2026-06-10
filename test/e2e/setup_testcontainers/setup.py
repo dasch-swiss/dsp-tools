@@ -6,8 +6,10 @@ from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
 
+import requests
 from testcontainers.core.network import Network
 
+from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.artifacts import get_artifact_dirs
 from test.e2e.setup_testcontainers.artifacts import remove_artifact_dirs
 from test.e2e.setup_testcontainers.containers import ContainerMetadata
@@ -36,9 +38,12 @@ def get_containers() -> Iterator[ContainerMetadata]:
 
 def _get_container_metadata() -> ContainerMetadata:
     _uuid = str(uuid4())[:6]
+    versions = _get_image_versions()
+    artifact_dirs = get_artifact_dirs(_uuid)
+    _download_sipi_config(versions.sipi, artifact_dirs)
     return ContainerMetadata(
-        artifact_dirs=get_artifact_dirs(_uuid),
-        versions=_get_image_versions(),
+        artifact_dirs=artifact_dirs,
+        versions=versions,
         ports=get_ports(),
         names=_get_container_names(_uuid),
     )
@@ -60,6 +65,14 @@ def _get_image_versions() -> ImageVersions:
         ingest=versions["API"],
         api=versions["API"],
     )
+
+
+def _download_sipi_config(api_version: str, artifact_dirs: ArtifactDirs) -> None:
+    url = f"https://raw.githubusercontent.com/dasch-swiss/dsp-api/{api_version}/sipi/config/sipi.docker-test-config.lua"
+    response = requests.get(url, timeout=30)
+    if not response.ok:
+        raise RuntimeError(f"Failed to download sipi.docker-config.lua from {url}: {response.status_code}")
+    (artifact_dirs.sipi_config / "sipi.docker-config.lua").write_text(response.text, encoding="utf-8")
 
 
 def _get_container_names(_uuid: str) -> ContainerNames:

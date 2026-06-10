@@ -35,6 +35,7 @@ services:
       - ./tmp:/tmp
       - ./sipi.docker-config.lua:/sipi/config/sipi.docker-config.lua
       - ./sipi/images:/sipi/images
+      - ./sipi/cache:/sipi/cache
     environment:
       - TZ=Europe/Zurich
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0

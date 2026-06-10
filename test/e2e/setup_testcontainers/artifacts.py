@@ -12,6 +12,8 @@ class ArtifactDirs:
     tmp_sipi: Path
     tmp_ingest: Path
     ingest_db: Path
+    sipi_config: Path
+    sipi_cache: Path
 
 
 def get_artifact_dirs(_uuid: str) -> ArtifactDirs:
@@ -20,6 +22,8 @@ def get_artifact_dirs(_uuid: str) -> ArtifactDirs:
         "tmp_sipi": E2E_TESTDATA / "tmp-dsp-sipi" / _uuid,
         "tmp_ingest": E2E_TESTDATA / "tmp-dsp-ingest" / _uuid,
         "ingest_db": E2E_TESTDATA / "ingest-db" / _uuid,
+        "sipi_config": E2E_TESTDATA / "sipi-config" / _uuid,
+        "sipi_cache": E2E_TESTDATA / "sipi-cache" / _uuid,
     }
     for _dir in dirs.values():
         _dir.mkdir(parents=True)
@@ -27,6 +31,13 @@ def get_artifact_dirs(_uuid: str) -> ArtifactDirs:
 
 
 def remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:
-    for _dir in [artifact_dirs.sipi_images, artifact_dirs.tmp_sipi, artifact_dirs.tmp_ingest, artifact_dirs.ingest_db]:
+    for _dir in [
+        artifact_dirs.sipi_images,
+        artifact_dirs.tmp_sipi,
+        artifact_dirs.tmp_ingest,
+        artifact_dirs.ingest_db,
+        artifact_dirs.sipi_config,
+        artifact_dirs.sipi_cache,
+    ]:
         with contextlib.suppress(PermissionError):
             shutil.rmtree(_dir)

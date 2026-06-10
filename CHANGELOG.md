@@ -1,5 +1,36 @@
 # Changelog
 
+## [18.17.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.16.0...v18.17.0) (2026-06-10)
+
+
+### Enhancements
+
+* allow `placeholder-file` tag in `bitstream` tag (DEV-6580) ([#2321](https://github.com/dasch-swiss/dsp-tools/issues/2321)) ([1da35bf](https://github.com/dasch-swiss/dsp-tools/commit/1da35bf7de5ecb0460a369b4b3de789b848c652a))
+* enable explicit value ordering (DEV-6596) ([#2335](https://github.com/dasch-swiss/dsp-tools/issues/2335)) ([8a7e2a3](https://github.com/dasch-swiss/dsp-tools/commit/8a7e2a308fa2f5180392cfe574ee56ca4644f0a8))
+* parse placeholder value from xml (DEV-6581) ([#2322](https://github.com/dasch-swiss/dsp-tools/issues/2322)) ([2997c0d](https://github.com/dasch-swiss/dsp-tools/commit/2997c0ddcdc9478d10c4f528da0f279f71ef1cc7))
+* **validate-data:** improve error message if wrong placeholder file type is used (DEV-6594) ([#2332](https://github.com/dasch-swiss/dsp-tools/issues/2332)) ([d0105be](https://github.com/dasch-swiss/dsp-tools/commit/d0105be7da8ed937c328422b0d156fbfcc173cf0))
+* **validate-data:** warn if placeholder is used (DEV-6583) ([#2329](https://github.com/dasch-swiss/dsp-tools/issues/2329)) ([1f6d367](https://github.com/dasch-swiss/dsp-tools/commit/1f6d3676489ceeef7f364a8bd8fb54e0b7813650))
+* **xmllib:** add `PlaceholderFile` option (DEV-6570) ([#2333](https://github.com/dasch-swiss/dsp-tools/issues/2333)) ([1b3b7df](https://github.com/dasch-swiss/dsp-tools/commit/1b3b7df30dd3742f657196fed17a9d88de645d17))
+* **xmlupload:** process placeholder bitstream (DEV-6582) ([#2327](https://github.com/dasch-swiss/dsp-tools/issues/2327)) ([55658a5](https://github.com/dasch-swiss/dsp-tools/commit/55658a525568c8e07439f7afa2afff0a57bf6e47))
+* **xmlupload:** use new built-in urn placeholder for missing legal info (DEV-6571) ([#2323](https://github.com/dasch-swiss/dsp-tools/issues/2323)) ([efffa96](https://github.com/dasch-swiss/dsp-tools/commit/efffa96c8d7b03212c8d847244663bef45a41632))
+
+
+### Bug Fixes
+
+* **ci:** make Dependabot PRs pass e2e tests without relying on Actions secrets ([#2330](https://github.com/dasch-swiss/dsp-tools/issues/2330)) ([4b53172](https://github.com/dasch-swiss/dsp-tools/commit/4b531723f8ef0d7b11eec9690cc710dc5c8bed2f))
+* **ci:** skip uv.lock update when no release PR is open ([#2331](https://github.com/dasch-swiss/dsp-tools/issues/2331)) ([e407a27](https://github.com/dasch-swiss/dsp-tools/commit/e407a2727107bef3cd742ed71cb6d59da1a80568))
+
+
+### Maintenance
+
+* **bump-stack-versions:** use PAT so version-bump PR triggers tests ([#2328](https://github.com/dasch-swiss/dsp-tools/issues/2328)) ([2602078](https://github.com/dasch-swiss/dsp-tools/commit/26020781b30e33a23add611fcafe1d8909abb939))
+* **start-stack:** bump versions to 2026.06.02 ([#2343](https://github.com/dasch-swiss/dsp-tools/issues/2343)) ([bba504f](https://github.com/dasch-swiss/dsp-tools/commit/bba504f71641bd2e6c5f1bd16a0d16cf5075334f))
+
+
+### Documentation
+
+* add `placeholder-file` documentation ([#2334](https://github.com/dasch-swiss/dsp-tools/issues/2334)) ([7296129](https://github.com/dasch-swiss/dsp-tools/commit/72961299ea2c96e37df11e057e51c7de2229708c))
+
 ## [18.16.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.15.0...v18.16.0) (2026-06-03)
 
 

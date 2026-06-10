@@ -506,6 +506,5 @@ def test_compare_license_after_data_upload(
         project_returned = json.load(f)
 
     orig_licenses = set(project_original["project"]["enabled_licenses"])
-    orig_licenses.add("http://rdfh.ch/licenses/unknown")
     ret_licenses = set(project_returned["project"]["enabled_licenses"])
     assert ret_licenses == orig_licenses

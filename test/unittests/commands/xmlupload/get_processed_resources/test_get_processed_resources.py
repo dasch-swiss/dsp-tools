@@ -7,8 +7,10 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFound
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFilePlaceholder
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
-from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
@@ -36,7 +38,12 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources impo
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
@@ -65,18 +72,26 @@ def lookups() -> XmlReferenceLookups:
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
-    return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
+
+
+@pytest.fixture
+def file_placeholder() -> ParsedFileValue:
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
+    return ParsedFileValue(ParsedFilePlaceholder(), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
 def bool_value() -> ParsedValue:
-    return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
+    return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None, None)
 
 
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue(
+        ParsedFileIiifUri("https://this/is/a/uri.jpg"), KnoraFileValueType.STILL_IMAGE_IIIF, metadata
+    )
 
 
 class TestResources:
@@ -257,14 +272,13 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert file_val.value.value == "file.jpg"
         assert file_val.metadata.permissions
-        assert not result.iiif_uri
         assert not result.migration_metadata
 
     def test_with_file_value_not_on_prod_missing_legal_info(self, lookups: XmlReferenceLookups):
         metadata = ParsedFileValueMetadata(None, None, None, None)
-        parsed_file = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        parsed_file = ParsedFileValue(ParsedFileBitstream("file.jpg"), KnoraFileValueType.STILL_IMAGE_FILE, metadata)
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -282,12 +296,12 @@ class TestOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, ProcessedFileValue)
-        assert file_val.value == "file.jpg"
+        assert isinstance(file_val.value, ProcessedFileBitstream)
+        assert file_val.value.value == "file.jpg"
         assert not file_val.metadata.permissions
-        assert file_val.metadata.copyright_holder == "DUMMY"
-        assert file_val.metadata.authorships == ["DUMMY"]
-        assert file_val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
-        assert not result.iiif_uri
+        assert file_val.metadata.copyright_holder == URN_DASCH_PLACEHOLDER
+        assert file_val.metadata.authorships == [URN_DASCH_PLACEHOLDER]
+        assert file_val.metadata.license_iri == URN_DASCH_PLACEHOLDER
         assert not result.migration_metadata
 
     def test_with_iiif_uri(self, iiif_file_value, lookups: XmlReferenceLookups):
@@ -306,8 +320,9 @@ class TestOneResource:
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
-        assert not result.file_value
-        assert isinstance(result.iiif_uri, ProcessedIIIFUri)
+        file_val = result.file_value
+        assert isinstance(file_val, ProcessedFileValue)
+        assert isinstance(file_val.value, ProcessedFileIIIFUri)
         assert not result.migration_metadata
 
 
@@ -322,12 +337,13 @@ class TestFileValue:
             file_value=iiif_file_value,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
-        assert file_res is None
-        assert isinstance(iiif_res, ProcessedIIIFUri)
+        iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
+        assert isinstance(iiif_res, ProcessedFileValue)
+        iiif_val = iiif_res.value
+        assert isinstance(iiif_val, ProcessedFileIIIFUri)
         result_metadata = iiif_res.metadata
         assert not result_metadata.permissions
-        assert iiif_res.value == iiif_file_value.value
+        assert iiif_val.value == iiif_file_value.value.value
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
         assert result_metadata.authorships == ["author"]
@@ -342,9 +358,8 @@ class TestFileValue:
             file_value=None,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert file_res is None
-        assert iiif_res is None
 
     def test_resolve_file_value_file(self, file_with_permission, lookups):
         resource = ParsedResource(
@@ -356,12 +371,33 @@ class TestFileValue:
             file_value=file_with_permission,
             migration_metadata=None,
         )
-        file_res, iiif_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
-        assert iiif_res is None
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
         assert isinstance(file_res, ProcessedFileValue)
+        assert isinstance(file_res.value, ProcessedFileBitstream)
         result_metadata = file_res.metadata
         assert file_res.value == file_res.value
-        assert file_res.file_type == file_with_permission.value_type
+        assert file_res.value_type == file_with_permission.value_type
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
+
+    def test_resolve_file_value_placeholder(self, file_placeholder, lookups):
+        resource = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=file_placeholder,
+            migration_metadata=None,
+        )
+        file_res = _resolve_file_value(resource, lookups, IS_ON_PROD_LIKE_SERVER)
+        assert isinstance(file_res, ProcessedFileValue)
+        assert isinstance(file_res.value, ProcessedFilePlaceholder)
+        result_metadata = file_res.metadata
+        assert file_res.value == file_res.value
+        assert file_res.value_type == file_placeholder.value_type
         assert isinstance(result_metadata.permissions, Permissions)
         assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert result_metadata.copyright_holder == "copy"
@@ -395,17 +431,17 @@ class TestFileMetadata:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
-        assert result_metadata.copyright_holder == "DUMMY"
-        assert result_metadata.authorships == ["DUMMY"]
+        assert result_metadata.license_iri == URN_DASCH_PLACEHOLDER
+        assert result_metadata.copyright_holder == URN_DASCH_PLACEHOLDER
+        assert result_metadata.authorships == [URN_DASCH_PLACEHOLDER]
 
     def test_get_file_metadata_for_test_environments_some_values(self, lookups):
         metadata = ParsedFileValueMetadata(None, "copy", None, None)
         result_metadata = _get_file_metadata_for_test_environments(metadata, lookups)
         assert not result_metadata.permissions
-        assert result_metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert result_metadata.license_iri == URN_DASCH_PLACEHOLDER
         assert result_metadata.copyright_holder == "copy"
-        assert result_metadata.authorships == ["DUMMY"]
+        assert result_metadata.authorships == [URN_DASCH_PLACEHOLDER]
 
     def test_get_file_metadata_for_test_environments_all_values(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "public")
@@ -424,84 +460,95 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_bool_value_with_comment(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
+        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment", None)
         result = _get_one_processed_value(val, lookups)
         assert result.value == False  # noqa:E712 (Avoid equality comparisons)
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert result.comment == "comment"
+        assert result.value_order is None
 
     def test_bool_value_with_permissions(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "public", None, None)
         result = _get_one_processed_value(val, lookups)
         assert result.value == True  # noqa:E712 (Avoid equality comparisons)
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert not result.comment
+        assert result.value_order is None
 
     def test_bool_value_with_non_existing_permissions(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None, None)
         with pytest.raises(XmlUploadPermissionsNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_color_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedColor)
         assert result.value == "#5d1f1e"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_date_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedDate)
         assert isinstance(result.value, Date)
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_decimal_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedDecimal)
         assert result.value == 1.4
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_geometry_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_PREFIX}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeometry)
         assert result.value == "{}"
         assert result.prop_iri == f"{KNORA_API_PREFIX}hasGeometry"
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_geoname_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeoname)
         assert result.value == "5416656"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_integer_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedInt)
         assert result.value == 1
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_interval_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
+        val = ParsedValue(
+            f"{KNORA_API_PREFIX}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None, None
+        )
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedInterval)
         assert result.value.start == 1.0
@@ -509,42 +556,46 @@ class TestValues:
         assert result.prop_iri == f"{KNORA_API_PREFIX}hasSegmentBounds"
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_list_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_list_value_raises(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, ("unknown", "unknown"), KnoraValueType.LIST_VALUE, None, None, None)
         with pytest.raises(XmlUploadListNodeNotFoundError):
             _get_one_processed_value(val, lookups)
 
     def test_list_value_with_iri(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, ("", "http://rdfh.ch/9999/node"), KnoraValueType.LIST_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedList)
         assert result.value == "http://rdfh.ch/9999/node"
         assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_simple_text_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedSimpleText)
         assert result.value == "text"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_richtext_value(self, lookups: XmlReferenceLookups):
         text_str = "<text>this is text</text>"
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -552,10 +603,11 @@ class TestValues:
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
         assert result.resource_references == set()
+        assert result.value_order is None
 
     def test_richtext_value_with_standoff(self, lookups: XmlReferenceLookups):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedRichtext)
         assert result.value.xmlstr == text_str
@@ -563,33 +615,37 @@ class TestValues:
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
         assert result.resource_references == {"link"}
+        assert result.value_order is None
 
     def test_link_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt")
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt", None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedLink)
         assert result.value == "other_id"
         assert result.prop_iri == f"{HAS_PROP}Value"
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
+        assert result.value_order is None
 
     def test_time_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedTime)
         assert result.value == "2019-10-23T13:45:12.01-14:00"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
     def test_uri_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedUri)
         assert result.value == "https://dasch.swiss"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
+        assert result.value_order is None
 
 
 class TestPermissions:
@@ -610,3 +666,50 @@ class TestPermissions:
         msg = regex.escape("Could not find permissions for value: inexistent")
         with pytest.raises(XmlUploadPermissionsNotFoundError, match=msg):
             _resolve_permission("inexistent", lookups.permissions)
+
+
+class TestValueOrder:
+    """Each of these values are processed in a different function, therefore warrant a separate test."""
+
+    def test_list_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "public", "cmt", 1)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedList)
+        assert result.value == "http://rdfh.ch/9999/node"
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order == 1
+
+    def test_link_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "public", "cmt", 3)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedLink)
+        assert result.value == "other_id"
+        assert result.prop_iri == f"{HAS_PROP}Value"
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order == 3
+
+    def test_richtext_value(self, lookups: XmlReferenceLookups):
+        text_str = "<text>this is text</text>"
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "public", "cmt", 4)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedRichtext)
+        assert result.value.xmlstr == text_str
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.resource_references == set()
+        assert result.value_order == 4
+
+    def test_uri_value(self, lookups: XmlReferenceLookups):
+        """This value is processed by the function shared by all other values except those above."""
+        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None, 3)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedUri)
+        assert result.value == "https://dasch.swiss"
+        assert result.prop_iri == HAS_PROP
+        assert not result.permissions
+        assert not result.comment
+        assert result.value_order == 3

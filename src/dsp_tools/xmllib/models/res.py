@@ -6,6 +6,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any
 
+from dsp_tools.xmllib.internal.checkers import check_raise_if_input_value_for_value_order_is_incorrect
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
@@ -32,6 +33,7 @@ from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
@@ -209,6 +211,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a color value to the resource.
@@ -220,6 +223,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -234,7 +240,12 @@ class Resource:
         """
         self.values.append(
             ColorValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -245,6 +256,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several color values to the resource.
@@ -256,6 +268,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -268,9 +283,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "color", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_color(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_color(prop_name, v, permissions, comment, o)
         return self
 
     def add_color_optional(
@@ -323,6 +343,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a date value to the resource.
@@ -338,6 +359,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -352,7 +376,12 @@ class Resource:
         """
         self.values.append(
             DateValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -363,6 +392,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several date values to the resource.
@@ -374,6 +404,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -386,9 +419,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "date", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_date(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_date(prop_name, v, permissions, comment, o)
         return self
 
     def add_date_optional(
@@ -441,6 +479,7 @@ class Resource:
         value: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a decimal value to the resource.
@@ -453,6 +492,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -467,7 +509,12 @@ class Resource:
         """
         self.values.append(
             DecimalValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -478,6 +525,7 @@ class Resource:
         values: Collection[float | int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several decimal values to the resource.
@@ -490,6 +538,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -502,9 +553,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "decimal", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_decimal(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_decimal(prop_name, v, permissions, comment, o)
         return self
 
     def add_decimal_optional(
@@ -558,6 +614,7 @@ class Resource:
         value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a [geonames.org](https://www.geonames.org/) value to the resource.
@@ -572,6 +629,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -586,7 +646,12 @@ class Resource:
         """
         self.values.append(
             GeonameValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -597,6 +662,7 @@ class Resource:
         values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several [geonames.org](https://www.geonames.org/) values to the resource.
@@ -610,6 +676,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -622,9 +691,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geoname", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_geoname(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_geoname(prop_name, v, permissions, comment, o)
         return self
 
     def add_geoname_optional(
@@ -679,6 +753,7 @@ class Resource:
         value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add an integer value to the resource.
@@ -691,6 +766,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -705,7 +783,12 @@ class Resource:
         """
         self.values.append(
             IntValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -716,6 +799,7 @@ class Resource:
         values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several integer values to the resource.
@@ -728,6 +812,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -740,9 +827,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "integer", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_integer(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_integer(prop_name, v, permissions, comment, o)
         return self
 
     def add_integer_optional(
@@ -796,6 +888,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a link value to the resource, in the form of an ID of another resource.
@@ -807,6 +900,9 @@ class Resource:
             value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -821,7 +917,12 @@ class Resource:
         """
         self.values.append(
             LinkValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -832,6 +933,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several link values to the resource, in the form of IDs of other resources.
@@ -843,6 +945,9 @@ class Resource:
             values: list of target resources IDs
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -855,9 +960,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "link", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_link(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_link(prop_name, v, permissions, comment, o)
         return self
 
     def add_link_optional(
@@ -912,6 +1022,7 @@ class Resource:
         value: str | int | float,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a list value to the resource, i.e. a name of a list node.
@@ -928,6 +1039,9 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -948,6 +1062,7 @@ class Resource:
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
+                order=order,
                 resource_id=self.res_id,
             )
         )
@@ -960,6 +1075,7 @@ class Resource:
         values: Collection[str | int | float],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several list values to the resource, i.e. names of list nodes.
@@ -972,6 +1088,9 @@ class Resource:
             values: names of list nodes (N.B. not the labels, but the names of the list nodes)
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -985,9 +1104,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "list", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_list(prop_name, list_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_list(prop_name, list_name, v, permissions, comment, o)
         return self
 
     def add_list_optional(
@@ -1044,6 +1168,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a simple text value to the resource.
@@ -1055,6 +1180,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1069,7 +1197,12 @@ class Resource:
         """
         self.values.append(
             SimpleText.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1080,6 +1213,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several simple text values to the resource.
@@ -1091,6 +1225,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1103,9 +1240,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "simpletext", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_simpletext(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_simpletext(prop_name, v, permissions, comment, o)
         return self
 
     def add_simpletext_optional(
@@ -1158,6 +1300,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a textarea value to the resource.
@@ -1169,6 +1312,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1181,7 +1327,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext(prop_name, value, permissions, comment)
+        self.add_simpletext(prop_name, value, permissions, comment, order)
         return self
 
     def add_textarea_multiple(
@@ -1190,6 +1336,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several textarea values to the resource.
@@ -1201,6 +1348,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1213,7 +1363,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext_multiple(prop_name, values, permissions, comment)
+        self.add_simpletext_multiple(prop_name, values, permissions, comment, include_value_order)
         return self
 
     def add_textarea_optional(
@@ -1265,6 +1415,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1285,6 +1436,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1313,6 +1467,7 @@ class Resource:
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
+                order=order,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
             )
@@ -1325,6 +1480,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1345,6 +1501,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1358,6 +1517,11 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "richtext", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend(
             [
@@ -1366,10 +1530,11 @@ class Resource:
                     prop_name=prop_name,
                     permissions=permissions,
                     comment=comment,
+                    order=o,
                     resource_id=self.res_id,
                     newline_replacement=newline_replacement,
                 )
-                for v in vals
+                for v, o in zip(vals, val_order)
             ]
         )
         return self
@@ -1380,6 +1545,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
@@ -1400,6 +1566,9 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1421,7 +1590,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            return self.add_richtext(prop_name, value, permissions, comment, newline_replacement)
+            return self.add_richtext(prop_name, value, permissions, comment, order, newline_replacement)
         return self
 
     #######################
@@ -1434,6 +1603,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a time value to the resource.
@@ -1445,6 +1615,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1459,7 +1632,12 @@ class Resource:
         """
         self.values.append(
             TimeValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1470,6 +1648,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several time values to the resource.
@@ -1481,6 +1660,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1493,9 +1675,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "time", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_time(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_time(prop_name, v, permissions, comment, o)
         return self
 
     def add_time_optional(
@@ -1548,6 +1735,7 @@ class Resource:
         value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        order: int | None = None,
     ) -> Resource:
         """
         Add a URI value to the resource.
@@ -1559,6 +1747,9 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1573,7 +1764,12 @@ class Resource:
         """
         self.values.append(
             UriValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1584,6 +1780,7 @@ class Resource:
         values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        include_value_order: bool = False,
     ) -> Resource:
         """
         Add several URI values to the resource.
@@ -1595,6 +1792,9 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1607,9 +1807,14 @@ class Resource:
             )
             ```
         """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "uri", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
         vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        for v in vals:
-            self.add_uri(prop_name, v, permissions, comment)
+        for v, o in zip(vals, val_order):
+            self.add_uri(prop_name, v, permissions, comment, o)
         return self
 
     def add_uri_optional(
@@ -1658,7 +1863,7 @@ class Resource:
 
     def add_file(
         self,
-        filename: str | Path,
+        filename: str | Path | PlaceholderFile,
         license: License | None = None,
         copyright_holder: str | None = None,
         authorship: list[str] | None = None,
@@ -1703,6 +1908,16 @@ class Resource:
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.LIMITED_VIEW,
+            )
+            ```
+
+            ```python
+            # when the real file is not available yet, use a placeholder file
+            resource = resource.add_file(
+                filename=PlaceholderFile.STILL_IMAGE_REPRESENTATION,
+                license=xmllib.LicenseRecommended.CC.BY_NC_ND,
+                copyright_holder="Bark University",
+                authorship=["Bark McDog"],
             )
             ```
         """

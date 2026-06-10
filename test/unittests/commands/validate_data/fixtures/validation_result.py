@@ -1444,6 +1444,46 @@ def report_standoff_link_target_is_iri(
 
 
 @pytest.fixture
+def report_placeholder_value(
+    onto_graph: Graph,
+) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ rdf:type                      sh:ValidationResult;
+                 sh:focusNode                  <http://data/value_file>;
+                 sh:resultMessage              
+                 "You used a placeholder for the file, please note that this is only allowed on test environments.";
+                 sh:resultSeverity             sh:Warning;
+                 sh:sourceConstraintComponent  sh:NotConstraintComponent;
+                 sh:sourceShape                api-shapes:PlaceholderFileValue_NodeShape;
+                 sh:value                      <http://data/value_file>
+    ].
+    """
+    data_str = f"""{PREFIXES}
+<http://data/placeholder_text> a onto:TestTextRepresentation ;
+    knora-api:hasTextFileValue <http://data/value_file> .
+
+<http://data/value_file> a knora-api:TextFileValue ;
+    knora-api:fileValueHasFilename "urn:dasch:placeholder" .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NotConstraintComponent,
+        focus_node_iri=DATA.placeholder_text,
+        focus_node_type=ONTO.TestTextRepresentation,
+        result_path=None,
+        severity=SH.Warning,
+        detail=None,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

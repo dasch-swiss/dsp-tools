@@ -142,20 +142,23 @@ def validate_parsed_resources(
 
         if validation_result.no_problems:
             logger.debug(NO_VALIDATION_ERRORS_FOUND_MSG)
-            sp.ok(f"✔ {NO_VALIDATION_ERRORS_FOUND_MSG}")
+            sp.ok("✔")
+            print(NO_VALIDATION_ERRORS_FOUND_MSG)
             return True
 
     match validation_result.problems:
         case UnknownClassesInData():
             msg = get_msg_str_unknown_classes_in_data(validation_result.problems)
-            sp.print(f"✘ {VALIDATION_ERRORS_FOUND_MSG}")
+            sp.fail("✘")
+            print(VALIDATION_ERRORS_FOUND_MSG)
             logger.error(msg)
             print(msg + "\n")
             # if unknown classes are found, we cannot validate all the data in the file
             return False
         case OntologyValidationProblem():
             msg = get_msg_str_ontology_validation_violation(validation_result.problems)
-            sp.print(f"✘ {VALIDATION_ERRORS_FOUND_MSG}")
+            sp.fail("✘")
+            print(VALIDATION_ERRORS_FOUND_MSG)
             logger.error(msg)
             print(msg + "\n")
             # if the ontology itself has errors, we will not validate the data

@@ -21,6 +21,7 @@ from dsp_tools.utils.rdf_constants import DATA
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import SubjectObjectTypeAlias
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -77,6 +78,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
             Literal("label", datatype=XSD.string),
         ),
         (
+            0,
+            TripleObjectType.INTEGER,
+            None,
+            Literal(0, datatype=XSD.int),
+        ),
+        (
             RESOURCE_TYPE_STR,
             TripleObjectType.IRI,
             None,
@@ -84,6 +91,12 @@ def rdf_like_boolean_value_corr() -> RdfLikeValue:
         ),
         (
             None,
+            TripleObjectType.IRI,
+            None,
+            Literal("", datatype=XSD.string),
+        ),
+        (
+            "",
             TripleObjectType.IRI,
             None,
             Literal("", datatype=XSD.string),
@@ -179,6 +192,27 @@ class TestColorValue:
         bn = next(g.objects(RES_IRI, ONTO.testColor))
         assert next(g.objects(bn, RDF.type)) == KNORA_API.ColorValue
         assert next(g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("#00ff00", datatype=XSD.string)
+
+    def test_corr_with_order(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
+            "#00ff00",
+            KnoraValueType.COLOR_VALUE,
+            [
+                PropertyObject(
+                    property_type=TriplePropertyType.KNORA_VALUE_ORDER,
+                    object_value=0,
+                    object_type=TripleObjectType.INTEGER,
+                )
+            ],
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_value(g, val, RES_IRI)
+        assert len(g) == 4
+        bn = next(g.objects(RES_IRI, ONTO.testColor))
+        assert next(g.objects(bn, RDF.type)) == KNORA_API.ColorValue
+        assert next(g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("#00ff00", datatype=XSD.string)
+        assert next(g.objects(bn, KNORA_API.valueHasOrder)) == Literal(0, datatype=XSD.integer)
 
 
 class TestDateValue:
@@ -453,7 +487,7 @@ class TestFileValue:
         file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_PREFIX}hasArchiveFileValue",
             user_facing_value="test.zip",
-            knora_type=KnoraValueType.ARCHIVE_FILE,
+            knora_type=KnoraFileValueType.ARCHIVE_FILE,
             value_metadata=[],
         )
         g = Graph(store="Oxigraph")
@@ -468,7 +502,7 @@ class TestFileValue:
         file_value = RdfLikeValue(
             user_facing_prop=f"{KNORA_API_PREFIX}hasStillImageFileValue",
             user_facing_value=uri,
-            knora_type=KnoraValueType.STILL_IMAGE_IIIF,
+            knora_type=KnoraFileValueType.STILL_IMAGE_IIIF,
             value_metadata=[],
         )
         g = Graph(store="Oxigraph")

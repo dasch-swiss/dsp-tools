@@ -9,6 +9,7 @@ from requests import RequestException
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
+from dsp_tools.commands.start_stack.start_stack import _read_env_var
 from dsp_tools.error.exceptions import PermanentConnectionError
 
 
@@ -98,3 +99,25 @@ class TestWriteOverrideFile:
         self._write_initial_override(tmp_path)
         latest_handler._patch_fuseki_version_in_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
         assert (tmp_path / "docker-compose.override.yml").exists()
+
+
+class TestReadEnvVar:
+    def test_returns_value_for_existing_key(self) -> None:
+        content = "RELEASE=2026.05.01\nAPI=v35.8.1\nAPP=v13.3.0\nDB=5.5.0-3\n"
+        assert _read_env_var(content, "API") == "v35.8.1"
+
+    def test_skips_comment_and_blank_lines(self) -> None:
+        content = "# Auto-managed header\n\n  \nAPI=v35.8.1\n"
+        assert _read_env_var(content, "API") == "v35.8.1"
+
+    def test_strips_surrounding_whitespace(self) -> None:
+        content = "  API = v35.8.1  \n"
+        assert _read_env_var(content, "API") == "v35.8.1"
+
+    def test_raises_when_key_missing(self) -> None:
+        with pytest.raises(StartStackInputError):
+            _read_env_var("RELEASE=2026.05.01\nAPP=v13.3.0\n", "API")
+
+    def test_raises_when_content_empty(self) -> None:
+        with pytest.raises(StartStackInputError):
+            _read_env_var("", "API")

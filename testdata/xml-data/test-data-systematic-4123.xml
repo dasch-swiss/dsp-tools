@@ -284,6 +284,50 @@
             <list>second subnode</list>
         </list-prop>
     </resource>
+
+    <resource label="Test thing with explicit value order" restype=":TestThing" id="res_with_value_order">
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="1">Second text</text>
+            <text encoding="utf8" order="2">Third text</text>
+        </text-prop>
+    </resource>
+
+    <!--
+    The resources "res_with_value_order_stash_1" and "res_with_value_order_stash_2" ensure that when a resource has
+    a stashed link which appears in the order first, the non-stashed link (both links to "res_with_value_order")
+    can be created alongside the resource and the value that is in the order before can be created afterwards.
+    As these two resources create a circle, one of the links will be stashed.
+    -->
+
+    <resource label="Test thing with explicit value order and stash" restype=":TestThing" id="res_with_value_order_stash_1">
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">First text</text>
+        </text-prop>
+        <resptr-prop name=":hasResource">
+            <resptr order="0">res_with_value_order_stash_2</resptr>
+            <resptr order="1">res_with_value_order</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Test thing with explicit value order and stash" restype=":TestThing" id="res_with_value_order_stash_2">
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Second link circle.</text>
+        </text-prop>
+        <resptr-prop name=":hasResource">
+            <resptr order="0">res_with_value_order_stash_1</resptr>
+            <resptr order="1">res_with_value_order</resptr>
+        </resptr-prop>
+    </resource>
   
     <resource label="Imagething-tif"
               restype=":ImageThing"
@@ -466,6 +510,17 @@
         </bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="public" encoding="utf8">This is an SVG image</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-with placeholder"
+              restype=":ImageThing"
+              id="image_thing_placeholder">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_2">
+            <placeholder-file type="StillImageRepresentation"/>
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">This is a resource with a placeholder image</text>
         </text-prop>
     </resource>
 

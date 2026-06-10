@@ -16,6 +16,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_typ
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 
 
 @dataclass
@@ -116,23 +117,36 @@ class AbstractFileValue(Protocol):
 
 @dataclass
 class FileValue(AbstractFileValue):
-    value: str
+    value: str | PlaceholderFile
     metadata: Metadata
     comment: str | None
 
     @classmethod
-    def new(cls, value: str | Path, metadata: Metadata, comment: str | None, resource_id: str) -> FileValue:
-        if isinstance(value, Path):
-            if str(value) == ".":
-                value = ""
-            else:
+    def new(
+        cls, value: str | Path | PlaceholderFile, metadata: Metadata, comment: str | None, resource_id: str
+    ) -> FileValue:
+        match value:
+            case Path():
+                if str(value) == ".":
+                    msg_info = MessageInfo(
+                        message=f"Your input '{value}' is empty. Please enter a valid file path.",
+                        resource_id=resource_id,
+                        field="bitstream",
+                    )
+                    emit_xmllib_input_warning(msg_info)
+                    value = ""
+                else:
+                    value = str(value)
+            case PlaceholderFile():
+                pass
+            case _:
+                check_and_warn_potentially_empty_string(
+                    value=value,
+                    res_id=resource_id,
+                    expected="file path",
+                    field="bitstream",
+                )
                 value = str(value)
-        check_and_warn_potentially_empty_string(
-            value=value,
-            res_id=resource_id,
-            expected="file name",
-            field="bitstream",
-        )
         if is_nonempty_value_internal(comment):
             fixed_comment = str(comment)
             check_and_warn_if_a_string_contains_a_potentially_empty_value(
@@ -142,7 +156,7 @@ class FileValue(AbstractFileValue):
             )
         else:
             fixed_comment = None
-        return cls(value=str(value), metadata=metadata, comment=fixed_comment)
+        return cls(value=value, metadata=metadata, comment=fixed_comment)
 
 
 @dataclass

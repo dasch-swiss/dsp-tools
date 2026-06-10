@@ -11,6 +11,7 @@ from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.file_values import Metadata
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.placeholder import PlaceholderFile
 
 
 @pytest.fixture
@@ -109,14 +110,26 @@ class TestFileValue:
         assert val.comment is None
         assert val.value == "file.jpg"
 
+    def test_path_is_placeholder(self, metadata):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            val = FileValue.new(
+                PlaceholderFile.STILL_IMAGE_REPRESENTATION,
+                metadata,
+                None,
+                "id",
+            )
+        assert len(caught_warnings) == 0
+        assert val.comment is None
+        assert val.value == PlaceholderFile.STILL_IMAGE_REPRESENTATION
+
     def test_empty_path(self, metadata):
-        expected = regex.escape("Field 'bitstream' | Your input '' is empty. Please enter a valid file name.")
+        expected = regex.escape("Field 'bitstream' | Your input '.' is empty. Please enter a valid file path.")
         with pytest.warns(XmllibInputWarning, match=expected):
             val = FileValue.new(Path(""), metadata, None, "id")
         assert val.value == ""
 
     def test_path_is_none(self, metadata):
-        expected = regex.escape("Field 'bitstream' | Your input 'None' is empty. Please enter a valid file name.")
+        expected = regex.escape("Field 'bitstream' | Your input 'None' is empty. Please enter a valid file path.")
         with pytest.warns(XmllibInputWarning, match=expected):
             val = FileValue.new(None, metadata, None, "id")  # type: ignore[arg-type]
         assert val.value == "None"

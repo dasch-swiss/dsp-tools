@@ -4,18 +4,22 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _cleanup_formatted_text
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_value_order
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_bitstream_tag
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 
@@ -105,8 +109,8 @@ class TestParseResource:
         assert not resource.migration_metadata
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
-        assert file_val.value_type == KnoraValueType.AUDIO_FILE
-        assert file_val.value == "testdata/bitstreams/test.wav"
+        assert file_val.value_type == KnoraFileValueType.AUDIO_FILE
+        assert file_val.value.value == "testdata/bitstreams/test.wav"
 
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)
@@ -122,7 +126,7 @@ class TestParseResource:
         assert not resource.migration_metadata
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
-        assert file_val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert file_val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
 
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
@@ -217,6 +221,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.BOOLEAN_VALUE
         assert val.permissions_id == "public"
         assert val.comment == "Comment on Value"
+        assert val.value_order is None
 
     def test_color_value(self):
         xml_val = etree.fromstring("""
@@ -232,6 +237,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.COLOR_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_color_value_several(self):
         xml_val = etree.fromstring("""
@@ -254,6 +260,7 @@ class TestParseValues:
         assert val2.value_type == KnoraValueType.COLOR_VALUE
         assert not val2.permissions_id
         assert not val2.comment
+        assert val2.value_order is None
 
     def test_date_value(self):
         xml_val = etree.fromstring("""
@@ -269,6 +276,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.DATE_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_decimal_value(self):
         xml_val = etree.fromstring("""
@@ -284,6 +292,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.DECIMAL_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_geometry_value(self):
         xml_val = etree.fromstring("""
@@ -299,6 +308,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.GEOM_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_geoname_value(self):
         xml_val = etree.fromstring("""
@@ -314,6 +324,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.GEONAME_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_integer_value(self):
         xml_val = etree.fromstring("""
@@ -329,6 +340,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.INT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value(self):
         xml_val = etree.fromstring("""
@@ -344,6 +356,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_none(self):
         xml_val = etree.fromstring("""
@@ -359,6 +372,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_iri(self):
         xml_val = etree.fromstring("""
@@ -374,12 +388,13 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_list_value_several(self):
         xml_val = etree.fromstring("""
         <list-prop list="firstList" name=":hasProp">
-            <list>n1</list>
-            <list>n2</list>
+            <list order="0">n1</list>
+            <list order="1">n2</list>
         </list-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -390,12 +405,14 @@ class TestParseValues:
         assert val1.value_type == KnoraValueType.LIST_VALUE
         assert not val1.permissions_id
         assert not val1.comment
+        assert val1.value_order == 0
         val2 = result[1]
         assert val2.prop_name == HAS_PROP
         assert val2.value == ("firstList", "n2")
         assert val2.value_type == KnoraValueType.LIST_VALUE
         assert not val2.permissions_id
         assert not val2.comment
+        assert val2.value_order == 1
 
     def test_resptr_value(self):
         xml_val = etree.fromstring("""
@@ -411,6 +428,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LINK_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_resptr_value_none(self):
         xml_val = etree.fromstring("""
@@ -426,6 +444,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.LINK_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_value(self):
         xml_val = etree.fromstring("""
@@ -441,6 +460,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_value_none(self):
         xml_val = etree.fromstring("""
@@ -456,6 +476,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_richtext_escaped_characters(self):
         xml_val = etree.fromstring("""
@@ -471,11 +492,12 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">
-            <text encoding="utf8"> Text</text>
+            <text encoding="utf8" order="0"> Text</text>
         </text-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -486,6 +508,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order == 0
 
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""
@@ -501,6 +524,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_time_value(self):
         xml_val = etree.fromstring("""
@@ -516,6 +540,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.TIME_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
     def test_uri_value(self):
         xml_val = etree.fromstring("""
@@ -531,6 +556,7 @@ class TestParseValues:
         assert val.value_type == KnoraValueType.URI_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
 
 
 class TestParseFileValues:
@@ -541,8 +567,8 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
-        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert val.value.value == "https://iiif.uri/full.jpg"
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
@@ -558,8 +584,8 @@ class TestParseFileValues:
         </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
-        assert val.value == "https://iiif.uri/full.jpg"
-        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert val.value.value == "https://iiif.uri/full.jpg"
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_IIIF
         assert val.metadata.license_iri == "license_iri"
         assert val.metadata.copyright_holder == "copy"
         assert val.metadata.authorship_id == "auth"
@@ -571,9 +597,9 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
-        assert val.value == "this/is/filepath/file.z"
-        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        val = _parse_bitstream_tag(xml_val)
+        assert val.value.value == "this/is/filepath/file.z"
+        assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert not val.metadata.license_iri
         assert not val.metadata.copyright_holder
         assert not val.metadata.authorship_id
@@ -588,12 +614,27 @@ class TestParseFileValues:
             this/is/filepath/file.z
         </bitstream>
         """)
-        val = _parse_file_values(xml_val)
-        assert val.value == "this/is/filepath/file.z"
-        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        val = _parse_bitstream_tag(xml_val)
+        assert val.value.value == "this/is/filepath/file.z"
+        assert val.value_type == KnoraFileValueType.ARCHIVE_FILE
         assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
         assert val.metadata.copyright_holder == "DaSCH"
         assert val.metadata.authorship_id == "authorship_1"
+        assert not val.metadata.permissions_id
+
+    def test_bitstream_placeholder(self):
+        xml_val = etree.fromstring("""
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+        ><placeholder-file type="StillImageRepresentation"/></bitstream>
+        """)
+        val = _parse_bitstream_tag(xml_val)
+        assert isinstance(val.value, ParsedFilePlaceholder)
+        assert val.value.value == URN_DASCH_PLACEHOLDER
+        assert val.value_type == KnoraFileValueType.STILL_IMAGE_FILE
+        assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert val.metadata.copyright_holder == "DaSCH"
+        assert val.metadata.authorship_id is None
         assert not val.metadata.permissions_id
 
 
@@ -602,30 +643,30 @@ class TestFileTypeInfo:
         "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
     )
     def test_archive(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.ARCHIVE_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.ARCHIVE_FILE
 
     @pytest.mark.parametrize("file_name", ["test.mp3", "test.wav"])
     def test_audio(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.AUDIO_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.AUDIO_FILE
 
     @pytest.mark.parametrize(
         "file_name",
         ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx", "test.epub"],
     )
     def test_document(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.DOCUMENT_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.DOCUMENT_FILE
 
     def test_moving_image(self):
-        assert _get_file_value_type("test.mp4") == KnoraValueType.MOVING_IMAGE_FILE
+        assert _get_file_value_type("test.mp4") == KnoraFileValueType.MOVING_IMAGE_FILE
 
     @pytest.mark.parametrize(
         "file_name", ["test.jpg", "test.jpeg", "path/test.jp2", "test.png", "test.tif", "test.tiff", "test.jpx"]
     )
     def test_still_image(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.STILL_IMAGE_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.STILL_IMAGE_FILE
 
     def test_svg_image(self):
-        assert _get_file_value_type("test.svg") == KnoraValueType.STILL_IMAGE_SVG
+        assert _get_file_value_type("test.svg") == KnoraFileValueType.STILL_IMAGE_SVG
 
     @pytest.mark.parametrize(
         "file_name",
@@ -643,7 +684,7 @@ class TestFileTypeInfo:
         ],
     )
     def test_text(self, file_name: str):
-        assert _get_file_value_type(file_name) == KnoraValueType.TEXT_FILE
+        assert _get_file_value_type(file_name) == KnoraFileValueType.TEXT_FILE
 
     def test_unknown(self):
         assert not _get_file_value_type("file.unknown")
@@ -748,4 +789,19 @@ def test_cleanup_formatted_text():
         '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
     )
     result = _cleanup_formatted_text(original)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("inpt", "expected"),
+    [
+        ({}, None),
+        ({"permissions": "public"}, None),
+        ({"order": "0"}, 0),
+        ({"order": "5"}, 5),
+    ],
+)
+def test_get_value_order(inpt, expected):
+    # creating an element and adding it as an attribute is necessary for typing
+    result = _get_value_order(etree.Element("val", attrib=inpt).attrib)
     assert result == expected

@@ -68,7 +68,7 @@ class ValidationResultBaseInfo:
     source_constraint_component: SubjectObjectTypeAlias
     focus_node_iri: SubjectObjectTypeAlias
     focus_node_type: SubjectObjectTypeAlias
-    result_path: SubjectObjectTypeAlias
+    result_path: SubjectObjectTypeAlias | None
     severity: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 
@@ -103,6 +103,7 @@ class ViolationType(Enum):
     NON_EXISTING_CARD = auto()
     FILE_VALUE_PROHIBITED = auto()
     FILE_VALUE_MISSING = auto()
+    FILE_VALUE_PLACEHOLDER = auto()
 
 
 @dataclass

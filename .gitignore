@@ -74,5 +74,7 @@ tmp/
 /testdata/e2e/images
 /testdata/e2e/ingest-db
 /testdata/e2e/tmp-dsp-sipi
+/testdata/e2e/sipi-config
+/testdata/e2e/sipi-cache
 
 /testdata/e2e/testcontainer_port_lockfiles

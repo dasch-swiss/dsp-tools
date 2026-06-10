@@ -49,4 +49,5 @@ class ProhibitedPaths:
 @dataclass
 class NetworkRequirements:
     api_url: str
+    ingest_url: str | None = None
     always_requires_docker: bool = False

@@ -15,8 +15,8 @@ from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
-from dsp_tools.commands.xmlupload.execute_upload import enable_unknown_license_if_any_are_missing
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -64,6 +64,10 @@ def xmlupload(
     shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+
+    # verify that a project with the shortcode exists
+    ProjectClientLive(creds.server, auth).get_project_iri(shortcode)
+
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
@@ -84,12 +88,9 @@ def xmlupload(
     if not validation_ok:
         return False
 
-    check_if_bitstreams_exist(root, imgdir)
+    check_if_bitstreams_exist(root, Path(imgdir))
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
-
-    if not is_on_prod_like_server:
-        enable_unknown_license_if_any_are_missing(clients.legal_info_client, parsed_resources)
 
     processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
 

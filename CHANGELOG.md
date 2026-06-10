@@ -1,5 +1,82 @@
 # Changelog
 
+## [18.17.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.16.0...v18.17.0) (2026-06-10)
+
+
+### Enhancements
+
+* allow `placeholder-file` tag in `bitstream` tag (DEV-6580) ([#2321](https://github.com/dasch-swiss/dsp-tools/issues/2321)) ([1da35bf](https://github.com/dasch-swiss/dsp-tools/commit/1da35bf7de5ecb0460a369b4b3de789b848c652a))
+* enable explicit value ordering (DEV-6596) ([#2335](https://github.com/dasch-swiss/dsp-tools/issues/2335)) ([8a7e2a3](https://github.com/dasch-swiss/dsp-tools/commit/8a7e2a308fa2f5180392cfe574ee56ca4644f0a8))
+* parse placeholder value from xml (DEV-6581) ([#2322](https://github.com/dasch-swiss/dsp-tools/issues/2322)) ([2997c0d](https://github.com/dasch-swiss/dsp-tools/commit/2997c0ddcdc9478d10c4f528da0f279f71ef1cc7))
+* **validate-data:** improve error message if wrong placeholder file type is used (DEV-6594) ([#2332](https://github.com/dasch-swiss/dsp-tools/issues/2332)) ([d0105be](https://github.com/dasch-swiss/dsp-tools/commit/d0105be7da8ed937c328422b0d156fbfcc173cf0))
+* **validate-data:** warn if placeholder is used (DEV-6583) ([#2329](https://github.com/dasch-swiss/dsp-tools/issues/2329)) ([1f6d367](https://github.com/dasch-swiss/dsp-tools/commit/1f6d3676489ceeef7f364a8bd8fb54e0b7813650))
+* **xmllib:** add `PlaceholderFile` option (DEV-6570) ([#2333](https://github.com/dasch-swiss/dsp-tools/issues/2333)) ([1b3b7df](https://github.com/dasch-swiss/dsp-tools/commit/1b3b7df30dd3742f657196fed17a9d88de645d17))
+* **xmlupload:** process placeholder bitstream (DEV-6582) ([#2327](https://github.com/dasch-swiss/dsp-tools/issues/2327)) ([55658a5](https://github.com/dasch-swiss/dsp-tools/commit/55658a525568c8e07439f7afa2afff0a57bf6e47))
+* **xmlupload:** use new built-in urn placeholder for missing legal info (DEV-6571) ([#2323](https://github.com/dasch-swiss/dsp-tools/issues/2323)) ([efffa96](https://github.com/dasch-swiss/dsp-tools/commit/efffa96c8d7b03212c8d847244663bef45a41632))
+
+
+### Bug Fixes
+
+* **ci:** make Dependabot PRs pass e2e tests without relying on Actions secrets ([#2330](https://github.com/dasch-swiss/dsp-tools/issues/2330)) ([4b53172](https://github.com/dasch-swiss/dsp-tools/commit/4b531723f8ef0d7b11eec9690cc710dc5c8bed2f))
+* **ci:** skip uv.lock update when no release PR is open ([#2331](https://github.com/dasch-swiss/dsp-tools/issues/2331)) ([e407a27](https://github.com/dasch-swiss/dsp-tools/commit/e407a2727107bef3cd742ed71cb6d59da1a80568))
+
+
+### Maintenance
+
+* **bump-stack-versions:** use PAT so version-bump PR triggers tests ([#2328](https://github.com/dasch-swiss/dsp-tools/issues/2328)) ([2602078](https://github.com/dasch-swiss/dsp-tools/commit/26020781b30e33a23add611fcafe1d8909abb939))
+* **start-stack:** bump versions to 2026.06.02 ([#2343](https://github.com/dasch-swiss/dsp-tools/issues/2343)) ([bba504f](https://github.com/dasch-swiss/dsp-tools/commit/bba504f71641bd2e6c5f1bd16a0d16cf5075334f))
+
+
+### Documentation
+
+* add `placeholder-file` documentation ([#2334](https://github.com/dasch-swiss/dsp-tools/issues/2334)) ([7296129](https://github.com/dasch-swiss/dsp-tools/commit/72961299ea2c96e37df11e057e51c7de2229708c))
+
+## [18.16.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.15.0...v18.16.0) (2026-06-03)
+
+
+### Enhancements
+
+* dispatch dsp-docs bump on release publish (DEV-6438) ([#2303](https://github.com/dasch-swiss/dsp-tools/issues/2303)) ([6cdda44](https://github.com/dasch-swiss/dsp-tools/commit/6cdda44617d4fa4142618f55419872db32bd2feb))
+
+
+### Maintenance
+
+* change parsing and processing of FileValues ([#2318](https://github.com/dasch-swiss/dsp-tools/issues/2318)) ([96c73e1](https://github.com/dasch-swiss/dsp-tools/commit/96c73e122adcbcdd7102dcb8d4906f84341b87b8))
+* split `KnoraValueType` enum ([#2317](https://github.com/dasch-swiss/dsp-tools/issues/2317)) ([2359090](https://github.com/dasch-swiss/dsp-tools/commit/2359090b0a596ec29227c5e05a4e03c867497821))
+* **start-stack:** bump versions to 2026.06.01 ([#2324](https://github.com/dasch-swiss/dsp-tools/issues/2324)) ([7cfa28d](https://github.com/dasch-swiss/dsp-tools/commit/7cfa28d710d3f961b2340809d0acccf3cdaa3fb3))
+* **xmlupload:** make one field for FileValue instead of two ([#2319](https://github.com/dasch-swiss/dsp-tools/issues/2319)) ([4afe1b7](https://github.com/dasch-swiss/dsp-tools/commit/4afe1b7bd138dfc241372c29284696391eb3514e))
+* **xmlupload:** optimise FileValue graph creation ([#2320](https://github.com/dasch-swiss/dsp-tools/issues/2320)) ([744d5bd](https://github.com/dasch-swiss/dsp-tools/commit/744d5bd64aaacb1430148b48faeef7c1d70a16f6))
+
+
+### Documentation
+
+* add permissions guide (RDU-169) ([#2278](https://github.com/dasch-swiss/dsp-tools/issues/2278)) ([394b2bf](https://github.com/dasch-swiss/dsp-tools/commit/394b2bf1286e8e5cfe2fbf8d3e6ddd3ee70d4061))
+
+## [18.15.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.14.0...v18.15.0) (2026-05-22)
+
+
+### Enhancements
+
+* **create:** extend limited_view to MovingImageRepresentation and AudioRepresentation (DEV-6308) ([#2281](https://github.com/dasch-swiss/dsp-tools/issues/2281)) ([e8c1f4d](https://github.com/dasch-swiss/dsp-tools/commit/e8c1f4dc0168b02c1e0570deb775b0d8f874aa57))
+* **validate-data:** prevent resources from linking to themselves (DEV-6323) ([#2299](https://github.com/dasch-swiss/dsp-tools/issues/2299)) ([d332c62](https://github.com/dasch-swiss/dsp-tools/commit/d332c62f6db08566a774acdf36e38fd95937f9e1))
+* **xmlupload:** improve error message when no project with the shortcode exists (DEV-6530) ([#2302](https://github.com/dasch-swiss/dsp-tools/issues/2302)) ([a6f728e](https://github.com/dasch-swiss/dsp-tools/commit/a6f728e4d9a6e9c8083c5f5f3682a6081f422ed6))
+
+
+### Bug Fixes
+
+* **validate-data:** parse stand-off link to resources in footnotes (DEV-6332) ([#2295](https://github.com/dasch-swiss/dsp-tools/issues/2295)) ([36c1f43](https://github.com/dasch-swiss/dsp-tools/commit/36c1f43b0c4d955382bde59d5e60a732c3c3d5cb))
+* **validate-data:** use correct printing message for yaspin (DEV-6548) ([#2301](https://github.com/dasch-swiss/dsp-tools/issues/2301)) ([e2fa6ac](https://github.com/dasch-swiss/dsp-tools/commit/e2fa6ac5a87c413fb597b41a90ba25b61c740b3d))
+
+
+### Maintenance
+
+* bump dependencies ([#2309](https://github.com/dasch-swiss/dsp-tools/issues/2309)) ([16644f5](https://github.com/dasch-swiss/dsp-tools/commit/16644f5512711d609cd78bc1b218e6b162af8d62))
+* **cli:** add ingest health check before commands that may handle assets ([#2308](https://github.com/dasch-swiss/dsp-tools/issues/2308)) ([56087a8](https://github.com/dasch-swiss/dsp-tools/commit/56087a8282bf4559064e7f4b7e4310894657ca69))
+* **client:** remove token from logging in authentication client ([#2292](https://github.com/dasch-swiss/dsp-tools/issues/2292)) ([c3523cd](https://github.com/dasch-swiss/dsp-tools/commit/c3523cda338ebf8c97c037c8dc5aca9f1b12fc50))
+* **start-stack:** bump versions to 2026.05.02 ([#2311](https://github.com/dasch-swiss/dsp-tools/issues/2311)) ([322b0f7](https://github.com/dasch-swiss/dsp-tools/commit/322b0f7f1f80776374ab4423d16bd032997ec9fa))
+* **xmlupload:** add log statements to stash generation ([#2297](https://github.com/dasch-swiss/dsp-tools/issues/2297)) ([bec68d6](https://github.com/dasch-swiss/dsp-tools/commit/bec68d66a182e3c55abb2e54b2936d65881d0ab6))
+* **xmlupload:** log ingest server response on upload failure ([#2304](https://github.com/dasch-swiss/dsp-tools/issues/2304)) ([c33fe6f](https://github.com/dasch-swiss/dsp-tools/commit/c33fe6f9867f4eb417d97158522ab7b124d1bffe))
+
 ## [18.14.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.13.0...v18.14.0) (2026-05-06)
 
 

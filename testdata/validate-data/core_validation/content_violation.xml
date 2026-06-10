@@ -6,8 +6,6 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 16 Violations -->
-
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="label_empty"/>
 
@@ -109,6 +107,35 @@
 
                 have newlines
             </text>
+        </text-prop>
+    </resource>
+    
+    <!-- The value order must be a full range without gaps -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_skips_number">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="2">Third text</text>
+        </text-prop>
+    </resource>
+
+    <!--
+    If some values have an order for a property all must have one.
+    If no order is provided the API takes max + 1. The API does not allow values to have identical orders.
+    If the "Text without order" were created before "Second text", then we would get a conflict.
+    -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_one_value_no_order">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="1">Second text</text>
+            <text encoding="utf8">Text without order</text>
+        </text-prop>
+    </resource>
+
+    <!-- The value order has duplicates -->
+    <resource label="Test thing with explicit value order" restype=":ClassWithEverything" id="value_order_has_duplicates">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8" order="0">First text</text>
+            <text encoding="utf8" order="0">Second text</text>
         </text-prop>
     </resource>
 

@@ -153,3 +153,31 @@ def numeric_entities(text: str) -> str:
         text,
     )
     return text
+
+
+def check_and_fix_value_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
+    """Check if the value order is correct and convert to an int if it is not none. Else raise an error."""
+
+    def _is_convertable_value(inpt: Any) -> bool:
+        match inpt:
+            case bool():
+                # a bool is a valid 'int' in Python
+                return False
+            case int():
+                return True
+            case str():
+                return bool(regex.search(r"^\d+$", inpt))
+            case _:
+                return False
+
+    if input_order is None:
+        return None
+    if not _is_convertable_value(input_order):
+        msg = (
+            f"The order must be a valid integer or 'None',"
+            f" your input of the type {type(input_order).__name__} is not allowed."
+        )
+        msg_info = MessageInfo(message=msg, resource_id=res_id, prop_name=prop_name, field="order")
+        raise_xmllib_input_error(msg_info)
+    else:
+        return int(input_order)

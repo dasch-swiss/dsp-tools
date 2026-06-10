@@ -10,6 +10,16 @@ from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_xml_file
 
+_NS = "https://dasch.swiss/schema"
+
+
+def _make_root_with_bitstream(bitstream_xml: str) -> etree._Element:
+    return etree.fromstring(
+        f'<knora xmlns="{_NS}" shortcode="9999" default-ontology="test">'
+        f'<resource label="r" restype=":Obj" id="r1">{bitstream_xml}</resource>'
+        f"</knora>"
+    )
+
 
 def test_comment_removal() -> None:
     input_file = Path("testdata/xml-data/test-data-systematic-4123.xml")
@@ -221,6 +231,71 @@ class TestReformatErrorMessage:
         assert (
             "The provided resource id 'res_1' is either not a valid xsd:ID or not unique in the file." in result.message
         )
+
+
+class TestBitstreamPlaceholderFile:
+    def test_regular_bitstream_text_content_is_valid(self) -> None:
+        root = _make_root_with_bitstream("<bitstream>path/to/file.jpg</bitstream>")
+        assert _validate_root_get_validation_messages(root) is None
+
+    @pytest.mark.parametrize(
+        "representation_type",
+        [
+            "StillImageRepresentation",
+            "MovingImageRepresentation",
+            "AudioRepresentation",
+            "DocumentRepresentation",
+            "TextRepresentation",
+            "ArchiveRepresentation",
+        ],
+    )
+    def test_placeholder_file_valid_type_is_accepted(self, representation_type: str) -> None:
+        root = _make_root_with_bitstream(f'<bitstream><placeholder-file type="{representation_type}"/></bitstream>')
+        assert _validate_root_get_validation_messages(root) is None
+
+    def test_placeholder_file_valid_type_is_accepted_with_pretty_print(self) -> None:
+        root = _make_root_with_bitstream("""<bitstream>
+        <placeholder-file type="ArchiveRepresentation"/>
+        </bitstream>""")
+        assert _validate_root_get_validation_messages(root) is None
+
+    def test_placeholder_file_with_metadata_attributes_is_valid(self) -> None:
+        root = _make_root_with_bitstream(
+            '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'
+            '<placeholder-file type="StillImageRepresentation"/>'
+            "</bitstream>"
+        )
+        assert _validate_root_get_validation_messages(root) is None
+
+    def test_placeholder_file_with_metadata_attributes_is_duplicated(self) -> None:
+        root = _make_root_with_bitstream(
+            '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'
+            '<placeholder-file type="StillImageRepresentation"/>'
+            '<placeholder-file type="StillImageRepresentation"/>'
+            "</bitstream>"
+        )
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "placeholder-file"
+
+    def test_placeholder_file_and_path_fails(self) -> None:
+        root = _make_root_with_bitstream(
+            '<bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH">'
+            '<placeholder-file type="StillImageRepresentation"/>this/is/filepath'
+            "</bitstream>"
+        )
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "bitstream"
+
+    def test_placeholder_file_invalid_type_is_rejected(self) -> None:
+        root = _make_root_with_bitstream('<bitstream><placeholder-file type="InvalidType"/></bitstream>')
+        result = _validate_root_get_validation_messages(root)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0].element == "placeholder-file"
 
 
 if __name__ == "__main__":

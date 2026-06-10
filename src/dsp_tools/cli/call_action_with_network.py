@@ -72,7 +72,9 @@ def call_upload_files(args: argparse.Namespace) -> bool:
 
 
 def call_ingest_files(args: argparse.Namespace) -> bool:
-    check_input_dependencies(network_dependencies=[NetworkRequirements(api_url=args.server)])
+    check_input_dependencies(
+        network_dependencies=[NetworkRequirements(api_url=args.server, ingest_url=args.dsp_ingest_url)]
+    )
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
@@ -83,7 +85,9 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
-    network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
+    network_requirements = NetworkRequirements(
+        args.server, always_requires_docker=always_requires_docker, ingest_url=args.dsp_ingest_url
+    )
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, [network_requirements])
 
@@ -106,7 +110,9 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     if id2iri_file:
         required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
-    network_requirements = NetworkRequirements(args.server, always_requires_docker=always_requires_docker)
+    network_requirements = NetworkRequirements(
+        args.server, always_requires_docker=always_requires_docker, ingest_url=args.dsp_ingest_url
+    )
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, [network_requirements])
 
@@ -167,7 +173,7 @@ def call_validate_data(args: argparse.Namespace) -> bool:
 
 def call_resume_xmlupload(args: argparse.Namespace) -> bool:
     # this does not need docker if not on localhost, as does not need to validate
-    check_input_dependencies(network_dependencies=[NetworkRequirements(args.server)])
+    check_input_dependencies(network_dependencies=[NetworkRequirements(args.server, ingest_url=args.dsp_ingest_url)])
     return resume_xmlupload(
         creds=get_creds(args),
         skip_first_resource=args.skip_first_resource,
@@ -235,14 +241,14 @@ def call_migration_complete(args: argparse.Namespace) -> bool:
             f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
             f"for the `migration` command."
         )
-    source_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    source_server, source_ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = source_server
-    target_server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    target_server, target_ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = target_server
     check_input_dependencies(
         network_dependencies=[
-            NetworkRequirements(migration_info.source.server),
-            NetworkRequirements(migration_info.target.server),
+            NetworkRequirements(migration_info.source.server, ingest_url=source_ingest_url),
+            NetworkRequirements(migration_info.target.server, ingest_url=target_ingest_url),
         ],
         prohibited_paths=ProhibitedPaths(
             [
@@ -262,7 +268,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'source-server' section for the export command."
         )
-    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
+    server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
     migration_info.source.server = server
 
     prohibited_paths = [migration_info.config.export_savepath]
@@ -274,7 +280,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
         prohibited_paths.append(migration_info.config.reference_savepath)
 
     check_input_dependencies(
-        network_dependencies=[NetworkRequirements(migration_info.source.server)],
+        network_dependencies=[NetworkRequirements(migration_info.source.server, ingest_url=ingest_url)],
         required_paths=required_paths,
         prohibited_paths=ProhibitedPaths(prohibited_paths),
     )
@@ -292,10 +298,10 @@ def call_migration_import(args: argparse.Namespace) -> bool:
         raise InvalidMigrationConfigFile(
             f"The config file '{config_path}' must contain a 'target-server' section for the import command."
         )
-    server, _ = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
+    server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)
     migration_info.target.server = server
     check_input_dependencies(
-        network_dependencies=[NetworkRequirements(migration_info.target.server)],
+        network_dependencies=[NetworkRequirements(migration_info.target.server, ingest_url=ingest_url)],
         required_paths=PathDependencies(
             [migration_info.config.reference_savepath, migration_info.config.export_savepath]
         ),

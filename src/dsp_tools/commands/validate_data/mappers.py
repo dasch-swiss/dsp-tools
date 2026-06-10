@@ -28,17 +28,28 @@ from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdf_constants import API_SHAPES
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 FILE_TYPE_TO_PROP = {
-    KnoraValueType.ARCHIVE_FILE: f"{KNORA_API_PREFIX}hasArchiveFileValue",
-    KnoraValueType.AUDIO_FILE: f"{KNORA_API_PREFIX}hasAudioFileValue",
-    KnoraValueType.DOCUMENT_FILE: f"{KNORA_API_PREFIX}hasDocumentFileValue",
-    KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_PREFIX}hasMovingImageFileValue",
-    KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_PREFIX}hasStillImageFileValue",
-    KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_PREFIX}hasStillImageFileValue",
-    KnoraValueType.STILL_IMAGE_SVG: f"{KNORA_API_PREFIX}hasStillImageFileValue",
-    KnoraValueType.TEXT_FILE: f"{KNORA_API_PREFIX}hasTextFileValue",
+    KnoraFileValueType.ARCHIVE_FILE: f"{KNORA_API_PREFIX}hasArchiveFileValue",
+    KnoraFileValueType.AUDIO_FILE: f"{KNORA_API_PREFIX}hasAudioFileValue",
+    KnoraFileValueType.DOCUMENT_FILE: f"{KNORA_API_PREFIX}hasDocumentFileValue",
+    KnoraFileValueType.MOVING_IMAGE_FILE: f"{KNORA_API_PREFIX}hasMovingImageFileValue",
+    KnoraFileValueType.STILL_IMAGE_FILE: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraFileValueType.STILL_IMAGE_IIIF: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraFileValueType.STILL_IMAGE_SVG: f"{KNORA_API_PREFIX}hasStillImageFileValue",
+    KnoraFileValueType.TEXT_FILE: f"{KNORA_API_PREFIX}hasTextFileValue",
+}
+
+
+PLACEHOLDER_TYPE_TO_FILE_TYPE_MAPPER = {
+    "ArchiveRepresentation": KnoraFileValueType.ARCHIVE_FILE,
+    "AudioRepresentation": KnoraFileValueType.AUDIO_FILE,
+    "DocumentRepresentation": KnoraFileValueType.DOCUMENT_FILE,
+    "MovingImageRepresentation": KnoraFileValueType.MOVING_IMAGE_FILE,
+    "StillImageRepresentation": KnoraFileValueType.STILL_IMAGE_FILE,
+    "TextRepresentation": KnoraFileValueType.TEXT_FILE,
 }
 
 # Mappers from internal representation to API format
@@ -56,10 +67,12 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "uri-prop": KnoraValueType.URI_VALUE,
 }
 
+
 TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDF_TYPE: RDF.type,
     TriplePropertyType.RDFS_LABEL: RDFS.label,
     TriplePropertyType.KNORA_COMMENT_ON_VALUE: KNORA_API.valueHasComment,
+    TriplePropertyType.KNORA_VALUE_ORDER: KNORA_API.valueHasOrder,
     TriplePropertyType.KNORA_PERMISSIONS: KNORA_API.hasPermissions,
     TriplePropertyType.KNORA_INTERVAL_START: KNORA_API.intervalValueHasStart,
     TriplePropertyType.KNORA_INTERVAL_END: KNORA_API.intervalValueHasEnd,
@@ -86,14 +99,14 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.RICHTEXT_VALUE: RICHTEXT_PROP_TYPE_INFO,
     KnoraValueType.TIME_VALUE: TIME_PROP_TYPE_INFO,
     KnoraValueType.URI_VALUE: URI_PROP_TYPE_INFO,
-    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
-    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
-    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
-    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
-    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
-    KnoraValueType.STILL_IMAGE_IIIF: IIIF_URI_VALUE,
-    KnoraValueType.STILL_IMAGE_SVG: STILL_IMAGE_VECTOR_FILE_VALUE,
-    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
+    KnoraFileValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraFileValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraFileValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraFileValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraFileValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraFileValueType.STILL_IMAGE_IIIF: IIIF_URI_VALUE,
+    KnoraFileValueType.STILL_IMAGE_SVG: STILL_IMAGE_VECTOR_FILE_VALUE,
+    KnoraFileValueType.TEXT_FILE: TEXT_FILE_VALUE,
 }
 
 VALUE_INFO_TRIPLE_OBJECT_TYPE = {
@@ -110,14 +123,14 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.RICHTEXT_VALUE: TripleObjectType.STRING,
     KnoraValueType.TIME_VALUE: TripleObjectType.DATETIME,
     KnoraValueType.URI_VALUE: TripleObjectType.URI,
-    KnoraValueType.ARCHIVE_FILE: TripleObjectType.STRING,
-    KnoraValueType.AUDIO_FILE: TripleObjectType.STRING,
-    KnoraValueType.DOCUMENT_FILE: TripleObjectType.STRING,
-    KnoraValueType.MOVING_IMAGE_FILE: TripleObjectType.STRING,
-    KnoraValueType.STILL_IMAGE_FILE: TripleObjectType.STRING,
-    KnoraValueType.STILL_IMAGE_IIIF: TripleObjectType.URI,
-    KnoraValueType.STILL_IMAGE_SVG: TripleObjectType.STRING,
-    KnoraValueType.TEXT_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.ARCHIVE_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.AUDIO_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.DOCUMENT_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.MOVING_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.STILL_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraFileValueType.STILL_IMAGE_IIIF: TripleObjectType.URI,
+    KnoraFileValueType.STILL_IMAGE_SVG: TripleObjectType.STRING,
+    KnoraFileValueType.TEXT_FILE: TripleObjectType.STRING,
 }
 
 TRIPLE_OBJECT_TYPE_TO_XSD = {
@@ -143,4 +156,5 @@ RESULT_TO_PROBLEM_MAPPER = {
     ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
     ViolationType.FILE_VALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
     ViolationType.FILE_VALUE_MISSING: ProblemType.FILE_VALUE_MISSING,
+    ViolationType.FILE_VALUE_PLACEHOLDER: ProblemType.FILE_VALUE_PLACEHOLDER,
 }

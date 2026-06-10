@@ -15,7 +15,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
     config = UploadConfig(diagnostics=DiagnosticsConfig(save_location=save_location))
     upload_state = UploadState(
         pending_resources=[
-            ProcessedResource("id", "type", "label", None, [ProcessedSimpleText("Some text", "prop", None, None)])
+            ProcessedResource("id", "type", "label", None, [ProcessedSimpleText("Some text", "prop", None, None, None)])
         ],
         failed_uploads=[],
         iri_resolver=IriResolver({"foo": "bar"}),

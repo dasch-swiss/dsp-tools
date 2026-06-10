@@ -95,36 +95,6 @@ class LegalInfoClientLive(LegalInfoClient):
             return response
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
-    def enable_unknown_license(self) -> None:
-        escaped_license_iri = "http%3A%2F%2Frdfh.ch%2Flicenses%2Funknown"
-        url = (
-            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
-            f"legal-info/licenses/{escaped_license_iri}/enable"
-        )
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.auth.get_token()}",
-        }
-        params = RequestParameters("POST", url, TIMEOUT_60, headers=headers)
-        log_request(params)
-        try:
-            response = requests.put(
-                url=params.url,
-                headers=params.headers,
-                timeout=params.timeout,
-            )
-            log_response(response)
-        except RequestException as err:
-            log_and_raise_request_exception(err)
-        if response.ok:
-            return
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError(
-                "Only a SystemAdmin or ProjectAdmin can enable licenses. "
-                "Your permissions are insufficient for this action."
-            )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
-
 
 def _is_last_page(response: dict[str, Any]) -> bool:
     current_page = response["pagination"]["currentPage"]

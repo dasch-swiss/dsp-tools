@@ -36,9 +36,8 @@ def resource_graph() -> Graph:
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         label="Special Characters: äöüéèà",
         permissions=None,
-        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
+        values=[ProcessedBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None, 1)],
         file_value=None,
-        iiif_uri=None,
         migration_metadata=None,
     )
     return create_resource_with_values(res, None, lookups)
@@ -54,6 +53,10 @@ def test_serialise_jsonld_for_resource(resource_graph: Graph) -> None:
                 "@type": "http://www.w3.org/2001/XMLSchema#boolean",
                 "@value": True,
             },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 1,
+            },
         },
         "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": "http://rdfh.ch/9999/project"},
         "http://www.w3.org/2000/01/rdf-schema#label": {
@@ -68,7 +71,7 @@ def test_serialise_jsonld_for_value():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, None, str(uuid4())),
     )
     graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     expected = {

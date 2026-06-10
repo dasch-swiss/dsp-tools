@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
+
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 
 
 @dataclass
@@ -30,13 +33,36 @@ class ParsedValue:
     value_type: KnoraValueType
     permissions_id: str | None
     comment: str | None
+    value_order: int | None
 
 
 @dataclass
 class ParsedFileValue:
-    value: str | None
-    value_type: KnoraValueType | None
+    value: ParsedFileValueValue
+    value_type: KnoraFileValueType | None
     metadata: ParsedFileValueMetadata
+
+
+@dataclass
+class ParsedFileValueValue(ABC):
+    value: str | None
+
+
+@dataclass
+class ParsedFileBitstream(ParsedFileValueValue):
+    """Content of the bitstream tag, i.e. the filepath."""
+
+
+@dataclass
+class ParsedFileIiifUri(ParsedFileValueValue):
+    """Content of the iiif-uri tag, i.e. the IIIF-URI."""
+
+
+class ParsedFilePlaceholder(ParsedFileValueValue):
+    """Placeholder type"""
+
+    def __init__(self) -> None:
+        self.value = URN_DASCH_PLACEHOLDER
 
 
 @dataclass
@@ -67,6 +93,8 @@ class KnoraValueType(Enum):
     TIME_VALUE = auto()
     URI_VALUE = auto()
 
+
+class KnoraFileValueType(Enum):
     ARCHIVE_FILE = auto()
     AUDIO_FILE = auto()
     DOCUMENT_FILE = auto()

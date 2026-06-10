@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from abc import ABC
 from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 
 
 @dataclass
@@ -16,14 +18,31 @@ class ProcessedFileMetadata:
 
 @dataclass
 class ProcessedFileValue:
-    value: str
-    file_type: KnoraValueType
+    value: ProcessedFileValueValue
+    value_type: KnoraFileValueType
     metadata: ProcessedFileMetadata
-    res_id: str
-    res_label: str
 
 
 @dataclass
-class ProcessedIIIFUri:
+class ProcessedFileValueValue(ABC):
     value: str
-    metadata: ProcessedFileMetadata
+
+
+@dataclass
+class ProcessedFileBitstream(ProcessedFileValueValue):
+    """Used for bitstream files, that require upload through ingest."""
+
+    res_id: str
+
+
+@dataclass
+class ProcessedFileIIIFUri(ProcessedFileValueValue):
+    """Used for the IIIF-URI, that do not require separate upload."""
+
+
+@dataclass
+class ProcessedFilePlaceholder(ProcessedFileValueValue):
+    """Placeholder type"""
+
+    def __init__(self) -> None:
+        self.value = URN_DASCH_PLACEHOLDER

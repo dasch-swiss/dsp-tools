@@ -18,7 +18,13 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_DUPLICATE}
+# For these ProblemTypes the user message from the SHACL validation report is used and not the string from the enum
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {
+    ProblemType.GENERIC,
+    ProblemType.FILE_VALUE_MISSING,
+    ProblemType.FILE_DUPLICATE,
+    ProblemType.FILE_VALUE_PLACEHOLDER,
+}
 
 
 def sort_user_problems(
@@ -164,18 +170,29 @@ def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem])
     # This creates a min cardinality (because the audio file is missing)
     # and a closed constraint violation (because it is not permissible to add an image)
     # However, we only want to give one message to the user
-    idx_missing = next((i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_MISSING), None)
-    idx_prohibited = next(
-        (i for i, x in enumerate(problems) if x.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None
-    )
-    if idx_missing is None or idx_prohibited is None:
+    if any(x.problem_type == ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG for x in problems):
+        return _drop_placeholder_noise(problems)
+    return _merge_missing_and_prohibited(problems)
+
+
+def _drop_placeholder_noise(problems: list[InputProblem]) -> list[InputProblem]:
+    # FILE_VALUE_PLACEHOLDER_TYPE_WRONG already covers both of these; remove the redundant noise.
+    noise = {ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_VALUE_PLACEHOLDER}
+    return [p for p in problems if p.problem_type not in noise]
+
+
+def _merge_missing_and_prohibited(problems: list[InputProblem]) -> list[InputProblem]:
+    # FILE_VALUE_PROHIBITED carries the actual input value; FILE_VALUE_MISSING has the better message.
+    # Merge them into one problem that has both.
+    missing = next((p for p in problems if p.problem_type == ProblemType.FILE_VALUE_MISSING), None)
+    prohibited = next((p for p in problems if p.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None)
+    if missing is None or prohibited is None:
         return problems
-    missing_problem = problems[idx_missing]
-    prohibited_problem = problems[idx_prohibited]
-    # The result of the closed constraint violation, contains the input value,
-    # while the message of the other shape is better, we want to include the actual input value.
-    missing_problem.input_value = prohibited_problem.input_value
-    return [problem for i, problem in enumerate(problems) if i not in {idx_missing, idx_prohibited}] + [missing_problem]
+    missing.input_value = prohibited.input_value
+    rest = [
+        p for p in problems if p.problem_type not in {ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_VALUE_PROHIBITED}
+    ]
+    return [*rest, missing]
 
 
 def _group_problems_by_resource(

@@ -7,7 +7,6 @@ import requests
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.wait_strategies import HttpWaitStrategy
-from testcontainers.core.wait_strategies import LogMessageWaitStrategy
 
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
@@ -96,12 +95,12 @@ def _get_sipi(
         .with_bind_ports(host=ports.sipi, container=SIPI_INTERNAL_PORT)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", str(ports.api))
-        .with_command("--config=/sipi/config/sipi.docker-config.lua")
+        .with_command("server --config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(artifact_dirs.sipi_config, "/sipi/config", "rw")
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
         .with_volume_mapping(artifact_dirs.sipi_cache, "/sipi/cache", "rw")
-        .waiting_for(LogMessageWaitStrategy(f"Server listening on HTTP port {SIPI_INTERNAL_PORT}"))
+        .waiting_for(HttpWaitStrategy(SIPI_INTERNAL_PORT, "/health"))
     )
     sipi.start()
     print("Sipi is ready")

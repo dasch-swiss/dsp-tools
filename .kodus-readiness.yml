@@ -1,0 +1,7 @@
+criteria:
+  # Kodus does not recognise Python/uv tooling — supplemental assessment script handles
+  # linter (ruff), type-checker (mypy strict), lock-file (uv.lock), version-pinned,
+  # test-script (justfile), pre-commit-hooks, dead-code-detection (vulture).
+  # These two criteria genuinely cannot be evaluated from the local filesystem:
+  bundle-analysis: false   # N/A — Python library, no frontend bundle
+  branch-protection: false # Requires GitHub API; checked by assess.py

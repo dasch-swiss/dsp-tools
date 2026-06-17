@@ -79,6 +79,7 @@ def _get_lookups_and_order(resources: list[ProcessedResource]) -> tuple[dict[str
     # TODO: make option for file here
     return stash_lookup, upload_order
 
+
 def _get_list_node_to_iri_lookup(list_client: ListGetClient) -> dict[tuple[str, str], str]:
     all_info = list_client.get_all_lists_and_nodes()
     return _create_list_and_node_name_to_iri_lookup(all_info)

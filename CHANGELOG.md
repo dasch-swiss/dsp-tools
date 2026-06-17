@@ -1,5 +1,13 @@
 # Changelog
 
+## [18.17.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.0...v18.17.1) (2026-06-17)
+
+
+### Maintenance
+
+* add .kodus-readiness.yml to skip N/A agent-readiness criteria ([#2345](https://github.com/dasch-swiss/dsp-tools/issues/2345)) ([c19dbf6](https://github.com/dasch-swiss/dsp-tools/commit/c19dbf61985a76aff57234253c53b6ef1dcfaeb8))
+* **start-stack:** bump versions to 2026.06.03 ([#2348](https://github.com/dasch-swiss/dsp-tools/issues/2348)) ([1973638](https://github.com/dasch-swiss/dsp-tools/commit/1973638907c93ade738e75528d36de7fd92a550d))
+
 ## [18.17.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.16.0...v18.17.0) (2026-06-10)
 
 

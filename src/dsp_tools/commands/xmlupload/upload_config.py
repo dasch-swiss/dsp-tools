@@ -57,6 +57,7 @@ class UploadConfig:
     validation_severity: ValidationSeverity = field(default_factory=lambda: ValidationSeverity.INFO)
     id2iri_file: str | None = None
     do_not_request_resource_metadata_from_db: bool = False
+    save_pickle: bool = False
 
     def with_server_info(
         self,

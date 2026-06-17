@@ -297,7 +297,21 @@ def _add_xmlupload(
         ),
     )
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
-    subparser.add_argument("xmlfile", help="path to the XML file containing the data")
+    subparser.add_argument("xmlfile", nargs="?", default=None, help="path to the XML file containing the data")
+    pickle_group = subparser.add_mutually_exclusive_group()
+    pickle_group.add_argument(
+        "--save-pickle",
+        action="store_true",
+        help=(
+            "after processing the XML file, save the upload state to a .pkl file "
+            "in the same directory with the same name as the XML file"
+        ),
+    )
+    pickle_group.add_argument(
+        "--from-pickle",
+        metavar="PICKLE_FILE",
+        help="path to a .pkl file created by a prior xmlupload with --save-pickle; skips XML parsing and processing",
+    )
     subparser.add_argument(
         "--no-iiif-uri-validation",
         action="store_true",

@@ -322,6 +322,43 @@ class TestXmlupload:
             ),
         )
 
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.xmlupload")
+    def test_xmlupload_save_pickle(self, xmlupload: Mock, check_docker: Mock) -> None:
+        args = f"xmlupload --save-pickle {DATA_XML_PATH}".split()
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        entry_point.run(args)
+        xmlupload.assert_called_once_with(
+            input_file=Path(DATA_XML_PATH),
+            creds=creds,
+            imgdir=".",
+            config=UploadConfig(save_pickle=True),
+        )
+
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.utils._check_filepath_exists")
+    @patch("dsp_tools.cli.call_action_with_network.xmlupload_from_pickle")
+    def test_xmlupload_from_pickle(self, xmlupload_from_pickle: Mock, check_filepath: Mock, check_docker: Mock) -> None:
+        pickle_path = "testdata/some-upload.pkl"
+        args = f"xmlupload --from-pickle {pickle_path}".split()
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        entry_point.run(args)
+        xmlupload_from_pickle.assert_called_once_with(
+            pickle_file=Path(pickle_path),
+            creds=creds,
+            imgdir=".",
+        )
+
 
 class TestValidateData:
     @patch("dsp_tools.cli.utils._check_network_health")

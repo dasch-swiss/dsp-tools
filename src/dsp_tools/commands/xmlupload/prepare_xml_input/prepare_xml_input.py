@@ -66,13 +66,18 @@ def get_stash_and_upload_order(
     resources: list[ProcessedResource],
 ) -> tuple[list[ProcessedResource], Stash | None]:
     logger.debug("Get stash and upload order")
-    info_for_graph = create_info_for_graph_from_processed_resources(resources)
-    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    stash_lookup, upload_order = _get_lookups_and_order(resources)
     sorting_lookup = {res.res_id: res for res in resources}
     sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(sorted_resources, stash_lookup)
     return sorted_resources, stash
 
+
+def _get_lookups_and_order(resources: list[ProcessedResource]) -> tuple[dict[str, list[str]], list[str]]:
+    info_for_graph = create_info_for_graph_from_processed_resources(resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    # TODO: make option for file here
+    return stash_lookup, upload_order
 
 def _get_list_node_to_iri_lookup(list_client: ListGetClient) -> dict[tuple[str, str], str]:
     all_info = list_client.get_all_lists_and_nodes()

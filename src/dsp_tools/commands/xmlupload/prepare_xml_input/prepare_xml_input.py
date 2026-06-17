@@ -76,7 +76,6 @@ def get_stash_and_upload_order(
 def _get_lookups_and_order(resources: list[ProcessedResource]) -> tuple[dict[str, list[str]], list[str]]:
     info_for_graph = create_info_for_graph_from_processed_resources(resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
-    # TODO: make option for file here
     return stash_lookup, upload_order
 
 

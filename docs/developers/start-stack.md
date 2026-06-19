@@ -90,7 +90,8 @@ The actual storage and dashboards live wherever the endpoint points
 The endpoint is the only configurable parameter: Alloy exports over **OTLP/gRPC** without
 authentication and without TLS. The endpoint is resolved from inside the Alloy container,
 so use `host.docker.internal:<port>` to reach a collector running on your host machine.
-Alloy's component UI is available at [http://0.0.0.0:12345](http://0.0.0.0:12345).
+Alloy's component UI is available at [http://0.0.0.0:12346](http://0.0.0.0:12346)
+(host port 12346, chosen so it does not clash with a separately run Grafana Alloy on 12345).
 
 
 

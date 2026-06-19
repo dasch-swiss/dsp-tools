@@ -1,8 +1,8 @@
 ---
-# Enabled by `dsp-tools start-stack --metrics`.
+# Enabled by `dsp-tools start-stack --otlp-endpoint <ENDPOINT>`.
 #
-# Adds a Grafana Alloy collector that gathers DSP metrics and forwards them to a
-# configurable external OTLP endpoint (set the endpoint in config.alloy).
+# Adds a Grafana Alloy collector that gathers DSP metrics and forwards them to the
+# OTLP endpoint passed via --otlp-endpoint (injected into config.alloy at startup).
 #   - dsp-api and dsp-ingest push OTLP metrics to Alloy via their OTel Java agent.
 #   - Fuseki metrics are scraped by Alloy directly (see config.alloy); the db
 #     service is intentionally left untouched so it is not re-created after the
@@ -34,7 +34,9 @@ services:
     depends_on:
       - db
     ports:
-      - "12345:12345"  # Alloy component UI
+      # Host port 12346 (not Alloy's usual 12345) so this coexists with a
+      # separately run Grafana Alloy that already binds 12345 on the host.
+      - "12346:12345"  # Alloy component UI
     volumes:
       - ./config.alloy:/etc/alloy/config.alloy:ro
     command:

@@ -47,7 +47,7 @@ class StackConfiguration:
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
-        metrics: if True, also run a Grafana Alloy collector that forwards metrics to an external OTLP endpoint
+        otlp_endpoint: if set, run a Grafana Alloy collector that forwards the stack's metrics to this OTLP endpoint
     """
 
     max_file_size: Optional[int] = None
@@ -56,7 +56,7 @@ class StackConfiguration:
     latest_dev_version: bool = False
     upload_test_data: bool = False
     custom_host: Optional[str] = None
-    metrics: bool = False
+    otlp_endpoint: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
@@ -137,14 +137,9 @@ class StackHandler:
         logger.debug("Copying resources to home directory ...")
         docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")
         for file in docker_path_of_distribution.iterdir():
-            target = self.__docker_path_of_user / file.name
-            # config.alloy holds the user's OTLP endpoint, which they edit by hand.
-            # Seed it once, but never overwrite their edits on subsequent runs.
-            if file.name == "config.alloy" and target.exists():
-                continue
             with importlib.resources.as_file(file) as f:
                 file_path = Path(f)
-            shutil.copy(file_path, target)
+            shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
 
@@ -181,6 +176,20 @@ class StackHandler:
             )
         Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
         Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
+
+    def _set_metrics_config(self) -> None:
+        """
+        Render config.alloy from its template, injecting the OTLP endpoint set via --otlp-endpoint.
+        The Alloy collector (added by docker-compose.override-metrics.yml) forwards the stack's
+        metrics to this endpoint. Only done if an endpoint was provided.
+        """
+        if self.__stack_configuration.otlp_endpoint is not None:
+            logger.debug("Rendering config.alloy...")
+            template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/config.alloy.j2")
+            template = Template(template_path.read_text(encoding="utf-8"))
+            rendered = template.render(OTLP_ENDPOINT=self.__stack_configuration.otlp_endpoint)
+            Path(self.__docker_path_of_user / "config.alloy").write_text(rendered, encoding="utf-8")
+        Path(self.__docker_path_of_user / "config.alloy.j2").unlink(missing_ok=True)
 
     def _get_fuseki_image_for_latest(self) -> str:
         """
@@ -382,7 +391,7 @@ class StackHandler:
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
-        if self.__stack_configuration.metrics:
+        if self.__stack_configuration.otlp_endpoint is not None:
             compose_str += " -f docker-compose.override-metrics.yml"
         compose_str += " up -d"
         logger.debug(f"Running '{compose_str}' ...")
@@ -473,6 +482,7 @@ class StackHandler:
         """
         self._copy_resources_to_home_dir()
         self._set_custom_host()
+        self._set_metrics_config()
         try:
             self._get_sipi_docker_config_lua()
         except (requests.ConnectionError, requests.ReadTimeout):

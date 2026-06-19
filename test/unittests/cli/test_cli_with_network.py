@@ -843,8 +843,8 @@ class TestStartStack:
     @patch("dsp_tools.cli.utils.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
-    def test_start_stack_metrics(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
-        args = "start-stack --metrics".split()
+    def test_start_stack_otlp_endpoint(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
+        args = "start-stack --otlp-endpoint host.docker.internal:4317".split()
         entry_point.run(args)
         mock_init.assert_called_once_with(
             StackConfiguration(
@@ -853,7 +853,7 @@ class TestStartStack:
                 suppress_docker_system_prune=False,
                 latest_dev_version=False,
                 upload_test_data=False,
-                metrics=True,
+                otlp_endpoint="host.docker.internal:4317",
             )
         )
         start_stack.assert_called_once()

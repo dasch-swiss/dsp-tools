@@ -1,0 +1,65 @@
+// =============================================================================
+// Grafana Alloy configuration for `dsp-tools start-stack --otlp-endpoint`.
+// Rendered from this template at startup; do not edit the rendered copy by hand.
+//
+// Collects metrics from the local DSP stack and forwards them to the OTLP/gRPC
+// endpoint passed via --otlp-endpoint. Two metric sources:
+//   1. OTLP push  - dsp-api and dsp-ingest push metrics via their OpenTelemetry
+//                   Java agent to this Alloy on :4317 (gRPC) / :4318 (HTTP).
+//   2. Prometheus - Fuseki exposes triplestore-specific metrics at
+//                   http://db:3030/$/metrics; Alloy scrapes and converts them.
+//
+// Only metrics are forwarded; traces and logs are dropped (they have no consumer).
+// =============================================================================
+
+// --- Source 1: OTLP receiver (dsp-api / dsp-ingest push their metrics here) --
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+  }
+}
+
+// --- Source 2: Fuseki Prometheus metrics -------------------------------------
+prometheus.scrape "fuseki" {
+  targets      = [{ "__address__" = "db:3030" }]
+  metrics_path = "/$/metrics"
+
+  // The DSP Fuseki image protects its admin endpoints with basic auth.
+  basic_auth {
+    username = "admin"
+    password = "test"
+  }
+
+  forward_to = [otelcol.receiver.prometheus.fuseki.receiver]
+}
+
+// Bridge the scraped Prometheus metrics into the OTLP pipeline.
+otelcol.receiver.prometheus "fuseki" {
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+  }
+}
+
+// --- Batching ----------------------------------------------------------------
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.otlp.external.input]
+  }
+}
+
+// --- Export to the external OTLP/gRPC endpoint (plaintext, no auth) -----------
+otelcol.exporter.otlp "external" {
+  client {
+    endpoint = "{{ OTLP_ENDPOINT }}"
+    tls {
+      insecure = true
+    }
+  }
+}

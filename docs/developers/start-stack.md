@@ -68,9 +68,13 @@ But after some uploads, DSP is cluttered with data, so you might want to restart
 
 ### Forwarding Metrics
 
-When started with `dsp-tools start-stack --metrics`, the stack additionally runs a
-[Grafana Alloy](https://grafana.com/docs/alloy/latest/) collector that gathers metrics
-and forwards them to a single external OTLP endpoint.
+When started with `dsp-tools start-stack --otlp-endpoint <ENDPOINT>`, the stack
+additionally runs a [Grafana Alloy](https://grafana.com/docs/alloy/latest/) collector that
+gathers metrics and forwards them to the given OTLP endpoint, for example:
+
+```bash
+dsp-tools start-stack --otlp-endpoint host.docker.internal:4317
+```
 
 Two metric sources are collected:
 
@@ -80,14 +84,12 @@ Two metric sources are collected:
 
 Only metrics are forwarded; traces and logs are not.
 Alloy itself is a thin forwarder: it ships no Grafana, Prometheus, or other backend.
-The actual storage and dashboards live wherever the external OTLP endpoint points
+The actual storage and dashboards live wherever the endpoint points
 (e.g. a self-hosted LGTM stack or Grafana Cloud).
 
-To configure the destination, edit the `config.alloy` file in
-`~/.dsp-tools/start-stack/`: set the endpoint in the `otelcol.exporter.otlp "external"`
-block, and (if needed) uncomment one of the authentication examples.
-Your edits to this file are preserved across restarts; delete it to regenerate the
-default template.
+The endpoint is the only configurable parameter: Alloy exports over **OTLP/gRPC** without
+authentication and without TLS. The endpoint is resolved from inside the Alloy container,
+so use `host.docker.internal:<port>` to reach a collector running on your host machine.
 Alloy's component UI is available at [http://0.0.0.0:12345](http://0.0.0.0:12345).
 
 

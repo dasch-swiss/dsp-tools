@@ -112,26 +112,27 @@ class TestStartRemainingDockerContainers:
         command: list[str] = mock_run.call_args[0][0]
         return command
 
-    def test_metrics_flag_adds_override_file(self, tmp_path: Path) -> None:
-        command = self._run_command(StackConfiguration(metrics=True), tmp_path)
+    def test_otlp_endpoint_adds_override_file(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(otlp_endpoint="host.docker.internal:4317"), tmp_path)
         assert "docker-compose.override-metrics.yml" in command
 
-    def test_without_metrics_flag_omits_override_file(self, tmp_path: Path) -> None:
+    def test_without_otlp_endpoint_omits_override_file(self, tmp_path: Path) -> None:
         command = self._run_command(StackConfiguration(), tmp_path)
         assert "docker-compose.override-metrics.yml" not in command
 
 
-class TestCopyResourcesToHomeDir:
-    def test_existing_config_alloy_is_preserved(self, tmp_path: Path) -> None:
-        handler = _make_handler(StackConfiguration(metrics=True), tmp_path)
-        (tmp_path / "config.alloy").write_text("user edited endpoint", encoding="utf-8")
-        handler._copy_resources_to_home_dir()
-        assert (tmp_path / "config.alloy").read_text(encoding="utf-8") == "user edited endpoint"
+class TestSetMetricsConfig:
+    def test_renders_config_with_endpoint(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(otlp_endpoint="my-collector:4317"), tmp_path)
+        handler._set_metrics_config()
+        rendered = (tmp_path / "config.alloy").read_text(encoding="utf-8")
+        assert 'endpoint = "my-collector:4317"' in rendered
+        assert not (tmp_path / "config.alloy.j2").exists()
 
-    def test_config_alloy_is_seeded_when_absent(self, tmp_path: Path) -> None:
-        handler = _make_handler(StackConfiguration(metrics=True), tmp_path)
-        handler._copy_resources_to_home_dir()
-        assert (tmp_path / "config.alloy").exists()
+    def test_no_config_rendered_without_endpoint(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(), tmp_path)
+        handler._set_metrics_config()
+        assert not (tmp_path / "config.alloy").exists()
 
 
 class TestReadEnvVar:

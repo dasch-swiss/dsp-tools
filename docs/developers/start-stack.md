@@ -66,6 +66,32 @@ But after some uploads, DSP is cluttered with data, so you might want to restart
 
 
 
+### Forwarding Metrics
+
+When started with `dsp-tools start-stack --metrics`, the stack additionally runs a
+[Grafana Alloy](https://grafana.com/docs/alloy/latest/) collector that gathers metrics
+and forwards them to a single external OTLP endpoint.
+
+Two metric sources are collected:
+
+- **dsp-api** and **dsp-ingest** push their metrics (via the OpenTelemetry Java agent
+  bundled in the images) to Alloy over OTLP.
+- **Fuseki** triplestore metrics are scraped by Alloy from `http://db:3030/$/metrics`.
+
+Only metrics are forwarded; traces and logs are not.
+Alloy itself is a thin forwarder: it ships no Grafana, Prometheus, or other backend.
+The actual storage and dashboards live wherever the external OTLP endpoint points
+(e.g. a self-hosted LGTM stack or Grafana Cloud).
+
+To configure the destination, edit the `config.alloy` file in
+`~/.dsp-tools/start-stack/`: set the endpoint in the `otelcol.exporter.otlp "external"`
+block, and (if needed) uncomment one of the authentication examples.
+Your edits to this file are preserved across restarts; delete it to regenerate the
+default template.
+Alloy's component UI is available at [http://0.0.0.0:12345](http://0.0.0.0:12345).
+
+
+
 ## The Advanced Way
 
 If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:

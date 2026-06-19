@@ -1,0 +1,45 @@
+---
+# Enabled by `dsp-tools start-stack --metrics`.
+#
+# Adds a Grafana Alloy collector that gathers DSP metrics and forwards them to a
+# configurable external OTLP endpoint (set the endpoint in config.alloy).
+#   - dsp-api and dsp-ingest push OTLP metrics to Alloy via their OTel Java agent.
+#   - Fuseki metrics are scraped by Alloy directly (see config.alloy); the db
+#     service is intentionally left untouched so it is not re-created after the
+#     ontologies have been loaded into it.
+
+services:
+  api:
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/lib/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=DSP_svc_api
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+
+  ingest:
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/lib/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=DSP_svc_ingest
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+
+  alloy:
+    image: grafana/alloy:latest
+    depends_on:
+      - db
+    ports:
+      - "12345:12345"   # Alloy component UI
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    restart: unless-stopped

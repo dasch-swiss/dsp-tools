@@ -47,6 +47,7 @@ def call_start_stack(args: argparse.Namespace) -> bool:
             latest_dev_version=args.latest,
             upload_test_data=args.with_test_data,
             custom_host=args.custom_host,
+            metrics=args.metrics,
         )
     )
     return stack_handler.start_stack()

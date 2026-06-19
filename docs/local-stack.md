@@ -31,6 +31,8 @@ The most frequently used options are:
   If you attempt to upload a multimedia file bigger than `max_file_size`, it will be rejected.
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
+- `--metrics` (optional): additionally run a Grafana Alloy collector that forwards Fuseki and dsp-api
+  metrics to an external OTLP endpoint. See [metrics forwarding](./developers/start-stack.md#forwarding-metrics).
 
 To see all possible options, type `dsp-tools start-stack --help`.
 

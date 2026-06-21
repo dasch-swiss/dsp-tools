@@ -28,6 +28,9 @@ def parsed_project() -> Mock:
     project = Mock(spec=ParsedProjectMetadata)
     project.shortcode = "9999"
     project.shortname = "name"
+    project.data_license = None
+    project.data_copyright_holder = None
+    project.data_authorship = []
     return project
 
 
@@ -152,6 +155,53 @@ def test_project_does_not_exist_server_error(
     mock_serialise.assert_called_once_with(parsed_project)
     mock_client.post_new_project.assert_called_once_with(serialized_project)
     mock_is_server_error.assert_called_once_with(error_response.status_code)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("builtins.input")
+def test_resource_side_legal_info_is_sent_when_set(
+    mock_input: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+):
+    parsed_project.data_license = "http://rdfh.ch/licenses/cc-by-4.0"
+    parsed_project.data_copyright_holder = "holder"
+    parsed_project.data_authorship = ["author 1", "author 2"]
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = PROJECT_IRI
+    mock_client_class.return_value = mock_client
+    mock_input.return_value = "y"
+
+    result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+
+    assert result == PROJECT_IRI
+    mock_client.put_resource_side_legal_info.assert_called_once_with(
+        parsed_project.shortcode,
+        {
+            "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
+            "dataCopyrightHolder": "holder",
+            "dataAuthorship": ["author 1", "author 2"],
+        },
+    )
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+@patch("builtins.input")
+def test_resource_side_legal_info_is_not_sent_when_unset(
+    mock_input: Mock,
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = PROJECT_IRI
+    mock_client_class.return_value = mock_client
+    mock_input.return_value = "y"
+
+    create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+
+    mock_client.put_resource_side_legal_info.assert_not_called()
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")

@@ -126,6 +126,9 @@ def _make_resource(resource: ProcessedResource, res_node: BNode | URIRef, projec
     g.add((res_node, KNORA_API.attachedToProject, project_iri))
     if resource.permissions:
         g.add((res_node, KNORA_API.hasPermissions, Literal(str(resource.permissions), datatype=XSD.string)))
+    if resource.data_authorship:
+        for author in resource.data_authorship:
+            g.add((res_node, KNORA_API.hasResourceAuthorship, Literal(author, datatype=XSD.string)))
     return g
 
 

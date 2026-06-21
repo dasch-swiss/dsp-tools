@@ -14,3 +14,6 @@ class ProjectClient(Protocol):
 
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         """Post a new project."""
+
+    def put_resource_side_legal_info(self, shortcode: str, legal_info: dict[str, Any]) -> None:
+        """Set the project-wide resource-side legal info (data license, copyright holder, authorship)."""

@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 
 from loguru import logger
 
@@ -21,11 +22,22 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, e
     try:
         project_iri = client.get_project_iri(project.shortcode)
         _exit_if_create_should_not_continue(project.shortcode, exit_if_exists)
-        return project_iri
-
     except ProjectNotFoundError:
         logger.debug("No project with the shortcode exists. Continuing creating the project.")
-        return _create_project_on_server(project, client)
+        project_iri = _create_project_on_server(project, client)
+    _set_resource_side_legal_info(project, client)
+    return project_iri
+
+
+def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: ProjectClient) -> None:
+    if not any([project.data_license, project.data_copyright_holder, project.data_authorship]):
+        return
+    legal_info: dict[str, Any] = {
+        "dataLicense": project.data_license,
+        "dataCopyrightHolder": project.data_copyright_holder,
+        "dataAuthorship": project.data_authorship,
+    }
+    client.put_resource_side_legal_info(project.shortcode, legal_info)
 
 
 def _exit_if_create_should_not_continue(shortcode: str, exit_if_exists: bool) -> None:

@@ -17,6 +17,7 @@ class ProcessedResource:
     values: list[ProcessedValue]
     file_value: ProcessedFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
+    data_authorship: list[str] | None = None
 
 
 @dataclass

@@ -98,6 +98,7 @@ def _get_one_resource(
         values=values,
         file_value=file_val,
         migration_metadata=migration_metadata,
+        data_authorship=resource.data_authorship,
     )
 
 

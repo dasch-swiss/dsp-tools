@@ -2,17 +2,18 @@
 // Grafana Alloy configuration for `dsp-tools start-stack --otlp-endpoint`.
 // Rendered from this template at startup; do not edit the rendered copy by hand.
 //
-// Collects metrics from the local DSP stack and forwards them to the OTLP/gRPC
-// endpoint passed via --otlp-endpoint. Two metric sources:
-//   1. OTLP push  - dsp-api and dsp-ingest push metrics via their OpenTelemetry
-//                   Java agent to this Alloy on :4317 (gRPC) / :4318 (HTTP).
-//   2. Prometheus - Fuseki exposes triplestore-specific metrics at
-//                   http://db:3030/$/metrics; Alloy scrapes and converts them.
+// Collects metrics and profiles from the local DSP stack and forwards them on:
+//   1. Metrics  - dsp-api/dsp-ingest-style OTLP push is received on :4317/:4318,
+//                 Fuseki metrics are scraped from db:3030/$/metrics, and both are
+//                 forwarded to the OTLP/gRPC endpoint passed via --otlp-endpoint.
+//   2. Profiles - the db Pyroscope agent pushes profiles to this Alloy on :4040,
+//                 which forwards them to the Pyroscope endpoint (derived from the
+//                 --otlp-endpoint host on port 4040).
 //
-// Only metrics are forwarded; traces and logs are dropped (they have no consumer).
+// Traces and logs are dropped (they have no consumer).
 // =============================================================================
 
-// --- Source 1: OTLP receiver (dsp-api / dsp-ingest push their metrics here) --
+// --- Source 1: OTLP receiver (db pushes its JVM/runtime metrics here) --------
 otelcol.receiver.otlp "default" {
   grpc {
     endpoint = "0.0.0.0:4317"
@@ -54,12 +55,27 @@ otelcol.processor.batch "default" {
   }
 }
 
-// --- Export to the external OTLP/gRPC endpoint (plaintext, no auth) -----------
+// --- Export metrics to the external OTLP/gRPC endpoint (plaintext, no auth) ---
 otelcol.exporter.otlp "external" {
   client {
     endpoint = "{{ OTLP_ENDPOINT }}"
     tls {
       insecure = true
     }
+  }
+}
+
+// --- Profiles: receive from the db Pyroscope agent, forward to the host -------
+pyroscope.receive_http "default" {
+  http {
+    listen_address = "0.0.0.0"
+    listen_port    = 4040
+  }
+  forward_to = [pyroscope.write.external.receiver]
+}
+
+pyroscope.write "external" {
+  endpoint {
+    url = "{{ PYROSCOPE_ENDPOINT }}"
   }
 }

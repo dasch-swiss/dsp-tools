@@ -185,9 +185,13 @@ class StackHandler:
         """
         if self.__stack_configuration.otlp_endpoint is not None:
             logger.debug("Rendering config.alloy...")
+            otlp_endpoint = self.__stack_configuration.otlp_endpoint
+            # Profiles go to the same backend host as the metrics, on the Pyroscope port.
+            pyroscope_host = otlp_endpoint.rsplit(":", 1)[0]
+            pyroscope_endpoint = f"http://{pyroscope_host}:4040"
             template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/config.alloy.j2")
             template = Template(template_path.read_text(encoding="utf-8"))
-            rendered = template.render(OTLP_ENDPOINT=self.__stack_configuration.otlp_endpoint)
+            rendered = template.render(OTLP_ENDPOINT=otlp_endpoint, PYROSCOPE_ENDPOINT=pyroscope_endpoint)
             Path(self.__docker_path_of_user / "config.alloy").write_text(rendered, encoding="utf-8")
         Path(self.__docker_path_of_user / "config.alloy.j2").unlink(missing_ok=True)
 

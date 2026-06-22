@@ -5,9 +5,10 @@
 #   - db pushes JVM/runtime OTLP metrics to the Alloy collector (alloy:4318),
 #     which also scrapes Fuseki's own metrics from db:3030/$/metrics and forwards
 #     everything to the OTLP endpoint passed via --otlp-endpoint.
-#   - db pushes continuous profiles via the bundled Pyroscope agent directly to
-#     http://host.docker.internal:4040, i.e. a Pyroscope endpoint on the host
-#     (e.g. a local Grafana otel-lgtm, which must publish port 4040).
+#   - db pushes continuous profiles via the bundled Pyroscope agent to the Alloy
+#     collector (alloy:4040), which forwards them to the Pyroscope endpoint
+#     derived from --otlp-endpoint (its host on port 4040, e.g. a local Grafana
+#     otel-lgtm, which must publish port 4040).
 #
 # The db agent env vars are applied from the moment Fuseki is first started (see
 # _compose_file_args / _start_up_fuseki in start_stack.py), so the container is
@@ -25,7 +26,7 @@ services:
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
-      - PYROSCOPE_SERVER_ADDRESS=http://host.docker.internal:4040
+      - PYROSCOPE_SERVER_ADDRESS=http://alloy:4040
       - PYROSCOPE_APPLICATION_NAME=DSP_db_db
       - PYROSCOPE_FORMAT=jfr
       - PYROSCOPE_PROFILER_ALLOC=512k

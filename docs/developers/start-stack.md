@@ -84,9 +84,10 @@ resource usage. Two metric sources are collected:
 - **Fuseki**'s own metrics are scraped by Alloy from `http://db:3030/$/metrics`.
 
 In addition, **`db`** runs the Pyroscope profiler bundled in the image and pushes
-continuous profiles directly to `http://host.docker.internal:4040`, i.e. a Pyroscope
-endpoint on the host machine (e.g. a local Grafana otel-lgtm). That backend must publish
-port 4040 to receive them.
+continuous profiles to the Alloy collector, which forwards them to a Pyroscope endpoint
+on the host machine (e.g. a local Grafana otel-lgtm). That endpoint is derived from the
+`--otlp-endpoint` host on port 4040, so the same backend receives both metrics and
+profiles; it must publish port 4040 to receive them.
 
 The `db` agent env vars are applied from the moment Fuseki is first started, so the
 container is not re-created — and its loaded data not discarded — when the rest of the

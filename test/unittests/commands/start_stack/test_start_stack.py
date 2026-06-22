@@ -148,6 +148,12 @@ class TestSetMetricsConfig:
         assert 'endpoint = "my-collector:4317"' in rendered
         assert not (tmp_path / "config.alloy.j2").exists()
 
+    def test_derives_pyroscope_endpoint_from_otlp_host(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(otlp_endpoint="my-collector:4317"), tmp_path)
+        handler._set_metrics_config()
+        rendered = (tmp_path / "config.alloy").read_text(encoding="utf-8")
+        assert 'url = "http://my-collector:4040"' in rendered
+
     def test_no_config_rendered_without_endpoint(self, tmp_path: Path) -> None:
         handler = _make_handler(StackConfiguration(), tmp_path)
         handler._set_metrics_config()

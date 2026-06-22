@@ -76,19 +76,22 @@ gathers metrics and forwards them to the given OTLP endpoint, for example:
 dsp-tools start-stack --otlp-endpoint host.docker.internal:4317
 ```
 
-Two metric sources are collected:
+The instrumentation targets the **Fuseki triplestore (`db`)**, for investigating its
+resource usage. Two metric sources are collected:
 
-- **dsp-api** and **dsp-ingest** push their metrics (via the OpenTelemetry Java agent
-  bundled in the images) to Alloy over OTLP.
-- **Fuseki** triplestore metrics are scraped by Alloy from `http://db:3030/$/metrics`.
+- **`db`** pushes its JVM/runtime metrics (via the OpenTelemetry Java agent bundled in
+  the image) to Alloy over OTLP.
+- **Fuseki**'s own metrics are scraped by Alloy from `http://db:3030/$/metrics`.
 
-In addition, **dsp-api** and **dsp-ingest** run the Pyroscope profiler bundled in the
-images and push continuous profiles directly to `http://host.docker.internal:4040`, i.e.
-a Pyroscope endpoint on the host machine (e.g. a local Grafana otel-lgtm). That backend
-must publish port 4040 to receive them. Fuseki is not profiled (the db container would
-have to be re-created with profiling enabled, which would discard its loaded data).
+In addition, **`db`** runs the Pyroscope profiler bundled in the image and pushes
+continuous profiles directly to `http://host.docker.internal:4040`, i.e. a Pyroscope
+endpoint on the host machine (e.g. a local Grafana otel-lgtm). That backend must publish
+port 4040 to receive them.
 
-Only metrics and profiles are forwarded; traces and logs are not.
+The `db` agent env vars are applied from the moment Fuseki is first started, so the
+container is not re-created — and its loaded data not discarded — when the rest of the
+stack comes up. `dsp-api` and `dsp-ingest` are not instrumented. Only metrics and
+profiles are forwarded; traces and logs are not.
 Alloy itself is a thin forwarder: it ships no Grafana, Prometheus, or other backend.
 The actual storage and dashboards live wherever the endpoint points
 (e.g. a self-hosted LGTM stack or Grafana Cloud).

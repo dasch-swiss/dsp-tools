@@ -121,6 +121,25 @@ class TestStartRemainingDockerContainers:
         assert "docker-compose.override-metrics.yml" not in command
 
 
+class TestStartUpFuseki:
+    def _run_command(self, config: StackConfiguration, tmp_path: Path) -> list[str]:
+        handler = _make_handler(config, tmp_path)
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
+            handler._start_up_fuseki()
+        command: list[str] = mock_run.call_args[0][0]
+        return command
+
+    def test_otlp_endpoint_instruments_fuseki_from_start(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(otlp_endpoint="host.docker.internal:4317"), tmp_path)
+        assert "docker-compose.override-metrics.yml" in command
+        assert command[-3:] == ["up", "-d", "db"]
+
+    def test_without_otlp_endpoint_starts_fuseki_from_base(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(), tmp_path)
+        assert "docker-compose.override-metrics.yml" not in command
+
+
 class TestSetMetricsConfig:
     def test_renders_config_with_endpoint(self, tmp_path: Path) -> None:
         handler = _make_handler(StackConfiguration(otlp_endpoint="my-collector:4317"), tmp_path)

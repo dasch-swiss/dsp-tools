@@ -1,50 +1,32 @@
 ---
 # Enabled by `dsp-tools start-stack --otlp-endpoint <ENDPOINT>`.
 #
-# Adds a Grafana Alloy collector that gathers DSP metrics and forwards them to the
-# OTLP endpoint passed via --otlp-endpoint (injected into config.alloy at startup).
-#   - dsp-api and dsp-ingest push OTLP metrics to Alloy via their OTel Java agent.
-#   - Fuseki metrics are scraped by Alloy directly (see config.alloy); the db
-#     service is intentionally left untouched so it is not re-created after the
-#     ontologies have been loaded into it.
+# Instruments the Fuseki triplestore (db) for investigating its resource usage:
+#   - db pushes JVM/runtime OTLP metrics to the Alloy collector (alloy:4318),
+#     which also scrapes Fuseki's own metrics from db:3030/$/metrics and forwards
+#     everything to the OTLP endpoint passed via --otlp-endpoint.
+#   - db pushes continuous profiles via the bundled Pyroscope agent directly to
+#     http://host.docker.internal:4040, i.e. a Pyroscope endpoint on the host
+#     (e.g. a local Grafana otel-lgtm, which must publish port 4040).
 #
-# dsp-api and dsp-ingest additionally run the Pyroscope profiler (bundled in the
-# images) and push profiles directly to http://host.docker.internal:4040, i.e. a
-# Pyroscope endpoint on the host (e.g. a local Grafana otel-lgtm, which must
-# publish port 4040). The db service is not profiled, for the same
-# no-recreation reason as above.
+# The db agent env vars are applied from the moment Fuseki is first started (see
+# _compose_file_args / _start_up_fuseki in start_stack.py), so the container is
+# not re-created — and its loaded data not discarded — when the rest of the
+# stack comes up.
 
 services:
-  api:
+  db:
     environment:
       - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/lib/opentelemetry-javaagent.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_SERVICE_NAME=DSP_svc_api
+      - OTEL_SERVICE_NAME=DSP_db_db
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
       - PYROSCOPE_SERVER_ADDRESS=http://host.docker.internal:4040
-      - PYROSCOPE_APPLICATION_NAME=DSP_svc_api
-      - PYROSCOPE_FORMAT=jfr
-      - PYROSCOPE_PROFILER_ALLOC=512k
-      - OTEL_PYROSCOPE_ADD_PROFILE_URL=false
-      - OTEL_PYROSCOPE_ADD_PROFILE_BASELINE_URL=false
-      - OTEL_PYROSCOPE_START_PROFILING=true
-
-  ingest:
-    environment:
-      - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/lib/opentelemetry-javaagent.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_SERVICE_NAME=DSP_svc_ingest
-      - OTEL_METRICS_EXPORTER=otlp
-      - OTEL_TRACES_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
-      - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
-      - PYROSCOPE_SERVER_ADDRESS=http://host.docker.internal:4040
-      - PYROSCOPE_APPLICATION_NAME=DSP_svc_ingest
+      - PYROSCOPE_APPLICATION_NAME=DSP_db_db
       - PYROSCOPE_FORMAT=jfr
       - PYROSCOPE_PROFILER_ALLOC=512k
       - OTEL_PYROSCOPE_ADD_PROFILE_URL=false

@@ -255,15 +255,34 @@ class StackHandler:
         with open(self.__docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
             f.write(docker_config_lua_text)
 
+    def _compose_file_args(self) -> str:
+        """
+        The "-f <file>" docker-compose arguments for the active configuration.
+
+        Used by both the Fuseki startup and the remaining-containers step, so that every
+        service (in particular db, which is started first and loaded with data) has the
+        same definition in both invocations and is not re-created in between.
+        """
+        files = ["docker-compose.yml"]
+        if self.__stack_configuration.latest_dev_version:
+            files.append("docker-compose.override.yml")
+        if self.__stack_configuration.custom_host is not None:
+            files.append("docker-compose.override-host.yml")
+        if self.__stack_configuration.otlp_endpoint is not None:
+            files.append("docker-compose.override-metrics.yml")
+        return " ".join(f"-f {f}" for f in files)
+
     def _start_up_fuseki(self) -> None:
         """
         Start up the Docker container of the fuseki database.
+        The metrics override (if active) is applied here already, so db is instrumented
+        from the start and not re-created (losing its data) when the rest of the stack starts.
 
         Raises:
             FusekiStartUpError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = "docker compose --env-file versions.env up -d db".split()
+        cmd = f"docker compose --env-file versions.env {self._compose_file_args()} up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
@@ -380,22 +399,17 @@ class StackHandler:
         # --env-file feeds versions.env into docker-compose's ${API}/${APP}/${DB}
         # interpolation. versions.env is copied into the user's start-stack dir
         # alongside docker-compose.yml by _copy_resources_to_home_dir.
-        compose_str = "docker compose --env-file versions.env -f docker-compose.yml"
+        file_args = self._compose_file_args()
         if self.__stack_configuration.latest_dev_version:
             logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run(
-                "docker compose --env-file versions.env pull".split(),
+                f"docker compose --env-file versions.env {file_args} pull".split(),
                 cwd=self.__docker_path_of_user,
                 check=True,
             )
-            compose_str += " -f docker-compose.override.yml"
-        if self.__stack_configuration.custom_host is not None:
-            compose_str += " -f docker-compose.override-host.yml"
-        if self.__stack_configuration.otlp_endpoint is not None:
-            compose_str += " -f docker-compose.override-metrics.yml"
-        compose_str += " up -d"
-        logger.debug(f"Running '{compose_str}' ...")
-        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
+        cmd = f"docker compose --env-file versions.env {file_args} up -d".split()
+        logger.debug(f"Running '{' '.join(cmd)}' ...")
+        subprocess.run(cmd, cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
         """

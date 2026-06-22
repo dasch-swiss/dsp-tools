@@ -7,6 +7,12 @@
 #   - Fuseki metrics are scraped by Alloy directly (see config.alloy); the db
 #     service is intentionally left untouched so it is not re-created after the
 #     ontologies have been loaded into it.
+#
+# dsp-api and dsp-ingest additionally run the Pyroscope profiler (bundled in the
+# images) and push profiles directly to http://host.docker.internal:4040, i.e. a
+# Pyroscope endpoint on the host (e.g. a local Grafana otel-lgtm, which must
+# publish port 4040). The db service is not profiled, for the same
+# no-recreation reason as above.
 
 services:
   api:
@@ -18,6 +24,14 @@ services:
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
+      - PYROSCOPE_SERVER_ADDRESS=http://host.docker.internal:4040
+      - PYROSCOPE_APPLICATION_NAME=DSP_svc_api
+      - PYROSCOPE_FORMAT=jfr
+      - PYROSCOPE_PROFILER_ALLOC=512k
+      - OTEL_PYROSCOPE_ADD_PROFILE_URL=false
+      - OTEL_PYROSCOPE_ADD_PROFILE_BASELINE_URL=false
+      - OTEL_PYROSCOPE_START_PROFILING=true
 
   ingest:
     environment:
@@ -28,6 +42,14 @@ services:
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
+      - PYROSCOPE_SERVER_ADDRESS=http://host.docker.internal:4040
+      - PYROSCOPE_APPLICATION_NAME=DSP_svc_ingest
+      - PYROSCOPE_FORMAT=jfr
+      - PYROSCOPE_PROFILER_ALLOC=512k
+      - OTEL_PYROSCOPE_ADD_PROFILE_URL=false
+      - OTEL_PYROSCOPE_ADD_PROFILE_BASELINE_URL=false
+      - OTEL_PYROSCOPE_START_PROFILING=true
 
   alloy:
     image: grafana/alloy:latest

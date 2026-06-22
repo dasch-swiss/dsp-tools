@@ -82,7 +82,13 @@ Two metric sources are collected:
   bundled in the images) to Alloy over OTLP.
 - **Fuseki** triplestore metrics are scraped by Alloy from `http://db:3030/$/metrics`.
 
-Only metrics are forwarded; traces and logs are not.
+In addition, **dsp-api** and **dsp-ingest** run the Pyroscope profiler bundled in the
+images and push continuous profiles directly to `http://host.docker.internal:4040`, i.e.
+a Pyroscope endpoint on the host machine (e.g. a local Grafana otel-lgtm). That backend
+must publish port 4040 to receive them. Fuseki is not profiled (the db container would
+have to be re-created with profiling enabled, which would discard its loaded data).
+
+Only metrics and profiles are forwarded; traces and logs are not.
 Alloy itself is a thin forwarder: it ships no Grafana, Prometheus, or other backend.
 The actual storage and dashboards live wherever the endpoint points
 (e.g. a self-hosted LGTM stack or Grafana Cloud).

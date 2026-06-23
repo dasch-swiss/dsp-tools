@@ -19,5 +19,8 @@ class LegalInfoClientMockBase(LegalInfoClient):
     def get_licenses_of_a_project(self, enabled_only: bool) -> list[dict[str, Any]]:  # noqa: ARG002
         return []
 
+    def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
+        pass
+
     def enable_unknown_license(self) -> None:
         pass

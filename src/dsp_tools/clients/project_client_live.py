@@ -64,25 +64,3 @@ class ProjectClientLive(ProjectClient):
                 "Please contact support@dasch.swiss if you require a new project."
             )
         return ResponseCodeAndText(response.status_code, response.text)
-
-    def put_resource_side_legal_info(self, shortcode: str, legal_info: dict[str, Any]) -> None:
-        url = f"{self.server}/admin/projects/{shortcode}/legal-info/resource-side"
-        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
-        params = RequestParameters("PUT", url, TIMEOUT_30, headers=headers, data=legal_info)
-        log_request(params)
-        try:
-            response = requests.put(
-                params.url, timeout=params.timeout, headers=params.headers, data=params.data_serialized
-            )
-        except RequestException as err:
-            log_and_raise_request_exception(err)
-
-        log_response(response)
-        if response.ok:
-            return
-        if response.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError(
-                "Only a SystemAdmin or ProjectAdmin can set the resource-side legal info of a project, "
-                "your permissions are insufficient for this action."
-            )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

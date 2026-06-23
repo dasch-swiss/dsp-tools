@@ -272,6 +272,7 @@ The following property elements exist:
 
 - `<bitstream>`: contains a path to a file (if the resource is a multimedia resource)
 - `<iiif-uri>`: contains a URI to an IIIF image server (resource must be a `StillImageRepresentation`)
+- `<data-authorship>`: contains the authorship of the resource record itself
 - `<boolean-prop>`: contains a boolean value
 - `<color-prop>`: contains color values
 - `<date-prop>`: contains date values
@@ -285,6 +286,29 @@ The following property elements exist:
 - `<text-prop>`: contains text values
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
+
+
+### `<data-authorship>`
+
+(optional, repeatable)
+
+The `<data-authorship>` element defines the authorship of the resource record itself.
+Each element contains the name of one author; repeat the element for several authors.
+
+```xml
+<resource label="Postcard" restype=":Postcard" id="postcard_1">
+    <data-authorship>Lotte Reiniger</data-authorship>
+    <data-authorship>Hilma af Klint</data-authorship>
+    ...
+</resource>
+```
+
+This is **distinct** from:
+
+- the per-file authorship referenced with the [`authorship-id`](#bitstream) attribute on `<bitstream>`/`<iiif-uri>`,
+  which describes the multimedia asset, not the resource record;
+- the project-wide [`data_authorship`](../data-model/json-project/overview.md#data_authorship) default
+  set in the project definition file.
 
 
 ### `<bitstream>`

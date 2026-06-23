@@ -5,6 +5,8 @@ from loguru import logger
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.exceptions import ProjectNotFoundError
+from dsp_tools.clients.legal_info_client import LegalInfoClient
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
@@ -25,11 +27,12 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, e
     except ProjectNotFoundError:
         logger.debug("No project with the shortcode exists. Continuing creating the project.")
         project_iri = _create_project_on_server(project, client)
-    _set_resource_side_legal_info(project, client)
+    legal_info_client = LegalInfoClientLive(auth.server, project.shortcode, auth)
+    _set_resource_side_legal_info(project, legal_info_client)
     return project_iri
 
 
-def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: ProjectClient) -> None:
+def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: LegalInfoClient) -> None:
     if not any([project.data_license, project.data_copyright_holder, project.data_authorship]):
         return
     legal_info: dict[str, Any] = {
@@ -37,7 +40,7 @@ def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: Projec
         "dataCopyrightHolder": project.data_copyright_holder,
         "dataAuthorship": project.data_authorship,
     }
-    client.put_resource_side_legal_info(project.shortcode, legal_info)
+    client.set_resource_side_legal_info(legal_info)
 
 
 def _exit_if_create_should_not_continue(shortcode: str, exit_if_exists: bool) -> None:

@@ -157,11 +157,13 @@ def test_project_does_not_exist_server_error(
     mock_is_server_error.assert_called_once_with(error_response.status_code)
 
 
+@patch("dsp_tools.commands.create.create_on_server.project.LegalInfoClientLive")
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
 @patch("builtins.input")
 def test_resource_side_legal_info_is_sent_when_set(
     mock_input: Mock,
     mock_client_class: Mock,
+    mock_legal_info_client_class: Mock,
     mock_auth: Mock,
     parsed_project: Mock,
 ):
@@ -171,13 +173,15 @@ def test_resource_side_legal_info_is_sent_when_set(
     mock_client = Mock()
     mock_client.get_project_iri.return_value = PROJECT_IRI
     mock_client_class.return_value = mock_client
+    mock_legal_info_client = Mock()
+    mock_legal_info_client_class.return_value = mock_legal_info_client
     mock_input.return_value = "y"
 
     result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     assert result == PROJECT_IRI
-    mock_client.put_resource_side_legal_info.assert_called_once_with(
-        parsed_project.shortcode,
+    mock_legal_info_client_class.assert_called_once_with(mock_auth.server, parsed_project.shortcode, mock_auth)
+    mock_legal_info_client.set_resource_side_legal_info.assert_called_once_with(
         {
             "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
             "dataCopyrightHolder": "holder",
@@ -186,22 +190,26 @@ def test_resource_side_legal_info_is_sent_when_set(
     )
 
 
+@patch("dsp_tools.commands.create.create_on_server.project.LegalInfoClientLive")
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
 @patch("builtins.input")
 def test_resource_side_legal_info_is_not_sent_when_unset(
     mock_input: Mock,
     mock_client_class: Mock,
+    mock_legal_info_client_class: Mock,
     mock_auth: Mock,
     parsed_project: Mock,
 ):
     mock_client = Mock()
     mock_client.get_project_iri.return_value = PROJECT_IRI
     mock_client_class.return_value = mock_client
+    mock_legal_info_client = Mock()
+    mock_legal_info_client_class.return_value = mock_legal_info_client
     mock_input.return_value = "y"
 
     create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
-    mock_client.put_resource_side_legal_info.assert_not_called()
+    mock_legal_info_client.set_resource_side_legal_info.assert_not_called()
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")

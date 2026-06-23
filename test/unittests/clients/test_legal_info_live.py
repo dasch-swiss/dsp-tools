@@ -177,6 +177,58 @@ class TestGetEnabledLicenses:
                 client._get_one_license_page(page_num=1, enabled_only=True)
 
 
+RESOURCE_SIDE_LEGAL_INFO = {
+    "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
+    "dataCopyrightHolder": "holder",
+    "dataAuthorship": ["author 1", "author 2"],
+}
+
+
+class TestSetResourceSideLegalInfo:
+    @patch("dsp_tools.clients.legal_info_client_live.log_response")
+    @patch("dsp_tools.clients.legal_info_client_live.log_request")
+    def test_put_ok(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        params = RequestParameters(
+            method="PUT",
+            url="http://api.com/admin/projects/shortcode/9999/legal-info/resource-side",
+            timeout=60,
+            data=RESOURCE_SIDE_LEGAL_INFO,
+            headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
+        )
+        with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
+            put_mock.return_value = Mock(status_code=200, ok=True)
+            client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
+            put_mock.assert_called_once_with(
+                url=params.url, headers=params.headers, data=params.data_serialized, timeout=params.timeout
+            )
+
+    def test_lacking_permissions(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        mock_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False, headers={})
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
+            put_mock.return_value = mock_response
+            with pytest.raises(BadCredentialsError):
+                client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
+
+    def test_unknown_status_code(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        mock_response = Mock(status_code=404, ok=False, text="Not Found", headers={})
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
+            put_mock.return_value = mock_response
+            with pytest.raises(FatalNonOkApiResponseCode):
+                client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
+
+    def test_request_exception(self):
+        client = LegalInfoClientLive("http://api.com", "9999", AUTH)
+        with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
+            put_mock.side_effect = RequestException("Connection timeout")
+            with pytest.raises(DspToolsRequestException):
+                client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
+
+
 def test_is_last_page_no():
     assert not _is_last_page(PAGE_1_OF_2)
 

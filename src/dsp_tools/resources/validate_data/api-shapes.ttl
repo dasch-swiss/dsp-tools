@@ -199,6 +199,15 @@ api-shapes:Resource_Shape
                     sh:class    knora-api:Resource ;
                     sh:severity sh:Violation ;
                     sh:message  "A stand-off link must target an existing resource."
+                  ] ,
+                  [
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:hasResourceAuthorship ;
+                    sh:datatype     xsd:string ;
+                    sh:pattern      "\\s*\\S+\\s*" ;
+                    dash:singleLine true ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The authorship must be a non-empty string without newlines."
                   ] .
 
 

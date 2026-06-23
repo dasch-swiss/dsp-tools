@@ -18,3 +18,6 @@ class LegalInfoClient(Protocol):
 
     def get_licenses_of_a_project(self, enabled_only: bool) -> list[dict[str, Any]]:
         """Get a list of enabled licenses for the project."""
+
+    def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
+        """Set the project-wide resource-side legal info (data license, copyright holder, authorship)."""

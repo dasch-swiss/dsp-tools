@@ -125,6 +125,9 @@ The `project` object contains the basic metadata about the project. The followin
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
 - default_permissions_overrule (only if default_permissions = public)
+- data_license
+- data_copyright_holder
+- data_authorship
 - groups
 - users
 - lists
@@ -203,6 +206,39 @@ For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
 All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
 See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license).
+
+
+### `data_license`
+
+(optional)
+
+`"data_license": "<license-iri>"`
+
+The project-wide license that applies to every resource record (the data itself), as opposed to the
+file/IIIF-URI licenses controlled by `enabled_licenses`.
+Only Creative Commons licenses are allowed, referenced by their IRI,
+for example `http://rdfh.ch/licenses/cc-by-4.0`.
+
+
+### `data_copyright_holder`
+
+(optional)
+
+`"data_copyright_holder": "<string>"`
+
+The copyright holder that applies to every resource record in the project.
+
+
+### `data_authorship`
+
+(optional)
+
+`"data_authorship": ["<string>", "<string>", ...]`
+
+The default authorship that applies to every resource record in the project.
+Each entry is the name of one author.
+This is distinct from the per-file authorship referenced via `authorship-id` in the XML data file,
+and from the per-resource [`<data-authorship>`](../../data-file/xml-data-file.md#data-authorship) element.
 
 
 ### `default_permissions`

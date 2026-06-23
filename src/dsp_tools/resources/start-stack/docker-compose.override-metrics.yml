@@ -33,6 +33,8 @@ services:
       - OTEL_PYROSCOPE_ADD_PROFILE_URL=false
       - OTEL_PYROSCOPE_ADD_PROFILE_BASELINE_URL=false
       - OTEL_PYROSCOPE_START_PROFILING=true
+    volumes:
+      - ./shiro-no-sessions.ini:/jena-fuseki/shiro.ini:ro
 
   alloy:
     image: grafana/alloy:latest

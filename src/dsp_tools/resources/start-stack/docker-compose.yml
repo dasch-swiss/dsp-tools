@@ -78,7 +78,7 @@ services:
     environment:
       - TZ=Europe/Zurich
       - ADMIN_PASSWORD=test
-      - JVM_ARGS=-Xmx50G
+      - JVM_ARGS=-Xmx3G
 
 volumes:
   ingest-db:

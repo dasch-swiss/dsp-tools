@@ -1,5 +1,12 @@
 # Changelog
 
+## [18.17.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.1...v18.17.2) (2026-06-24)
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.06.04 ([#2352](https://github.com/dasch-swiss/dsp-tools/issues/2352)) ([fe0e41e](https://github.com/dasch-swiss/dsp-tools/commit/fe0e41e7ca511bdeef3cfe71c37b6acf03b53498))
+
 ## [18.17.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.0...v18.17.1) (2026-06-17)
 
 

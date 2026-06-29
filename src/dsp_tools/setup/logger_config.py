@@ -37,12 +37,15 @@ def logger_config() -> None:
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"
 
+    rotation_size_main_log = "1 GB"
+
     logger.add(
         sink=LOGGER_SAVEPATH,
         format=text_format,
         backtrace=True,
         diagnose=True,
         delay=True,
+        rotation=rotation_size_main_log,
     )
 
     additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))

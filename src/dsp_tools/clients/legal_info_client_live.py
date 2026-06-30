@@ -61,7 +61,7 @@ class LegalInfoClientLive(LegalInfoClient):
     def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
         """Set the project-wide resource-side legal info (data license, copyright holder, authorship)."""
         logger.debug("PUT resource-side legal info")
-        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/resource-side"
+        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/resource"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.auth.get_token()}",

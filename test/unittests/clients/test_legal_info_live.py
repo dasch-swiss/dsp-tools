@@ -191,7 +191,7 @@ class TestSetResourceSideLegalInfo:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
             method="PUT",
-            url="http://api.com/admin/projects/shortcode/9999/legal-info/resource-side",
+            url="http://api.com/admin/projects/shortcode/9999/legal-info/resource",
             timeout=60,
             data=RESOURCE_SIDE_LEGAL_INFO,
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},

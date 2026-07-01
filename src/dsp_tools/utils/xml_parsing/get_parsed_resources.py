@@ -122,6 +122,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
 def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dict[str, str]) -> ParsedResource:
     values, file_value = _parse_values(resource, iri_lookup)
     migration_metadata = _parse_migration_metadata(resource)
+    data_authorship = _parse_data_authorship(resource)
     return ParsedResource(
         res_id=resource.attrib["id"],
         res_type=res_type,
@@ -130,7 +131,13 @@ def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dic
         values=values,
         file_value=file_value,
         migration_metadata=migration_metadata,
+        data_authorship=data_authorship,
     )
+
+
+def _parse_data_authorship(resource: etree._Element) -> list[str] | None:
+    authorship = [author.text.strip() for author in resource.iterchildren(tag="data-authorship") if author.text]
+    return authorship or None
 
 
 def _parse_migration_metadata(resource: etree._Element) -> ParsedMigrationMetadata | None:
@@ -155,6 +162,9 @@ def _parse_values(
                 asset_value = _parse_bitstream_tag(val)
             case "iiif-uri":
                 asset_value = _parse_iiif_uri(val)
+            case "data-authorship":
+                # parsed separately into ParsedResource.data_authorship
+                continue
             case _:
                 values.extend(_parse_one_value(val, iri_lookup))
     return values, asset_value

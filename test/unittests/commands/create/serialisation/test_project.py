@@ -57,6 +57,9 @@ class TestSerialiseProject:
             descriptions={"en": "english", "de": "german"},
             keywords=["test"],
             enabled_licenses=["license"],
+            data_license=None,
+            data_copyright_holder=None,
+            data_authorship=[],
         )
         expected = {
             "shortcode": "0001",
@@ -79,6 +82,9 @@ class TestSerialiseProject:
             descriptions={"en": "english"},
             keywords=["test"],
             enabled_licenses=[],
+            data_license=None,
+            data_copyright_holder=None,
+            data_authorship=[],
         )
         expected = {
             "shortcode": "0001",

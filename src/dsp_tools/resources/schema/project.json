@@ -1171,6 +1171,19 @@
                         "pattern": "^http://rdfh\\.ch/licenses/.+"
                     }
                 },
+                "data_license": {
+                    "type": "string"
+                },
+                "data_copyright_holder": {
+                    "type": "string"
+                },
+                "data_authorship": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "groups": {
                     "type": "array",
                     "items": {

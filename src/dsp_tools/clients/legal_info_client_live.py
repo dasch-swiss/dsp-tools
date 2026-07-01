@@ -58,6 +58,35 @@ class LegalInfoClientLive(LegalInfoClient):
         log_response(response)
         return response
 
+    def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
+        """Set the project-wide resource-side legal info (data license, copyright holder, authorship)."""
+        logger.debug("PUT resource-side legal info")
+        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/resource"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("PUT", url, TIMEOUT_60, legal_info, headers)
+        log_request(params)
+        try:
+            response = requests.put(
+                url=params.url,
+                headers=params.headers,
+                data=params.data_serialized,
+                timeout=params.timeout,
+            )
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response)
+        if response.ok:
+            return
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can set the resource-side legal info of a project, "
+                "your permissions are insufficient for this action."
+            )
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+
     def get_licenses_of_a_project(self, enabled_only: bool = True) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
         page_num = 1

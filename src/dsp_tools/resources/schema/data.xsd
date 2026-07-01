@@ -480,6 +480,8 @@
                 <xs:element name="bitstream" type="bitstream_type"/>
                 <xs:element name="iiif-uri" type="iiif_uri_type"/>
             </xs:choice>
+            <xs:element name="data-authorship" type="nonEmptyString_pretty_printed" minOccurs="0"
+                        maxOccurs="unbounded"/>
             <xs:choice maxOccurs="unbounded">
                 <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>

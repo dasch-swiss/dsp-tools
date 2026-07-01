@@ -27,6 +27,9 @@ class ParsedProjectMetadata:
     descriptions: dict[str, str]
     keywords: list[str]
     enabled_licenses: list[str]
+    data_license: str | None
+    data_copyright_holder: str | None
+    data_authorship: list[str]
 
 
 class DefaultPermissions(Enum):

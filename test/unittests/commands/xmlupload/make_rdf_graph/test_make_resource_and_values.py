@@ -80,6 +80,28 @@ def test_make_resource_permissions() -> None:
     assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
 
+def test_make_resource_data_authorship() -> None:
+    res = ProcessedResource(
+        res_id="resource_id",
+        type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
+        label="Resource Label",
+        permissions=None,
+        values=[],
+        file_value=None,
+        migration_metadata=None,
+        data_authorship=["Author One", "Author Two"],
+    )
+    res_bn = BNode()
+    res_graph = _make_resource(res, res_bn, PROJECT_IRI)
+    assert len(res_graph) == 5
+    authorship = set(res_graph.objects(res_bn, KNORA_API.hasResourceAuthorship))
+    expected = {
+        Literal("Author One", datatype=XSD.string),
+        Literal("Author Two", datatype=XSD.string),
+    }
+    assert authorship == expected
+
+
 def test_make_resource_migration_metadata() -> None:
     res = ProcessedResource(
         res_id="resource_id",

@@ -13,22 +13,25 @@ from dsp_tools.commands.start_stack.start_stack import _read_env_var
 from dsp_tools.error.exceptions import PermanentConnectionError
 
 
-@pytest.fixture
-def latest_handler(tmp_path: Path) -> StackHandler:
+def _make_handler(config: StackConfiguration, docker_path: Path) -> StackHandler:
     """
-    StackHandler configured for latest_dev_version=True, with side effects bypassed.
+    Build a StackHandler with side effects bypassed.
     The real __init__ calls _get_url_prefix() (a network call) and creates directories
-    under ~/.dsp-tools/. This fixture bypasses __init__ and injects the private attributes
-    directly, substituting tmp_path for the docker path to keep tests isolated.
+    under ~/.dsp-tools/. This bypasses __init__ and injects the private attributes
+    directly, substituting docker_path for the docker path to keep tests isolated.
     """
-    config = StackConfiguration(latest_dev_version=True)
     with patch.object(StackHandler, "__init__", lambda _self, _cfg: None):
         handler = StackHandler.__new__(StackHandler)
         handler._StackHandler__stack_configuration = config  # type: ignore[attr-defined]
         handler._StackHandler__url_prefix = "https://raw.githubusercontent.com/dasch-swiss/dsp-api/main/"  # type: ignore[attr-defined]
-        handler._StackHandler__docker_path_of_user = tmp_path  # type: ignore[attr-defined]
+        handler._StackHandler__docker_path_of_user = docker_path  # type: ignore[attr-defined]
         handler._StackHandler__localhost_url = "http://0.0.0.0"  # type: ignore[attr-defined]
     return handler
+
+
+@pytest.fixture
+def latest_handler(tmp_path: Path) -> StackHandler:
+    return _make_handler(StackConfiguration(latest_dev_version=True), tmp_path)
 
 
 class TestGetFusekiImageForLatest:
@@ -99,6 +102,62 @@ class TestWriteOverrideFile:
         self._write_initial_override(tmp_path)
         latest_handler._patch_fuseki_version_in_override_file("daschswiss/apache-jena-fuseki:5.5.0-3")
         assert (tmp_path / "docker-compose.override.yml").exists()
+
+
+class TestStartRemainingDockerContainers:
+    def _run_command(self, config: StackConfiguration, tmp_path: Path) -> list[str]:
+        handler = _make_handler(config, tmp_path)
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            handler._start_remaining_docker_containers()
+        command: list[str] = mock_run.call_args[0][0]
+        return command
+
+    def test_otlp_endpoint_adds_override_file(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(otlp_endpoint="host.docker.internal:4317"), tmp_path)
+        assert "docker-compose.override-metrics.yml" in command
+
+    def test_without_otlp_endpoint_omits_override_file(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(), tmp_path)
+        assert "docker-compose.override-metrics.yml" not in command
+
+
+class TestStartUpFuseki:
+    def _run_command(self, config: StackConfiguration, tmp_path: Path) -> list[str]:
+        handler = _make_handler(config, tmp_path)
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
+            handler._start_up_fuseki()
+        command: list[str] = mock_run.call_args[0][0]
+        return command
+
+    def test_otlp_endpoint_instruments_fuseki_from_start(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(otlp_endpoint="host.docker.internal:4317"), tmp_path)
+        assert "docker-compose.override-metrics.yml" in command
+        assert command[-3:] == ["up", "-d", "db"]
+
+    def test_without_otlp_endpoint_starts_fuseki_from_base(self, tmp_path: Path) -> None:
+        command = self._run_command(StackConfiguration(), tmp_path)
+        assert "docker-compose.override-metrics.yml" not in command
+
+
+class TestSetMetricsConfig:
+    def test_renders_config_with_endpoint(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(otlp_endpoint="my-collector:4317"), tmp_path)
+        handler._set_metrics_config()
+        rendered = (tmp_path / "config.alloy").read_text(encoding="utf-8")
+        assert 'endpoint = "my-collector:4317"' in rendered
+        assert not (tmp_path / "config.alloy.j2").exists()
+
+    def test_derives_pyroscope_endpoint_from_otlp_host(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(otlp_endpoint="my-collector:4317"), tmp_path)
+        handler._set_metrics_config()
+        rendered = (tmp_path / "config.alloy").read_text(encoding="utf-8")
+        assert 'url = "http://my-collector:4040"' in rendered
+
+    def test_no_config_rendered_without_endpoint(self, tmp_path: Path) -> None:
+        handler = _make_handler(StackConfiguration(), tmp_path)
+        handler._set_metrics_config()
+        assert not (tmp_path / "config.alloy").exists()
 
 
 class TestReadEnvVar:

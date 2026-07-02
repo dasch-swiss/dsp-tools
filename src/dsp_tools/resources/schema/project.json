@@ -1172,7 +1172,15 @@
                     }
                 },
                 "data_license": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "http://rdfh.ch/licenses/cc-by-4.0",
+                        "http://rdfh.ch/licenses/cc-by-sa-4.0",
+                        "http://rdfh.ch/licenses/cc-by-nc-4.0",
+                        "http://rdfh.ch/licenses/cc-by-nc-sa-4.0",
+                        "http://rdfh.ch/licenses/cc-by-nd-4.0",
+                        "http://rdfh.ch/licenses/cc-by-nc-nd-4.0"
+                    ]
                 },
                 "data_copyright_holder": {
                     "type": "string"

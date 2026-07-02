@@ -223,7 +223,10 @@ The authorship can be defined in the following way:
 </authorship>
 ```
 
-These identifiers can later be referenced in the `<bitstream>` and `<iiif-uri>` elements.
+These identifiers can later be referenced via the `authorship-id` attribute:
+
+- on the `<bitstream>` and `<iiif-uri>` elements, to describe the author(s) of the multimedia asset;
+- on the `<resource>` element, to describe the author(s) of the resource record itself.
 
 
 ## Describing Resources With the `<resource>` Element
@@ -237,6 +240,8 @@ A `<resource>` element contains all necessary information to create a resource. 
   the ID is only used during the import process 
   and later replaced by the IRI used internally by DSP 
 - `permissions` (optional): a reference to a permission ID
+- `authorship-id` (optional): a reference to an [`<authorship>`](#defining-the-authorships) ID,
+  defining the author(s) of the resource record itself
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
 - `ark` (optional): a version 0 ARK, used when migrating existing resources. It is not possible 
   to use `iri` and `ark` in the same resource. When `ark` is used, it overrides `iri` (DaSCH-internal only).
@@ -272,7 +277,6 @@ The following property elements exist:
 
 - `<bitstream>`: contains a path to a file (if the resource is a multimedia resource)
 - `<iiif-uri>`: contains a URI to an IIIF image server (resource must be a `StillImageRepresentation`)
-- `<data-authorship>`: contains the authorship of the resource record itself
 - `<boolean-prop>`: contains a boolean value
 - `<color-prop>`: contains color values
 - `<date-prop>`: contains date values
@@ -288,25 +292,29 @@ The following property elements exist:
 - `<uri-prop>`: contains URI values
 
 
-### `<data-authorship>`
+### Resource authorship (`authorship-id` on `<resource>`)
 
-(optional, repeatable)
+(optional)
 
-The `<data-authorship>` element defines the authorship of the resource record itself.
-Each element contains the name of one author; repeat the element for several authors.
+The authorship of the resource record itself is set with the `authorship-id` attribute on the `<resource>`
+element. It references an [`<authorship>`](#defining-the-authorships) block by its `id`, exactly like the
+per-file `authorship-id` on `<bitstream>`/`<iiif-uri>`:
 
 ```xml
-<resource label="Postcard" restype=":Postcard" id="postcard_1">
-    <data-authorship>Lotte Reiniger</data-authorship>
-    <data-authorship>Hilma af Klint</data-authorship>
+<authorship id="authorship_1">
+    <author>Lotte Reiniger</author>
+    <author>Hilma af Klint</author>
+</authorship>
+...
+<resource label="Postcard" restype=":Postcard" id="postcard_1" authorship-id="authorship_1">
     ...
 </resource>
 ```
 
 This is **distinct** from:
 
-- the per-file authorship referenced with the [`authorship-id`](#bitstream) attribute on `<bitstream>`/`<iiif-uri>`,
-  which describes the multimedia asset, not the resource record;
+- the per-file authorship referenced with the same [`authorship-id`](#bitstream) attribute on
+  `<bitstream>`/`<iiif-uri>`, which describes the multimedia asset, not the resource record;
 - the project-wide [`data_authorship`](../data-model/json-project/overview.md#data_authorship) default
   set in the project definition file.
 

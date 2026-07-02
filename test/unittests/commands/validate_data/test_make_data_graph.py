@@ -161,6 +161,8 @@ class TestResource:
         g = Graph(store="Oxigraph")
         _add_one_resource(g, res)
         assert len(g) == 3
+        assert next(g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
+        assert next(g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
         assert next(g.objects(RES_IRI, KNORA_API.hasResourceAuthorship)) == Literal("Author One", datatype=XSD.string)
 
 

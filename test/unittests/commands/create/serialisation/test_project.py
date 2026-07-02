@@ -74,6 +74,33 @@ class TestSerialiseProject:
         result = serialise_project(proj)
         assert result == expected
 
+    def test_resource_side_legal_info_is_not_serialised(self):
+        # the create POST body does not carry the resource-side legal fields;
+        # they are sent separately via LegalInfoClient after project creation
+        proj = ParsedProjectMetadata(
+            shortcode="0001",
+            shortname="name",
+            longname="long",
+            descriptions={"en": "english"},
+            keywords=["test"],
+            enabled_licenses=["license"],
+            data_license="http://rdfh.ch/licenses/cc-by-4.0",
+            data_copyright_holder="DaSCH",
+            data_authorship=["Author One", "Author Two"],
+        )
+        expected = {
+            "shortcode": "0001",
+            "shortname": "name",
+            "longname": "long",
+            "description": [{"language": "en", "value": "english"}],
+            "keywords": ["test"],
+            "status": True,
+            "selfjoin": False,
+            "enabledLicenses": ["license"],
+        }
+        result = serialise_project(proj)
+        assert result == expected
+
     def test_no_license(self):
         proj = ParsedProjectMetadata(
             shortcode="0001",

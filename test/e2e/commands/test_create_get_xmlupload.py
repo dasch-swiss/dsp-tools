@@ -11,6 +11,8 @@ from typing import cast
 
 import pytest
 import regex
+import requests
+from rdflib import Literal
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
@@ -18,6 +20,9 @@ from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.utils.rdf_constants import KNORA_API
+from test.e2e.commands.xmlupload.utils import util_get_res_iri_from_label
+from test.e2e.commands.xmlupload.utils import util_request_resources_by_class
 
 
 @pytest.fixture(scope="module")
@@ -143,10 +148,18 @@ def _compare_project(
         "descriptions",
         "default_permissions",
         "default_permissions_overrule",
+        "data_license",
+        "data_copyright_holder",
     ]:
         orig = project_original["project"].get(field)
         ret = project_returned["project"].get(field)
         assert orig == ret, f"Field '{field}' is not identical: original='{orig}', returned='{ret}'"
+
+    orig_authorship = project_original["project"]["data_authorship"]
+    ret_authorship = project_returned["project"]["data_authorship"]
+    assert orig_authorship == ret_authorship, (
+        f"Field data_authorship is not identical: original={orig_authorship}, returned={ret_authorship}"
+    )
 
     orig_licenses = set(project_original["project"]["enabled_licenses"])
     ret_licenses = set(project_returned["project"]["enabled_licenses"])
@@ -508,3 +521,34 @@ def test_compare_license_after_data_upload(
     orig_licenses = set(project_original["project"]["enabled_licenses"])
     ret_licenses = set(project_returned["project"]["enabled_licenses"])
     assert ret_licenses == orig_licenses
+
+
+@pytest.fixture(scope="module")
+def auth_header(creds: ServerCredentials) -> dict[str, str]:
+    payload = {"email": creds.user, "password": creds.password}
+    token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="module")
+def systematic_project_iri(creds: ServerCredentials) -> str:
+    route = f"{creds.server}/admin/projects/shortcode/4123"
+    project_iri: str = requests.get(route, timeout=3).json()["project"]["id"]
+    return project_iri
+
+
+@pytest.mark.order(5)
+def test_resource_authorship_after_data_upload(
+    creds: ServerCredentials, auth_header: dict[str, str], systematic_project_iri: str
+) -> None:
+    """The per-resource <data-authorship> is uploaded as knora-api:hasResourceAuthorship literals."""
+    class_iri = f"{creds.server}/ontology/4123/testonto/v2#TestThing"
+    g = util_request_resources_by_class(class_iri, auth_header, systematic_project_iri, creds)
+
+    with_authorship = util_get_res_iri_from_label(g, "First Testthing")
+    authors = {str(a) for a in g.objects(with_authorship, KNORA_API.hasResourceAuthorship)}
+    assert authors == {"Resource Author One", "Resource Author Two"}
+    assert isinstance(next(g.objects(with_authorship, KNORA_API.hasResourceAuthorship)), Literal)
+
+    without_authorship = util_get_res_iri_from_label(g, "Second Testthing")
+    assert len(list(g.objects(without_authorship, KNORA_API.hasResourceAuthorship))) == 0

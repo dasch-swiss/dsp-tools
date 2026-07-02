@@ -316,7 +316,7 @@ class Project(Model):
         if self._data_copyright_holder:
             proj["data_copyright_holder"] = self._data_copyright_holder
         if self._data_authorship:
-            proj["data_authorship"] = list(self._data_authorship)
+            proj["data_authorship"] = self._data_authorship
         return proj
 
     def create(self) -> Project:

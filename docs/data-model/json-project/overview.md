@@ -237,8 +237,10 @@ The copyright holder that applies to every resource record in the project.
 
 The default authorship that applies to every resource record in the project.
 Each entry is the name of one author.
-This is distinct from the per-file authorship referenced via `authorship-id` in the XML data file,
-and from the per-resource [`<data-authorship>`](../../data-file/xml-data-file.md#data-authorship) element.
+This is distinct from the authorship referenced via `authorship-id` in the XML data file
+(on `<bitstream>`/`<iiif-uri>` for the asset, or on
+[`<resource>`](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-resource)
+for the resource record).
 
 
 ### `default_permissions`

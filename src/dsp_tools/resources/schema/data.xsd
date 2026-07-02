@@ -480,8 +480,6 @@
                 <xs:element name="bitstream" type="bitstream_type"/>
                 <xs:element name="iiif-uri" type="iiif_uri_type"/>
             </xs:choice>
-            <xs:element name="data-authorship" type="nonEmptyString_pretty_printed" minOccurs="0"
-                        maxOccurs="unbounded"/>
             <xs:choice maxOccurs="unbounded">
                 <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -507,6 +505,7 @@
         <xs:attribute name="restype" type="string_without_space" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>

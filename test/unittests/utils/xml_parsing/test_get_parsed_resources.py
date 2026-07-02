@@ -13,7 +13,6 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_richtext_as_st
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_simpletext_as_string
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_value_order
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_bitstream_tag
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_data_authorship
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
@@ -808,37 +807,15 @@ def test_get_value_order(inpt, expected):
     assert result == expected
 
 
-class TestParseDataAuthorship:
-    def test_none(self):
-        resource = etree.fromstring('<resource label="lbl" restype=":Class" id="res"/>')
-        assert _parse_data_authorship(resource) is None
-
-    def test_single(self):
-        resource = etree.fromstring(
-            '<resource label="lbl" restype=":Class" id="res"><data-authorship>Author One</data-authorship></resource>'
-        )
-        assert _parse_data_authorship(resource) == ["Author One"]
-
-    def test_multiple(self):
-        resource = etree.fromstring(
-            '<resource label="lbl" restype=":Class" id="res">'
-            "<data-authorship>Author One</data-authorship>"
-            "<data-authorship>Author Two</data-authorship>"
-            "</resource>"
-        )
-        assert _parse_data_authorship(resource) == ["Author One", "Author Two"]
-
-    def test_get_parsed_resources_threads_data_authorship(self, root_no_resources):
+class TestResourceAuthorshipId:
+    def test_threads_authorship_id(self, root_no_resources):
         root = deepcopy(root_no_resources)
-        root.append(
-            etree.fromstring(
-                '<resource label="lbl" restype=":Class" id="res">'
-                "<data-authorship>Author One</data-authorship>"
-                "<data-authorship>Author Two</data-authorship>"
-                "</resource>"
-            )
-        )
-        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
-        resource = parsed_res.pop(0)
-        assert resource.data_authorship == ["Author One", "Author Two"]
-        assert len(resource.values) == 0
+        root.append(etree.fromstring('<resource label="lbl" restype=":Class" id="res" authorship-id="auth_1"/>'))
+        resource = get_parsed_resources(root, HTTPS_API_URL).pop(0)
+        assert resource.authorship_id == "auth_1"
+
+    def test_no_authorship_id(self, root_no_resources):
+        root = deepcopy(root_no_resources)
+        root.append(etree.fromstring('<resource label="lbl" restype=":Class" id="res"/>'))
+        resource = get_parsed_resources(root, HTTPS_API_URL).pop(0)
+        assert resource.authorship_id is None

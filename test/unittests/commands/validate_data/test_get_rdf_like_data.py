@@ -182,9 +182,9 @@ class TestResource:
             values=[],
             file_value=None,
             migration_metadata=None,
-            data_authorship=["Author One", "Author Two"],
+            authorship_id="auth_1",
         )
-        result = _get_one_resource(res, {}, LIST_LOOKUP)
+        result = _get_one_resource(res, {"auth_1": ["Author One", "Author Two"]}, LIST_LOOKUP)
         assert len(result.property_objects) == 4
         authorship = [
             x for x in result.property_objects if x.property_type == TriplePropertyType.KNORA_RESOURCE_AUTHORSHIP

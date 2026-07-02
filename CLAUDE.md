@@ -69,6 +69,14 @@ DSP-TOOLS provides the following functionalities:
 - `dsp-tools mapping [config|add]` add mapping to existing ontologies on a server
 
 
+## Conventions and Review
+
+- See `CONVENTIONS.md` for a condensed agent reference card of coding, testing, test-data, and commit
+  conventions (work phase).
+- See `REVIEW.md` for the code-review checklist (review phase) — reviewer agents should flag anything a
+  change violates.
+- Keep both in sync with this file and the per-module `CLAUDE.md` files whenever a convention changes.
+
 ## Development Commands
 
 ### Environment Setup
@@ -193,22 +201,12 @@ The system follows this general flow for XML processing:
 - Make the smallest reasonable changes to get to the desired outcome.
   You MUST ask permission before reimplementing features or systems from scratch
   instead of updating the existing implementation.
-- When writing comments, avoid referring to temporal context about refactors or recent changes.
-  Comments should be evergreen and describe the code as it is, not how it evolved or was recently changed.
-- NEVER name things as 'improved' or 'new' or 'enhanced', etc.
-  Code naming should be evergreen. What is new someday will be "old" someday.
-- Only write docstrings for high-level functions, or if the purpose of a function cannot be derived from its name alone.
-  The names of lower-level functions should be self-explanatory, so it would be a duplication to write docstrings.
-  In test codes, we most often don't need docstrings.
+- For coding, testing, and naming conventions (evergreen naming, docstring policy, types, `pathlib`,
+  stateless functions, test data, commit rules), follow `CONVENTIONS.md`; the review checklist is `REVIEW.md`.
 
 ### Code quality
 
-- The project uses strict type checking - all new code must have proper type annotations
-- Docstrings follow Google-style docstrings
-- All markdown files must comply with markdownlint rules specified in `.markdownlint.yml`
-- Always run `just lint` before committing to ensure code quality
 - Whenever you modify the codebase, make sure to also update all CLAUDE.md files (if necessary)
-- Tests must cover the functionality being implemented.
 - NEVER ignore the output of the system or the tests - Logs and messages often contain CRITICAL information.
 - If the logs are supposed to contain errors, capture and test it.
 
@@ -235,13 +233,3 @@ When encountering tool failures (ruff, pytest, etc.):
 - Research the specific error before attempting fixes
 - Explain what you learned about the tool/codebase
 - Build competence with development tools rather than avoiding them
-
-### Technology preferences
-
-- never install python packages globally with `pip3 install <package>`.
-  Always use virtual environments, with `uv`.
-- Always use `pathlib` for paths. Avoid `os.path`, and avoid passing around paths as strings.
-- Please use modern python syntax and modern patterns.
-- Avoid writing classes with a lot of state and behaviour.
-  Only use classes to bundle data (with the `dataclasses` library).
-  For state and behaviour, please use functions instead of classes.

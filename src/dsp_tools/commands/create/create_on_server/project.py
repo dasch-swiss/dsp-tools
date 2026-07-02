@@ -24,12 +24,13 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, e
     try:
         project_iri = client.get_project_iri(project.shortcode)
         _exit_if_create_should_not_continue(project.shortcode, exit_if_exists)
+        return project_iri
     except ProjectNotFoundError:
         logger.debug("No project with the shortcode exists. Continuing creating the project.")
         project_iri = _create_project_on_server(project, client)
-    legal_info_client = LegalInfoClientLive(auth.server, project.shortcode, auth)
-    _set_resource_side_legal_info(project, legal_info_client)
-    return project_iri
+        legal_info_client = LegalInfoClientLive(auth.server, project.shortcode, auth)
+        _set_resource_side_legal_info(project, legal_info_client)
+        return project_iri
 
 
 def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: LegalInfoClient) -> None:

@@ -23,6 +23,12 @@
             "http://rdfh.ch/licenses/cc-by-nc-4.0",
             "http://rdfh.ch/licenses/ai-generated"
         ],
+        "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
+        "data_copyright_holder": "DaSCH",
+        "data_authorship": [
+            "Default Author One",
+            "Default Author Two"
+        ],
         "default_permissions": "public",
         "default_permissions_overrule": {
             "private": [

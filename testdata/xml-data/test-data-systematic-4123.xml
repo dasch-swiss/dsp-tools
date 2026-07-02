@@ -15,6 +15,10 @@
     <authorship id="authorship_2">
         <author>Johannes Nussbaum</author>
     </authorship>
+    <authorship id="authorship_7">
+        <author>Resource Author One</author>
+        <author>Resource Author Two</author>
+    </authorship>
 
 
     <permissions id="public">
@@ -77,7 +81,8 @@
     <resource label="First Testthing"
               restype=":TestThing"
               id="test_thing_1"
-              permissions="public">
+              permissions="public"
+              authorship-id="authorship_7">
         <text-prop name="testonto:hasSimpleText">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>

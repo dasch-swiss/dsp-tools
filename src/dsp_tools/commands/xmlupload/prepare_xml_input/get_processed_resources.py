@@ -90,6 +90,9 @@ def _get_one_resource(
     file_val = _resolve_file_value(resource, lookups, is_on_prod_like_server)
     if resource.migration_metadata:
         migration_metadata = _get_resource_migration_metadata(resource.migration_metadata)
+    data_authorship = None
+    if resource.authorship_id:
+        data_authorship = _resolve_authorship(resource.authorship_id, lookups.authorships)
     return ProcessedResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,
@@ -98,7 +101,7 @@ def _get_one_resource(
         values=values,
         file_value=file_val,
         migration_metadata=migration_metadata,
-        data_authorship=resource.data_authorship,
+        data_authorship=data_authorship,
     )
 
 

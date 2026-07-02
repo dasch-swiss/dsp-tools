@@ -94,6 +94,9 @@ def test_make_resource_data_authorship() -> None:
     res_bn = BNode()
     res_graph = _make_resource(res, res_bn, PROJECT_IRI)
     assert len(res_graph) == 5
+    assert next(res_graph.objects(res_bn, RDF.type)) == RESOURCE_TYPE
+    assert next(res_graph.objects(res_bn, RDFS.label)) == LABEL
+    assert next(res_graph.objects(res_bn, KNORA_API.attachedToProject)) == PROJECT_IRI
     authorship = set(res_graph.objects(res_bn, KNORA_API.hasResourceAuthorship))
     expected = {
         Literal("Author One", datatype=XSD.string),

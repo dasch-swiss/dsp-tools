@@ -25,7 +25,7 @@
         ],
         "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
         "data_copyright_holder": "DaSCH",
-        "data_authorship": [
+        "default_data_authorship": [
             "Default Author One",
             "Default Author Two"
         ],

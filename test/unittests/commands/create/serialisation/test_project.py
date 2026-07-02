@@ -59,7 +59,7 @@ class TestSerialiseProject:
             enabled_licenses=["license"],
             data_license=None,
             data_copyright_holder=None,
-            data_authorship=[],
+            default_data_authorship=[],
         )
         expected = {
             "shortcode": "0001",
@@ -86,7 +86,7 @@ class TestSerialiseProject:
             enabled_licenses=["license"],
             data_license="http://rdfh.ch/licenses/cc-by-4.0",
             data_copyright_holder="DaSCH",
-            data_authorship=["Author One", "Author Two"],
+            default_data_authorship=["Author One", "Author Two"],
         )
         expected = {
             "shortcode": "0001",
@@ -111,7 +111,7 @@ class TestSerialiseProject:
             enabled_licenses=[],
             data_license=None,
             data_copyright_holder=None,
-            data_authorship=[],
+            default_data_authorship=[],
         )
         expected = {
             "shortcode": "0001",

@@ -1,5 +1,13 @@
 # Changelog
 
+## [18.17.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.2...v18.17.3) (2026-07-01)
+
+
+### Maintenance
+
+* add max 1GB logging file size through rotation ([#2354](https://github.com/dasch-swiss/dsp-tools/issues/2354)) ([33e3c0e](https://github.com/dasch-swiss/dsp-tools/commit/33e3c0e2c4d0061de16bcdccba044f3b97deb192))
+* **start-stack:** bump versions to 2026.06.05 ([#2357](https://github.com/dasch-swiss/dsp-tools/issues/2357)) ([392cba7](https://github.com/dasch-swiss/dsp-tools/commit/392cba7ec87e77e0f86076f99731e2832c306a49))
+
 ## [18.17.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.1...v18.17.2) (2026-06-24)
 
 

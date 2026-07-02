@@ -57,6 +57,28 @@ class TestResource:
         )
         assert serialised == expected
 
+    def test_resource_authorship(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl", authorship=["one", "one2"])
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 0
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type" authorship-id="authorship_1"/>'
+        )
+        assert etree.tostring(result) == expected
+
+    def test_resource_authorship_unknown_author(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl", authorship=["unknown"])
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 1
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type" authorship-id="unknown"/>'
+        )
+        assert etree.tostring(result) == expected
+
     def test_serialise_no_warnings(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl").add_file(
             "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["one", "one2"]

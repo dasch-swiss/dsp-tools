@@ -50,6 +50,22 @@ resource = xmllib.Resource.create_new(
 )
 ```
 
+### Setting the Authorship of a Resource
+
+You can state who authored the resource record itself, i.e. the data describing the object:
+
+```python
+resource = xmllib.Resource.create_new(
+    res_id="general_resource",
+    restype=":ResourceType",
+    label="Title in the DSP-APP",
+    authorship=["Minnie Mouse"],
+)
+```
+
+This is distinct from the authorship of a file (see [below](#adding-a-file-to-a-resource)),
+which describes the multimedia asset, not the resource record.
+
 ### Adding Values to a Resource
 
 Once you created a `Resource` you can add values to it.

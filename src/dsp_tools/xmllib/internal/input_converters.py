@@ -68,6 +68,44 @@ def check_and_fix_is_non_empty_string(
         return ""
 
 
+def check_and_fix_authorship_input(authorship: Any, res_id: str, value_field: str) -> tuple[str, ...] | None:
+    """
+    Checks the authorship input and converts it into a sorted, deduplicated tuple of non-empty strings.
+    Emits warnings and returns None if the input is empty.
+
+    Args:
+        authorship: input authorship collection
+        res_id: resource ID
+        value_field: field to reference in warnings
+
+    Returns:
+        The authors as a sorted tuple, or None if the input is empty.
+    """
+    if authorship is None:
+        return None
+    if not is_nonempty_value_internal(authorship):
+        emit_xmllib_input_type_mismatch_warning(
+            expected_type="list of authorship strings",
+            value=authorship,
+            res_id=res_id,
+            value_field=value_field,
+        )
+        return None
+    fixed_authors = set(check_and_fix_collection_input(authorship, value_field, res_id))
+    fixed_authors_list = [
+        check_and_fix_is_non_empty_string(
+            value=x,
+            res_id=res_id,
+            value_field=value_field,
+        )
+        for x in fixed_authors
+    ]
+    authors = tuple(sorted(fixed_authors_list))
+    if len(authors) == 0:
+        return None
+    return authors
+
+
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
     """
     To allow varied input but ensure consistent typing internally, collections are converted.

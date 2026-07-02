@@ -9,7 +9,7 @@ from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
-from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
@@ -75,32 +75,7 @@ class Metadata:
                 res_id=resource_id,
                 value_field="copyright_holder (bistream/iiif-uri)",
             )
-        if authorship is not None:
-            if not is_nonempty_value_internal(authorship):
-                emit_xmllib_input_type_mismatch_warning(
-                    expected_type="list of authorship strings",
-                    value=authorship,
-                    res_id=resource_id,
-                    value_field="authorship (bistream/iiif-uri)",
-                )
-                authors = None
-            else:
-                fixed_authors = set(
-                    check_and_fix_collection_input(authorship, "authorship (bistream/iiif-uri)", resource_id)
-                )
-                fixed_authors_list = [
-                    check_and_fix_is_non_empty_string(
-                        value=x,
-                        res_id=resource_id,
-                        value_field="authorship (bistream/iiif-uri)",
-                    )
-                    for x in fixed_authors
-                ]
-                authors = tuple(sorted(fixed_authors_list))
-                if len(authors) == 0:
-                    authors = None
-        else:
-            authors = None
+        authors = check_and_fix_authorship_input(authorship, resource_id, "authorship (bistream/iiif-uri)")
         return cls(
             license=lic_,
             copyright_holder=copyright_holder,

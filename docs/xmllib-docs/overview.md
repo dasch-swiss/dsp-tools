@@ -66,6 +66,10 @@ resource = xmllib.Resource.create_new(
 This is distinct from the authorship of a file (see [below](#adding-a-file-to-a-resource)),
 which describes the multimedia asset, not the resource record.
 
+If your project defines a default authorship, this default is not applied to your data automatically:
+it only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
+A resource record has an authorship only if you set it explicitly with `authorship`, as shown above.
+
 ### Adding Values to a Resource
 
 Once you created a `Resource` you can add values to it.

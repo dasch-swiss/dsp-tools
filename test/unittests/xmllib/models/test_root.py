@@ -1,6 +1,6 @@
 # mypy: disable-error-code="comparison-overlap"
-import importlib.resources
 import warnings
+from pathlib import Path
 
 import pytest
 import regex
@@ -416,8 +416,8 @@ def test_serialise_resource_authorship_is_xsd_valid() -> None:
     resource_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
     bitstream_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}bitstream"))
     assert resource_ele.attrib["authorship-id"] == bitstream_ele.attrib["authorship-id"]
-    schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
-    with schema_res.open(encoding="utf-8") as schema_file:
+    schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+    with schema_path.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     assert xmlschema.validate(serialised)
 

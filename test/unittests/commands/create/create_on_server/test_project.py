@@ -30,7 +30,7 @@ def parsed_project() -> Mock:
     project.shortname = "name"
     project.data_license = None
     project.data_copyright_holder = None
-    project.data_authorship = []
+    project.default_data_authorship = []
     return project
 
 
@@ -170,7 +170,7 @@ def test_resource_side_legal_info_is_sent_when_set(
 ):
     parsed_project.data_license = "http://rdfh.ch/licenses/cc-by-4.0"
     parsed_project.data_copyright_holder = "holder"
-    parsed_project.data_authorship = ["author 1", "author 2"]
+    parsed_project.default_data_authorship = ["author 1", "author 2"]
     mock_client = Mock()
     mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
     mock_client.post_new_project.return_value = NEW_PROJECT_IRI
@@ -187,7 +187,7 @@ def test_resource_side_legal_info_is_sent_when_set(
         {
             "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
             "dataCopyrightHolder": "holder",
-            "dataAuthorship": ["author 1", "author 2"],
+            "defaultDataAuthorship": ["author 1", "author 2"],
         },
     )
 

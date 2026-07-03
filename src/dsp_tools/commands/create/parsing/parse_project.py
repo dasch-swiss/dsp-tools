@@ -62,7 +62,7 @@ def parse_metadata(project_json: dict[str, Any]) -> ParsedProjectMetadata:
         enabled_licenses=project_json.get("enabled_licenses", []),
         data_license=project_json.get("data_license"),
         data_copyright_holder=project_json.get("data_copyright_holder"),
-        data_authorship=project_json.get("data_authorship", []),
+        default_data_authorship=project_json.get("default_data_authorship", []),
     )
 
 

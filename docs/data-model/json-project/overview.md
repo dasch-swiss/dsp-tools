@@ -127,7 +127,7 @@ The following fields are optional (if one or more of these fields are not used, 
 - default_permissions_overrule (only if default_permissions = public)
 - data_license
 - data_copyright_holder
-- data_authorship
+- default_data_authorship
 - groups
 - users
 - lists
@@ -229,11 +229,11 @@ for example `http://rdfh.ch/licenses/cc-by-4.0`.
 The copyright holder that applies to every resource record in the project.
 
 
-### `data_authorship`
+### `default_data_authorship`
 
 (optional)
 
-`"data_authorship": ["<string>", "<string>", ...]`
+`"default_data_authorship": ["<string>", "<string>", ...]`
 
 The default authorship that applies to every resource record in the project.
 Each entry is the name of one author.

@@ -315,7 +315,7 @@ This is **distinct** from:
 
 - the per-file authorship referenced with the same [`authorship-id`](#bitstream) attribute on
   `<bitstream>`/`<iiif-uri>`, which describes the multimedia asset, not the resource record;
-- the project-wide [`data_authorship`](../data-model/json-project/overview.md#data_authorship) default
+- the project-wide [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship) default
   set in the project definition file.
 
 

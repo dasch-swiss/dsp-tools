@@ -34,12 +34,12 @@ def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, e
 
 
 def _set_resource_side_legal_info(project: ParsedProjectMetadata, client: LegalInfoClient) -> None:
-    if not any([project.data_license, project.data_copyright_holder, project.data_authorship]):
+    if not any([project.data_license, project.data_copyright_holder, project.default_data_authorship]):
         return
     legal_info: dict[str, Any] = {
         "dataLicense": project.data_license,
         "dataCopyrightHolder": project.data_copyright_holder,
-        "dataAuthorship": project.data_authorship,
+        "defaultDataAuthorship": project.default_data_authorship,
     }
     client.set_resource_side_legal_info(legal_info)
 

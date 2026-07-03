@@ -180,7 +180,7 @@ class TestGetEnabledLicenses:
 RESOURCE_SIDE_LEGAL_INFO = {
     "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
     "dataCopyrightHolder": "holder",
-    "dataAuthorship": ["author 1", "author 2"],
+    "defaultDataAuthorship": ["author 1", "author 2"],
 }
 
 

@@ -155,10 +155,10 @@ def _compare_project(
         ret = project_returned["project"].get(field)
         assert orig == ret, f"Field '{field}' is not identical: original='{orig}', returned='{ret}'"
 
-    orig_authorship = project_original["project"]["data_authorship"]
-    ret_authorship = project_returned["project"]["data_authorship"]
+    orig_authorship = project_original["project"]["default_data_authorship"]
+    ret_authorship = project_returned["project"]["default_data_authorship"]
     assert orig_authorship == ret_authorship, (
-        f"Field data_authorship is not identical: original={orig_authorship}, returned={ret_authorship}"
+        f"Field default_data_authorship is not identical: original={orig_authorship}, returned={ret_authorship}"
     )
 
     orig_licenses = set(project_original["project"]["enabled_licenses"])

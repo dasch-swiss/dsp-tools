@@ -24,31 +24,31 @@ class TestDataSideLegalInfo:
         json_obj = _base_json_obj() | {
             "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
             "dataCopyrightHolder": "The Holder",
-            "dataAuthorship": ["Author One", "Author Two"],
+            "defaultDataAuthorship": ["Author One", "Author Two"],
         }
         project = Project.fromJsonObj(Mock(), json_obj)
         result = project.createDefinitionFileObj()
         assert result["data_license"] == "http://rdfh.ch/licenses/cc-by-4.0"
         assert result["data_copyright_holder"] == "The Holder"
-        assert result["data_authorship"] == ["Author One", "Author Two"]
+        assert result["default_data_authorship"] == ["Author One", "Author Two"]
 
     def test_from_json_obj_without_legal_fields(self) -> None:
         project = Project.fromJsonObj(Mock(), _base_json_obj())
         result = project.createDefinitionFileObj()
         assert "data_license" not in result
         assert "data_copyright_holder" not in result
-        assert "data_authorship" not in result
+        assert "default_data_authorship" not in result
 
     def test_create_definition_file_obj_omits_empty_authorship(self) -> None:
         json_obj = _base_json_obj() | {
             "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
-            "dataAuthorship": [],
+            "defaultDataAuthorship": [],
         }
         project = Project.fromJsonObj(Mock(), json_obj)
         result = project.createDefinitionFileObj()
         assert result["data_license"] == "http://rdfh.ch/licenses/cc-by-4.0"
         assert "data_copyright_holder" not in result
-        assert "data_authorship" not in result
+        assert "default_data_authorship" not in result
 
 
 if __name__ == "__main__":

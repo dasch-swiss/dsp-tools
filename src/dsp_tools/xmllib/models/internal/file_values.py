@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.internal.checkers import check_and_warn_if_a_string_contains_a_potentially_empty_value
 from dsp_tools.xmllib.internal.checkers import check_and_warn_potentially_empty_string
@@ -26,9 +27,8 @@ class AuthorshipLookup:
     def get_id(self, authors: tuple[str, ...] | None) -> str | None:
         if authors is None:
             return None
-        if not (found := self.lookup.get(authors)):
-            emit_xmllib_input_warning(MessageInfo(f"The input authors {authors} are not defined in the look-up."))
-            return " / ".join([str(x) for x in authors])
+        if (found := self.lookup.get(authors)) is None:
+            raise UnreachableCodeError(f"The authors {authors} are not defined in the look-up.")
         return found
 
 

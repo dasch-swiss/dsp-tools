@@ -4,6 +4,7 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.xmllib.internal.serialise_resource import _serialise_one_resource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -57,6 +58,22 @@ class TestResource:
         )
         assert serialised == expected
 
+    def test_resource_authorship(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl", authorship=["one", "one2"])
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 0
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type" authorship-id="authorship_1"/>'
+        )
+        assert etree.tostring(result) == expected
+
+    def test_resource_authorship_not_in_lookup(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl", authorship=["unknown"])
+        with pytest.raises(UnreachableCodeError):
+            _serialise_one_resource(res, AUTHOR_LOOKUP)
+
     def test_serialise_no_warnings(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl").add_file(
             "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["one", "one2"]
@@ -77,34 +94,24 @@ class TestResource:
         )
         assert etree.tostring(result) == expected
 
-    def test_file_value_unknown_author(self) -> None:
+    def test_file_value_author_not_in_lookup(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl").add_file(
             "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["unknown"]
         )
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
-            assert len(caught_warnings) == 1
-        expected = (
-            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-            b'label="lbl" id="id" restype=":Type">'
-            b'<bitstream license="http://rdfh.ch/licenses/unknown" copyright-holder="copy" authorship-id="unknown">'
-            b"file.jpg"
-            b"</bitstream>"
-            b"</resource>"
-        )
-        assert etree.tostring(result) == expected
+        with pytest.raises(UnreachableCodeError):
+            _serialise_one_resource(res, AUTHOR_LOOKUP)
 
     def test_file_value_other_license(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl").add_file(
-            "file.jpg", LicenseOther.Various.BORIS_STANDARD, "copy", ["unknown"]
+            "file.jpg", LicenseOther.Various.BORIS_STANDARD, "copy", ["one", "one2"]
         )
         with warnings.catch_warnings(record=True) as caught_warnings:
             result = _serialise_one_resource(res, AUTHOR_LOOKUP)
-            assert len(caught_warnings) == 1
+            assert len(caught_warnings) == 0
         expected = (
             b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id" restype=":Type">'
-            b'<bitstream license="http://rdfh.ch/licenses/boris" copyright-holder="copy" authorship-id="unknown">'
+            b'<bitstream license="http://rdfh.ch/licenses/boris" copyright-holder="copy" authorship-id="authorship_1">'
             b"file.jpg"
             b"</bitstream>"
             b"</resource>"

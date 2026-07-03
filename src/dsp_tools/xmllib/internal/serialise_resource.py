@@ -71,6 +71,8 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
 def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
+    if res.authorship and (resource_auth_id := authorship_lookup.get_id(res.authorship)):
+        ele.attrib["authorship-id"] = resource_auth_id
     if res.file_value:
         auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)
         ele.append(serialise_file_value(res.file_value, auth_id))

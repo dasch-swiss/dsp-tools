@@ -1,5 +1,6 @@
 # mypy: disable-error-code="comparison-overlap"
 import warnings
+from pathlib import Path
 
 import pytest
 import regex
@@ -393,6 +394,32 @@ def test_make_authorship_lookup() -> None:
     region_res = RegionResource.create_new("regionID", "label", "id1")
     result = _make_authorship_lookup([res1, res2, res3, region_res, res_none])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}
+
+
+def test_make_authorship_lookup_with_resource_authorship() -> None:
+    res_resource_auth = Resource.create_new("id1", ":Restype", "label", authorship=["resource auth"])
+    res_shared_auth = Resource.create_new("id2", ":Restype", "label", authorship=["auth2"]).add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth2"]
+    )
+    res_no_auth = Resource.create_new("id3", ":Restype", "label")
+    result = _make_authorship_lookup([res_resource_auth, res_shared_auth, res_no_auth])
+    assert set(result.lookup.keys()) == {tuple(["resource auth"]), tuple(["auth2"])}
+
+
+def test_serialise_resource_authorship_is_xsd_valid() -> None:
+    xml_root = XMLRoot.create_new("0000", "test")
+    res_with_file = Resource.create_new("id_1", ":ResType", "lbl", authorship=["auth1"]).add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth1"]
+    )
+    xml_root.add_resource(res_with_file)
+    serialised = xml_root.serialise()
+    resource_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
+    bitstream_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}bitstream"))
+    assert resource_ele.attrib["authorship-id"] == bitstream_ele.attrib["authorship-id"]
+    schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+    with schema_path.open(encoding="utf-8") as schema_file:
+        xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    assert xmlschema.validate(serialised)
 
 
 def test_serialise_authorship() -> None:

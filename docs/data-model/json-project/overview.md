@@ -235,12 +235,22 @@ The copyright holder that applies to every resource record in the project.
 
 `"default_data_authorship": ["<string>", "<string>", ...]`
 
-The default authorship that applies to every resource record in the project.
+The default authorship for the resource records in the project.
 Each entry is the name of one author.
-This is distinct from the authorship referenced via `authorship-id` in the XML data file
-(on `<bitstream>`/`<iiif-uri>` for the asset, or on
-[`<resource>`](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-resource)
-for the resource record).
+
+Unlike `data_license` and `data_copyright_holder`, this is **not** applied to your data automatically.
+It only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
+An `xmlupload` gives a resource record an authorship only if it is set explicitly via the `authorship-id`
+attribute on [`<resource>`](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-resource).
+
+To apply this default to a bulk import, set the
+[`use-project-default-resource-authorship`](../../data-file/xml-data-file.md#the-root-element-knora)
+attribute on the XML root (most easily via the xmllib option
+[`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)):
+`xmlupload` then reads this field and writes it onto every resource without its own authorship.
+
+This is also distinct from the authorship referenced via `authorship-id` on `<bitstream>`/`<iiif-uri>`
+in the XML data file, which describes the multimedia asset rather than the resource record.
 
 
 ### `default_permissions`

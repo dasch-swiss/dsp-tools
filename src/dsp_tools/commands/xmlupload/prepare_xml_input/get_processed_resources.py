@@ -74,15 +74,21 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
 
 
 def get_processed_resources(
-    resources: list[ParsedResource], lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+    resources: list[ParsedResource],
+    lookups: XmlReferenceLookups,
+    is_on_prod_like_server: bool,
+    project_default_authorship: list[str] | None = None,
 ) -> list[ProcessedResource]:
     logger.debug("Transform ParsedResource into ProcessedResource")
     progress_bar = tqdm(resources, desc="Preparing data for upload", dynamic_ncols=True)
-    return [_get_one_resource(res, lookups, is_on_prod_like_server) for res in progress_bar]
+    return [_get_one_resource(res, lookups, is_on_prod_like_server, project_default_authorship) for res in progress_bar]
 
 
 def _get_one_resource(
-    resource: ParsedResource, lookups: XmlReferenceLookups, is_on_prod_like_server: bool
+    resource: ParsedResource,
+    lookups: XmlReferenceLookups,
+    is_on_prod_like_server: bool,
+    project_default_authorship: list[str] | None = None,
 ) -> ProcessedResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = [_get_one_processed_value(val, lookups) for val in resource.values]
@@ -93,6 +99,8 @@ def _get_one_resource(
     data_authorship = None
     if resource.authorship_id:
         data_authorship = _resolve_authorship(resource.authorship_id, lookups.authorships)
+    elif project_default_authorship:
+        data_authorship = project_default_authorship
     return ProcessedResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,

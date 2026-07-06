@@ -54,3 +54,7 @@ class XmlUploadListNodeNotFoundError(UserError):
 
 class InvalidArkError(UserError):
     """This error is raised when an ARK URL cannot be parsed or converted."""
+
+
+class MissingProjectDefaultAuthorshipError(UserError):
+    """Raised when the XML requests the project's default authorship, but the project defines none."""

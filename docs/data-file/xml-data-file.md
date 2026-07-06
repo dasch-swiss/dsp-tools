@@ -28,6 +28,13 @@ The `<knora>` element describes all resources that should be imported. It has th
 - `xsi:schemaLocation`: URL to the DSP XML schema, located in the DSP-TOOLS GitHub repository (required, always the same)
 - `shortcode`: project shortcode, e.g. "0801" (required, dependent on the project)
 - `default-ontology`: name of the ontology (required, dependent on the project)
+- `use-project-default-resource-authorship` (optional): if `true`, every resource without its own
+  [`authorship-id`](#resource-authorship-authorship-id-on-resource) is given the project's
+  [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship) during
+  `xmlupload`. The upload aborts if the project has no default authorship defined. This attribute is
+  usually not written by hand, but produced by the xmllib
+  [`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)
+  option.
 
 The `<knora>` element may look as follows:
 
@@ -315,8 +322,12 @@ This is **distinct** from:
 
 - the per-file authorship referenced with the same [`authorship-id`](#bitstream) attribute on
   `<bitstream>`/`<iiif-uri>`, which describes the multimedia asset, not the resource record;
-- the project-wide [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship) default
-  set in the project definition file.
+- the project-wide [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship)
+  set in the project definition file. That field is only a suggestion shown in DSP-APP; it is never applied
+  to uploaded data on its own. To actually apply it, set the
+  [`use-project-default-resource-authorship`](#the-root-element-knora) attribute on the `<knora>` root
+  (most easily via the xmllib option `apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`), which fills
+  it in for every resource without its own `authorship-id` at `xmlupload`.
 
 
 ### `<bitstream>`

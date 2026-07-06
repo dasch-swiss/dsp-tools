@@ -42,6 +42,23 @@ class ProjectClientLive(ProjectClient):
             raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
+    def get_default_data_authorship(self, shortcode: str) -> list[str]:
+        url = f"{self.server}/admin/projects/shortcode/{shortcode}"
+        params = RequestParameters("GET", url, TIMEOUT_30)
+        log_request(params)
+        try:
+            response = requests.get(url, timeout=TIMEOUT_30)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        log_response(response)
+        if response.ok:
+            result = response.json()
+            return cast(list[str], result["project"].get("defaultDataAuthorship", []))
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/admin/projects"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}

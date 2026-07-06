@@ -28,13 +28,18 @@ from dsp_tools.xmllib.models.res import Resource
 read_dotenv_if_exists()
 
 
-def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
+def serialise_resources(
+    resources: list[AnyResource],
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None = None,
+) -> list[etree._Element]:
     """
     Serialise all the resources
 
     Args:
         resources: list of resources
         authorship_lookup: lookup to map the authors to the corresponding IDs
+        default_authorship: authorship applied to every generic resource that does not set its own
 
     Returns:
         serialised resources
@@ -42,13 +47,15 @@ def serialise_resources(resources: list[AnyResource], authorship_lookup: Authors
     env_var = str(os.getenv("XMLLIB_SORT_RESOURCES")).lower()
     if env_var == "true":
         resources = sorted(resources, key=lambda x: x.res_id)
-    return [_serialise_one_resource(x, authorship_lookup) for x in resources]
+    return [_serialise_one_resource(x, authorship_lookup, default_authorship) for x in resources]
 
 
-def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:
+def _serialise_one_resource(
+    res: AnyResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     match res:
         case Resource():
-            return _serialise_generic_resource(res, authorship_lookup)
+            return _serialise_generic_resource(res, authorship_lookup, default_authorship)
         case RegionResource():
             return _serialise_region(res)
         case LinkResource():
@@ -68,10 +75,13 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
             )
 
 
-def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:
+def _serialise_generic_resource(
+    res: Resource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
-    if res.authorship and (resource_auth_id := authorship_lookup.get_id(res.authorship)):
+    effective_authorship = res.authorship or default_authorship
+    if effective_authorship and (resource_auth_id := authorship_lookup.get_id(effective_authorship)):
         ele.attrib["authorship-id"] = resource_auth_id
     if res.file_value:
         auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)

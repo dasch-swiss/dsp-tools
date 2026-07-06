@@ -21,9 +21,12 @@ from dsp_tools.setup.dotenv import read_dotenv_if_exists
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_emit_user_message
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
 from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.models.config_options import PROJECT_DEFAULT
+from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -43,16 +46,30 @@ class XMLRoot:
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
+    apply_default_resource_authorship: tuple[str, ...] | ResourceAuthorshipDefault | None = None
     _res_id_to_type_lookup: dict[str, list[str]] = field(default_factory=dict)
 
     @staticmethod
-    def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
+    def create_new(
+        shortcode: str,
+        default_ontology: str,
+        apply_default_resource_authorship: list[str] | ResourceAuthorshipDefault | None = None,
+    ) -> XMLRoot:
         """
         Create a new XML root, for one file.
 
         Args:
             shortcode: project shortcode
             default_ontology: name of the default ontology
+            apply_default_resource_authorship: optional default authorship for the resource records,
+                applied to every resource that does not set its own authorship with `Resource.create_new`.
+                Provide either a list of author names, or `xmllib.PROJECT_DEFAULT` to apply the
+                project's `default_data_authorship`.
+                This is distinct from the project's `default_data_authorship`: setting it here actually
+                writes the authorship onto the resources, whereas the project field is only a default
+                that is never applied to uploaded data on its own.
+                A list of author names is baked into the XML during serialisation; `xmllib.PROJECT_DEFAULT`
+                is resolved at `xmlupload` against the project on the server.
 
         Returns:
             Instance of `XMLRoot`
@@ -64,8 +81,36 @@ class XMLRoot:
                 default_ontology="onto"
             )
             ```
+
+            ```python
+            # apply a literal default authorship to all resources without their own
+            root = xmllib.XMLRoot.create_new(
+                shortcode="0000",
+                default_ontology="onto",
+                apply_default_resource_authorship=["Daisy Duck"],
+            )
+            ```
+
+            ```python
+            # apply the project's `default_data_authorship`, resolved at xmlupload
+            root = xmllib.XMLRoot.create_new(
+                shortcode="0000",
+                default_ontology="onto",
+                apply_default_resource_authorship=xmllib.PROJECT_DEFAULT,
+            )
+            ```
         """
-        return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
+        if isinstance(apply_default_resource_authorship, ResourceAuthorshipDefault):
+            default_authorship: tuple[str, ...] | ResourceAuthorshipDefault | None = apply_default_resource_authorship
+        else:
+            default_authorship = check_and_fix_authorship_input(
+                apply_default_resource_authorship, "<XMLRoot>", "apply_default_resource_authorship"
+            )
+        return XMLRoot(
+            shortcode=shortcode,
+            default_ontology=default_ontology,
+            apply_default_resource_authorship=default_authorship,
+        )
 
     def add_resource(self, resource: AnyResource) -> XMLRoot:
         """
@@ -248,12 +293,18 @@ class XMLRoot:
         """
         root = self._make_root()
         root.extend(self._get_permissions())
-        author_lookup = _make_authorship_lookup(self.resources)
+        literal_default = self._literal_default_authorship()
+        author_lookup = _make_authorship_lookup(self.resources, literal_default)
         authorship = _serialise_authorship(author_lookup.lookup)
         root.extend(authorship)
-        serialised_resources = serialise_resources(self.resources, author_lookup)
+        serialised_resources = serialise_resources(self.resources, author_lookup, literal_default)
         root.extend(serialised_resources)
         return root
+
+    def _literal_default_authorship(self) -> tuple[str, ...] | None:
+        if isinstance(self.apply_default_resource_authorship, tuple):
+            return self.apply_default_resource_authorship
+        return None
 
     def _get_permissions(self) -> list[etree._Element]:
         contains_old_permissions, contains_new_permissions = self._find_permission_types()
@@ -303,22 +354,27 @@ class XMLRoot:
         )
         schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
         schema_location_value = f"https://dasch.swiss/schema {schema_url}"
+        attrib = {
+            schema_location_key: schema_location_value,
+            "shortcode": self.shortcode,
+            "default-ontology": self.default_ontology,
+        }
+        if self.apply_default_resource_authorship is PROJECT_DEFAULT:
+            attrib["use-project-default-resource-authorship"] = "true"
         return etree.Element(
             f"{DASCH_SCHEMA}knora",
-            attrib={
-                schema_location_key: schema_location_value,
-                "shortcode": self.shortcode,
-                "default-ontology": self.default_ontology,
-            },
+            attrib=attrib,
             nsmap=XML_NAMESPACE_MAP,
         )
 
 
-def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
+def _make_authorship_lookup(
+    resources: list[AnyResource], default_authorship: tuple[str, ...] | None = None
+) -> AuthorshipLookup:
     filtered_resources = [x for x in resources if isinstance(x, Resource)]
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals if x.metadata.authorship}
-    authors.update(x.authorship for x in filtered_resources if x.authorship)
+    authors.update(effective for x in filtered_resources if (effective := x.authorship or default_authorship))
     sorted_authors = sorted(authors)
     env_var = str(os.getenv("XMLLIB_AUTHORSHIP_ID_WITH_INTEGERS")).lower()
     if env_var == "true":

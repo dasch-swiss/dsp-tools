@@ -66,9 +66,44 @@ resource = xmllib.Resource.create_new(
 This is distinct from the authorship of a file (see [below](#adding-a-file-to-a-resource)),
 which describes the multimedia asset, not the resource record.
 
-If your project defines a default authorship, this default is not applied to your data automatically:
-it only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
-A resource record has an authorship only if you set it explicitly with `authorship`, as shown above.
+To give the same authorship to many resources without repeating it, set a default on the `XMLRoot`
+with `apply_default_resource_authorship`.
+It is applied to every resource that does not set its own `authorship`:
+
+```python
+# a literal default, written onto the resources when the file is serialised
+root = xmllib.XMLRoot.create_new(
+    shortcode="0000",
+    default_ontology="onto",
+    apply_default_resource_authorship=["Minnie Mouse"],
+)
+```
+
+To reuse the project's `default_data_authorship`, pass `xmllib.PROJECT_DEFAULT` instead of a list.
+Unlike a literal list, this is not resolved when the file is written, but at `xmlupload`:
+dsp-tools reads the project's default from the server and applies it to every resource without its own
+authorship. If the project has no `default_data_authorship` defined, the upload aborts with an error.
+
+```python
+root = xmllib.XMLRoot.create_new(
+    shortcode="0000",
+    default_ontology="onto",
+    apply_default_resource_authorship=xmllib.PROJECT_DEFAULT,
+)
+```
+
+These are two different mechanisms, despite both being called a "default":
+
+- the project's
+  [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship)
+  is only a suggestion that DSP-APP proposes when a resource is created manually in the web interface;
+  on its own it is never applied to uploaded data.
+- `apply_default_resource_authorship` on the `XMLRoot` actually writes the authorship onto your resources,
+  either from a literal list, or (with `xmllib.PROJECT_DEFAULT`) from the project's default resolved at
+  `xmlupload`.
+
+A resource record therefore has an authorship only if you set it explicitly: per resource with
+`authorship` (as shown above), or via one of the `XMLRoot` defaults.
 
 ### Adding Values to a Resource
 

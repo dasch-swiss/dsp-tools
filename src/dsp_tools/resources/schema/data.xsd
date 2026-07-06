@@ -651,6 +651,7 @@
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>
             <xs:attribute name="shortcode" type="knorashortcode_type"/>
+            <xs:attribute name="use-project-default-resource-authorship" type="xs:boolean" use="optional"/>
         </xs:complexType>
         <xs:key name="permissionsId">
             <xs:selector xpath="./permissions"/>

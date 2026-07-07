@@ -215,7 +215,7 @@ class TestOneResource:
         result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER, ["project default author"])
         assert result.data_authorship == ["author1", "author2"]
 
-    def test_project_default_authorship_not_applied_to_dsp_base_resource(self, lookups: XmlReferenceLookups):
+    def test_project_default_authorship_applied_to_dsp_base_resource(self, lookups: XmlReferenceLookups):
         res = ParsedResource(
             res_id="id",
             res_type=f"{KNORA_API_PREFIX}Region",
@@ -226,7 +226,7 @@ class TestOneResource:
             migration_metadata=None,
         )
         result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER, ["project default author"])
-        assert result.data_authorship is None
+        assert result.data_authorship == ["project default author"]
 
     def test_with_ark(self, lookups: XmlReferenceLookups):
         parsed_metadata = ParsedMigrationMetadata(

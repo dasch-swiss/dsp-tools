@@ -47,7 +47,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.richtext_id2iri import find_internal_ids
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -58,12 +57,6 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMe
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
-
-# The DSP base resources (parsed from <region>/<link>/<video-segment>/<audio-segment>) do not carry a
-# resource authorship in xmllib, so the project default authorship is not applied to them either.
-_DSP_BASE_RESOURCE_TYPES = frozenset(
-    f"{KNORA_API_PREFIX}{res_type}" for res_type in ("Region", "LinkObj", "VideoSegment", "AudioSegment")
-)
 
 TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.BOOLEAN_VALUE: TypeTransformerMapper(ProcessedBoolean, transform_boolean),
@@ -106,7 +99,7 @@ def _get_one_resource(
     data_authorship = None
     if resource.authorship_id:
         data_authorship = _resolve_authorship(resource.authorship_id, lookups.authorships)
-    elif project_default_authorship and resource.res_type not in _DSP_BASE_RESOURCE_TYPES:
+    elif project_default_authorship:
         data_authorship = project_default_authorship
     return ProcessedResource(
         res_id=resource.res_id,

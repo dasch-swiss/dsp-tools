@@ -34,6 +34,8 @@ Agent reference card for the **review phase**. Pair with `CONVENTIONS.md` (work 
 - [ ] A new e2e command suite is registered in all three places: `test/e2e/commands/<command>/`,
       a `just e2e-test-<command>` recipe, and a job in `.github/workflows/tests-e2e.yml`
       — otherwise it silently never runs in CI
+- [ ] A new GitHub workflow that should gate merging has been marked as a required status check
+      in the repo settings (manual admin step — flag it in the PR if not yet done)
 
 ### Architecture boundaries
 

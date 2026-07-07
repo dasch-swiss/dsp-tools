@@ -16,9 +16,9 @@ with testcontainers). Line length: 120.
 
 - **`default_*` prefix** marks a **project-wide value that can be overridden per resource**
   (precedent: `default_permissions`, `default_data_authorship`). A field that applies directly
-  and cannot be overridden does not take the prefix. Get this right before merging — these names
-  are cross-repo API (JSON project files, XML uploads, dsp-api payload keys); the initial
-  `data_authorship` had to be renamed across four repositories after merge.
+  and cannot be overridden does not take the prefix. These names are cross-repo API (JSON project
+  files, XML uploads, dsp-api payload keys) — get them right before merging; renaming afterwards
+  is a breaking change.
 - "Default" does **not** imply auto-application. If a `default_*` value is only a suggestion in
   some flows (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every
   feature that touches it.
@@ -48,6 +48,10 @@ with testcontainers). Line length: 120.
   a test directory under `test/e2e/commands/`, a `just e2e-test-<command>` recipe in the
   `justfile`, and a matching job in `.github/workflows/tests-e2e.yml`. A new e2e test that is
   not registered in all three places silently never runs.
+- **A new GitHub workflow is not a required check automatically.** Adding a workflow only makes
+  it run; it does not gate merging. A repo admin must mark it as a required status check in the
+  GitHub settings (branch protection / rulesets). Agents and tools cannot change repo settings —
+  when adding a workflow, flag this step to the user explicitly.
 
 ## Architecture boundaries
 
@@ -68,11 +72,6 @@ with testcontainers). Line length: 120.
 [Conventional Commits](https://www.conventionalcommits.org/), enforced by the
 "Check PR Title" workflow: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`;
 breaking changes use `!`.
-
-## PR reviewers
-
-Request review from the maintainers listed in `CLAUDE.md`
-(BalduinLandolt, Nora-Olivia-Ammann, Notheturtle, seakayone, jnussbaum).
 
 ## Where to go for depth
 

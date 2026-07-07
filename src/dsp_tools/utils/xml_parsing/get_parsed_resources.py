@@ -81,6 +81,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
         values=values,
         file_value=None,
         migration_metadata=migration_metadata,
+        authorship_id=segment.attrib.get("authorship-id"),
     )
 
 

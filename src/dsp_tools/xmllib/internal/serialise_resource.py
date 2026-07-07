@@ -57,13 +57,13 @@ def _serialise_one_resource(
         case Resource():
             return _serialise_generic_resource(res, authorship_lookup, default_authorship)
         case RegionResource():
-            return _serialise_region(res)
+            return _serialise_region(res, authorship_lookup, default_authorship)
         case LinkResource():
-            return _serialise_link(res)
+            return _serialise_link(res, authorship_lookup, default_authorship)
         case AudioSegmentResource():
-            return _serialise_segment(res, "audio-segment")
+            return _serialise_segment(res, "audio-segment", authorship_lookup, default_authorship)
         case VideoSegmentResource():
-            return _serialise_segment(res, "video-segment")
+            return _serialise_segment(res, "video-segment", authorship_lookup, default_authorship)
         case _:
             raise_xmllib_input_error(
                 MessageInfo(
@@ -75,14 +75,23 @@ def _serialise_one_resource(
             )
 
 
+def _set_resource_authorship(
+    ele: etree._Element,
+    res: AnyResource,
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None,
+) -> None:
+    effective_authorship = res.authorship or default_authorship
+    if effective_authorship and (resource_auth_id := authorship_lookup.get_id(effective_authorship)):
+        ele.attrib["authorship-id"] = resource_auth_id
+
+
 def _serialise_generic_resource(
     res: Resource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
 ) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
-    effective_authorship = res.authorship or default_authorship
-    if effective_authorship and (resource_auth_id := authorship_lookup.get_id(effective_authorship)):
-        ele.attrib["authorship-id"] = resource_auth_id
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     if res.file_value:
         auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)
         ele.append(serialise_file_value(res.file_value, auth_id))
@@ -90,8 +99,11 @@ def _serialise_generic_resource(
     return ele
 
 
-def _serialise_region(res: RegionResource) -> etree._Element:
+def _serialise_region(
+    res: RegionResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     ele = _make_generic_resource_element(res, "region")
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     ele.extend(_serialise_geometry_shape(res))
     ele.extend(serialise_values(res.values))
     return ele
@@ -120,7 +132,9 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     return prop_list
 
 
-def _serialise_link(res: LinkResource) -> etree._Element:
+def _serialise_link(
+    res: LinkResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     problems = []
     if not any([isinstance(x, Richtext) for x in res.values]):
         problems.append("at least one comment")
@@ -130,12 +144,19 @@ def _serialise_link(res: LinkResource) -> etree._Element:
         msg = f"A link object requires {' and '.join(problems)}. Please note that an xmlupload will fail."
         emit_xmllib_input_warning(MessageInfo(msg, res.res_id))
     ele = _make_generic_resource_element(res, "link")
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     ele.extend(serialise_values(res.values))
     return ele
 
 
-def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:
+def _serialise_segment(
+    res: AudioSegmentResource | VideoSegmentResource,
+    segment_type: str,
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None = None,
+) -> etree._Element:
     seg = _make_generic_resource_element(res, segment_type)
+    _set_resource_authorship(seg, res, authorship_lookup, default_authorship)
     seg.extend(_serialise_segment_children(res))
     return seg
 

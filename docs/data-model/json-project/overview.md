@@ -241,7 +241,7 @@ Unlike `data_license` and `data_copyright_holder`, it is _not automatically_ app
 
 It only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
 An `xmlupload` gives a resource record an authorship only if it is set explicitly via the `authorship-id`
-attribute on [`<resource>`](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-resource).
+attribute on [the resource](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-the-resource).
 
 To apply this default to a bulk import, set the
 [`use-project-default-resource-authorship`](../../data-file/xml-data-file.md#the-root-element-knora)

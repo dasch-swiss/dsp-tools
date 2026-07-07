@@ -63,6 +63,9 @@ resource = xmllib.Resource.create_new(
 )
 ```
 
+The `authorship` parameter is also available on `RegionResource`, `LinkResource`,
+`VideoSegmentResource` and `AudioSegmentResource`, in the same way.
+
 This is distinct from the authorship of a file (see [below](#adding-a-file-to-a-resource)),
 which describes the multimedia asset, not the resource record.
 

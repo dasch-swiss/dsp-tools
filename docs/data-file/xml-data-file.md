@@ -29,7 +29,7 @@ The `<knora>` element describes all resources that should be imported. It has th
 - `shortcode`: project shortcode, e.g. "0801" (required, dependent on the project)
 - `default-ontology`: name of the ontology (required, dependent on the project)
 - `use-project-default-resource-authorship` (optional): if `true`, every resource without its own
-  [`authorship-id`](#resource-authorship-authorship-id-on-resource) is given the project's
+  [`authorship-id`](#resource-authorship-authorship-id-on-the-resource) is given the project's
   [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship) during
   `xmlupload`. The upload aborts if the project has no default authorship defined. This attribute is
   usually not written by hand, but produced by the xmllib
@@ -233,7 +233,8 @@ The authorship can be defined in the following way:
 These identifiers can later be referenced via the `authorship-id` attribute:
 
 - on the `<bitstream>` and `<iiif-uri>` elements, to describe the author(s) of the multimedia asset;
-- on the `<resource>` element, to describe the author(s) of the resource record itself.
+- on the `<resource>`, `<region>`, `<link>`, `<video-segment>` and `<audio-segment>` elements,
+  to describe the author(s) of the resource record itself.
 
 
 ## Describing Resources With the `<resource>` Element
@@ -299,12 +300,13 @@ The following property elements exist:
 - `<uri-prop>`: contains URI values
 
 
-### Resource authorship (`authorship-id` on `<resource>`)
+### Resource authorship (`authorship-id` on the resource)
 
 (optional)
 
-The authorship of the resource record itself is set with the `authorship-id` attribute on the `<resource>`
-element. It references an [`<authorship>`](#defining-the-authorships) block by its `id`, exactly like the
+The authorship of the resource record itself is set with the `authorship-id` attribute on the resource
+element. It is available on `<resource>`, `<region>`, `<link>`, `<video-segment>` and `<audio-segment>`.
+It references an [`<authorship>`](#defining-the-authorships) block by its `id`, exactly like the
 per-file `authorship-id` on `<bitstream>`/`<iiif-uri>`:
 
 ```xml

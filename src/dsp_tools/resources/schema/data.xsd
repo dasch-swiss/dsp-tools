@@ -525,6 +525,7 @@
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- link tag -->
@@ -539,6 +540,7 @@
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- video-segment tag -->
@@ -556,6 +558,7 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- audio-segment tag -->
@@ -573,6 +576,7 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- data type for knora shortcode -->
@@ -666,7 +670,7 @@
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="authorshipIdref" refer="authorshipId">
-            <xs:selector xpath="resource"/>
+            <xs:selector xpath="resource|region|link|video-segment|audio-segment"/>
             <xs:field xpath="@authorship-id"/>
         </xs:keyref>
         <xs:unique name="IRI_attribute_of_resource_must_be_unique">

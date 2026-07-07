@@ -237,8 +237,8 @@ The copyright holder that applies to every resource record in the project.
 
 The default authorship for the resource records in the project.
 Each entry is the name of one author.
+Unlike `data_license` and `data_copyright_holder`, it is _not automatically_ applied to the resource records.
 
-Unlike `data_license` and `data_copyright_holder`, this is **not** applied to your data automatically.
 It only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
 An `xmlupload` gives a resource record an authorship only if it is set explicitly via the `authorship-id`
 attribute on [`<resource>`](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-resource).
@@ -248,6 +248,8 @@ To apply this default to a bulk import, set the
 attribute on the XML root (most easily via the xmllib option
 [`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)):
 `xmlupload` then reads this field and writes it onto every resource without its own authorship.
+Note that `validate-data` does not apply this default, so the validated data may diverge from the
+uploaded data with respect to the resource authorship.
 
 This is also distinct from the authorship referenced via `authorship-id` on `<bitstream>`/`<iiif-uri>`
 in the XML data file, which describes the multimedia asset rather than the resource record.

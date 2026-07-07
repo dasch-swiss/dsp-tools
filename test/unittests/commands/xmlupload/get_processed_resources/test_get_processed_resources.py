@@ -215,6 +215,19 @@ class TestOneResource:
         result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER, ["project default author"])
         assert result.data_authorship == ["author1", "author2"]
 
+    def test_project_default_authorship_not_applied_to_dsp_base_resource(self, lookups: XmlReferenceLookups):
+        res = ParsedResource(
+            res_id="id",
+            res_type=f"{KNORA_API_PREFIX}Region",
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res, lookups, IS_ON_PROD_LIKE_SERVER, ["project default author"])
+        assert result.data_authorship is None
+
     def test_with_ark(self, lookups: XmlReferenceLookups):
         parsed_metadata = ParsedMigrationMetadata(
             iri=None, ark="ark:/72163/4123-43xc6ivb931-a.2022829", creation_date="1999-12-31T23:59:59.9999999+01:00"

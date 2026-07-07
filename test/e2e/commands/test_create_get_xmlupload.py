@@ -14,7 +14,6 @@ import regex
 import requests
 from rdflib import Literal
 
-from dsp_tools import xmllib
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.get.get import get_project
@@ -542,7 +541,13 @@ def systematic_project_iri(creds: ServerCredentials) -> str:
 def test_resource_authorship_after_data_upload(
     creds: ServerCredentials, auth_header: dict[str, str], systematic_project_iri: str
 ) -> None:
-    """The per-resource <data-authorship> is uploaded as knora-api:hasResourceAuthorship literals."""
+    """
+    Resource authorship is uploaded as knora-api:hasResourceAuthorship literals.
+
+    The systematic data sets `use-project-default-resource-authorship="true"` on the root, so a resource
+    with its own authorship keeps it, while a resource without its own authorship receives the project's
+    `default_data_authorship`.
+    """
     class_iri = f"{creds.server}/ontology/4123/testonto/v2#TestThing"
     g = util_request_resources_by_class(class_iri, auth_header, systematic_project_iri, creds)
 
@@ -551,54 +556,6 @@ def test_resource_authorship_after_data_upload(
     assert authors == {"Resource Author One", "Resource Author Two"}
     assert isinstance(next(g.objects(with_authorship, KNORA_API.hasResourceAuthorship)), Literal)
 
-    without_authorship = util_get_res_iri_from_label(g, "Second Testthing")
-    assert len(list(g.objects(without_authorship, KNORA_API.hasResourceAuthorship))) == 0
-
-
-@pytest.mark.order(6)
-def test_project_default_authorship_after_data_upload(
-    creds: ServerCredentials,
-    auth_header: dict[str, str],
-    systematic_project_iri: str,
-    test_directories: dict[str, Path],
-) -> None:
-    """
-    With `apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`, an xmlupload fills the project's
-    `default_data_authorship` onto every resource without its own authorship, and leaves resources with
-    their own authorship untouched.
-    """
-    root = xmllib.XMLRoot.create_new("4123", "testonto", apply_default_resource_authorship=xmllib.PROJECT_DEFAULT)
-    res_default = (
-        xmllib.Resource.create_new("res_project_default_authorship", ":TestThing", "Project Default Authorship Thing")
-        .add_simpletext(":hasSimpleText", "text")
-        .add_bool(":hasBoolean", True)
-    )
-    res_own = (
-        xmllib.Resource.create_new(
-            "res_own_authorship", ":TestThing", "Own Authorship Thing", authorship=["Explicit Author"]
-        )
-        .add_simpletext(":hasSimpleText", "text")
-        .add_bool(":hasBoolean", True)
-    )
-    root.add_resource_multiple([res_default, res_own])
-    xml_file = test_directories["testdata_tmp"] / "project-default-authorship.xml"
-    root.write_file(xml_file)
-
-    success = xmlupload(
-        input_file=xml_file,
-        creds=creds,
-        imgdir=".",
-        config=UploadConfig(do_not_request_resource_metadata_from_db=True),
-    )
-    assert success
-
-    class_iri = f"{creds.server}/ontology/4123/testonto/v2#TestThing"
-    g = util_request_resources_by_class(class_iri, auth_header, systematic_project_iri, creds)
-
-    default_res = util_get_res_iri_from_label(g, "Project Default Authorship Thing")
-    default_authors = {str(a) for a in g.objects(default_res, KNORA_API.hasResourceAuthorship)}
+    default_authorship = util_get_res_iri_from_label(g, "Second Testthing")
+    default_authors = {str(a) for a in g.objects(default_authorship, KNORA_API.hasResourceAuthorship)}
     assert default_authors == {"Default Author One", "Default Author Two"}
-
-    own_res = util_get_res_iri_from_label(g, "Own Authorship Thing")
-    own_authors = {str(a) for a in g.objects(own_res, KNORA_API.hasResourceAuthorship)}
-    assert own_authors == {"Explicit Author"}

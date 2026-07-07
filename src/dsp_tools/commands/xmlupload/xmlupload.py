@@ -115,20 +115,21 @@ def _resolve_project_default_authorship(
     root: etree._Element, project_client: ProjectClient, shortcode: str
 ) -> list[str] | None:
     """
-    Resolve the project's default authorship if the data requests it via the root marker.
+    Resolve the project's default authorship if the data requests it.
 
-    The marker is set by `xmllib` when a user passes `apply_default_resource_authorship=PROJECT_DEFAULT`.
-    Returns None if the marker is absent, aborts if it is present but the project defines no default.
+    The request is expressed by the `use-project-default-resource-authorship` attribute on the `<knora>`
+    root element. Returns None if the attribute is absent, aborts if it is present but the project defines
+    no default authorship.
     """
     if root.attrib.get("use-project-default-resource-authorship") not in ("true", "1"):
         return None
     default_authorship = project_client.get_default_data_authorship(shortcode)
     if not default_authorship:
         raise MissingProjectDefaultAuthorshipError(
-            f"The XML data requests the project's default resource authorship "
-            f"(apply_default_resource_authorship=PROJECT_DEFAULT), but project {shortcode} has no "
-            f"'default_data_authorship' defined. Either define it on the project, "
-            f"or set an explicit authorship in the XML."
+            f"The XML data requests the project's default resource authorship, "
+            f"but project {shortcode} has no 'default_data_authorship' defined. "
+            f"Either add 'default_data_authorship' to the project JSON, "
+            f"or set an explicit authorship on the resources in the XML."
         )
     return default_authorship
 

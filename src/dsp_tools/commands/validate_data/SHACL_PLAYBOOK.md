@@ -7,9 +7,6 @@ need is here or linked.
 If you want to know *how the existing code is structured*, read [`CLAUDE.md`](./CLAUDE.md) first.
 This file is the *how do I add a new check* companion to it.
 
-> **Golden rule:** never write the shape first. Always write the **test data** first
-> (at least one resource that must fail, one that must pass), then build the shape, then wire up the message.
-
 ---
 
 > **Ask, don't guess — decisions that are not yours to make.** For the following, always ask the
@@ -27,6 +24,10 @@ This file is the *how do I add a new check* companion to it.
 >    shape should be added, ask for confirmation. Never guess.
 > 4. **Mandatory vs. multiple.** Whether a property is mandatory (`sh:minCount`) or may occur multiple
 >    times (`sh:maxCount`) needs confirmation.
+
+> **Golden rule:** never write the shape first. Always write the **test data** first
+> (at least one resource that must fail, one that must pass), then build the shape, then wire up the message.
+
 
 ---
 

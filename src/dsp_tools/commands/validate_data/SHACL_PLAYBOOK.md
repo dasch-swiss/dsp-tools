@@ -1,8 +1,7 @@
 # SHACL Shape Playbook
 
 This is a step-by-step playbook for **adding a new validation ("SHACL shape")** to the
-`validate-data` command. It assumes you have **no SHACL and little RDF knowledge**. Everything you
-need is here or linked.
+`validate-data` command. Everything you need is here or linked.
 
 If you want to know *how the existing code is structured*, read [`CLAUDE.md`](./CLAUDE.md) first.
 This file is the *how do I add a new check* companion to it.

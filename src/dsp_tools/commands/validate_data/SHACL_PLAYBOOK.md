@@ -12,6 +12,24 @@ This file is the *how do I add a new check* companion to it.
 
 ---
 
+> **Ask, don't guess — decisions that are not yours to make.** For the following, always ask the
+> developer and never decide on your own:
+>
+> 1. **Severity.** Whether a check is a violation, warning, or info is never your call. Ask, and add
+>    the chosen severity to the shape's `sh:severity`. The implications:
+>     - `sh:Violation` — **always blocks** upload on every server. For wrong data.
+>     - `sh:Warning` — **non-blocking on a test server, blocks on production**. Primarily for data that
+>       is only temporarily missing.
+>     - `sh:Info` — just a nudge; the upload will work on **all** servers.
+> 2. **Data type.** If you cannot clearly tell which datatype the value should have, ask — e.g. is it an
+>    integer or a float? a single-line or a multi-line string?
+> 3. **Which value or resource the shape attaches to.** If it is unclear on which value or resource a
+>    shape should be added, ask for confirmation. Never guess.
+> 4. **Mandatory vs. multiple.** Whether a property is mandatory (`sh:minCount`) or may occur multiple
+>    times (`sh:maxCount`) needs confirmation.
+
+---
+
 ## 1. A 5-minute RDF/SHACL primer (only what this code uses)
 
 You do not need to understand RDF deeply. You need these concepts:
@@ -168,6 +186,70 @@ project's properties to it.**
 **Write a good `sh:message` in the shape.** For many components the shape's message is shown verbatim
 to the user (see the table in Step 4). A clear message here often means **zero or little Python changes**.
 
+### Shape authoring conventions
+
+**A new property only fires if it is attached via `sh:property`.** A `sh:PropertyShape` that is defined
+but never referenced by a `sh:property` on a node shape is simply never evaluated. So when you add a
+check for a new property on a value, you must add it as a `sh:property` on the relevant node shape,
+otherwise nothing happens.
+
+**Named IRI shape vs. inline blank node.** A property shape can either have its own IRI or be an
+anonymous blank node (`[ ... ]`) inlined under `sh:property`:
+
+- If the shape should be **re-usable across multiple classes**, or is going to be **referenced by the
+  dynamically generated shapes**, give it its own IRI (a *named* shape), e.g.
+  `api-shapes:hasComment_PropertyShape`.
+- If it is only applicable to a **single class**, inline it directly as a **blank node**. This is
+  easier to read.
+
+**One shape may validate several things — but only if the message stays easy to construct.** Combining
+constraints in one property shape is fine when a single `sh:message` clearly covers every way it can
+fail. It becomes a problem when the combination makes the message too vague to act on.
+
+- **OK** — a min/max count *and* a datatype in one shape: the message covers both, and the user will
+  not have a hard time figuring out what went wrong.
+
+    ```ttl
+    [
+        a           sh:PropertyShape ;
+        sh:path     knora-api:decimalValueAsDecimal ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message  "A DecimalValue requires exactly one valid decimal"
+    ] .
+    ```
+
+- **Split it** — when several constraints could fire for unrelated reasons and one message cannot
+  cover them without becoming confusing. For example a range check (`sh:minInclusive` +
+  `sh:maxInclusive`) *and* a datatype *and* a cardinality on `knora-api:valueHasOrder`, plus the
+  separate `api-shapes:ValueHasOrder_NoGap_Shape` and
+  `api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape`, would be very hard to identify from a single
+  message. Keep the distinct concerns as separate shapes, each with its own targeted message:
+
+    ```ttl
+    [
+        a               sh:PropertyShape ;
+        sh:path         knora-api:valueHasOrder ;
+        sh:datatype     xsd:integer ;
+        sh:minInclusive "0"^^xsd:int ;
+        sh:maxInclusive "2147483647"^^xsd:int ; # maximum allowed number for this datatype
+        sh:severity     sh:Violation ;
+        sh:message      "The order on the value must be a positive integer."
+    ] ,
+    [
+        a           sh:PropertyShape ;
+        sh:path     knora-api:valueHasOrder ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message  "A value may have a maximum of 1 order triple."
+    ] .
+    ```
+
+If in doubt whether a combined shape's message stays clear enough, ask.
+
 ---
 
 ## 5. Step 3 — Run it and find which constraint component fires
@@ -185,8 +267,9 @@ In that case the information of both is relevant for further processing.
 
 > **If nothing fires and the tests still pass, your SHACL shape did not trigger properly. 
 > This likely means the shape is broken.** Check, in order:
-> the shape is in the correct graph (content vs. cardinality); `sh:targetClass` / `sh:path` use the
-> exact IRIs the data uses.
+> the shape is in the correct graph (content vs. cardinality); the property shape is actually attached
+> to its node shape via `sh:property` (a `sh:PropertyShape` that nothing references is never evaluated);
+> `sh:targetClass` / `sh:path` use the exact IRIs the data uses.
 
 ---
 

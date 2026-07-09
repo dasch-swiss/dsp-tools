@@ -22,9 +22,9 @@ You do not need to understand RDF deeply. You need these concepts:
   `http://api.knora.org/ontology/knora-api/v2#ColorValue`. Predicates and types are IRIs.
 - **Prefix**: a short alias for a long IRI namespace. In our files:
     - `knora-api:` → `http://api.knora.org/ontology/knora-api/v2#` (DSP built-in concepts)
-    - `api-shapes:` → `http://api.knora.org/ontology/knora-api/shapes/v2#` (our shapes), it also contains properties
-      that we need for good validation but do not exist in `knora-api` we only create new shapes with the `api-shapes`
-      namespace. (for example `api-shapes:dateHasStart`).
+    - `api-shapes:` → `http://api.knora.org/ontology/knora-api/shapes/v2#` (our shapes). It also defines
+      properties needed for good validation that do not exist in `knora-api` (for example
+      `api-shapes:dateHasStart`); new shapes are always created in the `api-shapes` namespace.
     - `sh:` → the SHACL vocabulary, `dash:` → the DASH SHACL extensions
     - the project ontology, e.g. `onto:` → `http://0.0.0.0:3333/ontology/9999/onto/v2#`
 - **Turtle** (`.ttl`) is the text format for triples. `;` reuses the subject, `[ ... ]` is an anonymous
@@ -91,7 +91,9 @@ project ontology ──► SHACL shapes ──────┘        (3 runs)
 ## 3. Step 1 — Write the test data first (one fail, one pass)
 
 Test data lives in `testdata/validate-data/`. The main set is `core_validation/` (project shortcode
-`9999`). Files pair up by suffix: `*_correct.xml` must **pass**, `*_violation.xml` must **fail**.
+`9999`). A suffix convention marks intent: `*_correct.xml` must **pass**, `*_violation.xml` must
+**fail**. Most themes have both, but not every file is paired (e.g. `value_type_violation.xml` and
+`unique_value_violation.xml` have no `_correct` partner).
 
 Hard rules (they are enforced by the tests, so follow them):
 
@@ -117,7 +119,8 @@ Example (violating), from `core_validation/cardinality_violation.xml`:
 ```
 
 If your check needs a new property or class, add it to the ontology in
-`core_validation/core-validation-project-9999.json` (the catch-all class is `ClassWithEverything` wich always has 0-1 or 0-n cardinality). 
+`core_validation/core-validation-project-9999.json` (the catch-all class is
+`ClassWithEverything`, which always has 0-1 or 0-n cardinality).
 Try to re-use properties and classes if possible.
 For edge cases there are dedicated projects: `special_characters/`, `inheritance/`,
 `erroneous_ontology/` (ontology-level checks).
@@ -126,7 +129,7 @@ There is also `core_validation/every_violation_combination_once.xml`, an aggrega
 every report shape once.
 This is only if you create a new shape that also creates a new ConstraintComponentViolation,
 otherwise you can leave this alone. **If you add a resource there, you must update two lists** in
-`test/e2e/commands/validate_data/test_core_violations.py` (see Step 5).
+`test/e2e/commands/validate_data/test_core_violations.py` (see Step 6).
 
 ---
 
@@ -155,13 +158,15 @@ Ask: **does the check depend on anything project-specific?**
       to the `content` or `cardinality` graph.
 
 **Key pattern — combine both.** Dynamic shapes usually do **not** duplicate logic; they *reference a
-reusable static NodeShape by IRI*. For example `value_shacl.py` emits, per project text property,
-`?prop sh:node api-shapes:SimpleTextValue_ClassShape`, where that NodeShape is defined statically in
-`api-shapes.ttl`. So a very common move is: **add a reusable static shape, then add/extend a SPARQL
-generator that binds the project's properties to it.**
+reusable static NodeShape by IRI*. For example, for each project text property whose gui element is
+`SimpleText`, `value_shacl.py` generates a `<prop>_PropShape` PropertyShape
+(`sh:path <prop> ; sh:node api-shapes:SimpleTextValue_ClassShape`), where that NodeShape is defined
+statically in `api-shapes.ttl` (`Textarea` and `Richtext` map to other class shapes). So a very
+common move is: **add a reusable static shape, then add/extend a SPARQL generator that binds the
+project's properties to it.**
 
 **Write a good `sh:message` in the shape.** For many components the shape's message is shown verbatim
-to the user (see the table in Step 5). A clear message here often means **zero or little Python changes**.
+to the user (see the table in Step 4). A clear message here often means **zero or little Python changes**.
 
 ---
 
@@ -190,8 +195,8 @@ In that case the information of both is relevant for further processing.
 Look up your component in the table below.
 
 - **The component is already handled** → the user usually already gets a good message.
-  **No report-processing code changes.** Just add your test data (Step 3) and adjust the e2e
-  assertions (Step 5). Caveats that can still force small code changes even when reusing a component:
+  **No report-processing code changes.** Just add your test data (Step 1) and adjust the e2e
+  assertions (Step 6). Caveats that can still force small code changes even when reusing a component:
     - the property is checked against a set in `constants.py`
       (`FILE_VALUE_PROPERTIES`, `LEGAL_INFO_PROPS`, `FILEVALUE_DETAIL_INFO`) — a new property may need
       adding/excluding there;
@@ -202,7 +207,7 @@ Look up your component in the table below.
 - **The component is new** (not in the code) → it currently falls into the `case _` fallback, becomes
   an `UnexpectedComponent`, and **fails validation** with an "unknown violation types were found"
   message (`validate_data.py` `_get_validation_status` treats these as failures). Follow the checklist
-  in Step 7.
+  in Step 5.
 
 ### Constraint-component reference map
 
@@ -232,9 +237,14 @@ Dispatch lives in `process_validation_report/query_validation_result.py`: `_quer
 
 The two classification enums: `ViolationType` (internal) in `models/validation.py`, `ProblemType`
 (user-facing, its string value is the label) in `models/input_problems.py`, bridged by
-`RESULT_TO_PROBLEM_MAPPER` in `mappers.py`. Note: some recognised components are intentionally
-dropped (`return None`) — e.g. a date range where the date is an unparsable string; that is a
-deliberate suppression, not the unknown-component path.
+`RESULT_TO_PROBLEM_MAPPER` in `validate_data/mappers.py` (the parent of `process_validation_report/`).
+Note: some recognised components are intentionally dropped (`return None`) — e.g. a date range where
+the date is an unparsable string; that is a deliberate suppression, not the unknown-component path.
+
+**Note on `sh:detail`.** The resulting type can also depend on whether the result carries a
+`sh:detail` (nested result), not just on the component. For example `sh:MinCountConstraintComponent`
+**with a `sh:detail`** resolves to `VALUE_TYPE`, not `MIN_CARD`. The no-detail and with-detail cases
+are dispatched separately by `_query_one_without_detail` / `_query_one_with_detail`.
 
 ---
 
@@ -256,8 +266,8 @@ none of the existing `ProblemType`s fit.
    `UnreachableCodeError` at runtime** (the `case _` fallback) — the compiler will not warn you.
 4. **`ProblemType`** — `models/input_problems.py`: add a member whose string value is the user-facing
    label — **only if** you need a new user category.
-5. **Mapper** — `mappers.py`: add the `ViolationType.<Y>: ProblemType.<Z>` entry to
-   `RESULT_TO_PROBLEM_MAPPER`.
+5. **Mapper** — `validate_data/mappers.py` (parent of `process_validation_report/`): add the
+   `ViolationType.<Y>: ProblemType.<Z>` entry to `RESULT_TO_PROBLEM_MAPPER`.
 6. **Message shaping (optional)** — `get_user_validation_message.py`: add your `ProblemType` to
    `PROBLEM_TYPES_IGNORE_STR_ENUM_INFO` to show the shape's `sh:message` instead of the enum label; add
    a case in `_get_expected_prefix` for an "Expected …" prefix; special-case `_shorten_input` if the
@@ -303,7 +313,7 @@ none of the existing `ProblemType`s fit.
 3. [ ] If a new static file or a new generator: wire it into `prepare_data/prepare_data.py`
    `_create_graphs` / `sparql/construct_shacl.py`, in the correct (content vs. cardinality) graph.
 4. [ ] Find the firing `sh:sourceConstraintComponent` (unit fixture, or `--save-graphs` + Docker).
-5. [ ] Look it up in the Step 6 table. Already handled → skip to 7. New → do Step 7 (dispatch →
+5. [ ] Look it up in the Step 4 table. Already handled → skip to 6. New → do Step 5 (dispatch →
    ViolationType → reformat → ProblemType → mapper → message → unit tests).
 6. [ ] Add e2e `(res_id, ProblemType)` tuples in `test/e2e/commands/validate_data/`.
 7. [ ] `just unittests test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`

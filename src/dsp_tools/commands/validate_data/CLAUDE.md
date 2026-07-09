@@ -8,6 +8,8 @@ The `validate_data` module is a CLI command that validates XML data files agains
 It performs comprehensive validation using SHACL (Shapes Constraint Language) via a Docker-based CLI tool
 to ensure data conforms to ontological constraints before upload.
 
+To **add a new validation (SHACL shape)**, follow the step-by-step [`SHACL_PLAYBOOK.md`](./SHACL_PLAYBOOK.md).
+
 ## Key Components
 
 ### Core Entry Points

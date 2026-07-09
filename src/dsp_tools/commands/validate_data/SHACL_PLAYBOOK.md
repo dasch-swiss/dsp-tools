@@ -397,7 +397,7 @@ none of the existing `ProblemType`s fit.
    `_create_graphs` / `sparql/construct_shacl.py`, in the correct (content vs. cardinality) graph.
 4. [ ] Find the firing `sh:sourceConstraintComponent` (unit fixture, or `--save-graphs` + Docker).
 5. [ ] Look it up in the Step 4 table. Already handled → skip to 6. New → do Step 5 (dispatch →
-   ViolationType → reformat → ProblemType → mapper → message → unit tests).
+   ViolationType → reformat → ProblemType → mapper → message → unit tests → update this document).
 6. [ ] Add e2e `(res_id, ProblemType)` tuples in `test/e2e/commands/validate_data/`.
 7. [ ] `just unittests test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`
    (needs Docker), then `just lint`.

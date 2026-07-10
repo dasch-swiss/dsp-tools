@@ -1,12 +1,16 @@
 # Conventions
 
 Agent reference card for the **work phase**. Pair with `REVIEW.md` (review phase).
-Authoritative detail lives in `CLAUDE.md` and the per-module `CLAUDE.md` files under `src/dsp_tools/`.
+Authoritative detail lives in `CLAUDE.md` and the per-module `CLAUDE.md` files under `src/dsp_tools/`;
+developer docs live in `docs/developers/`. This card collects the conventions that are otherwise
+only enforced in review.
 
 ## Stack
 
-Python 3, `uv` for dependency management, `pytest` for tests, `ruff` for lint/format, `mypy` (strict) for
-type checking, `just` as task runner. CLI tool that talks to the DSP-API (a remote/local Scala service).
+Python 3.12+, `uv` for environments and dependencies, `just` as task runner. CLI tool that talks to the
+DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy` (strict),
+`yamllint`/`yamlfmt`, `markdownlint`, `darglint` (Google-style docstrings), `vulture`. Tests: `pytest`
+(unit / integration / e2e with testcontainers). Line length: 120.
 
 ## Code Conventions
 
@@ -24,6 +28,15 @@ type checking, `just` as task runner. CLI tool that talks to the DSP-API (a remo
   `utils/request_utils.py`).
 - Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
   sanitisation, error handling, and retries.
+- **xmllib is the public API** for programmatic XML creation (see `src/dsp_tools/xmllib/CLAUDE.md`).
+  It must not import dsp-tools internals and does not know the JSON project file — dependencies point
+  from dsp-tools *into* xmllib, never the other way.
+- **User-facing docs and docstrings do not cite xmllib internals** — describe user input in the user's
+  terms (XML elements, JSON fields), not in terms of library code.
+- **New RDF-mapped properties must be threaded through the validate-data pipeline**
+  (`get_rdf_like_data()` → property type → SHACL shape in
+  `src/dsp_tools/resources/validate_data/api-shapes.ttl`). The generic resource shape is closed: a new
+  property needs an explicit cardinality declaration or xmlupload fails validation.
 
 ### Types and paths
 
@@ -37,6 +50,12 @@ type checking, `just` as task runner. CLI tool that talks to the DSP-API (a remo
 - Comments describe the code as it is, not how it evolved — no references to refactors or "recently changed".
 - Docstrings (Google-style) only for high-level functions or where the name cannot carry the intent.
   Lower-level and test functions are self-explanatory and need none.
+- **`default_*` prefix** marks a **project-wide value that can be overridden per resource**
+  (precedent: `default_permissions`, `default_data_authorship`). A field that applies directly and cannot
+  be overridden does not take the prefix. These names are cross-repo API (JSON project files, XML uploads,
+  dsp-api payload keys) — get them right before merging; renaming afterwards is a breaking change.
+- "Default" does **not** imply auto-application. If a `default_*` value is only a suggestion in some flows
+  (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every feature that touches it.
 
 ### Dependencies
 
@@ -46,8 +65,11 @@ type checking, `just` as task runner. CLI tool that talks to the DSP-API (a remo
 ### JSON Schema (project definition)
 
 - The project-definition schema is `src/dsp_tools/resources/schema/project.json`.
-- When a field accepts only a **fixed, known set of values**, model it as an `enum` (not a free `string` or a
-  loose `pattern`) so parsing and validation can rely on it.
+- When a field accepts only a **fixed, known set of values**, model it as an `enum` (not a free `string` or
+  a loose `pattern`) so validation fails client-side with an actionable message. Hard requirement, not a
+  style choice.
+- **IRI-valued fields get a `pattern`** even when not enumerable
+  (precedent: `enabled_licenses` in `src/dsp_tools/resources/schema/project.json`).
 
 ## Testing Conventions
 
@@ -77,17 +99,24 @@ type checking, `just` as task runner. CLI tool that talks to the DSP-API (a remo
   conforming case and a violating case (see the `*_correct.xml` / `*_violation.xml` pairs under
   `testdata/validate-data/core_validation/`).
 
-### `just` recipes for E2E
+### E2E wiring
 
-- **One `just` e2e recipe per test file / logical group** — do not append an unrelated test file to an existing
-  recipe. Isolated recipes make it possible to re-run just the failing suite. If a new e2e file needs CI
-  coverage, add its own recipe and invoke it from the workflow rather than bolting it onto another recipe.
+- **E2E tests are not auto-discovered by CI.** Each e2e command suite is wired explicitly in three places:
+  a test directory under `test/e2e/commands/`, a `just e2e-test-<command>` recipe in the `justfile`, and a
+  matching job in `.github/workflows/tests-e2e.yml`. A new e2e test not registered in all three silently
+  never runs.
+- **One `just` e2e recipe per test file / logical group** — do not append an unrelated test file to an
+  existing recipe. Isolated recipes make it possible to re-run just the failing suite.
+- **A new GitHub workflow is not a required check automatically.** Adding a workflow only makes it run; it
+  does not gate merging. A repo admin must mark it as a required status check in the repo settings (branch
+  protection / rulesets). Agents and tools cannot change repo settings — flag this step to the user when
+  adding a workflow.
 
 ## Commit Conventions
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/) — check recent `git log` for the
-prevailing style. Common prefixes in this repo: `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`,
-`build:`. Breaking changes use `!`.
+Follow [Conventional Commits](https://www.conventionalcommits.org/), enforced by the "Check PR Title"
+workflow — check recent `git log` for the prevailing style. Common prefixes in this repo: `feat:`, `fix:`,
+`chore:`, `docs:`, `test:`, `refactor:`, `build:`. Breaking changes use `!`.
 
 ## Before committing
 
@@ -103,5 +132,7 @@ prevailing style. Common prefixes in this repo: `feat:`, `fix:`, `chore:`, `docs
 - `CLAUDE.md` — repository overview, commands, architecture, working agreements.
 - `src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
 - `src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.
+- `src/dsp_tools/xmllib/CLAUDE.md` — xmllib public-API layering.
+- `docs/developers/` — developer documentation (mkdocs).
 - `docs/developers/architecture/error-handling.md` — exception hierarchy and catch-vs-fail rules.
 - `testdata/USED_SHORTCODE_SHORTNAMES.md` — the shortcode/shortname register.

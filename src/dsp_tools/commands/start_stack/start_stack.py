@@ -455,8 +455,7 @@ class StackHandler:
                 valid_answers=["y", "n"],
                 non_interactive_answer="n",
                 non_interactive_notice=(
-                    "Skipping 'docker system prune' (non-interactive session). "
-                    "Use '--enforce-docker-system-prune' to run it."
+                    "Skipping 'docker system prune' (non-interactive session). Use '--prune' to run it."
                 ),
             )
         if prune_docker == "y":

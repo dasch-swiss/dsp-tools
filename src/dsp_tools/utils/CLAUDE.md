@@ -19,6 +19,17 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 - Error handling for timeouts, server errors, and connection issues
 - Used throughout: All commands that interact with DSP-API (create, xmlupload, get, etc.)
 
+## User Interaction
+
+**`interactive.py`**
+
+- Detect whether stdin is an interactive terminal (`stdin_is_interactive`)
+- Prompt helpers that stay safe on a non-interactive stdin (CI, cron, nohup, Docker without a TTY):
+  `prompt_until_valid_answer` (y/n-style, returns a caller-chosen default + prints a notice) and
+  `prompt_for_required_value` (free-text, raises `UserError` naming the CLI flag)
+- Used by: any command that prompts the user (create, xmlupload, ingest-xmlupload, resume-xmlupload,
+  start-stack, mapping/migration config, version check)
+
 ## Data Format Validation & Parsing
 
 **`data_formats/date_util.py`**

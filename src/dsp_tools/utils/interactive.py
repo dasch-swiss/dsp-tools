@@ -43,14 +43,16 @@ def prompt_until_valid_answer(
 
 
 def prompt_for_required_value(value_name: str, cli_flag: str) -> str:
-    """Prompt the user for a required free-text value and return it (stripped).
+    """Read a value that the command requires, from an interactive prompt or raise if there is none.
 
-    In a non-interactive session (no TTY), raise a UserError telling the user to pass the value
-    via cli_flag, instead of calling input(), which would raise an unhelpful error there.
+    In an interactive session, return the user's (stripped) input; the value is not validated
+    further, so an empty answer is returned as an empty string. In a non-interactive session
+    (no TTY), raise a UserError telling the user to pass the value via cli_flag, instead of
+    calling input(), which would raise an unhelpful error there.
 
     Args:
         value_name: human-readable name of the value, e.g. "project shortcode"
-        cli_flag: the CLI flag that can supply the value non-interactively, e.g. "--project_shortcode"
+        cli_flag: the CLI flag that can supply the value non-interactively, e.g. "--project-shortcode"
     """
     if not stdin_is_interactive():
         raise UserError(

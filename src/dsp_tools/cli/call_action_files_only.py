@@ -85,7 +85,7 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
 
 
 def call_mapping_config(args: argparse.Namespace) -> bool:
-    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project_shortcode")
+    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project-shortcode")
     ontology = args.ontology or prompt_for_required_value("ontology name", "--ontology")
     mapping_path = Path.cwd() / f"{shortcode}-{ontology}-mapping.yaml"
     check_input_dependencies(prohibited_paths=ProhibitedPaths([mapping_path]))
@@ -93,7 +93,7 @@ def call_mapping_config(args: argparse.Namespace) -> bool:
 
 
 def call_migration_config(args: argparse.Namespace) -> bool:
-    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project_shortcode")
+    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project-shortcode")
     return create_migration_config(shortcode=shortcode, cwd=Path.cwd())
 
 

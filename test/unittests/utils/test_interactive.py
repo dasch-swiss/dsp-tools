@@ -62,10 +62,10 @@ class TestPromptForRequiredValue:
     def test_raises_useful_error_when_non_interactive(self) -> None:
         with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
             with pytest.raises(UserError) as exc_info:
-                prompt_for_required_value("project shortcode", "--project_shortcode")
-        assert "--project_shortcode" in exc_info.value.message
+                prompt_for_required_value("project shortcode", "--project-shortcode")
+        assert "--project-shortcode" in exc_info.value.message
 
     def test_returns_stripped_input_when_interactive(self) -> None:
         with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
             with patch("builtins.input", return_value="  0ABC  "):
-                assert prompt_for_required_value("project shortcode", "--project_shortcode") == "0ABC"
+                assert prompt_for_required_value("project shortcode", "--project-shortcode") == "0ABC"

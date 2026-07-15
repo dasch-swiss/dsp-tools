@@ -100,7 +100,7 @@ def ingest_xmlupload(
             + "Skipping validation as requested via '--skip-validation' (non-interactive session)."
             + RESET_TO_DEFAULT,
         )
-        if str(resp) == "no":
+        if resp == "no":
             validation_should_be_skipped = False
     if not validation_should_be_skipped:
         v_severity = config.validation_severity

@@ -128,7 +128,7 @@ def _handle_validation(
             + "Skipping validation as requested via '--skip-validation' (non-interactive session)."
             + RESET_TO_DEFAULT,
         )
-        if str(resp) == "no":
+        if resp == "no":
             validation_should_be_skipped = False
     if not validation_should_be_skipped:
         ignore_duplicates = config.ignore_duplicate_files_warning
@@ -146,7 +146,7 @@ def _handle_validation(
                 + "Ignoring duplicate files as requested via '--ignore-duplicate-files-warning' "
                 "(non-interactive session)." + RESET_TO_DEFAULT,
             )
-            if str(resp) == "no":
+            if resp == "no":
                 ignore_duplicates = False
         v_severity = config.validation_severity
         if is_on_prod_like_server:

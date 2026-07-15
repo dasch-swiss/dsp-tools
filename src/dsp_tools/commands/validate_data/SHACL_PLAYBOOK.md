@@ -1,90 +1,61 @@
 # SHACL Shape Playbook
 
-This is a step-by-step playbook for **adding a new validation ("SHACL shape")** to the
-`validate-data` command. Everything you need is here or linked.
+This is a playbook for **adding a new validation ("SHACL shape")** to the `validate-data` command.
+Everything you need is here or linked. The ordered steps below are not a rigid procedure — they are the
+**most efficient, fool-proof path** to the goal, sequenced so the cheapest feedback comes first. Deviate
+if you have a good reason, but the ordering is what keeps you from building a lot on a wrong assumption.
 
 If you want to know *how the existing code is structured*, read [`CLAUDE.md`](./CLAUDE.md) first.
 This file is the *how do I add a new check* companion to it.
 
----
+## What you are building, and when you are done
 
-> **Ask, don't guess — decisions that are not yours to make.** For the following, always ask the
-> developer and never decide on your own:
->
-> 1. **Severity.** Whether a check is a violation, warning, or info is never your call. Ask, and add
->    the chosen severity to the shape's `sh:severity`. The implications:
->     - `sh:Violation` — **always blocks** upload on every server. For wrong data.
->     - `sh:Warning` — **non-blocking on a test server, blocks on production**. Primarily for data that
->       is only temporarily missing.
->     - `sh:Info` — just a nudge; the upload will work on **all** servers.
-> 2. **Data type.** If you cannot clearly tell which datatype the value should have, ask — e.g. is it an
->    integer or a float? a single-line or a multi-line string?
-> 3. **Which value or resource the shape attaches to.** If it is unclear on which value or resource a
->    shape should be added, ask for confirmation. Never guess.
-> 4. **Mandatory vs. multiple.** Whether a property is mandatory (`sh:minCount`) or may occur multiple
->    times (`sh:maxCount`) needs confirmation.
+**Goal.** A new SHACL shape that makes wrong data fail validation with a clear, actionable message and
+lets correct data pass — with the smallest possible change to the report-processing code.
 
-> **Golden rule:** never write the shape first. Always write the **test data** first
-> (at least one resource that must fail, one that must pass), then build the shape, then wire up the message.
+**The one mental model that drives everything:** when validation runs, SHACL emits a *report graph* in
+which every failure is a `sh:ValidationResult` carrying a **`sh:sourceConstraintComponent`** (which kind
+of constraint fired). Our Python code reads that component to decide which user message to show. So the
+central question of the whole second half of this playbook is: *which component does my shape trigger,
+and is it already handled?* If it is, you write almost no Python.
 
+**Done looks like:** one violating resource fails with exactly one clear message; one correct resource
+passes; the firing component is handled (or newly wired through); the unit and e2e suites are green; and
+a review subagent (Step 7) has confirmed the change reuses existing code and stays simple.
 
 ---
 
-## 1. A 5-minute RDF/SHACL primer (only what this code uses)
+## Before you start — confirm these, to avoid rework
 
-You do not need to understand RDF deeply. You need these concepts:
+Front-load the decisions that are expensive to get wrong, then work autonomously. Do **not** interrupt
+mid-implementation for them.
 
-- **Triple**: a statement `subject predicate object`, e.g. `<resource> knora-api:colorValueAsColor "#ff0"`.
-  All data and all ontologies are just sets of triples.
-- **IRI**: a globally unique identifier that looks like a URL, e.g.
-  `http://api.knora.org/ontology/knora-api/v2#ColorValue`. Predicates and types are IRIs.
-- **Prefix**: a short alias for a long IRI namespace. In our files:
-    - `knora-api:` → `http://api.knora.org/ontology/knora-api/v2#` (DSP built-in concepts)
-    - `api-shapes:` → `http://api.knora.org/ontology/knora-api/shapes/v2#` (our shapes). It also defines
-      properties needed for good validation that do not exist in `knora-api` (for example
-      `api-shapes:dateHasStart`); new shapes are always created in the `api-shapes` namespace.
-    - `sh:` → the SHACL vocabulary, `dash:` → the DASH SHACL extensions
-    - the project ontology, e.g. `onto:` → `http://0.0.0.0:3333/ontology/9999/onto/v2#`
-- **Turtle** (`.ttl`) is the text format for triples. `;` reuses the subject, `[ ... ]` is an anonymous
-  ("blank") node, `a` means `rdf:type`. That is 90% of the syntax you will meet.
+- **Severity — always confirm with the developer.** Whether a check is a violation, warning, or info is
+  a policy decision you cannot derive, and it *routes the rest of your work*: it decides which test file
+  and which e2e assertion list the data goes into (violations vs. warnings/info, see Step 6). Getting it
+  wrong late means redoing the test wiring. Add the chosen value to the shape's `sh:severity`:
+    - `sh:Violation` — **always blocks** upload on every server. For wrong data.
+    - `sh:Warning` — **non-blocking on a test server, blocks on production**. Primarily for data that is
+      only temporarily missing.
+    - `sh:Info` — just a nudge; the upload will work on **all** servers.
+- **Purpose, if it is not clear from the code.** If you cannot tell from the ontology and the code what
+  the check is *for*, ask — a shape built on a misunderstood intent is the classic source of wasted work.
 
-**SHACL** validates data. You write a **shape** that says "nodes of this kind must satisfy these
-constraints". Two shape kinds:
+Everything else you **research and propose, you do not ask**: derive the datatype, the target
+value/resource, and whether a property is mandatory or repeatable from the project ontology JSON, the
+`knora-api` definitions, and the XML test data. Surface a choice for confirmation **only if it stays
+genuinely ambiguous after that research** — e.g. the property is a `knora-api` concept like
+`valueHasOrder`, whose datatype/cardinality is a DSP-behaviour decision rather than a project-ontology
+lookup (and may even require a parser change before the value appears in the data graph at all).
 
-- **`sh:NodeShape`** — targets nodes (via `sh:targetClass <SomeClass>`) and applies rules to them.
-- **`sh:PropertyShape`** — attached to a node shape via `sh:property`, it points at one property
-  (`sh:path <someProperty>`) and constrains its values.
+> **Golden rule (this is the fail-fast core):** never write the shape first. Always write the **test
+> data** first (at least one resource that must fail, one that must pass), *then* build the shape, *then*
+> run it, and *only then* — if needed — touch Python. Cheap, objective feedback before expensive work.
 
-A constraint is expressed with a **constraint component**, e.g. (non-exhaustive list):
-
-| You write in the shape          | It means                    | Constraint component that fires on failure |
-|---------------------------------|-----------------------------|--------------------------------------------|
-| `sh:minCount 1`                 | at least one value          | `sh:MinCountConstraintComponent`           |
-| `sh:maxCount 1`                 | at most one value           | `sh:MaxCountConstraintComponent`           |
-| `sh:datatype xsd:string`        | value must be a string      | `sh:DatatypeConstraintComponent`           |
-| `sh:pattern "^#..."`            | value must match a regex    | `sh:PatternConstraintComponent`            |
-| `sh:class knora-api:ColorValue` | value must be of this type  | `sh:ClassConstraintComponent`              |
-| `sh:in ( "a" "b" )`             | value must be one of a list | `sh:InConstraintComponent`                 |
-| `sh:minInclusive 0`             | value ≥ 0                   | `sh:MinInclusiveConstraintComponent`       |
-| `sh:sparql [ ... ]`             | a custom SPARQL rule        | `sh:SPARQLConstraintComponent`             |
-
-When validation runs, SHACL produces a **report graph**. Each failure is a `sh:ValidationResult`
-blank node carrying, among others, `sh:focusNode` (what failed), `sh:resultPath` (which property),
-`sh:resultMessage` (your `sh:message`), `sh:resultSeverity`, and — crucially —
-**`sh:sourceConstraintComponent`** (which of the components above fired). Our Python code reads that
-component to decide what user error to show. This single fact drives the whole second half of the
-playbook.
-
-Curated links (read only if a step confuses you):
-
-- SHACL spec, core constraint components:
-  <https://www.w3.org/TR/shacl/>
-- Turtle syntax primer: <https://www.w3.org/TR/turtle/>
-- DASH constraint components (the `dash:` ones we use): <https://datashapes.org/constraints.html>
 
 ---
 
-## 2. The pipeline in one picture
+## 1. The pipeline in one picture
 
 ```text
 XML data ─────────────► RDF data graph -┐
@@ -106,7 +77,7 @@ project ontology ──► SHACL shapes ──────┘        (3 runs)
 
 ---
 
-## 3. Step 1 — Write the test data first (one fail, one pass)
+## 2. Step 1 — Write the test data first (one fail, one pass)
 
 Test data lives in `testdata/validate-data/`. The main set is `core_validation/` (project shortcode
 `9999`). A suffix convention marks intent: `*_correct.xml` must **pass**, `*_violation.xml` must
@@ -151,7 +122,11 @@ otherwise you can leave this alone. **If you add a resource there, you must upda
 
 ---
 
-## 4. Step 2 — Decide where the shape lives (prefer static)
+## 3. Step 2 — Decide where the shape lives (prefer static)
+
+> New shapes always live in the `api-shapes:` namespace (`http://api.knora.org/ontology/knora-api/shapes/v2#`),
+> which also defines validation-only properties absent from `knora-api` (e.g. `api-shapes:dateHasStart`).
+> For the `dash:` constraint components, see the [DASH reference](https://datashapes.org/constraints.html).
 
 Ask: **does the check depend on anything project-specific?**
 
@@ -206,53 +181,53 @@ anonymous blank node (`[ ... ]`) inlined under `sh:property`:
 constraints in one property shape is fine when a single `sh:message` clearly covers every way it can
 fail. It becomes a problem when the combination makes the message too vague to act on.
 
-- **OK** — a min/max count *and* a datatype in one shape: the message covers both, and the user will
-  not have a hard time figuring out what went wrong.
+**OK** — a min/max count *and* a datatype in one shape: the message covers both, and the user will not
+have a hard time figuring out what went wrong.
 
-    ```ttl
-    [
-        a           sh:PropertyShape ;
-        sh:path     knora-api:decimalValueAsDecimal ;
-        sh:datatype xsd:decimal ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:severity sh:Violation ;
-        sh:message  "A DecimalValue requires exactly one valid decimal"
-    ] .
-    ```
+```ttl
+[
+    a           sh:PropertyShape ;
+    sh:path     knora-api:decimalValueAsDecimal ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message  "A DecimalValue requires exactly one valid decimal"
+] .
+```
 
-- **Split it** — when several constraints could fire for unrelated reasons and one message cannot
-  cover them without becoming confusing. For example a range check (`sh:minInclusive` +
-  `sh:maxInclusive`) *and* a datatype *and* a cardinality on `knora-api:valueHasOrder`, plus the
-  separate `api-shapes:ValueHasOrder_NoGap_Shape` and
-  `api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape`, would be very hard to identify from a single
-  message. Keep the distinct concerns as separate shapes, each with its own targeted message:
+**Split it** — when several constraints could fire for unrelated reasons and one message cannot cover
+them without becoming confusing. For example a range check (`sh:minInclusive` + `sh:maxInclusive`) *and*
+a datatype *and* a cardinality on `knora-api:valueHasOrder`, plus the separate
+`api-shapes:ValueHasOrder_NoGap_Shape` and `api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape`, would
+be very hard to identify from a single message. Keep the distinct concerns as separate shapes, each with
+its own targeted message:
 
-    ```ttl
-    [
-        a               sh:PropertyShape ;
-        sh:path         knora-api:valueHasOrder ;
-        sh:datatype     xsd:integer ;
-        sh:minInclusive "0"^^xsd:int ;
-        sh:maxInclusive "2147483647"^^xsd:int ; # maximum allowed number for this datatype
-        sh:severity     sh:Violation ;
-        sh:message      "The order on the value must be a positive integer."
-    ] ,
-    [
-        a           sh:PropertyShape ;
-        sh:path     knora-api:valueHasOrder ;
-        sh:minCount 0 ;
-        sh:maxCount 1 ;
-        sh:severity sh:Violation ;
-        sh:message  "A value may have a maximum of 1 order triple."
-    ] .
-    ```
+```ttl
+[
+    a               sh:PropertyShape ;
+    sh:path         knora-api:valueHasOrder ;
+    sh:datatype     xsd:integer ;
+    sh:minInclusive "0"^^xsd:int ;
+    sh:maxInclusive "2147483647"^^xsd:int ; # maximum allowed number for this datatype
+    sh:severity     sh:Violation ;
+    sh:message      "The order on the value must be a positive integer."
+] ,
+[
+    a           sh:PropertyShape ;
+    sh:path     knora-api:valueHasOrder ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message  "A value may have a maximum of 1 order triple."
+] .
+```
 
 If in doubt whether a combined shape's message stays clear enough, ask.
 
 ---
 
-## 5. Step 3 — Run it and find which constraint component fires
+## 4. Step 3 — Run it and find which constraint component fires
 
 You must learn which `sh:sourceConstraintComponent` your shape triggers, because that decides whether
 you touch Python at all. This you will find more difficult to anticipate, therefore just try it out first.
@@ -273,7 +248,7 @@ In that case the information of both is relevant for further processing.
 
 ---
 
-## 6. Step 4 — Two outcomes
+## 5. Step 4 — Two outcomes
 
 Look up your component in the table below.
 
@@ -331,7 +306,7 @@ are dispatched separately by `_query_one_without_detail` / `_query_one_with_deta
 
 ---
 
-## 7. Step 5 (new component only) — wire it through the pipeline
+## 6. Step 5 (new component only) — wire it through the pipeline
 
 Do these in order. The "reuse GENERIC" fast path handles most cases; only add a new user category if
 none of the existing `ProblemType`s fit.
@@ -365,7 +340,7 @@ none of the existing `ProblemType`s fit.
 
 ---
 
-## 8. Step 6 — Update and run the tests
+## 7. Step 6 — Update and run the tests
 
 - **E2E expectations are inline `expected_*` lists** in `test/e2e/commands/validate_data/`. Append a
   `(res_id, ProblemType, ...)` tuple to the list in the matching test; violations are sorted by
@@ -387,7 +362,30 @@ none of the existing `ProblemType`s fit.
 
 ---
 
+## 8. Step 7 — Review before handing back
+
+When the implementation is complete and both suites are green, **spawn a review subagent** before you
+hand back — the agent that wrote the code is the least reliable judge of its own reuse and complexity.
+This is the *quality* net, not the correctness check (correctness is the empirical loop in Steps 1–4).
+The review must consider, but is not limited to:
+
+- **Reuse over addition.** The report-processing query and the reformatting chain are already large and
+  slow. A new component must **reuse** existing helpers (`_query_general_violation_info`, the `GENERIC`
+  path) wherever it can, and must **not** grow the validation-result query when an existing path works.
+- **Simplicity.** No new `ViolationType` / `ProblemType` unless an existing one genuinely does not fit.
+- **Completeness.** The plumbing is covered: the project JSON and XML test data are updated, the value is
+  actually parsed (a `knora-api` value may need a parser change before it appears in the data graph), and
+  — if `every_violation_combination_once.xml` was touched — both lists in `test_core_violations.py` were
+  updated.
+- **This document.** If a new component was wired through, the Step 4 table and the checklist below were
+  updated to match.
+
+---
+
 ## 9. Quick checklist
+
+**Before you start:** confirm **severity** with the developer (it routes test placement) and the check's
+**purpose** if it is not clear from the code. Then:
 
 1. [ ] Add one violating + one correct resource to `testdata/validate-data/…` (one error per resource,
    descriptive `id`, XML comment). Add any new property/class to the project JSON.
@@ -401,3 +399,5 @@ none of the existing `ProblemType`s fit.
 6. [ ] Add e2e `(res_id, ProblemType)` tuples in `test/e2e/commands/validate_data/`.
 7. [ ] `just unittests test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`
    (needs Docker), then `just lint`.
+8. [ ] Spawn a review subagent (Step 7) to check reuse, simplicity, and the plumbing/completeness traps
+   before handing back.

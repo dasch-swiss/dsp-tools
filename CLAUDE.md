@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+See also `CONVENTIONS.md` (work-phase reference card — naming, schemas, test data, e2e wiring,
+architecture boundaries) and `REVIEW.md` (review-phase checklist). Update them alongside this file
+whenever a convention changes.
+
 ## What is DSP-TOOLS?
 
 DSP-TOOLS is a CLI tool for interacting with the DaSCH Service Platform (DSP) API.

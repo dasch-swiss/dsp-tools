@@ -225,7 +225,9 @@ class StackHandler:
             StartStackInputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
         logger.debug("Retrieving sipi.docker-config.lua...")
-        docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
+        docker_config_lua_response = requests.get(
+            f"{self.__url_prefix}modules/sipi/config/sipi.docker-config.lua", timeout=30
+        )
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]?\d+[MG][\'\"]?"
@@ -282,11 +284,26 @@ class StackHandler:
         logger.debug("Loading data into the 'dsp-repo' repository...")
         graph_prefix = f"{self.__localhost_url}:3030/dsp-repo/data?graph="
         ttl_files = [
-            ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
-            ("webapi/src/main/resources/knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
-            ("webapi/src/main/resources/knora-ontologies/standoff-onto.ttl", "http://www.knora.org/ontology/standoff"),
-            ("webapi/src/main/resources/knora-ontologies/standoff-data.ttl", "http://www.knora.org/data/standoff"),
-            ("webapi/src/main/resources/knora-ontologies/salsah-gui.ttl", "http://www.knora.org/ontology/salsah-gui"),
+            (
+                "modules/webapi/src/main/resources/knora-ontologies/knora-admin.ttl",
+                "http://www.knora.org/ontology/knora-admin",
+            ),
+            (
+                "modules/webapi/src/main/resources/knora-ontologies/knora-base.ttl",
+                "http://www.knora.org/ontology/knora-base",
+            ),
+            (
+                "modules/webapi/src/main/resources/knora-ontologies/standoff-onto.ttl",
+                "http://www.knora.org/ontology/standoff",
+            ),
+            (
+                "modules/webapi/src/main/resources/knora-ontologies/standoff-data.ttl",
+                "http://www.knora.org/data/standoff",
+            ),
+            (
+                "modules/webapi/src/main/resources/knora-ontologies/salsah-gui.ttl",
+                "http://www.knora.org/ontology/salsah-gui",
+            ),
             ("test_data/project_data/admin-data.ttl", "http://www.knora.org/data/admin"),
             ("test_data/project_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
             ("test_data/project_ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),

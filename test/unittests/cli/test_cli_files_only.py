@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -12,6 +13,12 @@ ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
 EXCEL_FOLDER = "testdata/excel2json/excel2json_files"
 EXCEL_FILE_PATH = "testdata/excel2json/excel2json_files/lists/list3.xlsx"
+
+
+@pytest.fixture(autouse=True)
+def skip_version_check() -> Iterator[None]:
+    with patch("dsp_tools.cli.entry_point._check_version"):
+        yield
 
 
 @patch("dsp_tools.cli.call_action_files_only.excel2json")

@@ -68,7 +68,7 @@ def _get_image_versions() -> ImageVersions:
 
 
 def _download_sipi_config(api_version: str, artifact_dirs: ArtifactDirs) -> None:
-    url = f"https://raw.githubusercontent.com/dasch-swiss/dsp-api/{api_version}/sipi/config/sipi.docker-test-config.lua"
+    url = f"https://raw.githubusercontent.com/dasch-swiss/dsp-api/{api_version}/modules/sipi/config/sipi.docker-test-config.lua"
     response = requests.get(url, timeout=30)
     if not response.ok:
         raise RuntimeError(f"Failed to download sipi.docker-config.lua from {url}: {response.status_code}")

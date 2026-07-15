@@ -322,6 +322,43 @@ class TestXmlupload:
             ),
         )
 
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.xmlupload")
+    def test_xmlupload_save_pickle(self, xmlupload: Mock, check_docker: Mock) -> None:
+        args = f"xmlupload --save-pickle {DATA_XML_PATH}".split()
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        entry_point.run(args)
+        xmlupload.assert_called_once_with(
+            input_file=Path(DATA_XML_PATH),
+            creds=creds,
+            imgdir=".",
+            config=UploadConfig(save_pickle=True),
+        )
+
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.utils._check_filepath_exists")
+    @patch("dsp_tools.cli.call_action_with_network.xmlupload_from_pickle")
+    def test_xmlupload_from_pickle(self, xmlupload_from_pickle: Mock, check_filepath: Mock, check_docker: Mock) -> None:
+        pickle_path = "testdata/some-upload.pkl"
+        args = f"xmlupload --from-pickle {pickle_path}".split()
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        entry_point.run(args)
+        xmlupload_from_pickle.assert_called_once_with(
+            pickle_file=Path(pickle_path),
+            creds=creds,
+            imgdir=".",
+        )
+
 
 class TestValidateData:
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -799,6 +836,24 @@ class TestStartStack:
                 suppress_docker_system_prune=False,
                 latest_dev_version=False,
                 upload_test_data=True,
+            )
+        )
+        start_stack.assert_called_once()
+
+    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
+    @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
+    def test_start_stack_otlp_endpoint(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
+        args = "start-stack --otlp-endpoint host.docker.internal:4317".split()
+        entry_point.run(args)
+        mock_init.assert_called_once_with(
+            StackConfiguration(
+                max_file_size=None,
+                enforce_docker_system_prune=False,
+                suppress_docker_system_prune=False,
+                latest_dev_version=False,
+                upload_test_data=False,
+                otlp_endpoint="host.docker.internal:4317",
             )
         )
         start_stack.assert_called_once()

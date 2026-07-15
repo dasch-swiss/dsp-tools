@@ -47,6 +47,7 @@ class StackConfiguration:
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
+        otlp_endpoint: if set, run a Grafana Alloy collector that forwards the stack's metrics to this OTLP endpoint
     """
 
     max_file_size: Optional[int] = None
@@ -55,6 +56,7 @@ class StackConfiguration:
     latest_dev_version: bool = False
     upload_test_data: bool = False
     custom_host: Optional[str] = None
+    otlp_endpoint: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
@@ -175,6 +177,24 @@ class StackHandler:
         Path(self.__docker_path_of_user / "docker-compose.override-host.j2").unlink()
         Path(self.__docker_path_of_user / "dsp-app-config.override-host.j2").unlink()
 
+    def _set_metrics_config(self) -> None:
+        """
+        Render config.alloy from its template, injecting the OTLP endpoint set via --otlp-endpoint.
+        The Alloy collector (added by docker-compose.override-metrics.yml) forwards the stack's
+        metrics to this endpoint. Only done if an endpoint was provided.
+        """
+        if self.__stack_configuration.otlp_endpoint is not None:
+            logger.debug("Rendering config.alloy...")
+            otlp_endpoint = self.__stack_configuration.otlp_endpoint
+            # Profiles go to the same backend host as the metrics, on the Pyroscope port.
+            pyroscope_host = otlp_endpoint.rsplit(":", 1)[0]
+            pyroscope_endpoint = f"http://{pyroscope_host}:4040"
+            template_path = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/config.alloy.j2")
+            template = Template(template_path.read_text(encoding="utf-8"))
+            rendered = template.render(OTLP_ENDPOINT=otlp_endpoint, PYROSCOPE_ENDPOINT=pyroscope_endpoint)
+            Path(self.__docker_path_of_user / "config.alloy").write_text(rendered, encoding="utf-8")
+        Path(self.__docker_path_of_user / "config.alloy.j2").unlink(missing_ok=True)
+
     def _get_fuseki_image_for_latest(self) -> str:
         """
         Fetch dsp-api's docker-compose.yml from the main branch and return the Fuseki image it pins.
@@ -241,15 +261,34 @@ class StackHandler:
         with open(self.__docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
             f.write(docker_config_lua_text)
 
+    def _compose_file_args(self) -> str:
+        """
+        The "-f <file>" docker-compose arguments for the active configuration.
+
+        Used by both the Fuseki startup and the remaining-containers step, so that every
+        service (in particular db, which is started first and loaded with data) has the
+        same definition in both invocations and is not re-created in between.
+        """
+        files = ["docker-compose.yml"]
+        if self.__stack_configuration.latest_dev_version:
+            files.append("docker-compose.override.yml")
+        if self.__stack_configuration.custom_host is not None:
+            files.append("docker-compose.override-host.yml")
+        if self.__stack_configuration.otlp_endpoint is not None:
+            files.append("docker-compose.override-metrics.yml")
+        return " ".join(f"-f {f}" for f in files)
+
     def _start_up_fuseki(self) -> None:
         """
         Start up the Docker container of the fuseki database.
+        The metrics override (if active) is applied here already, so db is instrumented
+        from the start and not re-created (losing its data) when the rest of the stack starts.
 
         Raises:
             FusekiStartUpError: if the database cannot be started
         """
         logger.debug("Starting up the fuseki container...")
-        cmd = "docker compose --env-file versions.env up -d db".split()
+        cmd = f"docker compose --env-file versions.env {self._compose_file_args()} up -d db".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
@@ -381,20 +420,17 @@ class StackHandler:
         # --env-file feeds versions.env into docker-compose's ${API}/${APP}/${DB}
         # interpolation. versions.env is copied into the user's start-stack dir
         # alongside docker-compose.yml by _copy_resources_to_home_dir.
-        compose_str = "docker compose --env-file versions.env -f docker-compose.yml"
+        file_args = self._compose_file_args()
         if self.__stack_configuration.latest_dev_version:
             logger.debug("In order to get the latest dev version, run 'docker compose pull' ...")
             subprocess.run(
-                "docker compose --env-file versions.env pull".split(),
+                f"docker compose --env-file versions.env {file_args} pull".split(),
                 cwd=self.__docker_path_of_user,
                 check=True,
             )
-            compose_str += " -f docker-compose.override.yml"
-        if self.__stack_configuration.custom_host is not None:
-            compose_str += " -f docker-compose.override-host.yml"
-        compose_str += " up -d"
-        logger.debug(f"Running '{compose_str}' ...")
-        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
+        cmd = f"docker compose --env-file versions.env {file_args} up -d".split()
+        logger.debug(f"Running '{' '.join(cmd)}' ...")
+        subprocess.run(cmd, cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
         """
@@ -481,6 +517,7 @@ class StackHandler:
         """
         self._copy_resources_to_home_dir()
         self._set_custom_host()
+        self._set_metrics_config()
         try:
             self._get_sipi_docker_config_lua()
         except (requests.ConnectionError, requests.ReadTimeout):
@@ -501,8 +538,10 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
+        # --remove-orphans also stops the optional `--metrics` Alloy container, which is
+        # defined in an override file and would otherwise be left running by this `down`.
         subprocess.run(
-            "docker compose --env-file versions.env down --volumes".split(),
+            "docker compose --env-file versions.env down --volumes --remove-orphans".split(),
             cwd=self.__docker_path_of_user,
             check=True,
         )

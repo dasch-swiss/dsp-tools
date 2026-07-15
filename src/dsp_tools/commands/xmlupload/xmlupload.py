@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from loguru import logger
+from lxml.etree import _Element
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
@@ -21,6 +22,9 @@ from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.models.xmlupload_pickle import XmlUploadPickle
+from dsp_tools.commands.xmlupload.models.xmlupload_pickle import load_pickle
+from dsp_tools.commands.xmlupload.models.xmlupload_pickle import save_pickle
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
@@ -71,6 +75,49 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
+    return _get_state(auth, clients, config, creds, imgdir, input_file, root)
+
+
+def xmlupload_from_pickle(
+    pickle_file: Path,
+    creds: ServerCredentials,
+    imgdir: str,
+    config: UploadConfig = UploadConfig(),
+) -> bool:
+    """
+    Upload resources to a DSP server using a previously saved pickle file, skipping XML parsing and processing.
+
+    Args:
+        pickle_file: path to the pickle file created by a prior xmlupload with --save-pickle
+        creds: the credentials to access the DSP server
+        imgdir: the image directory
+        config: the configuration for the upload
+
+    Returns:
+        True if all resources could be uploaded without errors; False otherwise
+    """
+    data = load_pickle(pickle_file)
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    ProjectClientLive(creds.server, auth).get_project_iri(data.shortcode)
+    config = config.with_server_info(server=creds.server, shortcode=data.shortcode)
+    clients = _get_live_clients(auth, creds, data.shortcode, imgdir)
+    state = UploadState(
+        pending_resources=data.sorted_resources,
+        pending_stash=data.stash,
+        config=config,
+    )
+    return execute_upload(clients, state)
+
+
+def _get_state(
+    auth: AuthenticationClientLive,
+    clients: UploadClients,
+    config: UploadConfig,
+    creds: ServerCredentials,
+    imgdir: str,
+    input_file: Path,
+    root: _Element,
+) -> bool:
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
     if config.id2iri_file:
         parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(config.id2iri_file))
@@ -95,6 +142,15 @@ def xmlupload(
     processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
 
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
+
+    if config.save_pickle:
+        pickle_path = input_file.with_suffix(".pkl")
+        save_pickle(
+            XmlUploadPickle(sorted_resources=sorted_resources, stash=stash, shortcode=config.shortcode),
+            pickle_path,
+        )
+        logger.info(f"Saved upload state to pickle file: {pickle_path}")
+
     state = UploadState(
         pending_resources=sorted_resources,
         pending_stash=stash,

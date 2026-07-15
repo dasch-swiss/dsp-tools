@@ -75,6 +75,8 @@ services:
     image: daschswiss/apache-jena-fuseki:${DB}
     ports:
       - "3030:3030"
+    volumes:
+      - /Volumes/Thunderbay-2/nora-fuseki:/fuseki:delegated
     environment:
       - TZ=Europe/Zurich
       - ADMIN_PASSWORD=test

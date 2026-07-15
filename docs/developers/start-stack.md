@@ -66,6 +66,45 @@ But after some uploads, DSP is cluttered with data, so you might want to restart
 
 
 
+### Forwarding Metrics
+
+When started with `dsp-tools start-stack --otlp-endpoint <ENDPOINT>`, the stack
+additionally runs a [Grafana Alloy](https://grafana.com/docs/alloy/latest/) collector that
+gathers metrics and forwards them to the given OTLP endpoint, for example:
+
+```bash
+dsp-tools start-stack --otlp-endpoint host.docker.internal:4317
+```
+
+The instrumentation targets the **Fuseki triplestore (`db`)**, for investigating its
+resource usage. Two metric sources are collected:
+
+- **`db`** pushes its JVM/runtime metrics (via the OpenTelemetry Java agent bundled in
+  the image) to Alloy over OTLP.
+- **Fuseki**'s own metrics are scraped by Alloy from `http://db:3030/$/metrics`.
+
+In addition, **`db`** runs the Pyroscope profiler bundled in the image and pushes
+continuous profiles to the Alloy collector, which forwards them to a Pyroscope endpoint
+on the host machine (e.g. a local Grafana otel-lgtm). That endpoint is derived from the
+`--otlp-endpoint` host on port 4040, so the same backend receives both metrics and
+profiles; it must publish port 4040 to receive them.
+
+The `db` agent env vars are applied from the moment Fuseki is first started, so the
+container is not re-created — and its loaded data not discarded — when the rest of the
+stack comes up. `dsp-api` and `dsp-ingest` are not instrumented. Only metrics and
+profiles are forwarded; traces and logs are not.
+Alloy itself is a thin forwarder: it ships no Grafana, Prometheus, or other backend.
+The actual storage and dashboards live wherever the endpoint points
+(e.g. a self-hosted LGTM stack or Grafana Cloud).
+
+The endpoint is the only configurable parameter: Alloy exports over **OTLP/gRPC** without
+authentication and without TLS. The endpoint is resolved from inside the Alloy container,
+so use `host.docker.internal:<port>` to reach a collector running on your host machine.
+Alloy's component UI is available at [http://0.0.0.0:12346](http://0.0.0.0:12346)
+(host port 12346, chosen so it does not clash with a separately run Grafana Alloy on 12345).
+
+
+
 ## The Advanced Way
 
 If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:

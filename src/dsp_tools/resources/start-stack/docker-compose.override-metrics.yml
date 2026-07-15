@@ -1,0 +1,54 @@
+---
+# Enabled by `dsp-tools start-stack --otlp-endpoint <ENDPOINT>`.
+#
+# Instruments the Fuseki triplestore (db) for investigating its resource usage:
+#   - db pushes JVM/runtime OTLP metrics to the Alloy collector (alloy:4318),
+#     which also scrapes Fuseki's own metrics from db:3030/$/metrics and forwards
+#     everything to the OTLP endpoint passed via --otlp-endpoint.
+#   - db pushes continuous profiles via the bundled Pyroscope agent to the Alloy
+#     collector (alloy:4040), which forwards them to the Pyroscope endpoint
+#     derived from --otlp-endpoint (its host on port 4040, e.g. a local Grafana
+#     otel-lgtm, which must publish port 4040).
+#
+# The db agent env vars are applied from the moment Fuseki is first started (see
+# _compose_file_args / _start_up_fuseki in start_stack.py), so the container is
+# not re-created — and its loaded data not discarded — when the rest of the
+# stack comes up.
+
+services:
+  db:
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/lib/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=DSP_db_db
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/usr/local/lib/pyroscope-otel.jar
+      - PYROSCOPE_SERVER_ADDRESS=http://alloy:4040
+      - PYROSCOPE_APPLICATION_NAME=DSP_db_db
+      - PYROSCOPE_FORMAT=jfr
+      - PYROSCOPE_PROFILER_ALLOC=512k
+      - OTEL_PYROSCOPE_ADD_PROFILE_URL=false
+      - OTEL_PYROSCOPE_ADD_PROFILE_BASELINE_URL=false
+      - OTEL_PYROSCOPE_START_PROFILING=true
+    volumes:
+      - ./shiro-no-sessions.ini:/jena-fuseki/shiro.ini:ro
+
+  alloy:
+    image: grafana/alloy:latest
+    depends_on:
+      - db
+    ports:
+      # Host port 12346 (not Alloy's usual 12345) so this coexists with a
+      # separately run Grafana Alloy that already binds 12345 on the host.
+      - "12346:12345"  # Alloy component UI
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    restart: unless-stopped

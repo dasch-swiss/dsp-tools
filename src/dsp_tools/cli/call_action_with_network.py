@@ -32,6 +32,7 @@ from dsp_tools.commands.start_stack.start_stack import StackHandler
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload_from_pickle
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
@@ -46,6 +47,7 @@ def call_start_stack(args: argparse.Namespace) -> bool:
             latest_dev_version=args.latest,
             upload_test_data=args.with_test_data,
             custom_host=args.custom_host,
+            otlp_endpoint=args.otlp_endpoint,
         )
     )
     return stack_handler.start_stack()
@@ -104,6 +106,21 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def call_xmlupload(args: argparse.Namespace) -> bool:
+    if args.from_pickle:
+        pickle_path = Path(args.from_pickle)
+        network_requirements = NetworkRequirements(
+            args.server, always_requires_docker=False, ingest_url=args.dsp_ingest_url
+        )
+        check_input_dependencies(
+            PathDependencies([pickle_path], [Path(args.imgdir)]),
+            [network_requirements],
+        )
+        return xmlupload_from_pickle(
+            pickle_file=pickle_path,
+            creds=get_creds(args),
+            imgdir=args.imgdir,
+        )
+
     xml_path = Path(args.xmlfile)
     required_files = [xml_path]
     id2iri_file = args.id2iri_file
@@ -146,6 +163,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
                 skip_ontology_validation=args.skip_ontology_validation,
                 do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
                 id2iri_file=id2iri_file,
+                save_pickle=args.save_pickle,
             ),
         )
 

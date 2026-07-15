@@ -230,12 +230,23 @@ def test_migration_config_with_shortcode(create_migration_config: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action_files_only.create_migration_config")
-@patch("builtins.input", return_value="0ABC")
-def test_migration_config_prompts_for_shortcode(input_mock: Mock, create_migration_config: Mock) -> None:  # noqa: ARG001
+def test_migration_config_prompts_for_shortcode(create_migration_config: Mock) -> None:
     create_migration_config.return_value = True
     args = "migration config".split()
-    entry_point.run(args)
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+        with patch("builtins.input", return_value="0ABC"):
+            entry_point.run(args)
     create_migration_config.assert_called_once_with(shortcode="0ABC", cwd=Path.cwd())
+
+
+@patch("dsp_tools.cli.call_action_files_only.create_migration_config")
+def test_migration_config_errors_when_no_shortcode_and_non_interactive(create_migration_config: Mock) -> None:
+    args = "migration config".split()
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(args)
+    assert exc_info.value.code == 1
+    create_migration_config.assert_not_called()
 
 
 @patch("dsp_tools.cli.entry_point._print_version_info")

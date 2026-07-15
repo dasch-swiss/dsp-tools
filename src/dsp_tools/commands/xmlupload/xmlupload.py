@@ -30,6 +30,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
@@ -119,9 +120,14 @@ def _handle_validation(
             "This means that the upload may fail due to undetected errors. "
             "Do you wish to skip the validation (yes/no)? "
         )
-        resp = ""
-        while resp not in ["yes", "no"]:
-            resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+        resp = prompt_until_valid_answer(
+            prompt=BOLD_RED + msg + RESET_TO_DEFAULT,
+            valid_answers=["yes", "no"],
+            non_interactive_answer="yes",
+            non_interactive_notice=BOLD_RED
+            + "Skipping validation as requested via '--skip-validation' (non-interactive session)."
+            + RESET_TO_DEFAULT,
+        )
         if str(resp) == "no":
             validation_should_be_skipped = False
     if not validation_should_be_skipped:
@@ -132,9 +138,14 @@ def _handle_validation(
                 "This means that duplicate multimedia files will not be detected. "
                 "Are you sure you want to exclude this from the validation? (yes/no)"
             )
-            resp = ""
-            while resp not in ["yes", "no"]:
-                resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+            resp = prompt_until_valid_answer(
+                prompt=BOLD_RED + msg + RESET_TO_DEFAULT,
+                valid_answers=["yes", "no"],
+                non_interactive_answer="yes",
+                non_interactive_notice=BOLD_RED
+                + "Ignoring duplicate files as requested via '--ignore-duplicate-files-warning' "
+                "(non-interactive session)." + RESET_TO_DEFAULT,
+            )
             if str(resp) == "no":
                 ignore_duplicates = False
         v_severity = config.validation_severity

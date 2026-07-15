@@ -17,6 +17,7 @@ from requests import RequestException
 from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
@@ -443,15 +444,21 @@ class StackHandler:
         elif self.__stack_configuration.suppress_docker_system_prune:
             prune_docker = "n"
         else:
-            prune_docker = None
-            while prune_docker not in ["y", "n"]:
-                prune_docker = input(
+            prune_docker = prompt_until_valid_answer(
+                prompt=(
                     "Allow dsp-tools to execute 'docker system prune'? \n"
                     "If you press 'y', all unused containers, networks, and images (both dangling and unused) "
                     "in your docker will be deleted.\n"
                     "It is recommended that you do this every once in a while "
                     "to keep your docker clean and running smoothly. [y/n]"
-                )
+                ),
+                valid_answers=["y", "n"],
+                non_interactive_answer="n",
+                non_interactive_notice=(
+                    "Skipping 'docker system prune' (non-interactive session). "
+                    "Use '--enforce-docker-system-prune' to run it."
+                ),
+            )
         if prune_docker == "y":
             logger.debug("Running 'docker system prune --volumes -f' ...")
             subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)

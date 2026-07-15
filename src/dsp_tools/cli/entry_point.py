@@ -108,12 +108,25 @@ def _check_version() -> None:
         return
 
     msg += "Continue anyway? [y/n]"
+    if not _stdin_is_interactive():
+        # No interactive terminal (CI pipe, cron, nohup, Docker without a TTY, pytest capture):
+        # print the warning and continue instead of prompting, since input() would raise here.
+        print(BOLD_RED + msg + RESET_TO_DEFAULT)
+        return
     resp = None
     while resp not in ["y", "n"]:
         resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
     if resp == "y":
         return
     sys.exit(1)
+
+
+def _stdin_is_interactive() -> bool:
+    """Return whether stdin is an interactive terminal that input() can safely read from."""
+    try:
+        return sys.stdin is not None and sys.stdin.isatty()
+    except (AttributeError, ValueError, OSError):
+        return False
 
 
 def _get_dsp_tools_versions() -> tuple[Version, Version] | None:

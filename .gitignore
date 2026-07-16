@@ -51,7 +51,8 @@ venv.bak/
 .dmypy.json
 .idea
 .vscode
-.claude/
+.claude/*
+!.claude/skills/
 .zed
 
 # generated files

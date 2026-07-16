@@ -1,5 +1,17 @@
 # Changelog
 
+## [18.17.4](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.3...v18.17.4) (2026-07-15)
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.07.02 ([#2366](https://github.com/dasch-swiss/dsp-tools/issues/2366)) ([02954ac](https://github.com/dasch-swiss/dsp-tools/commit/02954aceb48023e76efd1bfcab54cf5ae0116478))
+
+
+### Documentation
+
+* add CONVENTIONS.md and REVIEW.md reference cards (DEV-6719) ([#2361](https://github.com/dasch-swiss/dsp-tools/issues/2361)) ([dc9980e](https://github.com/dasch-swiss/dsp-tools/commit/dc9980e032b2e232c3789d5555b27cb75caa49bb))
+
 ## [18.17.3](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.2...v18.17.3) (2026-07-01)
 
 

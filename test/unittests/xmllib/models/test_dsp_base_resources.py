@@ -25,6 +25,14 @@ class TestRegionResource:
             RegionResource.create_new("", "", "")
         assert len(caught_warnings) == 3
 
+    def test_authorship(self):
+        res = RegionResource.create_new("id", "lbl", "regionOfId", authorship=["b", "a", "a"])
+        assert res.authorship == ("a", "b")
+
+    def test_no_authorship(self):
+        res = RegionResource.create_new("id", "lbl", "regionOfId")
+        assert res.authorship is None
+
 
 class TestLinkResource:
     def test_good(self):
@@ -36,6 +44,14 @@ class TestLinkResource:
         with warnings.catch_warnings(record=True) as caught_warnings:
             LinkResource.create_new("", "", [])
         assert len(caught_warnings) == 3
+
+    def test_authorship(self):
+        res = LinkResource.create_new("id", "lbl", ["link_to"], authorship=["b", "a", "a"])
+        assert res.authorship == ("a", "b")
+
+    def test_no_authorship(self):
+        res = LinkResource.create_new("id", "lbl", ["link_to"])
+        assert res.authorship is None
 
 
 def test_segment_bounds():
@@ -64,6 +80,14 @@ class TestVideoSegmentResource:
             VideoSegmentResource.create_new("id", "lbl", "segment_of", "", "")
         assert len(caught_warnings) == 1
 
+    def test_authorship(self):
+        res = VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1", authorship=["b", "a", "a"])
+        assert res.authorship == ("a", "b")
+
+    def test_no_authorship(self):
+        res = VideoSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+        assert res.authorship is None
+
 
 class TestAudioSegmentResource:
     def test_good(self):
@@ -80,6 +104,14 @@ class TestAudioSegmentResource:
         with warnings.catch_warnings(record=True) as caught_warnings:
             AudioSegmentResource.create_new("id", "lbl", "segment_of", "", "")
         assert len(caught_warnings) == 1
+
+    def test_authorship(self):
+        res = AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1", authorship=["b", "a", "a"])
+        assert res.authorship == ("a", "b")
+
+    def test_no_authorship(self):
+        res = AudioSegmentResource.create_new("id", "lbl", "segment_of", "0", "1")
+        assert res.authorship is None
 
 
 # The warning matches are constructed so that the line number is not checked as that is prone to change.

@@ -81,6 +81,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
         values=values,
         file_value=None,
         migration_metadata=migration_metadata,
+        authorship_id=segment.attrib.get("authorship-id"),
     )
 
 
@@ -130,6 +131,7 @@ def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dic
         values=values,
         file_value=file_value,
         migration_metadata=migration_metadata,
+        authorship_id=resource.attrib.get("authorship-id"),
     )
 
 

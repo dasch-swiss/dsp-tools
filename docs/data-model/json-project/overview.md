@@ -125,6 +125,9 @@ The `project` object contains the basic metadata about the project. The followin
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
 - default_permissions_overrule (only if default_permissions = public)
+- data_license
+- data_copyright_holder
+- default_data_authorship
 - groups
 - users
 - lists
@@ -203,6 +206,53 @@ For example: `http://rdfh.ch/licenses/cc-by-4.0` is a valid license IRI.
 All the licenses listed here will be enabled. Licenses can be disabled by omitting them.
 
 See [the API documentation for details](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license).
+
+
+### `data_license`
+
+(optional)
+
+`"data_license": "<license-iri>"`
+
+The project-wide license that applies to every resource record (the data itself), as opposed to the
+file/IIIF-URI licenses controlled by `enabled_licenses`.
+Only Creative Commons licenses are allowed, referenced by their IRI,
+for example `http://rdfh.ch/licenses/cc-by-4.0`.
+
+
+### `data_copyright_holder`
+
+(optional)
+
+`"data_copyright_holder": "<string>"`
+
+The copyright holder that applies to every resource record in the project.
+
+
+### `default_data_authorship`
+
+(optional)
+
+`"default_data_authorship": ["<string>", "<string>", ...]`
+
+The default authorship for the resource records in the project.
+Each entry is the name of one author.
+Unlike `data_license` and `data_copyright_holder`, it is _not automatically_ applied to the resource records.
+
+It only serves as the value that DSP-APP proposes when a resource is created manually in the web interface.
+An `xmlupload` gives a resource record an authorship only if it is set explicitly via the `authorship-id`
+attribute on [the resource](../../data-file/xml-data-file.md#resource-authorship-authorship-id-on-the-resource).
+
+To apply this default to a bulk import, set the
+[`use-project-default-resource-authorship`](../../data-file/xml-data-file.md#the-root-element-knora)
+attribute on the XML root (most easily via the xmllib option
+[`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)):
+`xmlupload` then reads this field and writes it onto every resource without its own authorship.
+Note that `validate-data` does not apply this default, so the validated data may diverge from the
+uploaded data with respect to the resource authorship.
+
+This is also distinct from the authorship referenced via `authorship-id` on `<bitstream>`/`<iiif-uri>`
+in the XML data file, which describes the multimedia asset rather than the resource record.
 
 
 ### `default_permissions`

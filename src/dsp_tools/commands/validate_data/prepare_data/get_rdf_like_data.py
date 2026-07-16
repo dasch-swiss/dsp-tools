@@ -50,6 +50,11 @@ def _get_one_resource(
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
         )
+    if resource.authorship_id:
+        for author in authorship_lookup.get(resource.authorship_id, []):
+            metadata.append(
+                PropertyObject(TriplePropertyType.KNORA_RESOURCE_AUTHORSHIP, author, TripleObjectType.STRING)
+            )
     return RdfLikeResource(
         res_id=resource.res_id,
         property_objects=metadata,

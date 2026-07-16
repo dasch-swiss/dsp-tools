@@ -54,6 +54,10 @@ def _construct_resource_nodeshape(target: Graph, onto_graph: Graph) -> None:
                             [
                               a sh:PropertyShape ;
                               sh:path knora-api:hasStandoffLinkTo
+                            ] ,
+                            [
+                              a sh:PropertyShape ;
+                              sh:path knora-api:hasResourceAuthorship
                             ] .
     } WHERE {
         ?class a owl:Class ;

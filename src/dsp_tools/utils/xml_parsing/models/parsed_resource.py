@@ -17,6 +17,7 @@ class ParsedResource:
     values: list[ParsedValue]
     file_value: ParsedFileValue | None
     migration_metadata: ParsedMigrationMetadata | None
+    authorship_id: str | None = None
 
 
 @dataclass

@@ -42,7 +42,7 @@
             permissions="private"
     />
 
-    <resource label="bool_true" restype=":ClassWithEverything" id="bool_true">
+    <resource label="bool_true" restype=":ClassWithEverything" id="bool_true" authorship-id="authorship_1">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>

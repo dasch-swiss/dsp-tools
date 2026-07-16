@@ -1,3 +1,15 @@
+---
+name: add-shacl-shape
+description: >-
+  This skill should be used when adding a new validation ("SHACL shape") to the dsp-tools
+  `validate-data` command. Trigger it when the user asks to "add a SHACL shape", "add a new
+  validation", "add a validation check", "add a validation rule or constraint to validate-data",
+  "make some data fail validation", or "add a new cardinality or content check" — including
+  outcome-phrased requests like "make a property required" or "reject values outside an allowed
+  range". It gives the fail-fast, test-data-first workflow for authoring the shape and wiring its
+  constraint component through the report-processing pipeline.
+---
+
 # SHACL Shape Playbook
 
 This is a playbook for **adding a new validation ("SHACL shape")** to the `validate-data` command.
@@ -5,8 +17,11 @@ Everything you need is here or linked. The ordered steps below are not a rigid p
 **most efficient, fool-proof path** to the goal, sequenced so the cheapest feedback comes first. Deviate
 if you have a good reason, but the ordering is what keeps you from building a lot on a wrong assumption.
 
-This file is the *how do I add a new check* companion to [`CLAUDE.md`](./CLAUDE.md), which describes
-how the existing code is structured.
+This skill is the *how do I add a new check* companion to the module's code guide,
+`src/dsp_tools/commands/validate_data/CLAUDE.md`, which describes how the existing code is structured.
+
+> **Base directory for paths.** Unless a path starts with `src/`, `test/`, or `testdata/` (relative to the
+> repository root), every file path in this skill is relative to `src/dsp_tools/commands/validate_data/`.
 
 ## What you are building, and when you are done
 
@@ -246,9 +261,11 @@ If in doubt whether a combined shape's message stays clear enough, ask.
 You must learn which `sh:sourceConstraintComponent` your shape triggers, because that decides whether
 you touch Python at all. This you will find more difficult to anticipate, therefore just try it out first.
 
-Full loop (requires **Docker running**): run `validate-data` on your test file with
-`--save-graphs <dir>` (CLI flag defined in `cli/create_parsers.py`, consumed in `validate_data.py`).
-Open the saved report `.ttl`, find the `sh:ValidationResult` whose `sh:focusNode` is your resource, and
+Full loop (requires **Docker running**): run `validate-data` on your test file with the `--save-graphs`
+flag (defined in `src/dsp_tools/cli/create_parsers.py`, consumed in `validate_data.py`) — e.g.
+`dsp-tools validate-data --save-graphs <your-test-file.xml>`. The graphs are written to a `graphs/` folder
+next to the XML file. Open the saved report `.ttl`, find the `sh:ValidationResult` whose `sh:focusNode`
+is your resource, and
 read its `sh:sourceConstraintComponent`. Alternatively assert it directly, the way
 `test_core_violations.py::TestWithReportGraphs::test_extract_identifiers_of_resource_results` does.
 Note that a violation may trigger a main violation which is identifiable by the resource id or value id and a `sh:detail`.
@@ -344,9 +361,9 @@ none of the existing `ProblemType`s fit.
    `PROBLEM_TYPES_IGNORE_STR_ENUM_INFO` to show the shape's `sh:message` instead of the enum label; add
    a case in `_get_expected_prefix` for an "Expected …" prefix; special-case `_shorten_input` if the
    input value must not be truncated.
-7. **Unit tests** — add a `report_<x>` + `extracted_<x>` fixture pair in
-   `fixtures/validation_result.py`, a dispatch test in `test_query_validation_result.py`, and a
-   reformat test in `test_reformat_validation_results.py`.
+7. **Unit tests** — under `test/unittests/commands/validate_data/`, add a `report_<x>` + `extracted_<x>`
+   fixture pair in `fixtures/validation_result.py`, a dispatch test in `test_query_validation_result.py`,
+   and a reformat test in `test_reformat_validation_results.py`.
 8. **Add to table above** to prevent outdated information you must also update this document.
 
 **Minimum change set** if `GENERIC` is acceptable: steps 1, 7 and 8 only.
@@ -403,8 +420,8 @@ The review must consider, but is not limited to:
 
 1. [ ] Add one violating + one correct resource to `testdata/validate-data/…` (one error per resource,
    descriptive `id`, XML comment). Add any new property/class to the project JSON.
-2. [ ] Decide static (`resources/validate_data/*.ttl`, preferred) vs. dynamic (`sparql/*.py`) or combination. Write a
-   clear `sh:message`.
+2. [ ] Decide static (`src/dsp_tools/resources/validate_data/*.ttl`, preferred) vs. dynamic (`sparql/*.py`)
+   or combination. Write a clear `sh:message`.
 3. [ ] If a new static file or a new generator: wire it into `prepare_data/prepare_data.py`
    `_create_graphs` / `sparql/construct_shacl.py`, in the correct (content vs. cardinality) graph.
 4. [ ] Find the firing `sh:sourceConstraintComponent` (unit fixture, or `--save-graphs` + Docker).

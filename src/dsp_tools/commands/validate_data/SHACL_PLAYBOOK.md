@@ -5,10 +5,15 @@ Everything you need is here or linked. The ordered steps below are not a rigid p
 **most efficient, fool-proof path** to the goal, sequenced so the cheapest feedback comes first. Deviate
 if you have a good reason, but the ordering is what keeps you from building a lot on a wrong assumption.
 
-If you want to know *how the existing code is structured*, read [`CLAUDE.md`](./CLAUDE.md) first.
-This file is the *how do I add a new check* companion to it.
+This file is the *how do I add a new check* companion to [`CLAUDE.md`](./CLAUDE.md), which describes
+how the existing code is structured.
 
 ## What you are building, and when you are done
+
+**Context.** `dsp-tools` uploads research data to the DSP. `validate-data` runs SHACL validation
+*before* the upload, so problems in the data are caught early — without waiting for a long upload that
+may fail near the end. Every shape therefore exists to catch a real data problem and report it with an
+informative, actionable message, so the user can correct the data before uploading.
 
 **Goal.** A new SHACL shape that makes wrong data fail validation with a clear, actionable message and
 lets correct data pass — with the smallest possible change to the report-processing code.
@@ -30,10 +35,12 @@ a review subagent (Step 7) has confirmed the change reuses existing code and sta
 Front-load the decisions that are expensive to get wrong, then work autonomously. Do **not** interrupt
 mid-implementation for them.
 
-- **Severity — always confirm with the developer.** Whether a check is a violation, warning, or info is
-  a policy decision you cannot derive, and it *routes the rest of your work*: it decides which test file
-  and which e2e assertion list the data goes into (violations vs. warnings/info, see Step 6). Getting it
-  wrong late means redoing the test wiring. Add the chosen value to the shape's `sh:severity`:
+- **Severity — confirm with the developer, unless it is already specified.** Whether a check is a
+  violation, warning, or info is a policy decision you cannot derive, and it *routes the rest of your
+  work*: it decides which test file and which e2e assertion list the data goes into (violations vs.
+  warnings/info, see Step 6). Getting it wrong late means redoing the test wiring. If the severity is
+  already given (in the prompt, a PRD, or an implementation plan), use it and do not ask again.
+  Add the chosen value to the shape's `sh:severity`:
     - `sh:Violation` — **always blocks** upload on every server. For wrong data.
     - `sh:Warning` — **non-blocking on a test server, blocks on production**. Primarily for data that is
       only temporarily missing.
@@ -41,7 +48,8 @@ mid-implementation for them.
 - **Purpose, if it is not clear from the code.** If you cannot tell from the ontology and the code what
   the check is *for*, ask — a shape built on a misunderstood intent is the classic source of wasted work.
 
-Everything else you **research and propose, you do not ask**: derive the datatype, the target
+Everything else you **research and propose; you do not ask unless it is absolutely necessary**: derive
+the datatype, the target
 value/resource, and whether a property is mandatory or repeatable from the project ontology JSON, the
 `knora-api` definitions, and the XML test data. Surface a choice for confirmation **only if it stays
 genuinely ambiguous after that research** — e.g. the property is a `knora-api` concept like
@@ -158,8 +166,14 @@ statically in `api-shapes.ttl` (`Textarea` and `Richtext` map to other class sha
 common move is: **add a reusable static shape, then add/extend a SPARQL generator that binds the
 project's properties to it.**
 
-**Write a good `sh:message` in the shape.** For many components the shape's message is shown verbatim
-to the user (see the table in Step 4). A clear message here often means **zero or little Python changes**.
+**Write a useful `sh:message` in the shape.** For many components the shape's message is shown verbatim
+to the user (see the table in Step 4), so a useful message here often means **zero or little Python
+changes**. A useful message is *actionable*: the user must be able to understand and fix the problem
+without any further investigation. State what is wrong *and* what is expected, in the terms the user
+knows (the XML and ontology names, not internal SHACL/RDF jargon).
+
+- **Good:** `"Only positive numbers are allowed for this property, you entered a negative number."`
+- **Bad:** `"Invalid input for this property"` — the user has to investigate what "invalid" means.
 
 ### Shape authoring conventions
 
@@ -365,7 +379,7 @@ none of the existing `ProblemType`s fit.
 ## 8. Step 7 — Review before handing back
 
 When the implementation is complete and both suites are green, **spawn a review subagent** before you
-hand back — the agent that wrote the code is the least reliable judge of its own reuse and complexity.
+hand back.
 This is the *quality* net, not the correctness check (correctness is the empirical loop in Steps 1–4).
 The review must consider, but is not limited to:
 

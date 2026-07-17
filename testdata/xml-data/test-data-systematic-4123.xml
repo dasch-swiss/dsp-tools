@@ -186,7 +186,7 @@
             <resptr permissions="public">region_2</resptr>
         </resptr-prop>
         <region-preview-prop name=":hasRegionPreview">
-            <region-preview permissions="public">region_2</region-preview>
+            <region-preview permissions="public">region_4</region-preview>
         </region-preview-prop>
         <resptr-prop name=":hasRepresentation">
             <resptr permissions="public">image_thing_0</resptr>
@@ -389,6 +389,30 @@
             <text permissions="public" encoding="utf8">This is a Imagething as TIFF</text>
         </text-prop>
     </resource>
+
+    <region label="Rectangle in image"
+            id="region_4"
+            permissions="limited_view">
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="public">
+                {
+                    "status": "active",
+                    "type": "rectangle",
+                    "lineWidth": 5,
+                    "points": [
+                        {"x":0.1,"y":0.7},
+                        {"x":0.3,"y":0.2}
+                    ]
+                }
+            </geometry>
+        </geometry-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="public">image_thing_1</resptr>
+        </resptr-prop>
+        <color-prop name="hasColor">
+            <color permissions="private">#5d1f1e</color>
+        </color-prop>
+    </region>
 
     <resource label="Imagething-tiff wihtout legal info"
               restype=":ImageThing"

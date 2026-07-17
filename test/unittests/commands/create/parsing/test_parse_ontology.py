@@ -109,6 +109,27 @@ class TestParseProperties:
         assert result.node_name is None
         assert result.onto_iri == ONTO_IRI_STR
 
+    def test_good_region_preview(self, prefixes):
+        p_lbl = {"en": "testHasRegionPreview"}
+        prop = {
+            "name": "testHasRegionPreview",
+            "super": ["hasRegionPreview"],
+            "object": "Region",
+            "labels": p_lbl,
+            "gui_element": "RegionPreview",
+        }
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
+        assert isinstance(result, ParsedProperty)
+        assert result.name == f"{ONTO_NAMESPACE_STR}testHasRegionPreview"
+        assert result.labels == p_lbl
+        assert result.comments is None
+        assert set(result.supers) == {f"{KNORA_API_PREFIX}hasRegionPreview"}
+        assert result.object == f"{KNORA_API_PREFIX}Region"
+        assert result.subject is None
+        assert result.gui_element == GuiElement.REGION_PREVIEW
+        assert result.node_name is None
+        assert result.onto_iri == ONTO_IRI_STR
+
     def test_bad_prefix(self, prefixes):
         p_lbl = {"en": "testHasLinkToClassMixedCard"}
         prop = {

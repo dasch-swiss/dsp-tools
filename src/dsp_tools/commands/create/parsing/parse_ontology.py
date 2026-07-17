@@ -46,6 +46,7 @@ GUI_ELEMENT_MAPPER = {
     "Textarea": GuiElement.TEXTAREA,
     "Richtext": GuiElement.RICHTEXT,
     "Searchbox": GuiElement.SEARCHBOX,
+    "RegionPreview": GuiElement.REGION_PREVIEW,
     "TimeStamp": GuiElement.TIME_STAMP,
 }
 
@@ -113,7 +114,9 @@ def _parse_one_property(
         else:
             supers.append(resolved)
 
-    if gui_element == GuiElement.SEARCHBOX:
+    if gui_element in (GuiElement.SEARCHBOX, GuiElement.REGION_PREVIEW):
+        # the object is a resource class (Region for a region preview), resolved to its IRI,
+        # not one of the value types in OBJECT_TYPE_MAPPER
         if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(

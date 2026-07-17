@@ -22,6 +22,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInterval
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
@@ -694,6 +695,16 @@ class TestValues:
         assert result.comment == "cmt"
         assert result.value_order is None
 
+    def test_region_preview_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, "region_id", KnoraValueType.REGION_PREVIEW_VALUE, "public", "cmt", None)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedRegionPreview)
+        assert result.value == "region_id"
+        assert result.prop_iri == HAS_PROP
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order is None
+
     def test_time_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None, None)
         result = _get_one_processed_value(val, lookups)
@@ -754,6 +765,16 @@ class TestValueOrder:
         assert isinstance(result, ProcessedLink)
         assert result.value == "other_id"
         assert result.prop_iri == f"{HAS_PROP}Value"
+        assert isinstance(result.permissions, Permissions)
+        assert result.comment == "cmt"
+        assert result.value_order == 3
+
+    def test_region_preview_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, "region_id", KnoraValueType.REGION_PREVIEW_VALUE, "public", "cmt", 3)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedRegionPreview)
+        assert result.value == "region_id"
+        assert result.prop_iri == HAS_PROP
         assert isinstance(result.permissions, Permissions)
         assert result.comment == "cmt"
         assert result.value_order == 3

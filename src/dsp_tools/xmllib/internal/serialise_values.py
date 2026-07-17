@@ -18,6 +18,7 @@ from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import RegionPreviewValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
@@ -35,6 +36,7 @@ PROP_TYPE_LOOKUP = {
     GeonameValue: "geoname",
     IntValue: "integer",
     LinkValue: "resptr",
+    RegionPreviewValue: "region-preview",
     ListValue: "list",
     TimeValue: "time",
     UriValue: "uri",

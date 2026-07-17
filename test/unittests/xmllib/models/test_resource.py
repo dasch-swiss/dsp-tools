@@ -20,6 +20,7 @@ from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import RegionPreviewValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
@@ -262,6 +263,25 @@ class TestAddValues:
         res = res.add_link_optional(":prop", "other_id")
         assert len(res.values) == 1
         assert isinstance(res.values[0], LinkValue)
+
+    def test_add_region_preview(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_region_preview(":prop", "region_id")
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], RegionPreviewValue)
+
+    def test_add_region_preview_multiple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_region_preview_multiple(
+            ":prop", ["region_id", "another_region_id"]
+        )
+        assert len(res.values) == 2
+        assert all([isinstance(x, RegionPreviewValue) for x in res.values])
+
+    def test_add_region_preview_optional(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_region_preview_optional("", pd.NA)
+        assert not res.values
+        res = res.add_region_preview_optional(":prop", "region_id")
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], RegionPreviewValue)
 
     def test_add_list(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_list(":prop", "list-1", "node-1")

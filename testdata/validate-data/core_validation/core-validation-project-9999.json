@@ -466,7 +466,7 @@
                 "gui_order": 20
               }
             ]
-          },,
+          },
           {
             "name": "CardOneResource",
             "super": "Resource",

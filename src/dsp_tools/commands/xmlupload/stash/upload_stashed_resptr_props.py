@@ -13,6 +13,8 @@ from tqdm import tqdm
 from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_region_preview_value_graph
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
@@ -98,7 +100,10 @@ def _make_link_value_create_graph(
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     val_bn = BNode()
     res_iri = URIRef(res_iri_str)
-    graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
+    if isinstance(stash.value, ProcessedRegionPreview):
+        graph = make_region_preview_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
+    else:
+        graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
     graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
     return graph
 

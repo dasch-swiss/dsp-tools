@@ -8,6 +8,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -108,6 +109,37 @@ def test_stash_circular_references_remove_link_value(
 
     assert len(resource_2.values) == len(copied_res_2.values)
     assert len(resource_3.values) == len(copied_res_3.values)
+
+
+def test_stash_circular_references_remove_region_preview_value() -> None:
+    preview_value = ProcessedRegionPreview(
+        "res_target", "prop", None, None, value_uuid="preview_to_res_target_uuid", value_order=None
+    )
+    resource = ProcessedResource(
+        res_id="res_preview",
+        type_iri="type",
+        label="lbl",
+        permissions=None,
+        values=[preview_value],
+    )
+    resources = [deepcopy(resource)]
+    lookup = {"res_preview": ["preview_to_res_target_uuid"]}
+    result = stash_circular_references(resources, lookup)
+    assert isinstance(result, Stash)
+    assert not result.standoff_stash
+    link_stash = result.link_value_stash
+    assert isinstance(link_stash, LinkValueStash)
+    assert link_stash.res_2_stash_items.keys() == lookup.keys()
+    stash_list = link_stash.res_2_stash_items["res_preview"]
+    assert len(stash_list) == 1
+    stash_item = stash_list.pop(0)
+    assert stash_item.res_id == "res_preview"
+    assert stash_item.res_type == "type"
+    assert isinstance(stash_item.value, ProcessedRegionPreview)
+    # prop_iri is not rewritten to `…Value`, unlike a stashed LinkValue
+    assert stash_item.value.prop_iri == "prop"
+    assert stash_item.value.value == "res_target"
+    assert len(resources[0].values) == 0
 
 
 def test_stash_circular_references_remove_text_value(

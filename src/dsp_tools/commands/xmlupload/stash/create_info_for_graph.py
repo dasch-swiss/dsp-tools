@@ -2,6 +2,7 @@ from loguru import logger
 
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
@@ -31,7 +32,7 @@ def _process_one_resource(resource: ProcessedResource) -> tuple[list[LinkValueLi
     link_values = []
     stand_off = []
     for val in resource.values:
-        if isinstance(val, ProcessedLink):
+        if isinstance(val, (ProcessedLink, ProcessedRegionPreview)):
             if is_resource_iri(val.value):
                 continue
             link_values.append(

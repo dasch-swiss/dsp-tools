@@ -139,7 +139,7 @@ def region_preview_prop() -> Graph:
         rdfs:label "Test region preview" ;
         knora-api:isEditable true ;
         knora-api:isResourceProperty true ;
-        knora-api:objectType knora-api:Region ;
+        knora-api:objectType knora-api:RegionPreviewValue ;
         salsah-gui:guiElement salsah-gui:RegionPreview ;
         rdfs:subPropertyOf knora-api:hasRegionPreview .
     """

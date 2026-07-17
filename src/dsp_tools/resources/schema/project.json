@@ -90,6 +90,7 @@
                 "GeonameValue",
                 "IntValue",
                 "ListValue",
+                "RegionPreviewValue",
                 "TextValue",
                 "TimeValue",
                 "UriValue"

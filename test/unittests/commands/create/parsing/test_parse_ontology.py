@@ -114,7 +114,7 @@ class TestParseProperties:
         prop = {
             "name": "testHasRegionPreview",
             "super": ["hasRegionPreview"],
-            "object": "Region",
+            "object": "RegionPreviewValue",
             "labels": p_lbl,
             "gui_element": "RegionPreview",
         }
@@ -124,7 +124,8 @@ class TestParseProperties:
         assert result.labels == p_lbl
         assert result.comments is None
         assert set(result.supers) == {f"{KNORA_API_PREFIX}hasRegionPreview"}
-        assert result.object == f"{KNORA_API_PREFIX}Region"
+        # a region preview is a value property: object is the value type RegionPreviewValue, not the target class
+        assert result.object == KnoraObjectType.REGION_PREVIEW
         assert result.subject is None
         assert result.gui_element == GuiElement.REGION_PREVIEW
         assert result.node_name is None

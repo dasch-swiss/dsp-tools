@@ -265,7 +265,7 @@ def _construct_region_preview_value_shape(target: Graph, onto: Graph) -> None:
     } WHERE {
 
         ?prop a owl:ObjectProperty ;
-                knora-api:objectType knora-api:Region ;
+                knora-api:objectType knora-api:RegionPreviewValue ;
                 salsah-gui:guiElement salsah-gui:RegionPreview .
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)

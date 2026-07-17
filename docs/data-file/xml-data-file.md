@@ -846,7 +846,7 @@ and a link to `<resource id="res_2" ...>`:
 The `<region-preview-prop>` element links a Region so that it can be rendered as a preview.
 It must contain at least one `<region-preview>` element.
 
-The property must be defined in the ontology with `super: hasRegionPreview`, `object: Region`, and
+The property must be defined in the ontology with `super: hasRegionPreview`, `object: RegionPreviewValue`, and
 `gui_element: RegionPreview`
 (see the [ontology documentation](../data-model/json-project/ontologies.md#property-object-gui_element-gui_attributes)).
 

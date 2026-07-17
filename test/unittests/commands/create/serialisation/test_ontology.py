@@ -173,7 +173,7 @@ class TestSerialiseProperty:
             labels={"en": "has region preview"},
             comments=None,
             supers=[KNORA_API.hasRegionPreview],
-            object=str(KNORA_API.Region),
+            object=str(KNORA_API.RegionPreviewValue),
             subject=None,
             gui_element=GuiElement.REGION_PREVIEW,
             node_name=None,
@@ -182,7 +182,7 @@ class TestSerialiseProperty:
         result_graph = _make_one_property_graph(prop, None)
         assert (prop_iri, RDF.type, OWL.ObjectProperty) in result_graph
         assert (prop_iri, RDFS.subPropertyOf, KNORA_API.hasRegionPreview) in result_graph
-        assert (prop_iri, KNORA_API.objectType, KNORA_API.Region) in result_graph
+        assert (prop_iri, KNORA_API.objectType, KNORA_API.RegionPreviewValue) in result_graph
         assert (prop_iri, SALSAH_GUI.guiElement, URIRef(str(GuiElement.REGION_PREVIEW))) in result_graph
         assert (prop_iri, RDFS.label, Literal("has region preview", lang="en")) in result_graph
 

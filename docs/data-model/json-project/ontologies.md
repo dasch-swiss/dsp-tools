@@ -257,7 +257,7 @@ These three are related as follows:
 | hasValue                              | TimeValue                                                          | TimeStamp                              |
 | hasValue                              | UriValue                                                           | SimpleText                             |
 | hasLinkTo                             | (resourceclass)                                                    | Searchbox                              |
-| hasRegionPreview                      | (Region resourceclass)                                             | RegionPreview                          |
+| hasRegionPreview                      | RegionPreviewValue                                                 | RegionPreview                          |
 | hasRepresentation                     | Representation                                                     | Searchbox                              |
 | isPartOf                              | (resourceclass)                                                    | Searchbox                              |
 | seqnum                                | IntValue                                                           | Spinbox, <br>SimpleText                |

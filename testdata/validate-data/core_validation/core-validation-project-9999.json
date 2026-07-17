@@ -301,7 +301,7 @@
             "super": [
               "hasRegionPreview"
             ],
-            "object": "Region",
+            "object": "RegionPreviewValue",
             "labels": {
               "en": "Test region preview"
             },
@@ -312,7 +312,7 @@
             "super": [
               ":testHasRegionPreview"
             ],
-            "object": "Region",
+            "object": "RegionPreviewValue",
             "labels": {
               "en": "Test region preview"
             },

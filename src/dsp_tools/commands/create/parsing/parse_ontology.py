@@ -30,6 +30,7 @@ OBJECT_TYPE_MAPPER = {
     "GeonameValue": KnoraObjectType.GEONAME,
     "IntValue": KnoraObjectType.INT,
     "ListValue": KnoraObjectType.LIST,
+    "RegionPreviewValue": KnoraObjectType.REGION_PREVIEW,
     "TextValue": KnoraObjectType.TEXT,
     "TimeValue": KnoraObjectType.TIME,
     "UriValue": KnoraObjectType.URI,
@@ -114,9 +115,8 @@ def _parse_one_property(
         else:
             supers.append(resolved)
 
-    if gui_element in (GuiElement.SEARCHBOX, GuiElement.REGION_PREVIEW):
-        # the object is a resource class (Region for a region preview), resolved to its IRI,
-        # not one of the value types in OBJECT_TYPE_MAPPER
+    if gui_element == GuiElement.SEARCHBOX:
+        # a link property's object is a resource class, resolved to its IRI, not a value type
         if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(

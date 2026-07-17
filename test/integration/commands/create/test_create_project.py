@@ -9,6 +9,7 @@ from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationErro
 from dsp_tools.commands.create.models.create_problems import InputProblemType
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.project_validate import _validate_parsed_json_project
+from dsp_tools.commands.create.project_validate import _validate_with_json_schema
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
 from dsp_tools.utils.exceptions import JSONFileParsingError
 from dsp_tools.utils.json_parsing import parse_json_file
@@ -41,6 +42,14 @@ def test_json_schema_validation_error():
         ProjectJsonSchemaValidationError, match=regex.escape("validation error: 'hasColor' does not match")
     ):
         parse_and_validate_project(Path("testdata/invalid-testdata/json-project/invalid-super-property.json"), SERVER)
+
+
+def test_json_schema_validation_accepts_region_preview() -> None:
+    # regression: `create` validates against project.json (not properties-only.json); a project property with
+    # super hasRegionPreview / object Region / gui_element RegionPreview must pass the create-pipeline schema.
+    with open("testdata/validate-data/core_validation/core-validation-project-9999.json", encoding="utf-8") as f:
+        project = json.load(f)
+    _validate_with_json_schema(project)
 
 
 def test_circular_reference_error():

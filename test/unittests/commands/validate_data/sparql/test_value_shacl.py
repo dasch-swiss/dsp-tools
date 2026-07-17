@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_region_preview_value_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 from dsp_tools.utils.rdf_constants import API_SHAPES
@@ -55,6 +56,22 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.path)) == ONTO.testRichtext
     assert next(res.objects(ONTO.testRichtext_PropShape, RDF.type)) == SH.PropertyShape
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.node)) == API_SHAPES.FormattedTextValue_ClassShape
+
+
+def test_construct_region_preview_value_shape(region_preview_prop: Graph) -> None:
+    res = Graph(store="Oxigraph")
+    _construct_region_preview_value_shape(res, region_preview_prop)
+    assert len(res) == 3
+    assert next(res.objects(ONTO.testHasRegionPreview_PropShape, SH.path)) == ONTO.testHasRegionPreview
+    assert next(res.objects(ONTO.testHasRegionPreview_PropShape, RDF.type)) == SH.PropertyShape
+    assert next(res.objects(ONTO.testHasRegionPreview_PropShape, SH.node)) == API_SHAPES.isRegionPreviewOf_NodeShape
+
+
+def test_construct_region_preview_value_shape_ignores_link(link_prop: Graph) -> None:
+    # the double filter (objectType Region + guiElement RegionPreview) must not match a Searchbox link property
+    res = Graph(store="Oxigraph")
+    _construct_region_preview_value_shape(res, link_prop)
+    assert len(res) == 0
 
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:

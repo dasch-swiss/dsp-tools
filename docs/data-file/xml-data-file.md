@@ -295,6 +295,7 @@ The following property elements exist:
 - `<integer-prop>`: contains integer values
 - `<period-prop>`: contains time period values (not yet implemented)
 - `<resptr-prop>`: contains links to other resources
+- `<region-preview-prop>`: contains links to Regions rendered as a preview
 - `<text-prop>`: contains text values
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
@@ -837,6 +838,40 @@ and a link to `<resource id="res_2" ...>`:
     <resptr">res_1</resptr>
     <resptr>res_2</resptr>
 </resptr-prop>
+```
+
+
+### `<region-preview-prop>`
+
+The `<region-preview-prop>` element links a Region so that it can be rendered as a preview.
+It must contain at least one `<region-preview>` element.
+
+The property must be defined in the ontology with `super: hasRegionPreview`, `object: Region`, and
+`gui_element: RegionPreview`
+(see the [ontology documentation](../data-model/json-project/ontologies.md#property-object-gui_element-gui_attributes)).
+
+Attributes:
+
+- `name`: name of the property as defined in the ontology (required)
+
+
+#### `<region-preview>`
+
+The `<region-preview>` element contains either the internal ID of a Region inside the XML or the IRI of an already
+existing Region on DSP. The target must be a Region; this is checked by `validate-data` before the upload.
+
+Attributes:
+
+- `permissions`: Permission ID (optional)
+- `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
+
+Example of a property with a region preview pointing to `<resource id="region_1" ...>`:
+
+```xml
+<region-preview-prop name=":hasRegionPreview">
+    <region-preview>region_1</region-preview>
+</region-preview-prop>
 ```
 
 

@@ -68,6 +68,31 @@ def test_replace_ids_by_iris_resptr_only(mapping: dict[str, Any]) -> None:
     assert xml_replaced == xml_expected
 
 
+def test_replace_ids_by_iris_region_preview(mapping: dict[str, Any]) -> None:
+    xml = """
+    <knora shortcode="4123" default-ontology="testonto">
+        <resource label="region_preview" restype=":TestThing" id="region_preview">
+            <region-preview-prop name=":hasRegionPreview">
+                <region-preview>test_thing_0</region-preview>
+            </region-preview-prop>
+        </resource>
+    </knora>
+    """
+    xml_expected = """
+    <knora shortcode="4123" default-ontology="testonto">
+        <resource label="region_preview" restype=":TestThing" id="region_preview">
+            <region-preview-prop name=":hasRegionPreview">
+                <region-preview>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</region-preview>
+            </region-preview-prop>
+        </resource>
+    </knora>
+    """
+    xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+    root_replaced = _replace_ids_by_iris(etree.fromstring(xml), mapping)
+    xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+    assert xml_replaced == xml_expected
+
+
 def test_replace_ids_by_iris_salsah_link_only(mapping: dict[str, Any]) -> None:
     xml = """
     <knora shortcode="4123" default-ontology="testonto">

@@ -418,6 +418,17 @@
                         "gui_element": "Searchbox"
                     },
                     {
+                        "name": "hasRegionPreview",
+                        "super": [
+                            "hasRegionPreview"
+                        ],
+                        "object": "RegionPreviewValue",
+                        "labels": {
+                            "en": "hasRegionPreview"
+                        },
+                        "gui_element": "RegionPreview"
+                    },
+                    {
                         "name": "hasRepresentation",
                         "super": [
                             "hasLinkTo"
@@ -547,6 +558,11 @@
                             },
                             {
                                 "propname": ":hasRegion",
+                                "cardinality": "0-n",
+                                "gui_order": 14
+                            },
+                            {
+                                "propname": ":hasRegionPreview",
                                 "cardinality": "0-n",
                                 "gui_order": 14
                             },

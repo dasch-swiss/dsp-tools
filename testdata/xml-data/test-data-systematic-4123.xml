@@ -185,6 +185,9 @@
         <resptr-prop name=":hasRegion">
             <resptr permissions="public">region_2</resptr>
         </resptr-prop>
+        <region-preview-prop name=":hasRegionPreview">
+            <region-preview permissions="public">region_2</region-preview>
+        </region-preview-prop>
         <resptr-prop name=":hasRepresentation">
             <resptr permissions="public">image_thing_0</resptr>
             <resptr permissions="public">video_thing_1</resptr>

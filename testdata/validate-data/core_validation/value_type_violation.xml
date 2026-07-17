@@ -6,8 +6,6 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 15 Violations -->
-
     <!--
         In this file, the property type does not match with the ontology.
         The content is valid (eg. a boolean is a valid boolean)
@@ -68,6 +66,12 @@
         <text-prop name=":testHasLinkTo">
             <text encoding="utf8">id_1</text>
         </text-prop>
+    </resource>
+
+    <resource label="Preview Prop" restype=":ClassWithEverything" id="region_preview_wrong_type">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>empty_ok</region-preview>
+        </region-preview-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="richtext_wrong_value_type">

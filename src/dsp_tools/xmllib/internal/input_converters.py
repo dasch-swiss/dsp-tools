@@ -12,6 +12,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
+from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
 
 
 def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name: str | None) -> str | None:
@@ -104,6 +105,48 @@ def check_and_fix_authorship_input(authorship: Any, res_id: str, value_field: st
     if len(authors) == 0:
         return None
     return authors
+
+
+def check_and_fix_default_resource_authorship_input(
+    authorship: Any,
+) -> tuple[str, ...] | ResourceAuthorshipDefault | None:
+    """
+    Validates the `apply_default_resource_authorship` input of `XMLRoot.create_new`.
+
+    Accepts `None`, a `ResourceAuthorshipDefault` member, or a collection (list, set, tuple) of author names.
+    Raises an error for any other input, most notably the `ResourceAuthorshipDefault` class itself
+    (instead of its member), which would otherwise be silently serialised as a bogus author.
+
+    Args:
+        authorship: input for `apply_default_resource_authorship`
+
+    Returns:
+        `None`, the `ResourceAuthorshipDefault` member, or a sorted, deduplicated tuple of author names.
+
+    Raises:
+        XmllibInputError: if the input is not valid
+    """
+    field = "apply_default_resource_authorship"
+    if authorship is None:
+        return None
+    if isinstance(authorship, ResourceAuthorshipDefault):
+        return authorship
+    if isinstance(authorship, type) and issubclass(authorship, ResourceAuthorshipDefault):
+        msg = (
+            f"The '{field}' was set to the enum class 'ResourceAuthorshipDefault' itself. "
+            f"Please use its member 'ResourceAuthorshipDefault.PROJECT_DEFAULT' instead, "
+            f"or provide a list of author names."
+        )
+        raise_xmllib_input_error(MessageInfo(message=msg, resource_id="<XMLRoot>", field=field))
+    if isinstance(authorship, str):
+        return (authorship,)
+    if isinstance(authorship, (list, set, tuple)):
+        return tuple(authorship)
+    msg = (
+        f"The '{field}' must be a list of author names, 'ResourceAuthorshipDefault.PROJECT_DEFAULT', or None. "
+        f"Your input of the type '{type(authorship).__name__}' is not allowed."
+    )
+    raise_xmllib_input_error(MessageInfo(message=msg, resource_id="<XMLRoot>", field=field))
 
 
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:

@@ -246,7 +246,7 @@ attribute on [the resource](../../data-file/xml-data-file.md#resource-authorship
 To apply this default to a bulk import, set the
 [`use-project-default-resource-authorship`](../../data-file/xml-data-file.md#the-root-element-knora)
 attribute on the XML root (most easily via the xmllib option
-[`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)):
+[`apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`](../../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)):
 `xmlupload` then reads this field and writes it onto every resource without its own authorship.
 Note that `validate-data` does not apply this default, so the validated data may diverge from the
 uploaded data with respect to the resource authorship.

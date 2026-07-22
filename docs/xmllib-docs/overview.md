@@ -82,7 +82,7 @@ root = xmllib.XMLRoot.create_new(
 )
 ```
 
-To reuse the project's `default_data_authorship`, pass `xmllib.PROJECT_DEFAULT` instead of a list.
+To reuse the project's `default_data_authorship`, pass `xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT` instead of a list.
 Unlike a literal list, this is not resolved when the file is written, but at `xmlupload`:
 dsp-tools reads the project's default from the server and applies it to every resource without its own
 authorship. If the project has no `default_data_authorship` defined, the upload aborts with an error.
@@ -91,7 +91,7 @@ authorship. If the project has no `default_data_authorship` defined, the upload 
 root = xmllib.XMLRoot.create_new(
     shortcode="0000",
     default_ontology="onto",
-    apply_default_resource_authorship=xmllib.PROJECT_DEFAULT,
+    apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT,
 )
 ```
 
@@ -102,7 +102,7 @@ These are two different mechanisms, despite both being called a "default":
   is only a suggestion that DSP-APP proposes when a resource is created manually in the web interface;
   on its own it is never applied to uploaded data.
 - `apply_default_resource_authorship` on the `XMLRoot` actually writes the authorship onto your resources,
-  either from a literal list, or (with `xmllib.PROJECT_DEFAULT`) from the project's default resolved at
+  either from a literal list, or (with `xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`) from the project's default resolved at
   `xmlupload`.
 
 A resource record therefore has an authorship only if you set it explicitly: per resource with

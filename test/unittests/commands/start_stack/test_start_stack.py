@@ -121,3 +121,28 @@ class TestReadEnvVar:
     def test_raises_when_content_empty(self) -> None:
         with pytest.raises(StartStackInputError):
             _read_env_var("", "API")
+
+
+class TestExecuteDockerSystemPrune:
+    def test_non_interactive_skips_prune(
+        self, latest_handler: StackHandler, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
+                latest_handler._execute_docker_system_prune()
+        mock_run.assert_not_called()
+        assert "--prune" in capsys.readouterr().out
+
+    def test_interactive_yes_runs_prune(self, latest_handler: StackHandler) -> None:
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+                with patch("builtins.input", return_value="y"):
+                    latest_handler._execute_docker_system_prune()
+        mock_run.assert_called_once()
+
+    def test_interactive_no_skips_prune(self, latest_handler: StackHandler) -> None:
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run") as mock_run:
+            with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+                with patch("builtins.input", return_value="n"):
+                    latest_handler._execute_docker_system_prune()
+        mock_run.assert_not_called()

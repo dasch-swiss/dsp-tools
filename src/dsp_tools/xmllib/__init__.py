@@ -15,8 +15,8 @@ from .general_functions import get_list_nodes_from_string_via_list_name as get_l
 from .general_functions import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .general_functions import make_xsd_compatible_id as make_xsd_compatible_id
 from .general_functions import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
-from .models.config_options import PROJECT_DEFAULT as PROJECT_DEFAULT
 from .models.config_options import NewlineReplacement as NewlineReplacement
+from .models.config_options import ResourceAuthorshipDefault as ResourceAuthorshipDefault
 from .models.date_formats import Calendar as Calendar
 from .models.date_formats import DateFormat as DateFormat
 from .models.date_formats import Era as Era

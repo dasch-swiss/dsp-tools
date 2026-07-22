@@ -138,9 +138,11 @@ dsp-tools mapping config [--project-shortcode SHORTCODE] [--ontology NAME]
 The available options are:
 
 - `-P` | `--project-shortcode` (optional): 4-digit hexadecimal project shortcode.
-  If not provided, you will be prompted to enter it.
+  If not provided, you will be prompted to enter it (in a non-interactive session, the command
+  fails with an error asking you to pass `--project-shortcode` instead).
 - `--ontology` (optional): name of the ontology to map.
-  If not provided, you will be prompted to enter it.
+  If not provided, you will be prompted to enter it (in a non-interactive session, the command
+  fails with an error asking you to pass `--ontology` instead).
 
 The command creates a file named `{shortcode}-{ontology}-mapping.yaml` in the current working directory.
 

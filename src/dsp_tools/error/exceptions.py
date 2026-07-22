@@ -94,3 +94,14 @@ class PermanentConnectionError(InternalError):
 
 class BadCredentialsError(UserError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""
+
+
+class NonInteractiveContextCliError(UserError):
+    """Used when we require an interactive input, but the process is not running in a context where this is possible."""
+
+    def __init__(self, value_name: str, cli_flag: str) -> None:
+        msg = (
+            f"No {value_name} was provided and dsp-tools is not running in an interactive terminal. "
+            f"Provide it via '{cli_flag}'."
+        )
+        super().__init__(msg)

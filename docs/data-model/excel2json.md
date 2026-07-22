@@ -14,8 +14,8 @@ dsp-tools excel2json excelfolder project_definition.json
 
 The following options are available:
 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
 [here](#the-folder-structure-for-excel2json).
@@ -33,8 +33,8 @@ dsp-tools excel2lists [options] excelfolder lists_section.json
 
 The following options are available:
 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
 [here](#the-lists-section).
@@ -51,8 +51,8 @@ dsp-tools excel2resources resources.xlsx resources_section.json
 
 The following options are available:
 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The expected Excel format is [documented here](#the-resources-section).
 
@@ -68,8 +68,8 @@ dsp-tools excel2properties properties.xlsx properties_section.json
 
 The following options are available:
 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The expected Excel format is [documented here](#the-properties-section).
 
@@ -86,8 +86,8 @@ dsp-tools old-excel2json excelfolder project_definition.json
 
 The following options are available:
 
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 
 
@@ -103,8 +103,8 @@ dsp-tools old-excel2lists [options] excelfolder lists_section.json
 The following options are available:
 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
 [here](#the-lists-section-for-old-excel2json-and-old-excel2lists).

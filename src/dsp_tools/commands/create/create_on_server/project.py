@@ -16,6 +16,7 @@ from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.request_utils import is_server_error
 
 
@@ -59,9 +60,15 @@ def _exit_if_create_should_not_continue(shortcode: str, exit_if_exists: bool) ->
         f"Do you wish to continue uploading additional information? [y/n] "
     )
     logger.debug(msg)
-    resp = None
-    while resp not in ["y", "n"]:
-        resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+    resp = prompt_until_valid_answer(
+        prompt=BOLD_RED + msg + RESET_TO_DEFAULT,
+        valid_answers=["y", "n"],
+        non_interactive_answer="y",
+        non_interactive_notice=BOLD_RED
+        + msg
+        + "Continuing (non-interactive session). Use '--exit-if-exists' to abort instead."
+        + RESET_TO_DEFAULT,
+    )
     if resp == "n":
         logger.debug("Response 'n' abort command.")
         sys.exit(1)

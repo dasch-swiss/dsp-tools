@@ -21,11 +21,10 @@ from dsp_tools.setup.dotenv import read_dotenv_if_exists
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import validate_root_emit_user_message
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_default_resource_authorship_input
 from dsp_tools.xmllib.internal.serialise_resource import serialise_resources
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.models.config_options import PROJECT_DEFAULT
 from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -63,13 +62,12 @@ class XMLRoot:
             default_ontology: name of the default ontology
             apply_default_resource_authorship: optional default authorship for the resource records,
                 applied to every resource that does not set its own authorship with `Resource.create_new`.
-                Provide either a list of author names, or `xmllib.PROJECT_DEFAULT` to apply the
-                project's `default_data_authorship`.
+                Provide either a list of author names, or `xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`
+                to apply the project's `default_data_authorship` which is resolved against the server
+                during the `xmlupload`.
                 This is distinct from the project's `default_data_authorship`: setting it here actually
                 writes the authorship onto the resources, whereas the project field is only a default
                 that is never applied to uploaded data on its own.
-                A list of author names is baked into the XML during serialisation; `xmllib.PROJECT_DEFAULT`
-                is resolved at `xmlupload` against the project on the server.
 
         Returns:
             Instance of `XMLRoot`
@@ -96,16 +94,11 @@ class XMLRoot:
             root = xmllib.XMLRoot.create_new(
                 shortcode="0000",
                 default_ontology="onto",
-                apply_default_resource_authorship=xmllib.PROJECT_DEFAULT,
+                apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT,
             )
             ```
         """
-        if isinstance(apply_default_resource_authorship, ResourceAuthorshipDefault):
-            default_authorship: tuple[str, ...] | ResourceAuthorshipDefault | None = apply_default_resource_authorship
-        else:
-            default_authorship = check_and_fix_authorship_input(
-                apply_default_resource_authorship, "<XMLRoot>", "apply_default_resource_authorship"
-            )
+        default_authorship = check_and_fix_default_resource_authorship_input(apply_default_resource_authorship)
         return XMLRoot(
             shortcode=shortcode,
             default_ontology=default_ontology,
@@ -359,7 +352,7 @@ class XMLRoot:
             "shortcode": self.shortcode,
             "default-ontology": self.default_ontology,
         }
-        if self.apply_default_resource_authorship is PROJECT_DEFAULT:
+        if self.apply_default_resource_authorship is ResourceAuthorshipDefault.PROJECT_DEFAULT:
             attrib["use-project-default-resource-authorship"] = "true"
         return etree.Element(
             f"{DASCH_SCHEMA}knora",

@@ -352,6 +352,9 @@ def test_reformat_content_violation(authentication) -> None:
                 "(input displayed in format 'listName / NodeName')."
             ),
         ),
+        ("region_preview_another_project", "onto:testHasRegionPreview", "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"),
+        ("region_preview_not_a_region", "onto:testHasRegionPreview", "other"),
+        ("region_preview_region_does_not_exist", "onto:testHasRegionPreview", "id_9_target"),
         ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
         (
             "richtext_standoff_link_in_footnote_inexistent",
@@ -465,6 +468,7 @@ def test_reformat_value_type_violation(authentication) -> None:
         ("is_text_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
         ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
         ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
+        ("region_preview_wrong_type", "This property requires a RegionPreviewValue", "onto:testHasRegionPreview"),
         ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
         ("simpletext_wrong_value_type", "TextValue without formatting", "onto:testTextarea"),
         ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),

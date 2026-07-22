@@ -19,6 +19,10 @@ def prompt_until_valid_answer(
 ) -> str:
     """Ask the user until they enter one of the valid answers, and return the answer.
 
+    Use this when the prompt only asks permission to proceed: the command can run without an answer,
+    so a non-interactive run defaults and continues. Use prompt_for_required_value instead when the
+    prompt gathers a value the command cannot run without.
+
     In a non-interactive session (no TTY, e.g. CI, cron, piped stdin, or Docker without a TTY),
     print the notice and return non_interactive_answer instead of calling input(), which would
     raise there.
@@ -44,6 +48,10 @@ def prompt_until_valid_answer(
 
 def prompt_for_required_value(value_name: str, cli_flag: str) -> str:
     """Read a value that the command requires, from an interactive prompt or raise if there is none.
+
+    Use this when the prompt gathers a value the command cannot run without: a non-interactive run
+    has no sensible default and must fail. Use prompt_until_valid_answer instead when the prompt only
+    asks permission to proceed.
 
     In an interactive session, return the user's (stripped) input; the value is not validated
     further, so an empty answer is returned as an empty string. In a non-interactive session

@@ -1,6 +1,6 @@
 import sys
 
-from dsp_tools.error.exceptions import UserError
+from dsp_tools.error.exceptions import NonInteractiveContextCliError
 
 
 def stdin_is_interactive() -> bool:
@@ -47,7 +47,7 @@ def prompt_for_required_value(value_name: str, cli_flag: str) -> str:
 
     In an interactive session, return the user's (stripped) input; the value is not validated
     further, so an empty answer is returned as an empty string. In a non-interactive session
-    (no TTY), raise a UserError telling the user to pass the value via cli_flag, instead of
+    (no TTY), raise a NonInteractiveContextCliError telling the user to pass the value via cli_flag, instead of
     calling input(), which would raise an unhelpful error there.
 
     Args:
@@ -55,8 +55,5 @@ def prompt_for_required_value(value_name: str, cli_flag: str) -> str:
         cli_flag: the CLI flag that can supply the value non-interactively, e.g. "--project-shortcode"
     """
     if not stdin_is_interactive():
-        raise UserError(
-            f"No {value_name} was provided and dsp-tools is not running in an interactive terminal. "
-            f"Provide it via '{cli_flag}'."
-        )
+        raise NonInteractiveContextCliError(value_name, cli_flag)
     return input(f"Enter the {value_name}: ").strip()

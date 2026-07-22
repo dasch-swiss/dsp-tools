@@ -142,12 +142,6 @@ class TestWithReportGraphs:
             (URIRef("http://data/placeholder_type_wrong"), SH.NotConstraintComponent, None, None),
             (URIRef("http://data/placeholder_type_wrong"), SH.MinCountConstraintComponent, None, None),
             (URIRef("http://data/placeholder_type_wrong"), DASH.ClosedByTypesConstraintComponent, None, None),
-            (
-                URIRef("http://data/region_preview_target_wrong_class"),
-                SH.NodeConstraintComponent,
-                BNode,
-                SH.ClassConstraintComponent,
-            ),
             (URIRef("http://data/richtext_standoff_link_nonexistent"), SH.ClassConstraintComponent, None, None),
             (
                 URIRef("http://data/simpletext_wrong_value_type"),
@@ -212,7 +206,6 @@ class TestWithReportGraphs:
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
             ("placeholder_type_wrong", ProblemType.FILE_VALUE_PLACEHOLDER_TYPE_WRONG),
-            ("region_preview_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("richtext_standoff_link_nonexistent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),

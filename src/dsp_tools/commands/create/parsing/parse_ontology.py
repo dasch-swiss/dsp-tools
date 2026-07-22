@@ -116,7 +116,6 @@ def _parse_one_property(
             supers.append(resolved)
 
     if gui_element == GuiElement.SEARCHBOX:
-        # a link property's object is a resource class, resolved to its IRI, not a value type
         if not (obj_iri := resolve_to_absolute_iri(object_str, current_onto_prefix, prefixes)):
             problems.append(
                 InputProblem(

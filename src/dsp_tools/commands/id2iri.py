@@ -46,7 +46,6 @@ def _replace_resptrs(
     """
     modified_tree = copy.deepcopy(tree)
     xpaths = [f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]]
-    # a region preview is a project property on a plain <resource> only (not <link>/<region>)
     xpaths.append("/knora/resource/region-preview-prop/region-preview")
     xpaths.extend([f"/knora/{x}-segment/isSegmentOf" for x in ["video", "audio"]])
     xpaths.extend([f"/knora/{x}-segment/relatesTo" for x in ["video", "audio"]])

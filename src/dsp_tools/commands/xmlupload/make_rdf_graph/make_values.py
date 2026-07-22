@@ -201,7 +201,6 @@ def make_region_preview_value_graph(
     res_node: BNode | URIRef,
     target_iri: URIRef,
 ) -> Graph:
-    """Make a RegionPreviewValue graph (a plain value node, not a reified link)."""
     g = _make_base_value_graph(
         val=val, val_node=val_node, prop_type_info=REGION_PREVIEW_PROP_TYPE_INFO, res_node=res_node
     )

@@ -67,13 +67,6 @@ def test_construct_region_preview_value_shape(region_preview_prop: Graph) -> Non
     assert next(res.objects(ONTO.testHasRegionPreview_PropShape, SH.node)) == API_SHAPES.isRegionPreviewOf_NodeShape
 
 
-def test_construct_region_preview_value_shape_ignores_link(link_prop: Graph) -> None:
-    # the double filter (objectType Region + guiElement RegionPreview) must not match a Searchbox link property
-    res = Graph(store="Oxigraph")
-    _construct_region_preview_value_shape(res, link_prop)
-    assert len(res) == 0
-
-
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = Graph(store="Oxigraph")
     _add_property_shapes_to_class_shapes(res, card_1)

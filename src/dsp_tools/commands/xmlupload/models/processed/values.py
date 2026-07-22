@@ -76,16 +76,14 @@ class ProcessedLink(ProcessedValue):
 
 
 @dataclass
-class ProcessedRegionPreview(ProcessedValue):
-    # Region previews are plain values with no `…Value` companion property, so (unlike ProcessedLink)
-    # this class has no __post_init__ that appends `Value` to prop_iri.
+class ProcessedList(ProcessedValue):
     value: str
-    value_uuid: str
 
 
 @dataclass
-class ProcessedList(ProcessedValue):
+class ProcessedRegionPreview(ProcessedValue):
     value: str
+    value_uuid: str
 
 
 @dataclass

@@ -1,5 +1,22 @@
 # Changelog
 
+## [18.18.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.4...v18.18.0) (2026-07-22)
+
+
+### Enhancements
+
+* support resource-side legal metadata (DEV-6666) ([#2350](https://github.com/dasch-swiss/dsp-tools/issues/2350)) ([198ebe2](https://github.com/dasch-swiss/dsp-tools/commit/198ebe286b931bf691076174a84e3a2599dfb9d9))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.07.03 ([#2371](https://github.com/dasch-swiss/dsp-tools/issues/2371)) ([37f279a](https://github.com/dasch-swiss/dsp-tools/commit/37f279a2b30d9ac1d49c3b0862274966fe282528))
+
+
+### Documentation
+
+* **validate-data:** add new SHACL shape creation playbook ([#2362](https://github.com/dasch-swiss/dsp-tools/issues/2362)) ([fbf6bea](https://github.com/dasch-swiss/dsp-tools/commit/fbf6bea0cee6c129f0a49e4d9dd940a4bba5eae0))
+
 ## [18.17.4](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.3...v18.17.4) (2026-07-15)
 
 

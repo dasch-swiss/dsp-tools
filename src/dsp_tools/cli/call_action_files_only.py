@@ -17,6 +17,7 @@ from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.update_legal.core import update_legal_metadata
 from dsp_tools.commands.update_legal.models import LegalMetadataDefaults
 from dsp_tools.commands.update_legal.models import LegalProperties
+from dsp_tools.utils.interactive import prompt_for_required_value
 
 
 def call_id2iri(args: argparse.Namespace) -> bool:
@@ -84,21 +85,15 @@ def call_old_excel2json(args: argparse.Namespace) -> bool:
 
 
 def call_mapping_config(args: argparse.Namespace) -> bool:
-    shortcode = args.project_shortcode
-    if not shortcode:
-        shortcode = input("Enter the project shortcode: ").strip()
-    ontology = args.ontology
-    if not ontology:
-        ontology = input("Enter the ontology name: ").strip()
+    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project-shortcode")
+    ontology = args.ontology or prompt_for_required_value("ontology name", "--ontology")
     mapping_path = Path.cwd() / f"{shortcode}-{ontology}-mapping.yaml"
     check_input_dependencies(prohibited_paths=ProhibitedPaths([mapping_path]))
     return create_mapping_config(shortcode=shortcode, ontology=ontology, mapping_path=mapping_path)
 
 
 def call_migration_config(args: argparse.Namespace) -> bool:
-    shortcode = args.project_shortcode
-    if not shortcode:
-        shortcode = input("Enter the project shortcode: ").strip()
+    shortcode = args.project_shortcode or prompt_for_required_value("project shortcode", "--project-shortcode")
     return create_migration_config(shortcode=shortcode, cwd=Path.cwd())
 
 

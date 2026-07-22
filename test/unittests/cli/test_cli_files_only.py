@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -12,6 +13,12 @@ ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
 EXCEL_FOLDER = "testdata/excel2json/excel2json_files"
 EXCEL_FILE_PATH = "testdata/excel2json/excel2json_files/lists/list3.xlsx"
+
+
+@pytest.fixture(autouse=True)
+def skip_version_check() -> Iterator[None]:
+    with patch("dsp_tools.cli.entry_point._check_version"):
+        yield
 
 
 @patch("dsp_tools.cli.call_action_files_only.excel2json")
@@ -223,12 +230,23 @@ def test_migration_config_with_shortcode(create_migration_config: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action_files_only.create_migration_config")
-@patch("builtins.input", return_value="0ABC")
-def test_migration_config_prompts_for_shortcode(input_mock: Mock, create_migration_config: Mock) -> None:  # noqa: ARG001
+def test_migration_config_prompts_for_shortcode(create_migration_config: Mock) -> None:
     create_migration_config.return_value = True
     args = "migration config".split()
-    entry_point.run(args)
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+        with patch("builtins.input", return_value="0ABC"):
+            entry_point.run(args)
     create_migration_config.assert_called_once_with(shortcode="0ABC", cwd=Path.cwd())
+
+
+@patch("dsp_tools.cli.call_action_files_only.create_migration_config")
+def test_migration_config_errors_when_no_shortcode_and_non_interactive(create_migration_config: Mock) -> None:
+    args = "migration config".split()
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(args)
+    assert exc_info.value.code == 1
+    create_migration_config.assert_not_called()
 
 
 @patch("dsp_tools.cli.entry_point._print_version_info")

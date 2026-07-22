@@ -52,11 +52,28 @@ def test_project_exists_user_continues(
     mock_client_class.return_value = mock_client
     mock_input.return_value = "y"
 
-    result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+        result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     assert result == PROJECT_IRI
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+def test_project_exists_non_interactive_continues(
+    mock_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.return_value = PROJECT_IRI
+    mock_client_class.return_value = mock_client
+
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
+        result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+
+    assert result == PROJECT_IRI
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
@@ -97,7 +114,8 @@ def test_project_exists_user_exits(
     mock_exit.side_effect = SystemExit(1)
 
     with pytest.raises(SystemExit):
-        create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+        with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=True):
+            create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)

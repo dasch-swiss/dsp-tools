@@ -23,6 +23,7 @@ from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import logger_config
 from dsp_tools.setup.warnings_config import initialize_warnings
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 
 
 def main() -> None:
@@ -91,6 +92,7 @@ def _check_version() -> None:
     If a new post-release version is available, print a message to the user, and return None.
     If the base version (i.e. the major.minor.micro part of the version) is outdated,
     ask the user if they want to exit or continue anyway.
+    In a non-interactive session, print the warning and continue instead of prompting.
     """
     versioning_result = _get_dsp_tools_versions()
     if not versioning_result:
@@ -107,10 +109,12 @@ def _check_version() -> None:
         print(BOLD_RED + msg + RESET_TO_DEFAULT)
         return
 
-    msg += "Continue anyway? [y/n]"
-    resp = None
-    while resp not in ["y", "n"]:
-        resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
+    resp = prompt_until_valid_answer(
+        prompt=BOLD_RED + msg + "Continue anyway? [y/n]" + RESET_TO_DEFAULT,
+        valid_answers=["y", "n"],
+        non_interactive_answer="y",
+        non_interactive_notice=BOLD_RED + msg + "Continuing anyway (non-interactive session)." + RESET_TO_DEFAULT,
+    )
     if resp == "y":
         return
     sys.exit(1)

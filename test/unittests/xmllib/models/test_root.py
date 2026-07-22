@@ -8,9 +8,10 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib.models.config_options import PROJECT_DEFAULT
+from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -388,8 +389,8 @@ def _authorship_by_id(serialised: etree._Element) -> dict[str, list[str | None]]
 
 class TestApplyDefaultResourceAuthorship:
     def test_literal_normalised_on_create(self) -> None:
-        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["B", "A", "A"])
-        assert root.apply_default_resource_authorship == ("A", "B")
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["B", "A"])
+        assert set(root.apply_default_resource_authorship) == {"A", "B"}  # type: ignore[arg-type]
 
     def test_no_default(self) -> None:
         root = XMLRoot.create_new("0000", "test")
@@ -447,8 +448,10 @@ class TestApplyDefaultResourceAuthorship:
         assert xmlschema.validate(serialised)
 
     def test_project_default_sets_root_marker_without_baking(self) -> None:
-        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=PROJECT_DEFAULT)
-        assert root.apply_default_resource_authorship is PROJECT_DEFAULT
+        root = XMLRoot.create_new(
+            "0000", "test", apply_default_resource_authorship=ResourceAuthorshipDefault.PROJECT_DEFAULT
+        )
+        assert root.apply_default_resource_authorship is ResourceAuthorshipDefault.PROJECT_DEFAULT
         root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
         serialised = root.serialise()
         assert serialised.attrib["use-project-default-resource-authorship"] == "true"
@@ -457,13 +460,19 @@ class TestApplyDefaultResourceAuthorship:
         assert not list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}authorship"))
 
     def test_project_default_is_xsd_valid(self) -> None:
-        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=PROJECT_DEFAULT)
+        root = XMLRoot.create_new(
+            "0000", "test", apply_default_resource_authorship=ResourceAuthorshipDefault.PROJECT_DEFAULT
+        )
         root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
         serialised = root.serialise()
         schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
         with schema_path.open(encoding="utf-8") as schema_file:
             xmlschema = etree.XMLSchema(etree.parse(schema_file))
         assert xmlschema.validate(serialised)
+
+    def test_enum_class_instead_of_member_raises(self) -> None:
+        with pytest.raises(XmllibInputError, match="PROJECT_DEFAULT"):
+            XMLRoot.create_new("0000", "test", apply_default_resource_authorship=ResourceAuthorshipDefault)  # type: ignore[arg-type]
 
 
 def test_base_resources_with_own_authorship_is_xsd_valid() -> None:

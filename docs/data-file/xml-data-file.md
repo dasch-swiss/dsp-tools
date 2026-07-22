@@ -33,7 +33,7 @@ The `<knora>` element describes all resources that should be imported. It has th
   [`default_data_authorship`](../data-model/json-project/overview.md#default_data_authorship) during
   `xmlupload`. The upload aborts if the project has no default authorship defined. This attribute is
   usually not written by hand, but produced by the xmllib
-  [`apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`](../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)
+  [`apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`](../xmllib-docs/overview.md#setting-the-authorship-of-a-resource)
   option.
 
 The `<knora>` element may look as follows:
@@ -328,7 +328,8 @@ This is **distinct** from:
   set in the project definition file. That field is only a suggestion shown in DSP-APP; it is never applied
   to uploaded data on its own. To actually apply it, set the
   [`use-project-default-resource-authorship`](#the-root-element-knora) attribute on the `<knora>` root
-  (most easily via the xmllib option `apply_default_resource_authorship=xmllib.PROJECT_DEFAULT`), which fills
+  (most easily via the xmllib option 
+- `apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`), which fills
   it in for every resource without its own `authorship-id` at `xmlupload`.
 
 

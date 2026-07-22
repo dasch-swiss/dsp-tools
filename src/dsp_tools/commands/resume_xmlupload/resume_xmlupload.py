@@ -18,6 +18,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.setup.ansi_colors import RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 
 
 def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:
@@ -70,9 +71,12 @@ def _skip_first_resource(upload_state: UploadState) -> None:
             "It is not yet possible to skip the first item of the stashed properties.\n"
             "Do you want to continue with the upload of the stashed properties anyway? [y/n]"
         )
-        resp = None
-        while resp not in ["y", "n"]:
-            resp = input(RED + msg + RESET_TO_DEFAULT)
+        resp = prompt_until_valid_answer(
+            prompt=RED + msg + RESET_TO_DEFAULT,
+            valid_answers=["y", "n"],
+            non_interactive_answer="y",
+            non_interactive_notice=RED + msg + "\nContinuing (non-interactive session)." + RESET_TO_DEFAULT,
+        )
         if resp == "n":
             sys.exit(1)
 

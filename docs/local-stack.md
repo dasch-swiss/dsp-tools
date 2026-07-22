@@ -24,6 +24,8 @@ dsp-tools start-stack
 DSP-TOOLS will ask you for permission to clean Docker with a `docker system prune`.
 This will remove all unused containers, networks and images.
 If you don't know what that means, just type `y` ("yes") and then `Enter`.
+In a non-interactive session (e.g. CI, or a shell without a terminal), DSP-TOOLS does not prompt
+and skips the prune; pass `--prune` to run it anyway.
 
 The most frequently used options are:
 

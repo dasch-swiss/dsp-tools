@@ -27,8 +27,8 @@ The following options are available:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API.
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The defaults are intended for local testing: 
 
@@ -72,8 +72,8 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+- `--suppress-update-prompt` (optional): don't check for or warn about an outdated version of DSP-TOOLS 
+  (useful in non-interactive contexts, e.g. when the Terminal output is piped into a file)
 
 The defaults are intended for local testing: 
 

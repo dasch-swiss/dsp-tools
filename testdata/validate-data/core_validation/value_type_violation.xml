@@ -69,15 +69,9 @@
     </resource>
 
     <resource label="Preview Prop" restype=":ClassWithEverything" id="region_preview_wrong_type">
-        <region-preview-prop name=":testHasRegionPreview">
-            <region-preview>empty_ok</region-preview>
-        </region-preview-prop>
-    </resource>
-
-    <resource label="Preview Prop" restype=":ClassWithEverything" id="region_preview_sub_property_wrong_type">
-        <region-preview-prop name=":testHasRegionPreviewSubProperty">
-            <region-preview>empty_ok</region-preview>
-        </region-preview-prop>
+        <text-prop name=":testHasRegionPreview">
+            <text encoding="utf8">id_1</text>
+        </text-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="richtext_wrong_value_type">

@@ -308,17 +308,6 @@
             "gui_element": "RegionPreview"
           },
           {
-            "name": "testHasRegionPreviewSubProperty",
-            "super": [
-              ":testHasRegionPreview"
-            ],
-            "object": "RegionPreviewValue",
-            "labels": {
-              "en": "Test region preview"
-            },
-            "gui_element": "RegionPreview"
-          },
-          {
             "name": "testHasRepresentation",
             "super": [
               "hasRepresentation"
@@ -459,11 +448,6 @@
                 "propname": ":testHasRegionPreview",
                 "cardinality": "0-n",
                 "gui_order": 19
-              },
-              {
-                "propname": ":testHasRegionPreviewSubProperty",
-                "cardinality": "0-n",
-                "gui_order": 20
               }
             ]
           },

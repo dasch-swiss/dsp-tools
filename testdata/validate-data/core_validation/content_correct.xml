@@ -76,7 +76,7 @@
 
     <!-- Start Region preview information -->
 
-    <resource label="Preview Prop" restype=":ClassWithEverything" id="id_region_preview">
+    <resource label="Preview Prop" restype=":ClassWithEverything" id="id_region_for_preview">
         <region-preview-prop name=":testHasRegionPreview">
             <region-preview>region</region-preview>
         </region-preview-prop>
@@ -114,6 +114,12 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >testdata/bitstreams/test.png</bitstream>
+    </resource>
+
+    <resource label="preview" restype=":ClassWithEverything" id="id_region_preview_value">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>id_region_for_preview</region-preview>
+        </region-preview-prop>
     </resource>
 
     <!-- End Region preview information -->

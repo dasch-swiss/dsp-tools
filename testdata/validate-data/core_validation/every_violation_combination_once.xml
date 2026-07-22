@@ -191,16 +191,6 @@
     </resource>
 
     <!--
-    sh:sourceConstraintComponent  sh:NodeConstraintComponent
-    sh:detail                     sh:ClassConstraintComponent
-    -->
-    <resource label="Region preview target not a Region" restype=":ClassWithEverything" id="region_preview_target_wrong_class">
-        <region-preview-prop name=":testHasRegionPreview">
-            <region-preview>target_res</region-preview>
-        </region-preview-prop>
-    </resource>
-
-    <!--
     sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
     sh:detail                     -
     -->

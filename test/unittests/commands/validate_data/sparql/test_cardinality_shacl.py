@@ -31,7 +31,7 @@ class TestCheckTripleNumbersOnto:
         target = Graph(store="Oxigraph")
         _construct_resource_nodeshape(target, onto_for_cardinality)
         number_of_resource_classes = 12
-        triples_cls_nodeshape = 13 * number_of_resource_classes
+        triples_cls_nodeshape = 16 * number_of_resource_classes
         assert len(target) == triples_cls_nodeshape
 
     def test_one_nodeshape(self) -> None:
@@ -48,7 +48,7 @@ class TestCheckTripleNumbersOnto:
         assert next(result.objects(test_cls, RDF.type)) == SH.NodeShape
         assert next(result.objects(test_cls, DASH.closedByTypes)) == Literal(True)
         properties = list(result.objects(test_cls, SH.property))
-        assert len(properties) == 3
+        assert len(properties) == 4
         assert next(result.subjects(SH.property, API_SHAPES.hasPermissions_Cardinality)) == test_cls
         label_shape = next(result.subjects(SH.path, RDFS.label))
         assert next(result.subjects(SH.property, label_shape)) == test_cls
@@ -60,6 +60,9 @@ class TestCheckTripleNumbersOnto:
         standoff_shapes = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))
         assert next(result.subjects(SH.property, standoff_shapes)) == test_cls
         assert next(result.objects(standoff_shapes, RDF.type)) == SH.PropertyShape
+        authorship_shape = next(result.subjects(SH.path, KNORA_API.hasResourceAuthorship))
+        assert next(result.subjects(SH.property, authorship_shape)) == test_cls
+        assert next(result.objects(authorship_shape, RDF.type)) == SH.PropertyShape
 
     def test_cardinality_1(self, onto_for_cardinality: Graph) -> None:
         target = Graph(store="Oxigraph")
@@ -119,7 +122,7 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     subject_iri = subjects.pop()
     assert subject_iri == ONTO.CardOneResource
     node_triples = list(result.triples((subject_iri, None, None)))
-    num_triples = 5
+    num_triples = 6
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
     assert next(result.objects(subject_iri, DASH.closedByTypes)) == Literal(True)
@@ -130,6 +133,9 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     standoff_shape = next(result.subjects(SH.path, KNORA_API.hasStandoffLinkTo))
     assert isinstance(standoff_shape, BNode)
     assert next(result.subjects(SH.property, standoff_shape)) == subject_iri
+    authorship_shape = next(result.subjects(SH.path, KNORA_API.hasResourceAuthorship))
+    assert isinstance(authorship_shape, BNode)
+    assert next(result.subjects(SH.property, authorship_shape)) == subject_iri
 
 
 def test_construct_resource_nodeshape_no_res(one_bool_prop: Graph) -> None:

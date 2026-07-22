@@ -67,6 +67,26 @@ class TestCreateNewResource:
             res = Resource.create_new("res_id", "restype", pd.NA)  # type: ignore[arg-type]
         assert res.label == ""
 
+    def test_no_authorship(self):
+        res = Resource.create_new("res_id", "restype", "label")
+        assert res.authorship is None
+
+    def test_authorship(self):
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            res = Resource.create_new("res_id", "restype", "label", authorship=["auth2", "auth1", "auth1"])
+            assert len(caught_warnings) == 0
+        assert res.authorship == ("auth1", "auth2")
+
+    def test_authorship_with_empty_string(self):
+        with pytest.warns(XmllibInputWarning):
+            res = Resource.create_new("res_id", "restype", "label", authorship=[""])
+        assert res.authorship is None
+
+    def test_authorship_with_empty_list(self):
+        with pytest.warns(XmllibInputInfo):
+            res = Resource.create_new("res_id", "restype", "label", authorship=[])
+        assert res.authorship is None
+
 
 class TestAddValues:
     def test_add_bool(self) -> None:

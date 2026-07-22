@@ -1,5 +1,6 @@
 # mypy: disable-error-code="comparison-overlap"
 import warnings
+from pathlib import Path
 
 import pytest
 import regex
@@ -9,6 +10,7 @@ from pytest_unordered import unordered
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.models.config_options import PROJECT_DEFAULT
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -377,6 +379,126 @@ def test_root_add_resources() -> None:
     assert len(general_resources) == 2
 
 
+def _authorship_by_id(serialised: etree._Element) -> dict[str, list[str | None]]:
+    lookup = {}
+    for block in serialised.iterdescendants(tag=f"{DASCH_SCHEMA}authorship"):
+        lookup[block.attrib["id"]] = [author.text for author in block.iterchildren()]
+    return lookup
+
+
+class TestApplyDefaultResourceAuthorship:
+    def test_literal_normalised_on_create(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["B", "A", "A"])
+        assert root.apply_default_resource_authorship == ("A", "B")
+
+    def test_no_default(self) -> None:
+        root = XMLRoot.create_new("0000", "test")
+        assert root.apply_default_resource_authorship is None
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        serialised = root.serialise()
+        assert "use-project-default-resource-authorship" not in serialised.attrib
+        resource = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
+        assert "authorship-id" not in resource.attrib
+
+    def test_literal_fills_resource_without_authorship(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["Daisy Duck"])
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        serialised = root.serialise()
+        resource = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
+        by_id = _authorship_by_id(serialised)
+        assert by_id[resource.attrib["authorship-id"]] == ["Daisy Duck"]
+
+    def test_literal_does_not_override_own_authorship(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["Daisy Duck"])
+        root.add_resource(Resource.create_new("id_own", ":ResType", "lbl", authorship=["Donald Duck"]))
+        root.add_resource(Resource.create_new("id_default", ":ResType", "lbl"))
+        serialised = root.serialise()
+        resources = {r.attrib["id"]: r for r in serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource")}
+        by_id = _authorship_by_id(serialised)
+        assert by_id[resources["id_own"].attrib["authorship-id"]] == ["Donald Duck"]
+        assert by_id[resources["id_default"].attrib["authorship-id"]] == ["Daisy Duck"]
+
+    def test_literal_applied_to_region(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["Daisy Duck"])
+        root.add_resource(RegionResource.create_new("region", "lbl", "target").add_rectangle((0.1, 0.1), (0.2, 0.2)))
+        serialised = root.serialise()
+        region = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}region"))
+        by_id = _authorship_by_id(serialised)
+        assert by_id[region.attrib["authorship-id"]] == ["Daisy Duck"]
+
+    def test_region_own_authorship_not_overridden_by_default(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["Daisy Duck"])
+        region = RegionResource.create_new("region", "lbl", "target", authorship=["Donald Duck"]).add_rectangle(
+            (0.1, 0.1), (0.2, 0.2)
+        )
+        root.add_resource(region)
+        serialised = root.serialise()
+        region_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}region"))
+        by_id = _authorship_by_id(serialised)
+        assert by_id[region_ele.attrib["authorship-id"]] == ["Donald Duck"]
+
+    def test_literal_is_xsd_valid(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["Daisy Duck"])
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        serialised = root.serialise()
+        schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+        with schema_path.open(encoding="utf-8") as schema_file:
+            xmlschema = etree.XMLSchema(etree.parse(schema_file))
+        assert xmlschema.validate(serialised)
+
+    def test_project_default_sets_root_marker_without_baking(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=PROJECT_DEFAULT)
+        assert root.apply_default_resource_authorship is PROJECT_DEFAULT
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        serialised = root.serialise()
+        assert serialised.attrib["use-project-default-resource-authorship"] == "true"
+        resource = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
+        assert "authorship-id" not in resource.attrib
+        assert not list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}authorship"))
+
+    def test_project_default_is_xsd_valid(self) -> None:
+        root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=PROJECT_DEFAULT)
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        serialised = root.serialise()
+        schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+        with schema_path.open(encoding="utf-8") as schema_file:
+            xmlschema = etree.XMLSchema(etree.parse(schema_file))
+        assert xmlschema.validate(serialised)
+
+
+def test_base_resources_with_own_authorship_is_xsd_valid() -> None:
+    root = XMLRoot.create_new("0000", "test")
+    root.add_resource(
+        RegionResource.create_new("region", "lbl", "target", authorship=["Region Author"]).add_rectangle(
+            (0.1, 0.1), (0.2, 0.2)
+        )
+    )
+    root.add_resource(
+        LinkResource.create_new("link", "lbl", ["target1", "target2"], authorship=["Link Author"]).add_comment("cmt")
+    )
+    root.add_resource(
+        VideoSegmentResource.create_new("video", "lbl", "video_target", 1, 2, authorship=["Video Author"])
+    )
+    root.add_resource(
+        AudioSegmentResource.create_new("audio", "lbl", "audio_target", 1, 2, authorship=["Audio Author"])
+    )
+    serialised = root.serialise()
+    by_id = _authorship_by_id(serialised)
+    expected_authors = {
+        "region": ["Region Author"],
+        "link": ["Link Author"],
+        "video-segment": ["Video Author"],
+        "audio-segment": ["Audio Author"],
+    }
+    for tag, expected in expected_authors.items():
+        ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}{tag}"))
+        assert by_id[ele.attrib["authorship-id"]] == expected
+    schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+    with schema_path.open(encoding="utf-8") as schema_file:
+        xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    assert xmlschema.validate(serialised)
+
+
 def test_make_authorship_lookup() -> None:
     res1 = Resource.create_new("id1", ":Restype", "label").add_file(
         "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth", "auth1"]
@@ -393,6 +515,45 @@ def test_make_authorship_lookup() -> None:
     region_res = RegionResource.create_new("regionID", "label", "id1")
     result = _make_authorship_lookup([res1, res2, res3, region_res, res_none])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}
+
+
+def test_make_authorship_lookup_with_resource_authorship() -> None:
+    res_resource_auth = Resource.create_new("id1", ":Restype", "label", authorship=["resource auth"])
+    res_shared_auth = Resource.create_new("id2", ":Restype", "label", authorship=["auth2"]).add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth2"]
+    )
+    res_no_auth = Resource.create_new("id3", ":Restype", "label")
+    result = _make_authorship_lookup([res_resource_auth, res_shared_auth, res_no_auth])
+    assert set(result.lookup.keys()) == {tuple(["resource auth"]), tuple(["auth2"])}
+
+
+def test_make_authorship_lookup_with_default_authorship() -> None:
+    res_own = Resource.create_new("id1", ":Restype", "label", authorship=["own auth"])
+    res_default = Resource.create_new("id2", ":Restype", "label")
+    result = _make_authorship_lookup([res_own, res_default], default_authorship=("default auth",))
+    assert set(result.lookup.keys()) == {tuple(["own auth"]), tuple(["default auth"])}
+
+
+def test_make_authorship_lookup_default_unused_when_all_have_own() -> None:
+    res_own = Resource.create_new("id1", ":Restype", "label", authorship=["own auth"])
+    result = _make_authorship_lookup([res_own], default_authorship=("default auth",))
+    assert set(result.lookup.keys()) == {tuple(["own auth"])}
+
+
+def test_serialise_resource_authorship_is_xsd_valid() -> None:
+    xml_root = XMLRoot.create_new("0000", "test")
+    res_with_file = Resource.create_new("id_1", ":ResType", "lbl", authorship=["auth1"]).add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth1"]
+    )
+    xml_root.add_resource(res_with_file)
+    serialised = xml_root.serialise()
+    resource_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
+    bitstream_ele = next(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}bitstream"))
+    assert resource_ele.attrib["authorship-id"] == bitstream_ele.attrib["authorship-id"]
+    schema_path = Path("src/dsp_tools/resources/schema/data.xsd")
+    with schema_path.open(encoding="utf-8") as schema_file:
+        xmlschema = etree.XMLSchema(etree.parse(schema_file))
+    assert xmlschema.validate(serialised)
 
 
 def test_serialise_authorship() -> None:

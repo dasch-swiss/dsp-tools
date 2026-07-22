@@ -88,6 +88,9 @@ class Project(Model):
     _keywords: set[str]
     _ontologies: set[str]
     _enabled_licenses: set[str]
+    _data_license: Optional[str]
+    _data_copyright_holder: Optional[str]
+    _default_data_authorship: list[str]
     _selfjoin: bool
     _status: bool
     _logo: Optional[str]
@@ -103,6 +106,9 @@ class Project(Model):
         keywords: Optional[set[str]] = None,
         ontologies: Optional[set[str]] = None,
         enabled_licenses: Optional[set[str]] = None,
+        data_license: Optional[str] = None,
+        data_copyright_holder: Optional[str] = None,
+        default_data_authorship: Optional[list[str]] = None,
         selfjoin: Optional[bool] = None,
         status: Optional[bool] = None,
         logo: Optional[str] = None,
@@ -119,6 +125,9 @@ class Project(Model):
         :param keywords: Set of keywords [required for CREATE]
         :param ontologies: Set of ontologies that belong to this project [optional]
         :param enabled_licenses: Set of enabled licenses [optional]
+        :param data_license: Project-wide data license IRI [optional]
+        :param data_copyright_holder: Project-wide data copyright holder [optional]
+        :param default_data_authorship: Project-wide data authorship [optional]
         :param selfjoin: Allow selfjoin [required for CREATE]
         :param status: Status of project (active if True) [required for CREATE]
         :param logo: Path to logo image file [optional] NOT YET USED
@@ -134,6 +143,9 @@ class Project(Model):
             raise BaseError("Ontologies must be a set of strings or None!")
         self._ontologies = ontologies
         self._enabled_licenses = enabled_licenses or set()
+        self._data_license = data_license
+        self._data_copyright_holder = data_copyright_holder
+        self._default_data_authorship = default_data_authorship or []
         self._selfjoin = selfjoin
         self._status = status
         self._logo = logo
@@ -262,6 +274,9 @@ class Project(Model):
         if ontologies is None:
             raise BaseError("ontologies are missing")
         enabled_licenses = json_obj.get("enabledLicenses", set())
+        data_license = json_obj.get("dataLicense")
+        data_copyright_holder = json_obj.get("dataCopyrightHolder")
+        default_data_authorship = json_obj.get("defaultDataAuthorship", [])
         selfjoin = json_obj.get("selfjoin")
         if selfjoin is None:
             raise BaseError("Selfjoin is missing")
@@ -279,13 +294,16 @@ class Project(Model):
             keywords=keywords,
             ontologies=ontologies,
             enabled_licenses=enabled_licenses,
+            data_license=data_license,
+            data_copyright_holder=data_copyright_holder,
+            default_data_authorship=default_data_authorship,
             selfjoin=selfjoin,
             status=status,
             logo=logo,
         )
 
     def createDefinitionFileObj(self) -> dict[str, Any]:
-        return {
+        proj: dict[str, Any] = {
             "shortcode": self._shortcode,
             "shortname": self._shortname,
             "longname": self._longname,
@@ -293,6 +311,13 @@ class Project(Model):
             "keywords": list(self._keywords),
             "enabled_licenses": list(self._enabled_licenses),
         }
+        if self._data_license:
+            proj["data_license"] = self._data_license
+        if self._data_copyright_holder:
+            proj["data_copyright_holder"] = self._data_copyright_holder
+        if self._default_data_authorship:
+            proj["default_data_authorship"] = self._default_data_authorship
+        return proj
 
     def create(self) -> Project:
         """

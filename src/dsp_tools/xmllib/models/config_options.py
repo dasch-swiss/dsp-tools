@@ -26,3 +26,19 @@ class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()
+
+
+class ResourceAuthorshipDefault(Enum):
+    """
+    Sentinel for the `apply_default_resource_authorship` parameter of `XMLRoot`.
+
+    The single member `PROJECT_DEFAULT` (exported as `xmllib.PROJECT_DEFAULT`) marks that the
+    project's `default_data_authorship` should be applied to every resource that does not set its own
+    authorship. Unlike a literal list of authors, this is not resolved during serialisation
+    (xmllib does not know the project's default), but at `xmlupload`, against the project on the server.
+    """
+
+    PROJECT_DEFAULT = auto()
+
+
+PROJECT_DEFAULT = ResourceAuthorshipDefault.PROJECT_DEFAULT

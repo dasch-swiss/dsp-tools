@@ -173,6 +173,26 @@ class TestResource:
         assert standoff.object_type == TripleObjectType.INTERNAL_ID
         assert len(result.values) == 1
 
+    def test_with_resource_authorship(self):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+            authorship_id="auth_1",
+        )
+        result = _get_one_resource(res, {"auth_1": ["Author One", "Author Two"]}, LIST_LOOKUP)
+        assert len(result.property_objects) == 4
+        authorship = [
+            x for x in result.property_objects if x.property_type == TriplePropertyType.KNORA_RESOURCE_AUTHORSHIP
+        ]
+        assert len(authorship) == 2
+        assert {x.object_value for x in authorship} == {"Author One", "Author Two"}
+        assert all(x.object_type == TripleObjectType.STRING for x in authorship)
+
 
 class TestValues:
     def test_boolean_corr(self):

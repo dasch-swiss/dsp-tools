@@ -98,6 +98,7 @@ class TriplePropertyType(Enum):
     KNORA_LICENSE = auto()
     KNORA_AUTHORSHIP = auto()
     KNORA_COPYRIGHT_HOLDER = auto()
+    KNORA_RESOURCE_AUTHORSHIP = auto()
     KNORA_DATE_START = auto()
     KNORA_DATE_END = auto()
 

@@ -4,6 +4,7 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from typing import Any
 
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
@@ -35,6 +36,7 @@ class RegionResource:
     geometry: GeometryShape | None
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+    authorship: tuple[str, ...] | None = None
 
     @staticmethod
     def create_new(
@@ -42,6 +44,7 @@ class RegionResource:
         label: str,
         region_of: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        authorship: list[str] | None = None,
     ) -> RegionResource:
         """
         Creates a new region resource.
@@ -57,6 +60,8 @@ class RegionResource:
             label: label of this region resource
             region_of: ID of the image resource that this region refers to (cardinality 1)
             permissions: permissions of this region resource
+            authorship: optional authorship of the region record itself,
+                i.e. the (natural) person(s) who authored the data
 
         Returns:
             A region resource
@@ -73,6 +78,7 @@ class RegionResource:
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
+        authors = check_and_fix_authorship_input(authorship, res_id, "authorship (resource)")
         return RegionResource(
             res_id=res_id,
             label=lbl,
@@ -88,6 +94,7 @@ class RegionResource:
             ],
             geometry=None,
             permissions=permissions,
+            authorship=authors,
         )
 
     def add_rectangle(
@@ -366,6 +373,7 @@ class LinkResource:
     values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+    authorship: tuple[str, ...] | None = None
 
     @staticmethod
     def create_new(
@@ -373,6 +381,7 @@ class LinkResource:
         label: str,
         link_to: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        authorship: list[str] | None = None,
     ) -> LinkResource:
         """
         Creates a new link resource.
@@ -385,6 +394,8 @@ class LinkResource:
             label: label of this link resource
             link_to: IDs of the resources that should be linked together (cardinality 1-n)
             permissions: permissions of this link resource
+            authorship: optional authorship of the link record itself,
+                i.e. the (natural) person(s) who authored the data
 
         Returns:
             A link resource
@@ -402,6 +413,7 @@ class LinkResource:
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
+        authors = check_and_fix_authorship_input(authorship, res_id, "authorship (resource)")
         link_vals: list[Value] = [
             LinkValue.new(
                 value=x, prop_name="hasLinkTo", resource_id=res_id, comment=None, order=None, permissions=permissions
@@ -413,6 +425,7 @@ class LinkResource:
             label=lbl,
             values=link_vals,
             permissions=permissions,
+            authorship=authors,
         )
 
     def add_comment(
@@ -550,6 +563,7 @@ class VideoSegmentResource:
     values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+    authorship: tuple[str, ...] | None = None
 
     @staticmethod
     def create_new(
@@ -559,6 +573,7 @@ class VideoSegmentResource:
         segment_start: float | int | str,
         segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        authorship: list[str] | None = None,
     ) -> VideoSegmentResource:
         """
         Creates a new video segment resource, i.e. a time span of a MovingImageRepresentation.
@@ -572,6 +587,8 @@ class VideoSegmentResource:
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
             permissions: permissions of this resource
+            authorship: optional authorship of the segment record itself,
+                i.e. the (natural) person(s) who authored the data
 
         Returns:
             A video segment resource
@@ -590,6 +607,7 @@ class VideoSegmentResource:
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
+        authors = check_and_fix_authorship_input(authorship, res_id, "authorship (resource)")
         segment_of_val = LinkValue.new(
             value=segment_of,
             prop_name="isSegmentOf",
@@ -604,6 +622,7 @@ class VideoSegmentResource:
             values=[segment_of_val],
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             permissions=permissions,
+            authorship=authors,
         )
 
     def add_title(
@@ -1062,6 +1081,7 @@ class AudioSegmentResource:
     values: list[Value]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+    authorship: tuple[str, ...] | None = None
 
     @staticmethod
     def create_new(
@@ -1071,6 +1091,7 @@ class AudioSegmentResource:
         segment_start: float | int | str,
         segment_end: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        authorship: list[str] | None = None,
     ) -> AudioSegmentResource:
         """
         Creates a new audio segment resource, i.e. a time span of an AudioRepresentation.
@@ -1084,6 +1105,8 @@ class AudioSegmentResource:
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
             permissions: permissions of this resource
+            authorship: optional authorship of the segment record itself,
+                i.e. the (natural) person(s) who authored the data
 
         Returns:
             An audio segment resource
@@ -1091,6 +1114,7 @@ class AudioSegmentResource:
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         res_id = str(res_id)
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
+        authors = check_and_fix_authorship_input(authorship, res_id, "authorship (resource)")
         segment_of_val = LinkValue.new(
             value=segment_of,
             prop_name="isSegmentOf",
@@ -1105,6 +1129,7 @@ class AudioSegmentResource:
             segment_bounds=SegmentBounds(segment_start, segment_end, permissions, res_id),
             values=[segment_of_val],
             permissions=permissions,
+            authorship=authors,
         )
 
     def add_title(

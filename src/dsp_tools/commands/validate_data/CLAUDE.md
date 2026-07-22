@@ -8,6 +8,10 @@ The `validate_data` module is a CLI command that validates XML data files agains
 It performs comprehensive validation using SHACL (Shapes Constraint Language) via a Docker-based CLI tool
 to ensure data conforms to ontological constraints before upload.
 
+To **add a new validation (SHACL shape)**, use the `add-shacl-shape` skill (Claude Code auto-detects it);
+its step-by-step playbook is at
+[`.claude/skills/add-shacl-shape/SKILL.md`](../../../../.claude/skills/add-shacl-shape/SKILL.md).
+
 ## Key Components
 
 ### Core Entry Points

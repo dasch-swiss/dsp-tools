@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from loguru import logger
+from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
@@ -15,8 +16,10 @@ from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
+from dsp_tools.commands.xmlupload.exceptions import MissingProjectDefaultAuthorshipError
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -66,8 +69,10 @@ def xmlupload(
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
 
+    project_client: ProjectClient = ProjectClientLive(creds.server, auth)
     # verify that a project with the shortcode exists
-    ProjectClientLive(creds.server, auth).get_project_iri(shortcode)
+    project_client.get_project_iri(shortcode)
+    project_default_authorship = _resolve_project_default_authorship(root, project_client, shortcode)
 
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
@@ -93,7 +98,9 @@ def xmlupload(
     if not config.skip_iiif_validation:
         validate_iiif_uris(root)
 
-    processed_resources = get_processed_resources(parsed_resources, lookups, is_on_prod_like_server)
+    processed_resources = get_processed_resources(
+        parsed_resources, lookups, is_on_prod_like_server, project_default_authorship
+    )
 
     sorted_resources, stash = get_stash_and_upload_order(processed_resources)
     state = UploadState(
@@ -103,6 +110,29 @@ def xmlupload(
     )
 
     return execute_upload(clients, state)
+
+
+def _resolve_project_default_authorship(
+    root: etree._Element, project_client: ProjectClient, shortcode: str
+) -> list[str] | None:
+    """
+    Resolve the project's default authorship if the data requests it.
+
+    The request is expressed by the `use-project-default-resource-authorship` attribute on the `<knora>`
+    root element. Returns None if the attribute is absent, aborts if it is present but the project defines
+    no default authorship.
+    """
+    if root.attrib.get("use-project-default-resource-authorship") not in ("true", "1"):
+        return None
+    default_authorship = project_client.get_default_data_authorship(shortcode)
+    if not default_authorship:
+        raise MissingProjectDefaultAuthorshipError(
+            f"The XML data requests the project's default resource authorship, "
+            f"but project {shortcode} has no 'default_data_authorship' defined. "
+            f"Either add 'default_data_authorship' to the project JSON, "
+            f"or set an explicit authorship on the resources in the XML."
+        )
+    return default_authorship
 
 
 def _handle_validation(

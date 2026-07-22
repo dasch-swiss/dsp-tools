@@ -28,13 +28,18 @@ from dsp_tools.xmllib.models.res import Resource
 read_dotenv_if_exists()
 
 
-def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
+def serialise_resources(
+    resources: list[AnyResource],
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None = None,
+) -> list[etree._Element]:
     """
     Serialise all the resources
 
     Args:
         resources: list of resources
         authorship_lookup: lookup to map the authors to the corresponding IDs
+        default_authorship: authorship applied to every generic resource that does not set its own
 
     Returns:
         serialised resources
@@ -42,21 +47,23 @@ def serialise_resources(resources: list[AnyResource], authorship_lookup: Authors
     env_var = str(os.getenv("XMLLIB_SORT_RESOURCES")).lower()
     if env_var == "true":
         resources = sorted(resources, key=lambda x: x.res_id)
-    return [_serialise_one_resource(x, authorship_lookup) for x in resources]
+    return [_serialise_one_resource(x, authorship_lookup, default_authorship) for x in resources]
 
 
-def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:
+def _serialise_one_resource(
+    res: AnyResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     match res:
         case Resource():
-            return _serialise_generic_resource(res, authorship_lookup)
+            return _serialise_generic_resource(res, authorship_lookup, default_authorship)
         case RegionResource():
-            return _serialise_region(res)
+            return _serialise_region(res, authorship_lookup, default_authorship)
         case LinkResource():
-            return _serialise_link(res)
+            return _serialise_link(res, authorship_lookup, default_authorship)
         case AudioSegmentResource():
-            return _serialise_segment(res, "audio-segment")
+            return _serialise_segment(res, "audio-segment", authorship_lookup, default_authorship)
         case VideoSegmentResource():
-            return _serialise_segment(res, "video-segment")
+            return _serialise_segment(res, "video-segment", authorship_lookup, default_authorship)
         case _:
             raise_xmllib_input_error(
                 MessageInfo(
@@ -68,9 +75,23 @@ def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLooku
             )
 
 
-def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:
+def _set_resource_authorship(
+    ele: etree._Element,
+    res: AnyResource,
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None,
+) -> None:
+    effective_authorship = res.authorship or default_authorship
+    if effective_authorship and (resource_auth_id := authorship_lookup.get_id(effective_authorship)):
+        ele.attrib["authorship-id"] = resource_auth_id
+
+
+def _serialise_generic_resource(
+    res: Resource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     if res.file_value:
         auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)
         ele.append(serialise_file_value(res.file_value, auth_id))
@@ -78,8 +99,11 @@ def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLook
     return ele
 
 
-def _serialise_region(res: RegionResource) -> etree._Element:
+def _serialise_region(
+    res: RegionResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     ele = _make_generic_resource_element(res, "region")
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     ele.extend(_serialise_geometry_shape(res))
     ele.extend(serialise_values(res.values))
     return ele
@@ -108,7 +132,9 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
     return prop_list
 
 
-def _serialise_link(res: LinkResource) -> etree._Element:
+def _serialise_link(
+    res: LinkResource, authorship_lookup: AuthorshipLookup, default_authorship: tuple[str, ...] | None = None
+) -> etree._Element:
     problems = []
     if not any([isinstance(x, Richtext) for x in res.values]):
         problems.append("at least one comment")
@@ -118,12 +144,19 @@ def _serialise_link(res: LinkResource) -> etree._Element:
         msg = f"A link object requires {' and '.join(problems)}. Please note that an xmlupload will fail."
         emit_xmllib_input_warning(MessageInfo(msg, res.res_id))
     ele = _make_generic_resource_element(res, "link")
+    _set_resource_authorship(ele, res, authorship_lookup, default_authorship)
     ele.extend(serialise_values(res.values))
     return ele
 
 
-def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:
+def _serialise_segment(
+    res: AudioSegmentResource | VideoSegmentResource,
+    segment_type: str,
+    authorship_lookup: AuthorshipLookup,
+    default_authorship: tuple[str, ...] | None = None,
+) -> etree._Element:
     seg = _make_generic_resource_element(res, segment_type)
+    _set_resource_authorship(seg, res, authorship_lookup, default_authorship)
     seg.extend(_serialise_segment_children(res))
     return seg
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from dsp_tools.xmllib.internal.checkers import check_raise_if_input_value_for_value_order_is_incorrect
+from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
@@ -49,6 +50,7 @@ class Resource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     file_value: AbstractFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
+    authorship: tuple[str, ...] | None = None
 
     @staticmethod
     def create_new(
@@ -56,6 +58,7 @@ class Resource:
         restype: str,
         label: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        authorship: list[str] | None = None,
     ) -> Resource:
         """
         Create a new resource.
@@ -69,6 +72,9 @@ class Resource:
             restype: resource type
             label: resource label
             permissions: optional permissions of this resource
+            authorship: optional authorship of the resource record itself,
+                i.e. the (natural) person(s) who authored the data.
+                This is distinct from the authorship of a file, which is set with `add_file` or `add_iiif_uri`.
 
         Returns:
             Resource
@@ -91,6 +97,16 @@ class Resource:
                 permissions=xmllib.Permissions.PRIVATE,
             )
             ```
+
+            ```python
+            # resource with authorship of the resource record
+            resource = xmllib.Resource.create_new(
+                res_id="ID",
+                restype=":ResourceType",
+                label="label",
+                authorship=["Kitty Meow"],
+            )
+            ```
         """
         if not is_valid_resource_id(res_id):
             res_id = str(res_id)
@@ -103,12 +119,14 @@ class Resource:
                 expected_type="resource type", value=restype, res_id=res_id, value_field="restype"
             )
         lbl = check_and_fix_is_non_empty_string(value=label, res_id=res_id, value_field="label")
+        authors = check_and_fix_authorship_input(authorship, res_id, "authorship (resource)")
 
         return Resource(
             res_id=res_id,
             restype=restype,
             label=lbl,
             permissions=permissions,
+            authorship=authors,
         )
 
     #######################

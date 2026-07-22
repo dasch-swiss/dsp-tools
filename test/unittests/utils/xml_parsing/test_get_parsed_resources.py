@@ -171,6 +171,15 @@ class TestSegment:
         assert len(resource.values) == 8
         assert not resource.file_value
         assert not resource.migration_metadata
+        assert not resource.authorship_id
+
+    def test_segment_with_authorship(self, root_no_resources, resource_video_segment):
+        root = deepcopy(root_no_resources)
+        segment = deepcopy(resource_video_segment)
+        segment.attrib["authorship-id"] = "authorship_1"
+        root.append(segment)
+        parsed_res = get_parsed_resources(root, HTTPS_API_URL)
+        assert parsed_res[0].authorship_id == "authorship_1"
 
     def test_audio_segment(self, root_no_resources, resource_audio_segment):
         root = deepcopy(root_no_resources)
@@ -805,3 +814,17 @@ def test_get_value_order(inpt, expected):
     # creating an element and adding it as an attribute is necessary for typing
     result = _get_value_order(etree.Element("val", attrib=inpt).attrib)
     assert result == expected
+
+
+class TestResourceAuthorshipId:
+    def test_threads_authorship_id(self, root_no_resources):
+        root = deepcopy(root_no_resources)
+        root.append(etree.fromstring('<resource label="lbl" restype=":Class" id="res" authorship-id="auth_1"/>'))
+        resource = get_parsed_resources(root, HTTPS_API_URL).pop(0)
+        assert resource.authorship_id == "auth_1"
+
+    def test_no_authorship_id(self, root_no_resources):
+        root = deepcopy(root_no_resources)
+        root.append(etree.fromstring('<resource label="lbl" restype=":Class" id="res"/>'))
+        resource = get_parsed_resources(root, HTTPS_API_URL).pop(0)
+        assert resource.authorship_id is None

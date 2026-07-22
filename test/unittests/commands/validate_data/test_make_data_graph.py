@@ -148,6 +148,23 @@ class TestResource:
         bool_bn = next(g.objects(RES_IRI, ONTO.testBoolean))
         assert next(g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
 
+    def test_with_resource_authorship(self):
+        res = RdfLikeResource(
+            res_id="id",
+            property_objects=[
+                *UNREIFIED_TRIPLE_OBJECTS,
+                PropertyObject(TriplePropertyType.KNORA_RESOURCE_AUTHORSHIP, "Author One", TripleObjectType.STRING),
+            ],
+            values=[],
+            migration_metadata=MigrationMetadata(),
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_resource(g, res)
+        assert len(g) == 3
+        assert next(g.objects(RES_IRI, RDF.type)) == ONTO.ClassWithEverything
+        assert next(g.objects(RES_IRI, RDFS.label)) == Literal("lbl", datatype=XSD.string)
+        assert next(g.objects(RES_IRI, KNORA_API.hasResourceAuthorship)) == Literal("Author One", datatype=XSD.string)
+
 
 class TestBooleanValue:
     def test_corr(self, rdf_like_boolean_value_corr):

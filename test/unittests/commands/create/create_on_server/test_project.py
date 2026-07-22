@@ -28,6 +28,9 @@ def parsed_project() -> Mock:
     project = Mock(spec=ParsedProjectMetadata)
     project.shortcode = "9999"
     project.shortname = "name"
+    project.data_license = None
+    project.data_copyright_holder = None
+    project.default_data_authorship = []
     return project
 
 
@@ -170,6 +173,65 @@ def test_project_does_not_exist_server_error(
     mock_serialise.assert_called_once_with(parsed_project)
     mock_client.post_new_project.assert_called_once_with(serialized_project)
     mock_is_server_error.assert_called_once_with(error_response.status_code)
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.LegalInfoClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.serialise_project")
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+def test_resource_side_legal_info_is_sent_when_set(
+    mock_client_class: Mock,
+    mock_serialise: Mock,
+    mock_legal_info_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    serialized_project: dict[str, str],
+):
+    parsed_project.data_license = "http://rdfh.ch/licenses/cc-by-4.0"
+    parsed_project.data_copyright_holder = "holder"
+    parsed_project.default_data_authorship = ["author 1", "author 2"]
+    mock_client = Mock()
+    mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
+    mock_client.post_new_project.return_value = NEW_PROJECT_IRI
+    mock_client_class.return_value = mock_client
+    mock_serialise.return_value = serialized_project
+    mock_legal_info_client = Mock()
+    mock_legal_info_client_class.return_value = mock_legal_info_client
+
+    result = create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+
+    assert result == NEW_PROJECT_IRI
+    mock_legal_info_client_class.assert_called_once_with(mock_auth.server, parsed_project.shortcode, mock_auth)
+    mock_legal_info_client.set_resource_side_legal_info.assert_called_once_with(
+        {
+            "dataLicense": "http://rdfh.ch/licenses/cc-by-4.0",
+            "dataCopyrightHolder": "holder",
+            "defaultDataAuthorship": ["author 1", "author 2"],
+        },
+    )
+
+
+@patch("dsp_tools.commands.create.create_on_server.project.LegalInfoClientLive")
+@patch("dsp_tools.commands.create.create_on_server.project.serialise_project")
+@patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")
+def test_resource_side_legal_info_is_not_sent_when_unset(
+    mock_client_class: Mock,
+    mock_serialise: Mock,
+    mock_legal_info_client_class: Mock,
+    mock_auth: Mock,
+    parsed_project: Mock,
+    serialized_project: dict[str, str],
+):
+    mock_client = Mock()
+    mock_client.get_project_iri.side_effect = ProjectNotFoundError("Project not found")
+    mock_client.post_new_project.return_value = NEW_PROJECT_IRI
+    mock_client_class.return_value = mock_client
+    mock_serialise.return_value = serialized_project
+    mock_legal_info_client = Mock()
+    mock_legal_info_client_class.return_value = mock_legal_info_client
+
+    create_project(parsed_project, mock_auth, DO_NOT_EXIST_IF_EXISTS)
+
+    mock_legal_info_client.set_resource_side_legal_info.assert_not_called()
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")

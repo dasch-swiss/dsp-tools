@@ -125,12 +125,14 @@ def _get_metadata_info(
     return retrieval_status, formatted_metadata
 
 
-def _format_metadata_export(metadata: list[dict[str, str]]) -> list[InfoForResourceInDB]:
+def _format_metadata_export(metadata: list[dict[str, str | None]]) -> list[InfoForResourceInDB]:
 
-    def is_deleted(single_resource_info: dict[str, str]) -> bool:
+    def is_deleted(single_resource_info: dict[str, str | None]) -> bool:
         return bool(single_resource_info.get("Deletion Date (if available)"))
 
-    return [InfoForResourceInDB(x["resourceIri"], x["resourceClassIri"]) for x in metadata if not is_deleted(x)]
+    return [
+        InfoForResourceInDB(str(x["resourceIri"]), str(x["resourceClassIri"])) for x in metadata if not is_deleted(x)
+    ]
 
 
 def _make_data_graph_from_parsed_resources(

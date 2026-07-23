@@ -80,12 +80,12 @@ def test_reformat_one_list(response_one_list) -> None:
 
 class TestReformatMetadata:
     def test_no_metadata(self):
-        inpt_metadata = []
+        inpt_metadata: list[dict[str, str | None]] = []
         result = _format_metadata_export(inpt_metadata)
         assert len(result) == 0
 
     def test_deleted_column_not_existing(self):
-        inpt_metadata = [{"resourceIri": "iri_1", "resourceClassIri": "res_1"}]
+        inpt_metadata: list[dict[str, str | None]] = [{"resourceIri": "iri_1", "resourceClassIri": "res_1"}]
         result = _format_metadata_export(inpt_metadata)
         result_ids = {x.res_iri for x in result}
         expected_ids = {"iri_1"}
@@ -102,7 +102,7 @@ class TestReformatMetadata:
         assert result_ids == expected_ids
 
     def test_some_deleted(self):
-        inpt_metadata = [
+        inpt_metadata: list[dict[str, str | None]] = [
             {"resourceIri": "iri_1", "resourceClassIri": "res_1", "Deletion Date (if available)": "today"},
             {"resourceIri": "iri_2", "resourceClassIri": "res_2", "Deletion Date (if available)": None},
         ]

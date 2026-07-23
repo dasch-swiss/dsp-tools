@@ -1,5 +1,18 @@
 # Changelog
 
+## [18.18.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.0...v18.18.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* guard interactive prompts against non-interactive stdin (DEV-6744) ([#2367](https://github.com/dasch-swiss/dsp-tools/issues/2367)) ([a5127aa](https://github.com/dasch-swiss/dsp-tools/commit/a5127aa4d9e6d2cfd18a6b4a4cf4894489d18e1b))
+* **xmllib:** improve handling of invalid default authorship input (DEV-6762) ([#2373](https://github.com/dasch-swiss/dsp-tools/issues/2373)) ([137c1a2](https://github.com/dasch-swiss/dsp-tools/commit/137c1a2e7567009d1c5f47acb0dd80bcdc385e89))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.07.04 ([#2375](https://github.com/dasch-swiss/dsp-tools/issues/2375)) ([cf7c6fa](https://github.com/dasch-swiss/dsp-tools/commit/cf7c6fad5f763631c96f9a6585b30a6b076be88f))
+
 ## [18.18.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.17.4...v18.18.0) (2026-07-22)
 
 

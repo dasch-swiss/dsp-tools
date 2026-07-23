@@ -36,7 +36,7 @@ dependencies = [
     "rdflib",
     "regex",
     "requests",
-    "rustworkx~=0.17.1", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
+    "rustworkx>=0.17.1,<0.19.0", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
     "tqdm",
     "typing-extensions",
     "yaspin",

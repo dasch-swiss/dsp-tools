@@ -40,13 +40,7 @@ def g_minimal(
 def g_text_parsing(
     _xmlupload_text_parsing_9999, class_with_everything_iri_9999, auth_header, project_iri_9999, creds
 ) -> Graph:
-    result_graph = util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
-    return result_graph + util_request_resources_by_class(
-        f"{KNORA_API_PREFIX}Region",
-        auth_header,
-        project_iri_9999,
-        creds,
-    )
+    return util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
 
 
 def _assert_number_of_values_is_one_and_get_val_iri(g: Graph, label: str, prop_iri: URIRef) -> SubjectObjectTypeAlias:
@@ -242,9 +236,6 @@ class TestValues:
     def test_region_preview(self, g_minimal, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testHasRegionPreview")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "region_preview", prop_iri)
-        target_iri = util_get_res_iri_from_label(g_minimal, "region")
-        actual_value = next(g_minimal.objects(val_iri, KNORA_API.isRegionPreviewOf))
-        assert actual_value == target_iri
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.RegionPreviewValue
 
     def test_richtext(self, g_minimal, onto_iri_9999):

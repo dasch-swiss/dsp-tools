@@ -40,7 +40,13 @@ def g_minimal(
 def g_text_parsing(
     _xmlupload_text_parsing_9999, class_with_everything_iri_9999, auth_header, project_iri_9999, creds
 ) -> Graph:
-    return util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
+    result_graph = util_request_resources_by_class(class_with_everything_iri_9999, auth_header, project_iri_9999, creds)
+    return result_graph + util_request_resources_by_class(
+        f"{KNORA_API_PREFIX}Region",
+        auth_header,
+        project_iri_9999,
+        creds,
+    )
 
 
 def _assert_number_of_values_is_one_and_get_val_iri(g: Graph, label: str, prop_iri: URIRef) -> SubjectObjectTypeAlias:

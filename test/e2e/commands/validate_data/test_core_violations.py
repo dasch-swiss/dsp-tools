@@ -353,8 +353,8 @@ def test_reformat_content_violation(authentication) -> None:
             ),
         ),
         ("region_preview_another_project", "onto:testHasRegionPreview", "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"),
-        ("region_preview_not_a_region", "onto:testHasRegionPreview", "other"),
-        ("region_preview_region_does_not_exist", "onto:testHasRegionPreview", "id_9_target"),
+        ("region_preview_not_a_region", "onto:testHasRegionPreview", "id_9_target"),
+        ("region_preview_region_does_not_exist", "onto:testHasRegionPreview", "other"),
         ("richtext_empty", "onto:testRichtext", "The value must be a non-empty string"),
         (
             "richtext_standoff_link_in_footnote_inexistent",

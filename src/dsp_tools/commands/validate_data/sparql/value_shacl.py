@@ -31,6 +31,7 @@ def construct_property_shapes(onto: Graph, project_lists: list[OneList]) -> Grap
     _construct_link_value_shape(g, onto)
     _construct_link_value_node_shape(g, onto)
     _construct_property_type_text_value(g, onto)
+    _construct_region_preview_value_shape(g, onto)
     _construct_list_shapes(g, onto, project_lists)
     _construct_seqnum_is_part_of_prop_shape(g, onto)
     _construct_value_type_shapes_to_class_shapes(g, onto)
@@ -242,6 +243,33 @@ def _construct_one_property_type_text_value(target: Graph, onto: Graph, gui_elem
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
     """ % {"gui_element": gui_element, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
+    if results_graph := onto.query(query_s).graph:
+        target += results_graph
+
+
+def _construct_region_preview_value_shape(target: Graph, onto: Graph) -> None:
+    logger.debug("Constructing RegionPreviewValue PropertyShape")
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+
+        ?shapesIRI a sh:PropertyShape ;
+                   sh:path ?prop ;
+                   sh:node api-shapes:isRegionPreviewOf_NodeShape .
+
+    } WHERE {
+
+        ?prop a owl:ObjectProperty ;
+                knora-api:objectType knora-api:RegionPreviewValue .
+
+        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+    }
+    """
     if results_graph := onto.query(query_s).graph:
         target += results_graph
 

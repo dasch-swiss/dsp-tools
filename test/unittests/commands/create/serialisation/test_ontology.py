@@ -166,6 +166,26 @@ class TestSerialiseProperty:
         assert len(list(result_graph.objects(ONTO_HAS_TEXT, KNORA_API.subjectType))) == 0
         assert len(list(result_graph.objects(ONTO_HAS_TEXT, RDFS.comment))) == 0
 
+    def test_creates_correct_graph_with_region_preview(self) -> None:
+        prop_iri = ONTO.hasRegionPreview
+        prop = ParsedProperty(
+            name=str(prop_iri),
+            labels={"en": "has region preview"},
+            comments=None,
+            supers=[KNORA_API.hasRegionPreview],
+            object=str(KNORA_API.RegionPreviewValue),
+            subject=None,
+            gui_element=GuiElement.REGION_PREVIEW,
+            node_name=None,
+            onto_iri=ONTO_IRI_STR,
+        )
+        result_graph = _make_one_property_graph(prop, None)
+        assert (prop_iri, RDF.type, OWL.ObjectProperty) in result_graph
+        assert (prop_iri, RDFS.subPropertyOf, KNORA_API.hasRegionPreview) in result_graph
+        assert (prop_iri, KNORA_API.objectType, KNORA_API.RegionPreviewValue) in result_graph
+        assert (prop_iri, SALSAH_GUI.guiElement, URIRef(str(GuiElement.REGION_PREVIEW))) in result_graph
+        assert (prop_iri, RDFS.label, Literal("has region preview", lang="en")) in result_graph
+
     def test_creates_correct_graph_with_multiple_labels_and_comments(self) -> None:
         prop = ParsedProperty(
             name=str(ONTO_HAS_TEXT),

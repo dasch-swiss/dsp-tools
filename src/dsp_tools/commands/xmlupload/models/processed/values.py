@@ -81,6 +81,12 @@ class ProcessedList(ProcessedValue):
 
 
 @dataclass
+class ProcessedRegionPreview(ProcessedValue):
+    value: str
+    value_uuid: str
+
+
+@dataclass
 class ProcessedSimpleText(ProcessedValue):
     value: str
 

@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import REGION_PREVIEW_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -25,6 +26,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInterval
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
@@ -96,6 +98,14 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
         case ProcessedLink():
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
             properties_graph = make_link_value_graph(
+                val=val,
+                val_node=BNode(),
+                res_node=res_node,
+                target_iri=URIRef(target_iri),
+            )
+        case ProcessedRegionPreview():
+            target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
+            properties_graph = make_region_preview_value_graph(
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
@@ -182,6 +192,19 @@ def make_link_value_graph(
     """Make a LinkValue Graph"""
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=LINK_PROP_TYPE_INFO, res_node=res_node)
     g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, target_iri))
+    return g
+
+
+def make_region_preview_value_graph(
+    val: ProcessedRegionPreview,
+    val_node: BNode | URIRef,
+    res_node: BNode | URIRef,
+    target_iri: URIRef,
+) -> Graph:
+    g = _make_base_value_graph(
+        val=val, val_node=val_node, prop_type_info=REGION_PREVIEW_PROP_TYPE_INFO, res_node=res_node
+    )
+    g.add((val_node, REGION_PREVIEW_PROP_TYPE_INFO.knora_prop, target_iri))
     return g
 
 

@@ -88,6 +88,7 @@ class KnoraValueType(Enum):
     INT_VALUE = auto()
     INTERVAL_VALUE = auto()
     LINK_VALUE = auto()
+    REGION_PREVIEW_VALUE = auto()
     LIST_VALUE = auto()
     SIMPLETEXT_VALUE = auto()
     RICHTEXT_VALUE = auto()

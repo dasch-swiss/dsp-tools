@@ -211,6 +211,7 @@ The following DSP base properties are available:
 - `hasValue`: This is the most general case, 
   to be used in all cases when your property is none of the special cases below.
 - `hasLinkTo`: a link to another resource
+- `hasRegionPreview`: a link to a Region resource whose value is rendered as a region preview.
 - `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
 - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, 
@@ -256,6 +257,7 @@ These three are related as follows:
 | hasValue                              | TimeValue                                                          | TimeStamp                              |
 | hasValue                              | UriValue                                                           | SimpleText                             |
 | hasLinkTo                             | (resourceclass)                                                    | Searchbox                              |
+| hasRegionPreview                      | RegionPreviewValue                                                 | RegionPreview                          |
 | hasRepresentation                     | Representation                                                     | Searchbox                              |
 | isPartOf                              | (resourceclass)                                                    | Searchbox                              |
 | seqnum                                | IntValue                                                           | Spinbox, <br>SimpleText                |

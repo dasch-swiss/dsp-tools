@@ -80,6 +80,50 @@ def report_target_resource_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
 
 
 @pytest.fixture
+def report_region_preview_target_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+    [
+        a sh:ValidationResult ;
+        sh:detail _:detail_bn ;
+        sh:focusNode <http://data/resource_with_region_preview_wrong_target> ;
+        sh:resultMessage "Value does not have shape api-shapes:isRegionPreviewOf_NodeShape" ;
+        sh:resultPath onto:hasRegionPreview ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:hasRegionPreview_PropShape ;
+        sh:value <http://data/value_region_preview>
+    ] .
+
+    _:detail_bn a sh:ValidationResult ;
+        sh:focusNode <http://data/value_region_preview> ;
+        sh:resultMessage "http://api.knora.org/ontology/knora-api/v2#Region" ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#isRegionPreviewOf> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape _:source_shape ;
+        sh:value <http://data/target_not_a_region_1> .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/resource_with_region_preview_wrong_target>
+        a onto:ClassWithEverything ;
+        rdfs:label "Resource with wrong region-preview target"^^xsd:string ;
+        onto:hasRegionPreview <http://data/value_region_preview> .
+
+    <http://data/value_region_preview> a knora-api:RegionPreviewValue ;
+        knora-api:isRegionPreviewOf <http://data/target_not_a_region_1> .
+
+    <http://data/target_not_a_region_1> a in-built:TestNormalResource ;
+        rdfs:label "Not a region"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
+
+
+@pytest.fixture
 def report_not_resource(onto_graph: Graph) -> tuple[Graph, Graph]:
     validation_str = f"""{PREFIXES}
     _:bn_id_simpletext a sh:ValidationResult ;

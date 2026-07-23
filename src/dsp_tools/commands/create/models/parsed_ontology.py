@@ -47,6 +47,7 @@ class KnoraObjectType(StrEnum):
     GEONAME = f"{KNORA_API_PREFIX}GeonameValue"
     INT = f"{KNORA_API_PREFIX}IntValue"
     LIST = f"{KNORA_API_PREFIX}ListValue"
+    REGION_PREVIEW = f"{KNORA_API_PREFIX}RegionPreviewValue"
     TEXT = f"{KNORA_API_PREFIX}TextValue"
     TIME = f"{KNORA_API_PREFIX}TimeValue"
     URI = f"{KNORA_API_PREFIX}UriValue"
@@ -63,6 +64,7 @@ class GuiElement(StrEnum):
     TEXTAREA = f"{SALSAH_GUI_PREFIX}Textarea"
     RICHTEXT = f"{SALSAH_GUI_PREFIX}Richtext"
     SEARCHBOX = f"{SALSAH_GUI_PREFIX}Searchbox"
+    REGION_PREVIEW = f"{SALSAH_GUI_PREFIX}RegionPreview"
     TIME_STAMP = f"{SALSAH_GUI_PREFIX}TimeStamp"
 
 

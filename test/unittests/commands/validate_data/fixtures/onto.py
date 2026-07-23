@@ -133,6 +133,22 @@ def link_prop() -> Graph:
 
 
 @pytest.fixture
+def region_preview_prop() -> Graph:
+    ttl = f"""{PREFIXES}
+    onto:testHasRegionPreview a owl:ObjectProperty ;
+        rdfs:label "Test region preview" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:RegionPreviewValue ;
+        salsah-gui:guiElement salsah-gui:RegionPreview ;
+        rdfs:subPropertyOf knora-api:hasRegionPreview .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
 def card_1() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;

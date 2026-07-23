@@ -27,6 +27,7 @@ from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import RegionPreviewValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
@@ -1027,6 +1028,139 @@ class Resource:
         """
         if is_nonempty_value(value):
             self.add_link(prop_name, value, permissions, comment)
+        return self
+
+    #######################
+    # RegionPreviewValue
+    #######################
+
+    def add_region_preview(
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        order: int | None = None,
+    ) -> Resource:
+        """
+        Add a region-preview value to the resource, in the form of an ID of a Region resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+
+        Args:
+            prop_name: name of the property
+            value: ID of the target Region resource
+            permissions: optional permissions of this value
+            comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_region_preview(
+                prop_name=":propName",
+                value="target_region_id",
+            )
+            ```
+        """
+        self.values.append(
+            RegionPreviewValue.new(
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
+            )
+        )
+        return self
+
+    def add_region_preview_multiple(
+        self,
+        prop_name: str,
+        values: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        include_value_order: bool = False,
+    ) -> Resource:
+        """
+        Add several region-preview values to the resource, in the form of IDs of Region resources.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+
+        Args:
+            prop_name: name of the property
+            values: list of target Region resource IDs
+            permissions: optional permissions of this value
+            comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_region_preview_multiple(
+                prop_name=":propName",
+                values=["target_region_id_1", "target_region_id_2"],
+            )
+            ```
+        """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "region-preview", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        for v, o in zip(vals, val_order):
+            self.add_region_preview(prop_name, v, permissions, comment, o)
+        return self
+
+    def add_region_preview_optional(
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        If non-empty, the value must be an ID of a Region resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+
+        Args:
+            prop_name: name of the property
+            value: target Region resource ID or empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_region_preview_optional(
+                prop_name=":propName",
+                value="target_region_id",
+            )
+            ```
+
+            ```python
+            resource = resource.add_region_preview_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+        """
+        if is_nonempty_value(value):
+            self.add_region_preview(prop_name, value, permissions, comment)
         return self
 
     #######################

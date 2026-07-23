@@ -30,6 +30,7 @@ OBJECT_TYPE_MAPPER = {
     "GeonameValue": KnoraObjectType.GEONAME,
     "IntValue": KnoraObjectType.INT,
     "ListValue": KnoraObjectType.LIST,
+    "RegionPreviewValue": KnoraObjectType.REGION_PREVIEW,
     "TextValue": KnoraObjectType.TEXT,
     "TimeValue": KnoraObjectType.TIME,
     "UriValue": KnoraObjectType.URI,
@@ -46,6 +47,7 @@ GUI_ELEMENT_MAPPER = {
     "Textarea": GuiElement.TEXTAREA,
     "Richtext": GuiElement.RICHTEXT,
     "Searchbox": GuiElement.SEARCHBOX,
+    "RegionPreview": GuiElement.REGION_PREVIEW,
     "TimeStamp": GuiElement.TIME_STAMP,
 }
 

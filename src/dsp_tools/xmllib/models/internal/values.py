@@ -262,6 +262,39 @@ class LinkValue(Value):
 
 
 @dataclass
+class RegionPreviewValue(Value):
+    value: str
+    prop_name: str
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    comment: str | None = None
+    order: int | None = None
+
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        permissions: Permissions,
+        comment: str | None,
+        order: int | None,
+        resource_id: str | None,
+    ) -> RegionPreviewValue:
+        if not is_link_value(value):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
+            )
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
+
+
+@dataclass
 class ListValue(Value):
     value: str
     list_name: str

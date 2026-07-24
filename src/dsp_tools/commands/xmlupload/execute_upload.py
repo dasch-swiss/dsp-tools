@@ -193,7 +193,12 @@ def _upload_stash(upload_state: UploadState, resource_client: ResourceClient) ->
 
 def cleanup_upload(upload_state: UploadState) -> bool:
     """
-    Write the id2iri mapping to a file and print a message to the console.
+    Write the id2iri mapping to a file and report the upload outcome to the console.
+
+    The upload state (pickle file) is only persisted when the upload can actually be resumed,
+    i.e. when there is a stash that could not be re-applied (resuming re-applies the pending stash).
+    Failed uploads are not retried on resume, so on their own they do not produce a pickle file:
+    they only produce a warning that points to the logs.
 
     Args:
         upload_state: the current state of the upload
@@ -206,25 +211,41 @@ def cleanup_upload(upload_state: UploadState) -> bool:
         shortcode=upload_state.config.shortcode,
         diagnostics=upload_state.config.diagnostics,
     )
-    has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
-    if not upload_state.failed_uploads and not has_stash_failed:
-        success = True
+    has_failures = len(upload_state.failed_uploads) > 0
+    has_stash = bool(upload_state.pending_stash and not upload_state.pending_stash.is_empty())
+
+    if not has_failures and not has_stash:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
-    else:
-        success = False
-        if upload_state.failed_uploads:
-            res_msg = f"Could not upload the following resources: {upload_state.failed_uploads}"
-            print(f"\n{datetime.now()}: WARNING: {res_msg}\n")
-            print(f"See {WARNINGS_SAVEPATH} for more information\n")
-            logger.warning(res_msg)
-        if has_stash_failed:
-            stash_msg = f"Could not reapply the following stash items: {upload_state.pending_stash}"
-            print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
-            print(f"See {WARNINGS_SAVEPATH} for more information\n")
-            logger.warning(stash_msg)
-        msg = save_upload_state(upload_state)
-        print(msg)
+        upload_state.config.diagnostics.save_location.unlink(missing_ok=True)
+        return True
 
-    upload_state.config.diagnostics.save_location.unlink(missing_ok=True)
-    return success
+    _report_incomplete_upload(upload_state, has_failures=has_failures, has_stash=has_stash)
+    return False
+
+
+def _report_incomplete_upload(upload_state: UploadState, *, has_failures: bool, has_stash: bool) -> None:
+    # A stash can be re-applied by 'resume-xmlupload', so it is worth persisting the upload state.
+    # Failed uploads are not retried on resume, so they alone do not justify a pickle file.
+    save_pickle = has_stash
+
+    if has_failures:
+        failed_msg = f"Could not upload the following resources: {upload_state.failed_uploads}"
+        logger.warning(failed_msg)
+        print(f"\n{datetime.now()}: WARNING: {failed_msg}\n")
+    if has_stash and upload_state.pending_stash:
+        # The console only gets the count; the resource/property combinations go to the log file,
+        # which can hold the full (potentially long) list without cluttering the terminal.
+        stash_items = upload_state.pending_stash.all_items()
+        combinations = [f"{item.res_id} / {item.value.prop_iri}" for item in stash_items]
+        logger.warning(f"Could not reapply the following stashed values (resource / property): {combinations}")
+        print(
+            f"\n{datetime.now()}: WARNING: Could not reapply {len(stash_items)} stashed values, "
+            f"see log for detailed information.\n"
+        )
+    print(f"See {WARNINGS_SAVEPATH} for more information\n")
+
+    if save_pickle:
+        print(save_upload_state(upload_state))
+    else:
+        upload_state.config.diagnostics.save_location.unlink(missing_ok=True)

@@ -557,7 +557,7 @@
         </text-prop>
     </resource>
 
-    <!-- Start: Resources that create a circle with the placeholder values to test the stash -->
+    <!-- Start: Resources that create a circle with the region preview values to test the stash -->
 
     <resource label="Imagething-creating-a-circle-with-region-preview-1"
               restype=":ImageThing"
@@ -633,7 +633,7 @@
         </geometry-prop>
     </region>
 
-    <!-- End: Resources that create a circle with the placeholder values to test the stash -->
+    <!-- End: Resources that create a circle with the region preview values to test the stash -->
 
     <resource label="Test Link to special characters"
               restype=":TestThing"

@@ -85,9 +85,9 @@ class TestReformatMetadata:
         assert len(result) == 0
 
     def test_none_deleted(self):
-        inpt_metadata = [
-            {"resourceIri": "iri_1", "resourceClassIri": "res_1", "Deletion Date (if available)": None},
-            {"resourceIri": "iri_2", "resourceClassIri": "res_2", "Deletion Date (if available)": None},
+        inpt_metadata: list[dict[str, str | None]] = [
+            {"resourceIri": "iri_1", "resourceClassIri": "res_1"},
+            {"resourceIri": "iri_2", "resourceClassIri": "res_2"},
         ]
         result = _format_metadata_export(inpt_metadata)
         result_ids = {x.res_iri for x in result}
@@ -96,8 +96,8 @@ class TestReformatMetadata:
 
     def test_some_deleted(self):
         inpt_metadata: list[dict[str, str | None]] = [
-            {"resourceIri": "iri_1", "resourceClassIri": "res_1", "Deletion Date (if available)": "today"},
-            {"resourceIri": "iri_2", "resourceClassIri": "res_2", "Deletion Date (if available)": None},
+            {"resourceIri": "iri_1", "resourceClassIri": "res_1", "resourceDeletionDate": "today"},
+            {"resourceIri": "iri_2", "resourceClassIri": "res_2"},
         ]
         result = _format_metadata_export(inpt_metadata)
         result_ids = {x.res_iri for x in result}

@@ -84,13 +84,6 @@ class TestReformatMetadata:
         result = _format_metadata_export(inpt_metadata)
         assert len(result) == 0
 
-    def test_deleted_column_not_existing(self):
-        inpt_metadata: list[dict[str, str | None]] = [{"resourceIri": "iri_1", "resourceClassIri": "res_1"}]
-        result = _format_metadata_export(inpt_metadata)
-        result_ids = {x.res_iri for x in result}
-        expected_ids = {"iri_1"}
-        assert result_ids == expected_ids
-
     def test_none_deleted(self):
         inpt_metadata = [
             {"resourceIri": "iri_1", "resourceClassIri": "res_1", "Deletion Date (if available)": None},

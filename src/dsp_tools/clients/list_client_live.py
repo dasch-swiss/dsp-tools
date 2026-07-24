@@ -52,7 +52,7 @@ class ListGetClientLive(ListGetClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             json_response = cast(dict[str, Any], response.json())
             return json_response
@@ -70,7 +70,7 @@ class ListGetClientLive(ListGetClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        log_response(response, include_response_content=False)
+        log_response(response, status_code=response.status_code, include_response_content=False)
         if response.ok:
             response_json = cast(dict[str, Any], response.json())
             return response_json
@@ -147,5 +147,5 @@ def _post_and_log_request(
         data=params.data_serialized,
         timeout=params.timeout,
     )
-    log_response(response)
+    log_response(response, status_code=response.status_code)
     return response

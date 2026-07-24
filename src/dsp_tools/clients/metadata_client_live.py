@@ -37,7 +37,7 @@ class MetadataClientLive(MetadataClient):
             logger.exception(err)
             return ExistingResourcesRetrieved.FALSE, []
         if response.ok:
-            log_response(response, include_response_content=False)
+            log_response(response, status_code=response.status_code, include_response_content=False)
             logger.debug(f"{len(response.json())} NUMBER OF RESOURCES RETRIEVED")
             return ExistingResourcesRetrieved.TRUE, response.json()
         if response.status_code != HTTPStatus.FORBIDDEN:

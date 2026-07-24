@@ -35,7 +35,7 @@ class UserClientLive(UserClient):
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(str, result["user"]["id"])
@@ -60,7 +60,7 @@ class UserClientLive(UserClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(str, result["user"]["id"])
@@ -83,7 +83,7 @@ class UserClientLive(UserClient):
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return True
         if response.status_code == HTTPStatus.FORBIDDEN:
@@ -102,7 +102,7 @@ class UserClientLive(UserClient):
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return True
         if response.status_code == HTTPStatus.FORBIDDEN:
@@ -128,7 +128,7 @@ class UserClientLive(UserClient):
             response = requests.post(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return True
         if response.status_code == HTTPStatus.FORBIDDEN:
@@ -150,7 +150,7 @@ class GroupClientLive(GroupClient):
             response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(list[dict[str, Any]], result["groups"])
@@ -168,7 +168,7 @@ class GroupClientLive(GroupClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(str, result["group"]["id"])

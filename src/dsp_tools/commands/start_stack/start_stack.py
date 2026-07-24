@@ -408,7 +408,7 @@ class StackHandler:
                 params = RequestParameters("GET", f"{self.__localhost_url}:3333/health", timeout=1)
                 log_request(params)
                 response = requests.get(params.url, timeout=params.timeout)
-                log_response(response)
+                log_response(response, status_code=response.status_code)
                 if response.ok:
                     break
             except requests.exceptions.RequestException as e:

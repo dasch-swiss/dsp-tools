@@ -130,7 +130,7 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def log_response(response: Response, include_response_content: bool = True) -> None:
+def log_response(response: Response, status_code: int, include_response_content: bool = True) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
@@ -143,7 +143,11 @@ def log_response(response: Response, include_response_content: bool = True) -> N
             dumpobj["content"] = response.text
     else:
         dumpobj["content"] = "too big to be logged"
-    logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
+    log_str = f"RESPONSE: {json.dumps(dumpobj)}"
+    if status_code == HTTPStatus.OK:
+        logger.debug(log_str)
+    else:
+        logger.warning(log_str)
 
 
 def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:

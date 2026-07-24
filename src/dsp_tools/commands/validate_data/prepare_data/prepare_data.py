@@ -121,8 +121,18 @@ def _get_metadata_info(
 ) -> tuple[ExistingResourcesRetrieved, list[InfoForResourceInDB]]:
     metadata_client = MetadataClientLive(auth.server, auth)
     retrieval_status, metadata = metadata_client.get_resource_metadata(shortcode)
-    formatted_metadata = [InfoForResourceInDB(x["resourceIri"], x["resourceClassIri"]) for x in metadata]
+    formatted_metadata = _format_metadata_export(metadata)
     return retrieval_status, formatted_metadata
+
+
+def _format_metadata_export(metadata: list[dict[str, str | None]]) -> list[InfoForResourceInDB]:
+
+    def is_deleted(single_resource_info: dict[str, str | None]) -> bool:
+        return bool(single_resource_info["Deletion Date (if available)"])
+
+    return [
+        InfoForResourceInDB(str(x["resourceIri"]), str(x["resourceClassIri"])) for x in metadata if not is_deleted(x)
+    ]
 
 
 def _make_data_graph_from_parsed_resources(

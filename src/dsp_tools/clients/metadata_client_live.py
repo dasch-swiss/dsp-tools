@@ -21,7 +21,7 @@ class MetadataClientLive(MetadataClient):
     server: str
     auth: AuthenticationClient
 
-    def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str]]]:
+    def get_resource_metadata(self, shortcode: str) -> tuple[ExistingResourcesRetrieved, list[dict[str, str | None]]]:
         url = f"{self.server}/v2/metadata/projects/{shortcode}/resources?format=JSON"
         header = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_120, headers=header)

@@ -125,7 +125,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             data=params.data_serialized,
             timeout=params.timeout,
         )
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         return response
 
     def _get_and_log_request(
@@ -141,7 +141,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
             headers=params.headers,
             timeout=params.timeout,
         )
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         return response
 
     def _prepare_request(

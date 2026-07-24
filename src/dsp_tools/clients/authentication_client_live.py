@@ -55,17 +55,17 @@ class AuthenticationClientLive(AuthenticationClient):
 
         match response.status_code:
             case HTTPStatus.OK:
-                log_response(response, include_response_content=False)
+                log_response(response, include_response_content=False, status_code=response.status_code)
                 res_json: dict[str, Any] = response.json()
                 tkn = cast(str, res_json["token"])
                 self._token = tkn
                 return tkn
             case HTTPStatus.UNAUTHORIZED | HTTPStatus.BAD_REQUEST:
-                log_response(response)
+                log_response(response, status_code=response.status_code)
                 raise BadCredentialsError(
                     f"Login to the API with the email '{self.email}' was not successful. "
                     f"Please ensure that an account for this email exists and that the password is correct."
                 )
             case _:
-                log_response(response)
+                log_response(response, status_code=response.status_code)
                 raise FatalNonOkApiResponseCode(url, response.status_code, response.text)

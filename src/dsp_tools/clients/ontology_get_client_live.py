@@ -32,7 +32,7 @@ class OntologyGetClientLive(OntologyGetClient):
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response, include_response_content=False)
+        log_response(response, status_code=response.status_code, include_response_content=False)
         if response.ok:
             return response.text
         raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
@@ -57,7 +57,7 @@ class OntologyGetClientLive(OntologyGetClient):
             response = requests.get(url=params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if not response.ok:
             raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
         response_json = cast(dict[str, Any], response.json())
@@ -75,7 +75,7 @@ class OntologyGetClientLive(OntologyGetClient):
             response = requests.get(url=params.url, headers=params.headers, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response, include_response_content=False)
+        log_response(response, status_code=response.status_code, include_response_content=False)
         if response.ok:
             return response.text
         raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)

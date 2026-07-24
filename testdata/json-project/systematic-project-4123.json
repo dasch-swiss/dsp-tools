@@ -657,6 +657,11 @@
                                 "propname": ":hasSimpleText",
                                 "gui_order": 1,
                                 "cardinality": "1"
+                            },
+                            {
+                                "propname": ":hasRegionPreview",
+                                "gui_order": 2,
+                                "cardinality": "0-n"
                             }
                         ]
                     },

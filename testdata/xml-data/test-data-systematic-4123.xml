@@ -557,6 +557,84 @@
         </text-prop>
     </resource>
 
+    <!-- Start: Resources that create a circle with the placeholder values to test the stash -->
+
+    <resource label="Imagething-creating-a-circle-with-region-preview-1"
+              restype=":ImageThing"
+              id="image_for_region_circle_1">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_3">
+            testdata/bitstreams/test.png
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">First image to create a circle</text>
+        </text-prop>
+        <region-preview-prop name=":hasRegionPreview">
+            <region-preview>region_for_region_circle_2</region-preview>
+        </region-preview-prop>
+    </resource>
+
+    <region label="region_for_region_circle_1"
+            id="region_for_region_circle_1">
+        <color-prop name="hasColor">
+            <color permissions="private">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="public">image_for_region_circle_1</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="public">
+                {
+                    "status": "active",
+                    "type": "rectangle",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                               {"x": 0.5, "y": 0.9},
+                               {"x": 0.8, "y": 0.9},
+                               {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <resource label="Imagething-creating-a-circle-with-region-preview-2"
+              restype=":ImageThing"
+              id="image_for_region_circle_2">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_3">
+            testdata/bitstreams/test.tif
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="public" encoding="utf8">Second image to create a circle</text>
+        </text-prop>
+        <region-preview-prop name=":hasRegionPreview">
+            <region-preview>region_for_region_circle_1</region-preview>
+        </region-preview-prop>
+    </resource>
+
+    <region label="region_for_region_circle_2"
+            id="region_for_region_circle_2">
+        <color-prop name="hasColor">
+            <color permissions="private">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="public">image_for_region_circle_2</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="public">
+                {
+                    "status": "active",
+                    "type": "rectangle",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                               {"x": 0.5, "y": 0.9},
+                               {"x": 0.8, "y": 0.9},
+                               {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- End: Resources that create a circle with the placeholder values to test the stash -->
+
     <resource label="Test Link to special characters"
               restype=":TestThing"
               id="test_link_to_special_chars">

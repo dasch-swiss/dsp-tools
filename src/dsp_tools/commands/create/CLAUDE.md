@@ -167,7 +167,8 @@ All creation follows strict sequential order because of dependencies.
 
 - Creates project metadata on server
 - Returns project IRI for subsequent operations
-- Handles `exit_if_exists` flag
+- Handles the `exit_if_exists` flag: if the project already exists, aborts and exits with a dedicated
+  exit code (`EXIT_CODE_PROJECT_ALREADY_EXISTS`, currently `3`) so callers can distinguish this outcome
 
 **2. Lists** (`lists.py: create_lists()`)
 

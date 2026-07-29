@@ -103,6 +103,22 @@ BaseError                               # Root. Dataclass with message: str attr
 - `UserError` and `InternalError` are the **only** allowed direct subclasses of `BaseError`.
   All new exception classes must inherit from one of them, never from `BaseError` itself.
 
+## Exit codes
+
+The process exit code communicates the outcome to shells and CI jobs. The convention is:
+
+| Code  | Meaning                                                                                                                                                   |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Success.                                                                                                                                                   |
+| `1`   | General failure: a command returned `False`, or a `UserError` / `InternalError` (or any other exception) escaped to the top-level handler in `entry_point.py`. |
+| `2`   | Invalid command-line arguments (emitted by `argparse`).                                                                                                    |
+| `3`   | `create --exit-if-exists`: the project already exists on the server, so the command aborted without further uploads. Lets a caller distinguish "already exists" from both success and failure and skip subsequent steps gracefully. |
+| `130` | Interrupted by the user (`KeyboardInterrupt`, i.e. Ctrl-C).                                                                                                 |
+
+Codes other than `0` and `1` are used sparingly — only where a caller needs to react differently to a
+specific, machine-readable outcome. Most failures should surface as `1` via the `entry_point.py` handler;
+introduce a dedicated code only when it is genuinely required.
+
 ## When to Catch vs. Let Fail
 
 ### Do NOT catch

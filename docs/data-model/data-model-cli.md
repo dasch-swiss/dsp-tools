@@ -19,6 +19,22 @@ The most frequently used options are:
 
 To see all possible options, type `dsp-tools create --help`.
 
+### The `--exit-if-exists` flag
+
+By default, if a project with the same shortcode already exists on the server,
+`create` continues and adds the definitions from the JSON file to the existing project.
+Pass `--exit-if-exists` to abort instead, as soon as an existing project is detected,
+without uploading anything.
+
+This is useful in automated pipelines that must not modify an already-existing project.
+Depending on the outcome, the command exits with one of these codes:
+
+- `0`: the project did not exist yet and was created.
+- `3`: the project already existed, so nothing was uploaded.
+- `1`: the command failed for another reason.
+
+A calling script can check for exit code `3` to skip subsequent steps (such as a data upload) gracefully.
+
 The defaults are intended for local testing:
 
 ```bash

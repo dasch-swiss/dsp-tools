@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.clients.exceptions import ProjectNotFoundError
+from dsp_tools.commands.create.create_on_server.project import EXIT_CODE_PROJECT_ALREADY_EXISTS
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
@@ -87,14 +88,14 @@ def test_project_exit_through_flag(
     mock_client = Mock()
     mock_client.get_project_iri.return_value = PROJECT_IRI
     mock_client_class.return_value = mock_client
-    mock_exit.side_effect = SystemExit(0)
+    mock_exit.side_effect = SystemExit(EXIT_CODE_PROJECT_ALREADY_EXISTS)
 
     with pytest.raises(SystemExit):
         create_project(parsed_project, mock_auth, True)
 
     mock_client_class.assert_called_once_with(mock_auth.server, mock_auth)
     mock_client.get_project_iri.assert_called_once_with(parsed_project.shortcode)
-    mock_exit.assert_called_once_with(0)
+    mock_exit.assert_called_once_with(EXIT_CODE_PROJECT_ALREADY_EXISTS)
 
 
 @patch("dsp_tools.commands.create.create_on_server.project.ProjectClientLive")

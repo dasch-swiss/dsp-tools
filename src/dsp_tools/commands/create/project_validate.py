@@ -275,7 +275,7 @@ def _check_for_duplicate_properties_in_cardinalities_for_one_resource(
     return None
 
 
-def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> None | CollectedProblems:
+def _check_for_duplicates_in_list_section(parsed_lists: list[ParsedList]) -> CollectedProblems | None:
     problems: list[CreateProblem] = []
     list_names = [x.list_info.name for x in parsed_lists]
     if duplicate_list_names := _get_duplicates_in_list(list_names):

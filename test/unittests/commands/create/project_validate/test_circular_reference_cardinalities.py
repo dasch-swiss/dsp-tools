@@ -83,10 +83,12 @@ class TestFindCirclesWithMandatoryCardinalities:
         }
         errors = _find_circles_with_mandatory_cardinalities(graph, link_prop_to_object)
         expected = {
-            "Cycle:\n"
-            "    ClassA -- linkToB-1 --> ClassB\n"
-            "    ClassA -- linkToB-2 --> ClassB\n"
-            "    ClassB -- linkToA --> ClassA"
+            (
+                "Cycle:\n"
+                "    ClassA -- linkToB-1 --> ClassB\n"
+                "    ClassA -- linkToB-2 --> ClassB\n"
+                "    ClassB -- linkToA --> ClassA"
+            )
         }
         assert len(errors) == len(expected)
         error_objects = [e.problematic_object for e in errors]

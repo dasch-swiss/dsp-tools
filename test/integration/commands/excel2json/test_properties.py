@@ -224,11 +224,15 @@ class TestExcelToProperties:
     def test_comments(self) -> None:
         excel_comments = {
             "comment_fr": [
-                "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
-                "donnait des indications nécessaires pour une de mes explorations, me dit :",
+                (
+                    "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
+                    "donnait des indications nécessaires pour une de mes explorations, me dit :"
+                ),
                 "Un étrange hasard m'a mis en possession de ce journal.",
-                "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les "
-                "indications précises pour la trouver.",
+                (
+                    "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les "
+                    "indications précises pour la trouver."
+                ),
                 "Vous devrez arranger l'affaire avec le curé du village de --.\"",
                 "Un étrange hasard m'a mis en possession de ce journal.",
                 "",
@@ -236,8 +240,10 @@ class TestExcelToProperties:
                 "only French",
                 "",
                 "",
-                "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
-                "donnait des indications nécessaires pour une de mes explorations, me dit :",
+                (
+                    "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
+                    "donnait des indications nécessaires pour une de mes explorations, me dit :"
+                ),
                 "Gemeinsame Normdatei",
                 "",
                 "Chiffre décimale",

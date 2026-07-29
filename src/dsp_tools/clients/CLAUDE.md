@@ -114,8 +114,7 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
 
     if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError(
-            "Only a SystemAdmin or ProjectAdmin can do ... "
-            "Your permissions are insufficient for this action.."
+            "Only a SystemAdmin or ProjectAdmin can do ... Your permissions are insufficient for this action.."
         )
 
     raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
@@ -440,7 +439,7 @@ class UserClientLive(UserClient):
         if response.ok:
             return response.json()
 
-        if response.status_code==HTTPStatus.FORBIDDEN:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to access user information.")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 ```

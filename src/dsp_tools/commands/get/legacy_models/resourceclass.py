@@ -407,7 +407,7 @@ class ResourceClass(Model):
         self._changed = set()
 
     @staticmethod
-    def _check_process_langstring(langstring_to_check: None | str | LangString, what: str) -> LangString:
+    def _check_process_langstring(langstring_to_check: str | LangString | None, what: str) -> LangString:
         if langstring_to_check is not None:
             if isinstance(langstring_to_check, str):
                 return LangString(langstring_to_check)
@@ -515,7 +515,7 @@ class ResourceClass(Model):
     @staticmethod
     def _fromJsonObj_get_superclass(
         con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
-    ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
+    ) -> tuple[dict[str, HasProperty] | None, list[str] | None]:
         superclasses_obj = json_obj.get(rdfs + ":subClassOf")
         if superclasses_obj is not None:
             supercls = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))

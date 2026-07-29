@@ -95,7 +95,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 def check_contains_required_columns(
     df: pd.DataFrame, required_columns: set[str]
-) -> None | RequiredColumnMissingProblem:
+) -> RequiredColumnMissingProblem | None:
     """
     This function checks if all the columns from the set are in the pd.DataFrame.
     Additional columns to the ones in the set are allowed.
@@ -113,7 +113,7 @@ def check_contains_required_columns(
     return None
 
 
-def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None | DuplicatesInColumnProblem:
+def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> DuplicatesInColumnProblem | None:
     """
     This function checks if a specified column contains duplicate values.
     Empty cells (pd.NA) also count as duplicates.
@@ -338,7 +338,7 @@ def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.Dat
     return df
 
 
-def check_permissions(df: pd.DataFrame, allowed_vals: list[str]) -> None | InvalidPermissionsOverruleProblem:
+def check_permissions(df: pd.DataFrame, allowed_vals: list[str]) -> InvalidPermissionsOverruleProblem | None:
     problems: list[InvalidPermissionsOverrule] = []
     for _, row in df.iterrows():
         if pd.isna(actual_val := row.get("default_permissions_overrule")):

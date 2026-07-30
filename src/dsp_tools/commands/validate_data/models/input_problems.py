@@ -16,9 +16,9 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 @dataclass
 class ValidateDataResult:
     no_problems: bool
-    problems: None | UnknownClassesInData | OntologyValidationProblem | SortedProblems
+    problems: UnknownClassesInData | OntologyValidationProblem | SortedProblems | None
     cardinalities_with_potential_circle: list[CardinalitiesThatMayCreateAProblematicCircle] | None
-    report_graphs: None | ValidationReportGraphs
+    report_graphs: ValidationReportGraphs | None
 
 
 @dataclass

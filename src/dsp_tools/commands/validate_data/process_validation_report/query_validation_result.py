@@ -251,11 +251,11 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
 def _query_class_constraint_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
 ) -> ValidationResult | None:
-    val: None | SubjectObjectTypeAlias = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    val: SubjectObjectTypeAlias | None = next(results_and_onto.objects(base_info.result_bn, SH.value))
     # In this case we have some kind of FileValue violation
     violation_type = ViolationType.GENERIC
-    value_type: None | SubjectObjectTypeAlias = None
-    msg: None | SubjectObjectTypeAlias = message
+    value_type: SubjectObjectTypeAlias | None = None
+    msg: SubjectObjectTypeAlias | None = message
     expected = None
     val_type_list = list(data.objects(val, RDF.type))
     # Here we have a normal value type violation

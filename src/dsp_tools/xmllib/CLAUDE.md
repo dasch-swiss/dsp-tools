@@ -63,11 +63,7 @@ root.serialise_to_file("output.xml")
 ### Resource - Core Data Model
 
 ```python
-resource = Resource.create_new(
-    res_id="resource_1",
-    restype=":Person",
-    label="John Doe"
-)
+resource = Resource.create_new(res_id="resource_1", restype=":Person", label="John Doe")
 resource.add_simpletext(prop_name=":hasName", value="John Doe")
 resource.add_date(prop_name=":hasBirthdate", value="GREGORIAN:CE:1990-01-01")
 resource.add_integer(prop_name=":hasAge", value=33)
@@ -93,7 +89,7 @@ segment = VideoSegmentResource.create_new(
     label="The second minute of the video",
     segment_of="video_1",
     segment_start="60",
-    segment_end="120"
+    segment_end="120",
 )
 ```
 
@@ -234,9 +230,9 @@ raise_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1
 # Process multiple resources
 for data_row in dataset:
     resource = Resource.create_new(
-        res_id=make_xsd_compatible_id(data_row['id']),
-        restype=data_row['type'],
-        label=clean_whitespaces_from_string(data_row['label'])
+        res_id=make_xsd_compatible_id(data_row["id"]),
+        restype=data_row["type"],
+        label=clean_whitespaces_from_string(data_row["label"]),
     )
 
     # Add values with validation

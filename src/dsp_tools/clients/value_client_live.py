@@ -22,7 +22,7 @@ class ValueClientLive(ValueClient):
     server: str
     auth: AuthenticationClient
 
-    def post_new_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+    def post_new_value(self, value_json: dict[str, Any]) -> ResponseCodeAndText | None:
         url = f"{self.server}/v2/values"
         headers: dict[str, str] = {
             "Content-Type": "application/json",
@@ -40,7 +40,7 @@ class ValueClientLive(ValueClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
 
         match response.status_code:
             case HTTPStatus.OK:
@@ -54,7 +54,7 @@ class ValueClientLive(ValueClient):
             case _:
                 return ResponseCodeAndText(response.status_code, response.text)
 
-    def replace_existing_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+    def replace_existing_value(self, value_json: dict[str, Any]) -> ResponseCodeAndText | None:
         url = f"{self.server}/v2/values"
         headers: dict[str, str] = {
             "Content-Type": "application/json",
@@ -72,7 +72,7 @@ class ValueClientLive(ValueClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
 
         match response.status_code:
             case HTTPStatus.OK:

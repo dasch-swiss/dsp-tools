@@ -74,7 +74,7 @@ class PropertyClass(Model):
         self._linkvalue = linkvalue
 
     @staticmethod
-    def _init_process_language_value(prop_val: None | str | LangString, property: str) -> LangString:
+    def _init_process_language_value(prop_val: str | LangString | None, property: str) -> LangString:
         if prop_val is not None:
             if isinstance(prop_val, str):
                 return LangString(prop_val)
@@ -227,7 +227,7 @@ class PropertyClass(Model):
             gui_element = gui_element.replace("Pulldown", "List")
             gui_element = gui_element.replace("Radio", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")
-        gui_attributes: Union[None, dict[str, str]] = None
+        gui_attributes: Union[dict[str, str], None] = None
         if gui_attributes_list is not None:
             gui_attributes = {}
             if not isinstance(gui_attributes_list, list):

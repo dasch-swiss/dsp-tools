@@ -190,7 +190,7 @@ def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     assert response == response_expected
     log_request.assert_called_once_with(params, con.session.headers)
     con.session.request.assert_called_once_with(**params.as_kwargs())
-    log_response.assert_called_once_with(response_expected)
+    log_response.assert_called_once_with(response_expected, status_code=200)
 
 
 @patch("dsp_tools.utils.request_utils.log_response")
@@ -222,8 +222,9 @@ def test_try_network_action_connection_error(
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4]
     assert con._renew_session.call_count == len(session_mock.responses) - 1
     assert [x.args[0] for x in log_request.call_args_list] == [params] * len(session_mock.responses)
-    log_response.assert_called_once_with(session_mock.responses[-1])
-    assert response == session_mock.responses[-1]
+    last_response = session_mock.responses[-1]
+    log_response.assert_called_once_with(last_response, status_code=last_response.status_code)
+    assert response == last_response
 
 
 @patch("dsp_tools.clients.connection_live.log_response")

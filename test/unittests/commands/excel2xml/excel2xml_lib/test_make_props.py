@@ -63,8 +63,10 @@ class TestPropsGeneral(unittest.TestCase):
                         dict(name=":test", value=excel2xml.PropertyElement(val, permissions="private")),
                     ),
                     (
-                        f'<{prop}-prop name=":test"><{prop} permissions="private" comment="comment">{val}'
-                        f"</{prop}></{prop}-prop>",
+                        (
+                            f'<{prop}-prop name=":test"><{prop} permissions="private" comment="comment">{val}'
+                            f"</{prop}></{prop}-prop>"
+                        ),
                         dict(
                             name=":test",
                             value=excel2xml.PropertyElement(val, permissions="private", comment="comment"),
@@ -76,19 +78,23 @@ class TestPropsGeneral(unittest.TestCase):
         testcases.extend(
             [
                 (
-                    f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="public">{identical_values[0]}</{prop}>'
-                    f'<{prop} permissions="public">{identical_values[1]}</{prop}>'
-                    f'<{prop} permissions="public">{identical_values[2]}</{prop}>'
-                    f"</{prop}-prop>",
+                    (
+                        f'<{prop}-prop name=":test">'
+                        f'<{prop} permissions="public">{identical_values[0]}</{prop}>'
+                        f'<{prop} permissions="public">{identical_values[1]}</{prop}>'
+                        f'<{prop} permissions="public">{identical_values[2]}</{prop}>'
+                        f"</{prop}-prop>"
+                    ),
                     dict(name=":test", value=identical_values),
                 ),
                 (
-                    f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="public">{different_values[0 % maximum]}</{prop}>'
-                    f'<{prop} permissions="public">{different_values[1 % maximum]}</{prop}>'
-                    f'<{prop} permissions="public">{different_values[2 % maximum]}</{prop}>'
-                    f"</{prop}-prop>",
+                    (
+                        f'<{prop}-prop name=":test">'
+                        f'<{prop} permissions="public">{different_values[0 % maximum]}</{prop}>'
+                        f'<{prop} permissions="public">{different_values[1 % maximum]}</{prop}>'
+                        f'<{prop} permissions="public">{different_values[2 % maximum]}</{prop}>'
+                        f"</{prop}-prop>"
+                    ),
                     dict(
                         name=":test",
                         value=[
@@ -99,11 +105,13 @@ class TestPropsGeneral(unittest.TestCase):
                     ),
                 ),
                 (
-                    f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="private" comment="comment1">{different_values[3 % maximum]}</{prop}>'
-                    f'<{prop} permissions="public" comment="comment2">{different_values[4 % maximum]}</{prop}>'
-                    f'<{prop} permissions="private" comment="comment3">{different_values[5 % maximum]}</{prop}>'
-                    f"</{prop}-prop>",
+                    (
+                        f'<{prop}-prop name=":test">'
+                        f'<{prop} permissions="private" comment="comment1">{different_values[3 % maximum]}</{prop}>'
+                        f'<{prop} permissions="public" comment="comment2">{different_values[4 % maximum]}</{prop}>'
+                        f'<{prop} permissions="private" comment="comment3">{different_values[5 % maximum]}</{prop}>'
+                        f"</{prop}-prop>"
+                    ),
                     dict(
                         name=":test",
                         value=[
@@ -190,10 +198,14 @@ class TestPropsGeneral(unittest.TestCase):
         prop = "geometry"
         method = excel2xml.make_geometry_prop
         different_values = [
-            '{"type": "rectangle", "lineWidth": 2, '
-            '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
-            '{"type": "rectangle", "lineWidth": 1, '
-            '"points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
+            (
+                '{"type": "rectangle", "lineWidth": 2, '
+                '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}'
+            ),
+            (
+                '{"type": "rectangle", "lineWidth": 1, '
+                '"points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}'
+            ),
         ]
         invalid_values = ["100", 100, [0], '{"type": "polygon"}']
         self.run_test(prop, method, different_values, invalid_values)

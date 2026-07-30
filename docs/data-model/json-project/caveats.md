@@ -41,13 +41,13 @@ However, they can be used directly in the XML data file:
   has the following predefined properties:
     - `hasComment` (0-n)
     - `hasLinkTo` (1-n)
-- A `Region` resource defines a region of interest (ROI) in an image. 
+- A `Region` resource defines a region of interest (ROI) in an image (displayed as an *Annotation* in DSP-APP). 
   It can be used in the XML file with the [&lt;region&gt; tag](../../data-file/xml-data-file.md#region) and 
   has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
-    - `hasComment` (1-n)
+    - `hasComment` (0-n)
 
 There are some DSP base properties that are used directly in the above-mentioned resource classes. 
 Subclasses can be created from some of them in the project ontology.

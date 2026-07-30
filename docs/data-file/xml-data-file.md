@@ -844,8 +844,13 @@ and a link to `<resource id="res_2" ...>`:
 
 ### `<region-preview-prop>`
 
-The `<region-preview-prop>` element links a Region so that it can be rendered as a preview.
+The `<region-preview-prop>` element links a Region (see [`<region>`](#region)) so that the region's
+image area is rendered as a standalone preview (a cropped image) on this resource.
 It must contain at least one `<region-preview>` element.
+
+Region previews only work with still images: the preview is a crop of the source image, so the linked
+Region should be a region of a `StillImageRepresentation`.
+In DSP-APP, a Region is called an **"Annotation"**, so this feature appears there as an _annotation preview_.
 
 The property must be defined in the ontology with `super: hasRegionPreview`, `object: RegionPreviewValue`, and
 `gui_element: RegionPreview`
@@ -860,6 +865,8 @@ Attributes:
 
 The `<region-preview>` element contains either the internal ID of a Region inside the XML or the IRI of an already
 existing Region on DSP. The target must be a Region; this is checked by `validate-data` before the upload.
+As with any Region (in DSP-APP: **"Annotation"**), a preview only makes sense when that Region belongs to a
+still image.
 
 Attributes:
 
@@ -1247,6 +1254,19 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `isRegionOf` (1)
 - `hasGeometry` (1)
 - `hasComment` (0-n)
+
+`isRegionOf` links the region to the resource it belongs to.
+Regions delimit a 2-D area with pixel coordinates, so they are only meaningful on a still image:
+DSP-APP renders regions on `StillImageRepresentation` resources only.
+`validate-data` accepts any `Representation` as the target (mirroring the DSP-API's `isRegionOf`
+constraint), but region rendering only works for still images.
+
+!!! note "Region vs. Annotation"
+
+    In DSP-APP, a `<region>` is displayed under the label **"Annotation"** of an image,
+    even though it is in fact a region of interest.
+    "Region" (the term used by the DSP-API backend and dsp-tools, i.e. `knora-base:Region`)
+    and "Annotation" (the term used in the DSP-APP user interface) denote the same entity.
 
 Example:
 

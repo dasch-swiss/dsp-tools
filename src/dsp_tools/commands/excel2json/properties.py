@@ -189,7 +189,7 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
         raise InvalidFileFormatError(msg)
 
 
-def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProblem:
+def _check_missing_values_in_row(df: pd.DataFrame) -> MissingValuesProblem | None:
     required_values = ["name", "super", "object", "gui_element"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
     missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)

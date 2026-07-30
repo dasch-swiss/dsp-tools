@@ -222,13 +222,7 @@ If you want to change these defaults, you have to use a `PropertyElement` instea
 
 ```python
 make_text_prop(
-    ":testproperty", 
-    PropertyElement(
-        value="first text", 
-        permissions="private", 
-        encoding="xml",
-        comment="some comment"
-    )
+    ":testproperty", PropertyElement(value="first text", permissions="private", encoding="xml", comment="some comment")
 )
 ```
 
@@ -352,7 +346,7 @@ check_notna(" ")    == False
 
 But why not just checking a cell by its boolean value? Like:
 
-```python
+```text
 if cell:
     resource.append(make_*_prop(cell))
 ```

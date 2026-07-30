@@ -49,16 +49,16 @@ To add a new argument/flag to an existing command, you need to modify the parser
 
 ```python
 def _add_xmlupload(
-        subparsers: _SubParsersAction[ArgumentParser],
-        default_dsp_api_url: str,
-        root_user_email: str,
-        root_user_pw: str,
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
 ) -> None:
     subparser = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
     subparser.set_defaults(action="xmlupload")
 
     # ... existing arguments ...
-    
+
     # Add your new argument here
     subparser.add_argument("--timeout-seconds", type=int, default=300, help="timeout for API requests in seconds")
 ```
@@ -98,7 +98,7 @@ When adding a new command, the help text appears in `dsp-tools --help`.
 ```python
 subparser = subparsers.add_parser(
     name="xmlupload",
-    help="Upload data defined in an XML file to a DSP server"  # Keep this brief - 1 line
+    help="Upload data defined in an XML file to a DSP server",  # Keep this brief - 1 line
 )
 ```
 
@@ -173,10 +173,10 @@ from dsp_tools.cli.utils import check_input_dependencies
 
 # Validate that required files exist
 check_input_dependencies(
-  required_paths=PathDependencies(
-    required_files=[Path("data.xml"), Path("config.json")],
-    required_directories=[Path("assets/")],
-  )
+    required_paths=PathDependencies(
+        required_files=[Path("data.xml"), Path("config.json")],
+        required_directories=[Path("assets/")],
+    )
 )
 ```
 
@@ -328,16 +328,12 @@ Create a parser function in `create_parsers.py`:
 def _add_validate_project(
     subparsers: _SubParsersAction[ArgumentParser],
 ) -> None:
-    subparser = subparsers.add_parser(
-        name="validate-project",
-        help="Validate a JSON project file against the schema"
-    )
+    subparser = subparsers.add_parser(name="validate-project", help="Validate a JSON project file against the schema")
     subparser.set_defaults(action="validate-project")
 
     # Add arguments
     subparser.add_argument("project_file", help="path to the JSON project file")
-    subparser.add_argument("--strict", action="store_true",
-        help="enable strict validation with additional checks")
+    subparser.add_argument("--strict", action="store_true", help="enable strict validation with additional checks")
 ```
 
 Call it from `make_parser()`:
@@ -364,9 +360,7 @@ def call_validate_project(args: argparse.Namespace) -> bool:
     strict_mode = args.strict
 
     # 2. Validate inputs at CLI level
-    check_input_dependencies(
-        paths=PathDependencies(required_files=[project_file])
-    )
+    check_input_dependencies(paths=PathDependencies(required_files=[project_file]))
 
     # 3. Call implementation from commands module
     result = validate_project_file(

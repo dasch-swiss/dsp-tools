@@ -1,5 +1,17 @@
 # Changelog
 
+## [18.18.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.1...v18.18.2) (2026-07-29)
+
+
+### Bug Fixes
+
+* **validate-data:** exclude deleted resources from the list of resources that exist in the DB (DEV-6837) ([#2376](https://github.com/dasch-swiss/dsp-tools/issues/2376)) ([b42e247](https://github.com/dasch-swiss/dsp-tools/commit/b42e2479c2c8025e7572d0c5d4fd2d3f9e0be2b0))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.07.05 ([#2380](https://github.com/dasch-swiss/dsp-tools/issues/2380)) ([067ea93](https://github.com/dasch-swiss/dsp-tools/commit/067ea93377e8cc4f0080425ea4e6d70d5745ec7f))
+
 ## [18.18.1](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.0...v18.18.1) (2026-07-23)
 
 

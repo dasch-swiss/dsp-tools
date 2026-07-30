@@ -19,6 +19,8 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.request_utils import is_server_error
 
+EXIT_CODE_PROJECT_ALREADY_EXISTS = 3
+
 
 def create_project(project: ParsedProjectMetadata, auth: AuthenticationClient, exit_if_exists: bool) -> str:
     client = ProjectClientLive(auth.server, auth)
@@ -49,11 +51,11 @@ def _exit_if_create_should_not_continue(shortcode: str, exit_if_exists: bool) ->
     if exit_if_exists:
         msg = (
             "The project already exists on the server and the flag '--exit-if-exists' was set. "
-            "The process is aborted without further uploads."
+            f"The process is aborted without further uploads (exit code {EXIT_CODE_PROJECT_ALREADY_EXISTS})."
         )
         logger.info(msg)
         print(BACKGROUND_BOLD_YELLOW + msg + RESET_TO_DEFAULT)
-        sys.exit(0)
+        sys.exit(EXIT_CODE_PROJECT_ALREADY_EXISTS)
 
     msg = (
         f"A project with the shortcode '{shortcode}' already exists on the server. "

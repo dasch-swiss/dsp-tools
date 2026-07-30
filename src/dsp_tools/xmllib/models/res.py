@@ -1043,13 +1043,14 @@ class Resource:
         order: int | None = None,
     ) -> Resource:
         """
-        Add a region-preview value to the resource, in the form of an ID of a Region resource.
+        Add a region-preview value to the resource. The value is either the internal ID of a Region
+        inside the XML, or the IRI of an already existing Region on DSP.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
-            value: ID of the target Region resource
+            value: internal ID of a Region inside the XML, or IRI of an already existing Region on DSP
             permissions: optional permissions of this value
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
@@ -1088,13 +1089,15 @@ class Resource:
         include_value_order: bool = False,
     ) -> Resource:
         """
-        Add several region-preview values to the resource, in the form of IDs of Region resources.
+        Add several region-preview values to the resource. Each value is either the internal ID of a
+        Region inside the XML, or the IRI of an already existing Region on DSP.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
-            values: list of target Region resource IDs
+            values: list of targets, each the internal ID of a Region inside the XML,
+                or the IRI of an already existing Region on DSP
             permissions: optional permissions of this value
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
@@ -1131,13 +1134,14 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        If non-empty, the value must be an ID of a Region resource.
+        If non-empty, the value must be the internal ID of a Region inside the XML,
+        or the IRI of an already existing Region on DSP.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
-            value: target Region resource ID or empty value
+            value: internal ID of a Region inside the XML, or IRI of an existing Region on DSP, or empty value
             permissions: optional permissions of this value
             comment: optional comment
 

@@ -77,6 +77,23 @@ class TestReplaceIdsWithIris:
         returned_link = next(iter([x for x in result.values if x.value_type == KnoraValueType.LINK_VALUE]))
         assert returned_link.value == "r1_iri"
 
+    def test_region_preview_value(self, iri_resolver):
+        preview_val = ParsedValue(HAS_PROP, "r1_id", KnoraValueType.REGION_PREVIEW_VALUE, None, None, None)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[preview_val],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _process_one_resource(res, iri_resolver)
+        assert len(result.values) == 1
+        returned_preview = result.values[0]
+        assert returned_preview.value_type == KnoraValueType.REGION_PREVIEW_VALUE
+        assert returned_preview.value == "r1_iri"
+
     def test_no_replacement(self, iri_resolver):
         res = ParsedResource(
             res_id="id",

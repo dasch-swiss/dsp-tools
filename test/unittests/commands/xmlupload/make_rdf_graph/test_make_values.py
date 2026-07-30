@@ -28,6 +28,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInterval
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
@@ -181,6 +182,18 @@ class TestMakeOneValueGraphSuccess:
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
+        assert value == RES_ONE_URI
+
+    def test_region_preview(self, lookups: IRILookups) -> None:
+        res_bn = BNode()
+        prop = ProcessedRegionPreview("res_one", absolute_iri("hasRegionPreview"), None, None, None, str(uuid4()))
+        result = _make_one_value_graph(prop, res_bn, lookups)
+        assert len(result) == 3
+        # the property IRI is used verbatim (no `…Value` companion), unlike ProcessedLink
+        val_bn = next(result.objects(res_bn, ONTO.hasRegionPreview))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API.RegionPreviewValue
+        value = next(result.objects(val_bn, KNORA_API.isRegionPreviewOf))
         assert value == RES_ONE_URI
 
     def test_simpletext(self, lookups: IRILookups) -> None:

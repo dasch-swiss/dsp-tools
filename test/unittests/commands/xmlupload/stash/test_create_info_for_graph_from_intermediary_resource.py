@@ -5,6 +5,7 @@ import pytest
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
@@ -43,8 +44,18 @@ def resource_with_link_and_text(link_value: ProcessedValue, text_value_with_link
 
 
 @pytest.fixture
+def region_preview_value() -> ProcessedValue:
+    return ProcessedRegionPreview("res_id_target", "prop", None, None, None, str(uuid4()))
+
+
+@pytest.fixture
 def resource_with_link(link_value: ProcessedValue) -> ProcessedResource:
     return ProcessedResource("res_id", "res_type", "lbl", None, [link_value])
+
+
+@pytest.fixture
+def resource_with_region_preview(region_preview_value: ProcessedValue) -> ProcessedResource:
+    return ProcessedResource("res_id", "res_type", "lbl", None, [region_preview_value])
 
 
 @pytest.fixture
@@ -99,6 +110,18 @@ def test_process_one_resource_link_values(resource_with_link: ProcessedResource,
     assert link.source_id == "res_id"
     assert link.target_id == "res_id_target"
     assert link.link_uuid == link_value.value_uuid
+
+
+def test_process_one_resource_region_preview(
+    resource_with_region_preview: ProcessedResource, region_preview_value: ProcessedRegionPreview
+) -> None:
+    link_list, standoff = _process_one_resource(resource_with_region_preview)
+    assert not standoff
+    assert len(link_list) == 1
+    link = link_list.pop(0)
+    assert link.source_id == "res_id"
+    assert link.target_id == "res_id_target"
+    assert link.link_uuid == region_preview_value.value_uuid
 
 
 def test_process_one_resource_both_links(

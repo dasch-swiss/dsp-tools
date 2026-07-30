@@ -62,6 +62,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
     "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,
+    "region-preview-prop": KnoraValueType.REGION_PREVIEW_VALUE,
     "resptr-prop": KnoraValueType.LINK_VALUE,
     "time-prop": KnoraValueType.TIME_VALUE,
     "uri-prop": KnoraValueType.URI_VALUE,
@@ -94,6 +95,9 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
     KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode, XSD.string),
     KnoraValueType.LINK_VALUE: RDFPropTypeInfo(KNORA_API.LinkValue, API_SHAPES.linkValueHasTargetID, XSD.string),
+    KnoraValueType.REGION_PREVIEW_VALUE: RDFPropTypeInfo(
+        KNORA_API.RegionPreviewValue, KNORA_API.isRegionPreviewOf, XSD.string
+    ),
     KnoraValueType.INT_VALUE: INT_PROP_TYPE_INFO,
     KnoraValueType.INTERVAL_VALUE: RDFPropTypeInfo(KNORA_API.IntervalValue, KNORA_API.hasSegmentBounds),
     KnoraValueType.SIMPLETEXT_VALUE: SIMPLE_TEXT_PROP_TYPE_INFO,
@@ -119,6 +123,7 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.GEONAME_VALUE: TripleObjectType.STRING,
     KnoraValueType.LIST_VALUE: TripleObjectType.STRING,
     KnoraValueType.LINK_VALUE: TripleObjectType.IRI,
+    KnoraValueType.REGION_PREVIEW_VALUE: TripleObjectType.IRI,
     KnoraValueType.INT_VALUE: TripleObjectType.INTEGER,
     KnoraValueType.SIMPLETEXT_VALUE: TripleObjectType.STRING,
     KnoraValueType.RICHTEXT_VALUE: TripleObjectType.STRING,

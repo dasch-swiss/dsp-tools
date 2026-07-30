@@ -5,6 +5,7 @@ from loguru import logger
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
@@ -46,7 +47,7 @@ def _process_one_resource(
     stashed_standoff_values: list[StandoffStashItem] = []
 
     for val in resource.values.copy():
-        if isinstance(val, ProcessedLink):
+        if isinstance(val, (ProcessedLink, ProcessedRegionPreview)):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
             stashed_link_values.append(LinkValueStashItem(resource.res_id, resource.type_iri, val))

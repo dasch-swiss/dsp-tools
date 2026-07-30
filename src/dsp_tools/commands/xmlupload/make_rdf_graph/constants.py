@@ -18,6 +18,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
 LINK_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri)
+REGION_PREVIEW_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.RegionPreviewValue, KNORA_API.isRegionPreviewOf)
 RICHTEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.textValueAsXml, XSD.string)
 
 # values suitable for the generic lookup

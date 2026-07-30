@@ -45,7 +45,7 @@ def _add_one_value(g: Graph, val: RdfLikeValue, res_iri: URIRef) -> None:
     # The interval values are added in the property objects graph
     if val.knora_type == KnoraValueType.INTERVAL_VALUE:
         return
-    if val.knora_type == KnoraValueType.LINK_VALUE:
+    if val.knora_type in (KnoraValueType.LINK_VALUE, KnoraValueType.REGION_PREVIEW_VALUE):
         link_val = val.user_facing_value if val.user_facing_value else ""
         if link_val.startswith("http://rdfh.ch/"):
             triple_object: Literal | URIRef = URIRef(link_val)

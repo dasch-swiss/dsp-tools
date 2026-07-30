@@ -396,6 +396,36 @@ class TestLinkValue:
         assert next(g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA[""]
 
 
+class TestRegionPreviewValue:
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRegionPreview",
+            "region-id",
+            KnoraValueType.REGION_PREVIEW_VALUE,
+            [],
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_value(g, val, RES_IRI)
+        assert len(g) == 3
+        bn = next(g.objects(RES_IRI, ONTO.testHasRegionPreview))
+        assert next(g.objects(bn, RDF.type)) == KNORA_API.RegionPreviewValue
+        assert next(g.objects(bn, KNORA_API.isRegionPreviewOf)) == DATA["region-id"]
+
+    def test_corr_with_iri(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRegionPreview",
+            "http://rdfh.ch/9999/region-iri",
+            KnoraValueType.REGION_PREVIEW_VALUE,
+            [],
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_value(g, val, RES_IRI)
+        assert len(g) == 3
+        bn = next(g.objects(RES_IRI, ONTO.testHasRegionPreview))
+        assert next(g.objects(bn, RDF.type)) == KNORA_API.RegionPreviewValue
+        assert next(g.objects(bn, KNORA_API.isRegionPreviewOf)) == URIRef("http://rdfh.ch/9999/region-iri")
+
+
 class TestListValue:
     def test_corr(self):
         val = RdfLikeValue(

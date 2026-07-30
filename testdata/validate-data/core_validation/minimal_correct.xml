@@ -102,6 +102,12 @@
         </resptr-prop>
     </resource>
 
+    <resource label="region_preview" restype=":ClassWithEverything" id="region_preview">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>region</region-preview>
+        </region-preview-prop>
+    </resource>
+
     <resource label="richtext" restype=":ClassWithEverything" id="richtext">
         <text-prop name=":testRichtext">
             <text encoding="xml">

@@ -14,6 +14,7 @@ from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
 from dsp_tools.xmllib.models.internal.values import ListValue
+from dsp_tools.xmllib.models.internal.values import RegionPreviewValue
 from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
@@ -173,6 +174,22 @@ class TestSerialiseValues:
             b'name=":linkProp">'
             b'<resptr permissions="public">res_link</resptr>'
             b"</resptr-prop>"
+        )
+        res_str = etree.tostring(result.pop(0))
+        assert res_str == expected
+
+    def test_region_preview(self):
+        v: list[Value] = [
+            RegionPreviewValue("region_id", ":previewProp", permissions=Permissions.PUBLIC, comment="cmt", order=1)
+        ]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<region-preview-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":previewProp">'
+            b'<region-preview permissions="public" comment="cmt" order="1">region_id</region-preview>'
+            b"</region-preview-prop>"
         )
         res_str = etree.tostring(result.pop(0))
         assert res_str == expected

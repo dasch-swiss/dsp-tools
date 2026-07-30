@@ -40,7 +40,7 @@ def _process_one_resource(res: ParsedResource, iri_lookup: IriResolver) -> Parse
     new_vals = []
     previous_vals = deepcopy(res.values)
     for v in previous_vals:
-        if v.value_type == KnoraValueType.LINK_VALUE:
+        if v.value_type in (KnoraValueType.LINK_VALUE, KnoraValueType.REGION_PREVIEW_VALUE):
             new_vals.append(_process_link_value(v, iri_lookup))
         elif v.value_type == KnoraValueType.RICHTEXT_VALUE:
             new_vals.append(_process_richtext_value(v, iri_lookup))

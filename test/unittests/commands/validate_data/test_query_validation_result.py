@@ -57,6 +57,30 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.expected == "Representation"
 
 
+def test_reformat_region_preview_target_wrong_type(
+    report_region_preview_target_wrong_type: tuple[Graph, Graph],
+) -> None:
+    validation_g, onto_data_g = report_region_preview_target_wrong_type
+    report = ValidationReportGraphs(
+        conforms=False,
+        validation_graph=validation_g,
+        shacl_graph=Graph(),
+        onto_graph=onto_data_g,
+        data_graph=onto_data_g,
+    )
+    result_all_problems = reformat_validation_graph(report)
+    assert not result_all_problems.unexpected_results
+    assert len(result_all_problems.problems) == 1
+    result = result_all_problems.problems.pop(0)
+    assert result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH
+    assert result.res_id == "resource_with_region_preview_wrong_target"
+    assert result.prop_name == "onto:hasRegionPreview"
+    assert result.severity == Severity.VIOLATION
+    assert result.input_value == "target_not_a_region_1"
+    assert result.input_type == "in-built:TestNormalResource"
+    assert result.expected == "Region"
+
+
 def test_separate_bns_of_results(
     report_target_resource_wrong_type: tuple[Graph, Graph], report_not_resource: tuple[Graph, Graph]
 ):
@@ -118,6 +142,24 @@ class TestQueryAllResults:
         assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
+
+    def test_region_preview_target_wrong_type(
+        self, report_region_preview_target_wrong_type: tuple[Graph, Graph]
+    ) -> None:
+        validation_g, onto_data_g = report_region_preview_target_wrong_type
+        extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.LINK_TARGET
+        assert result.res_iri == DATA.resource_with_region_preview_wrong_target
+        assert result.res_class == ONTO.ClassWithEverything
+        assert result.property == ONTO.hasRegionPreview
+        assert result.severity == SH.Violation
+        assert result.input_value == DATA.target_not_a_region_1
+        assert result.input_type == IN_BUILT_ONTO.TestNormalResource
+        assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Region")
 
     def test_report_archive_missing_legal_info(self, report_archive_missing_legal_info: tuple[Graph, Graph]) -> None:
         validation_g, onto_data_g = report_archive_missing_legal_info

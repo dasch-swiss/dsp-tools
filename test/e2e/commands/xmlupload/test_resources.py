@@ -42,7 +42,7 @@ class TestResources:
     def test_class_with_everything_all_created(self, cls_with_everything_graph, class_with_everything_iri_9999):
         cls_iri = URIRef(class_with_everything_iri_9999)
         resource_iris = list(cls_with_everything_graph.subjects(RDF.type, cls_iri))
-        expected_number_of_resources = 17
+        expected_number_of_resources = 18
         assert len(resource_iris) == expected_number_of_resources
 
     def test_resource_no_values_assert_triples_present(

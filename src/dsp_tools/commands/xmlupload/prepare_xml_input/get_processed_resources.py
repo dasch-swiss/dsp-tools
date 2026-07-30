@@ -27,6 +27,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInterval
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedList
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedTime
@@ -196,6 +197,8 @@ def _get_one_processed_value(val: ParsedValue, lookups: XmlReferenceLookups) -> 
             return _get_list_value(val, lookups)
         case KnoraValueType.LINK_VALUE:
             return _get_link_value(val, lookups)
+        case KnoraValueType.REGION_PREVIEW_VALUE:
+            return _get_region_preview_value(val, lookups)
         case KnoraValueType.RICHTEXT_VALUE:
             return _get_richtext_value(val, lookups)
         case _ as val_type:
@@ -229,6 +232,20 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
         value_uuid=str(uuid4()),
     )
     return link_val
+
+
+def _get_region_preview_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:
+    transformed_value = assert_is_string(val.value)
+    permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
+    preview_val: ProcessedValue = ProcessedRegionPreview(
+        value=transformed_value,
+        prop_iri=val.prop_name,
+        comment=val.comment,
+        permissions=permission_val,
+        value_order=val.value_order,
+        value_uuid=str(uuid4()),
+    )
+    return preview_val
 
 
 def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> ProcessedValue:

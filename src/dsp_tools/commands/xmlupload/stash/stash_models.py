@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from itertools import groupby
 
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRegionPreview
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedRichtext
 
 
@@ -44,11 +45,11 @@ class StandoffStash:
 
 @dataclass(frozen=True)
 class LinkValueStashItem:
-    """Holds information about a single stashed link value."""
+    """Holds information about a single stashed link value or region-preview value."""
 
     res_id: str
     res_type: str
-    value: ProcessedLink
+    value: ProcessedLink | ProcessedRegionPreview
 
 
 @dataclass(frozen=True)

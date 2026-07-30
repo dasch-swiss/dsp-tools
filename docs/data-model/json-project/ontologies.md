@@ -211,6 +211,7 @@ The following DSP base properties are available:
 - `hasValue`: This is the most general case, 
   to be used in all cases when your property is none of the special cases below.
 - `hasLinkTo`: a link to another resource
+- `hasRegionPreview`: a link to a Region resource whose value is rendered as a region preview.
 - `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
 - `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, 
@@ -256,6 +257,7 @@ These three are related as follows:
 | hasValue                              | TimeValue                                                          | TimeStamp                              |
 | hasValue                              | UriValue                                                           | SimpleText                             |
 | hasLinkTo                             | (resourceclass)                                                    | Searchbox                              |
+| hasRegionPreview                      | RegionPreviewValue                                                 | RegionPreview                          |
 | hasRepresentation                     | Representation                                                     | Searchbox                              |
 | isPartOf                              | (resourceclass)                                                    | Searchbox                              |
 | seqnum                                | IntValue                                                           | Spinbox, <br>SimpleText                |
@@ -621,7 +623,7 @@ from `hasLinkTo`. There are different groups of resource classes that can be the
 - DSP base resources:
     - `Resource`: the most generic one, can point to any resource class, be it a DSP base resource, a project resource, 
       or an external resource. `Resource` is at the very top of the inheritance hierarchy.
-    - `Region`: a region in an image
+    - `Region`: a region in an image (displayed as an *Annotation* in DSP-APP)
     - `StillImageRepresentation`, `MovingImageRepresentation`, `TextRepresentation`, `AudioRepresentation`, 
       `DDDRepresentation`, `DocumentRepresentation`, or `ArchiveRepresentation`
 

@@ -245,6 +245,17 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- regionpreview_type (link to a Region rendered as a preview) value type -->
+    <xs:complexType name="regionpreview_type">
+        <xs:simpleContent>
+            <xs:extension base="resptr_datatype">
+                <xs:attribute name="comment" type="xs:string"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <!-- time value type -->
     <xs:complexType name="time_type">
         <xs:simpleContent>
@@ -357,6 +368,14 @@
     <xs:complexType name="resptrprop_type">
         <xs:sequence>
             <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
+    </xs:complexType>
+
+    <!-- regionpreviewprop_type -->
+    <xs:complexType name="regionpreviewprop_type">
+        <xs:sequence>
+            <xs:element name="region-preview" type="regionpreview_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
@@ -489,6 +508,7 @@
                 <xs:element name="integer-prop" type="integerprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="period-prop" type="periodprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="resptr-prop" type="resptrprop_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="region-preview-prop" type="regionpreviewprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="time-prop" type="timeprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="decimal-prop" type="decimalprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="uri-prop" type="uriprop_type" minOccurs="0" maxOccurs="unbounded"/>

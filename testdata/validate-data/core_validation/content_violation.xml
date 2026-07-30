@@ -76,6 +76,27 @@
         </resptr-prop>
     </resource>
 
+    <!-- IRI of another project -->
+    <resource label="another project" restype=":ClassWithEverything" id="region_preview_another_project">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA</region-preview>
+        </region-preview-prop>
+    </resource>
+
+    <!-- target is not a region -->
+    <resource label="not a region" restype=":ClassWithEverything" id="region_preview_not_a_region">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>id_9_target</region-preview>
+        </region-preview-prop>
+    </resource>
+
+    <!-- region does not exist -->
+    <resource label="target does not exist" restype=":ClassWithEverything" id="region_preview_region_does_not_exist">
+        <region-preview-prop name=":testHasRegionPreview">
+            <region-preview>other</region-preview>
+        </region-preview-prop>
+    </resource>
+
     <!-- Text may not be empty -->
     <resource label="No Content" restype=":ClassWithEverything" id="richtext_empty">
         <text-prop name=":testRichtext">

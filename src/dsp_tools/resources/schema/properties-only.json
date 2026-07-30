@@ -46,6 +46,7 @@
             "enum": [
                 "hasValue",
                 "hasLinkTo",
+                "hasRegionPreview",
                 "hasColor",
                 "hasComment",
                 "isPartOf",
@@ -63,6 +64,7 @@
                 "GeonameValue",
                 "IntValue",
                 "ListValue",
+                "RegionPreviewValue",
                 "TextValue",
                 "TimeValue",
                 "UriValue"
@@ -80,6 +82,7 @@
                 "Pulldown",
                 "Richtext",
                 "Searchbox",
+                "RegionPreview",
                 "SimpleText",
                 "Spinbox",
                 "Textarea",
@@ -200,6 +203,25 @@
                         "properties": {
                             "gui_element": {
                                 "const": "Searchbox"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "super": {
+                                "const": "hasRegionPreview"
+                            }
+                        },
+                        "required": [
+                            "super"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "gui_element": {
+                                "const": "RegionPreview"
                             }
                         }
                     }

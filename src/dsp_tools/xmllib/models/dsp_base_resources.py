@@ -49,6 +49,7 @@ class RegionResource:
         """
         Creates a new region resource.
         A region is a region of interest (ROI) in a StillImageRepresentation.
+        In DSP-APP, a region is displayed under the label "Annotation".
 
         Exactly one geometry shape has to be added to the resource with one of the following methods:
         `add_rectangle`, `add_polygon`, `add_circle` (see documentation below for more information).

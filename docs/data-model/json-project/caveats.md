@@ -47,7 +47,7 @@ However, they can be used directly in the XML data file:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
-    - `hasComment` (1-n)
+    - `hasComment` (0-n)
 
 There are some DSP base properties that are used directly in the above-mentioned resource classes. 
 Subclasses can be created from some of them in the project ontology.

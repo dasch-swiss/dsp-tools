@@ -1248,6 +1248,19 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasGeometry` (1)
 - `hasComment` (0-n)
 
+`isRegionOf` links the region to the resource it belongs to.
+Regions delimit a 2-D area with pixel coordinates, so they are only meaningful on a still image:
+DSP-APP renders regions on `StillImageRepresentation` resources only.
+`validate-data` accepts any `Representation` as the target (mirroring the DSP-API's `isRegionOf`
+constraint), but region rendering only works for still images.
+
+!!! note "Region vs. Annotation"
+
+    In DSP-APP, a `<region>` is displayed under the label **"Annotation"** of an image,
+    even though it is in fact a region of interest.
+    "Region" (the term used by the DSP-API backend and dsp-tools, i.e. `knora-base:Region`)
+    and "Annotation" (the term used in the DSP-APP user interface) denote the same entity.
+
 Example:
 
 ```xml

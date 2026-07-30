@@ -55,8 +55,10 @@ class DuplicatesInSheetProblem(SheetProblem):
 
     def execute_error_protocol(self) -> str:
         msg = [
-            f"The excel sheet '{self.sheet_name}' contains rows that are completely identical "
-            f"(excluding the column 'ID (optional)'). The following rows are duplicates:"
+            (
+                f"The excel sheet '{self.sheet_name}' contains rows that are completely identical "
+                f"(excluding the column 'ID (optional)'). The following rows are duplicates:"
+            )
         ]
         msg.extend([f"{x + 2}" for x in self.rows])
         return list_separator.join(msg)
@@ -107,9 +109,11 @@ class MissingTranslationsSheetProblem(SheetProblem):
 
     def execute_error_protocol(self) -> str:
         msg = [
-            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
-            "In one list, all the nodes must be translated into all the languages used. "
-            "For the following nodes, the translations are missing:"
+            (
+                f"The excel sheet '{self.sheet}' has the following problem(s):\n"
+                "In one list, all the nodes must be translated into all the languages used. "
+                "For the following nodes, the translations are missing:"
+            )
         ]
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         msg.extend([x.execute_error_protocol() for x in nodes_sorted])
@@ -122,8 +126,10 @@ class DuplicatesListNameProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [
-            "The name of the list must be unique across all the excel sheets.\n"
-            "The following sheets have lists with the same name:"
+            (
+                "The name of the list must be unique across all the excel sheets.\n"
+                "The following sheets have lists with the same name:"
+            )
         ]
         sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.excel_name)
         msg.extend([x.execute_error_protocol() for x in sorted_list])

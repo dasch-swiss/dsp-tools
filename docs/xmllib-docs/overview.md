@@ -170,10 +170,7 @@ We provide the following function to clean your input:
 
 ```python
 input_string = "This should be\na list\nof strings."
-cleaned_list = xmllib.create_list_from_input(
-    input_value=input_string,
-    separator="\n"
-)
+cleaned_list = xmllib.create_list_from_input(input_value=input_string, separator="\n")
 ```
 
 You can find this and other functions to help you process your data [here](./general-functions.md).
@@ -216,7 +213,7 @@ resource = resource.add_iiif_uri(
     iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
     license=xmllib.LicenseRecommended.CC.BY_NC,
     copyright_holder="Wellcome Collection",
-    authorship=["Cavanagh, Annie"]
+    authorship=["Cavanagh, Annie"],
 )
 ```
 
@@ -276,11 +273,7 @@ These four types have pre-defined properties,
 which either are added directly when the resource is created or can be added afterwards with a dedicated function.
 
 ```python
-region = xmllib.RegionResource.create_new(
-    res_id="region_1",
-    label="Region label",
-    region_of="image_resource"
-)
+region = xmllib.RegionResource.create_new(res_id="region_1", label="Region label", region_of="image_resource")
 region = region.add_rectangle(
     point1=(0.1, 0.1),
     point2=(0.2, 0.2),

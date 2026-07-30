@@ -11,12 +11,12 @@ class ValueClient(Protocol):
     server: str
     auth: AuthenticationClient
 
-    def post_new_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+    def post_new_value(self, value_json: dict[str, Any]) -> ResponseCodeAndText | None:
         """
         POST a JSON-LD resource payload to /v2/values.
         """
 
-    def replace_existing_value(self, value_json: dict[str, Any]) -> None | ResponseCodeAndText:
+    def replace_existing_value(self, value_json: dict[str, Any]) -> ResponseCodeAndText | None:
         """
         PUT a JSON-LD resource payload to /v2/values.
         """

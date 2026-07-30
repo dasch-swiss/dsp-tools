@@ -445,7 +445,7 @@ def _add_create(
     subparser.add_argument(
         "--exit-if-exists",
         action="store_true",
-        help="exit gracefully without further uploads if the project already exists",
+        help="if the project already exists, abort without further uploads (exit code 3)",
     )
     subparser.add_argument(
         "-V",

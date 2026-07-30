@@ -108,3 +108,14 @@ class Stash:
         standoff = not self.standoff_stash or not self.standoff_stash.res_2_stash_items
         link = not self.link_value_stash or not self.link_value_stash.res_2_stash_items
         return standoff and link
+
+    def all_items(self) -> list[StandoffStashItem | LinkValueStashItem]:
+        """Return all stashed values (standoff and link values) as a flat list."""
+        items: list[StandoffStashItem | LinkValueStashItem] = []
+        if self.standoff_stash:
+            for standoff_items in self.standoff_stash.res_2_stash_items.values():
+                items.extend(standoff_items)
+        if self.link_value_stash:
+            for link_items in self.link_value_stash.res_2_stash_items.values():
+                items.extend(link_items)
+        return items

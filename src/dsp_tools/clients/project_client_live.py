@@ -34,7 +34,7 @@ class ProjectClientLive(ProjectClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(str, result["project"]["id"])
@@ -51,7 +51,7 @@ class ProjectClientLive(ProjectClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(list[str], result["project"].get("defaultDataAuthorship", []))
@@ -71,7 +71,7 @@ class ProjectClientLive(ProjectClient):
         except RequestException as err:
             log_and_raise_request_exception(err)
 
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
             return cast(str, result["project"]["id"])

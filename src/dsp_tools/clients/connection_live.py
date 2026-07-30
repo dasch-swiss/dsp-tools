@@ -180,7 +180,7 @@ class ConnectionLive(Connection):
                 )
                 continue
 
-            log_response(response)
+            log_response(response, status_code=response.status_code)
             if response.status_code == HTTP_OK:
                 return response
 

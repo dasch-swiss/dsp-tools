@@ -40,7 +40,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             response_json: dict[str, list[dict[str, Any]]] = response.json()
             return response_json["default_object_access_permissions"]
@@ -64,7 +64,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return True
         if response.status_code == HTTPStatus.FORBIDDEN:
@@ -91,7 +91,7 @@ class PermissionsClientLive(PermissionsClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return True
         if response.status_code == HTTPStatus.FORBIDDEN:

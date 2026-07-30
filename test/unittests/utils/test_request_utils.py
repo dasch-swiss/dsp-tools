@@ -25,7 +25,7 @@ def _make_response(status_code: int, headers: dict[str, Any], text: str):
     return mock
 
 
-def test_log_response() -> None:
+def test_log_response_debug() -> None:
     response_mock = _make_response(
         200,
         {"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
@@ -37,8 +37,24 @@ def test_log_response() -> None:
         "content": {"foo": "bar"},
     }
     with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
-        log_response(response_mock)
+        log_response(response_mock, status_code=response_mock.status_code)
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
+
+
+def test_log_response_warning() -> None:
+    response_mock = _make_response(
+        400,
+        {"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
+        json.dumps({"foo": "bar"}),
+    )
+    expected_output = {
+        "status_code": 400,
+        "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
+        "content": {"foo": "bar"},
+    }
+    with patch("dsp_tools.utils.request_utils.logger.warning") as warning_mock:
+        log_response(response_mock, status_code=response_mock.status_code)
+        warning_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
 
 @pytest.mark.parametrize(

@@ -40,7 +40,7 @@ class ValueClientLive(ValueClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
 
         match response.status_code:
             case HTTPStatus.OK:
@@ -72,7 +72,7 @@ class ValueClientLive(ValueClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
 
         match response.status_code:
             case HTTPStatus.OK:

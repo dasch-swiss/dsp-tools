@@ -81,7 +81,7 @@ class BulkIngestClient:
                     data=binary_io,  # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
                     timeout=params.timeout,
                 )
-            log_response(res)
+            log_response(res, status_code=res.status_code)
         except RequestException as e:
             logger.exception(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
@@ -117,7 +117,7 @@ class BulkIngestClient:
         params = RequestParameters("POST", url, timeout, headers=headers)
         log_request(params)
         res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
-        log_response(res)
+        log_response(res, status_code=res.status_code)
         if res.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
         if res.status_code == HTTPStatus.NOT_FOUND:
@@ -164,7 +164,7 @@ class BulkIngestClient:
             params = RequestParameters("GET", url, timeout, headers=headers)
             log_request(params)
             res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)
-            log_response(res)
+            log_response(res, status_code=res.status_code)
             if res.status_code == HTTPStatus.CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")

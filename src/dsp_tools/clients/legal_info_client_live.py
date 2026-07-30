@@ -55,7 +55,7 @@ class LegalInfoClientLive(LegalInfoClient):
             data=params.data_serialized,
             timeout=params.timeout,
         )
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         return response
 
     def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
@@ -77,7 +77,7 @@ class LegalInfoClientLive(LegalInfoClient):
             )
         except RequestException as err:
             log_and_raise_request_exception(err)
-        log_response(response)
+        log_response(response, status_code=response.status_code)
         if response.ok:
             return
         if response.status_code == HTTPStatus.FORBIDDEN:
@@ -117,7 +117,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 headers=params.headers,
                 timeout=params.timeout,
             )
-            log_response(response)
+            log_response(response, status_code=response.status_code)
         except RequestException as err:
             log_and_raise_request_exception(err)
         if response.ok:

@@ -13,12 +13,15 @@ from dsp_tools.commands.mapping.models import ResolvedMapping
 from dsp_tools.commands.mapping.models import ResolvedMappings
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 
-# Mirrors the forbidden hosts of the DSP-API, which rejects a mapping IRI on any of them.
-FORBIDDEN_MAPPING_HOST_SUBSTRINGS = ("knora.org", "dasch.swiss")
+# An IRI on one of these hosts is never a user mapping: it is knora-api, knora-base, a DSP shared ontology or a
+# production project ontology. The DSP-API rejects these as mapping targets, so they can only be super-entities
+# that the ontology needs. Always keep them.
+MAPPING_HOST_SUBSTRINGS_TO_KEEP = ("knora.org", "dasch.swiss")
 
-# Mirrors the forbidden namespaces of the DSP-API. Note that only the RDF Schema *namespace* is forbidden:
-# a mapping to a document URL such as https://www.w3.org/TR/rdf-schema/Book is legitimate.
-FORBIDDEN_MAPPING_NAMESPACES = (
+# Technical RDF vocabularies. A super-entity in one of these is structural, so it is kept. Note that only the RDF
+# Schema *namespace* is listed: a mapping to a document URL such as https://www.w3.org/TR/rdf-schema/Book is a
+# legitimate user mapping and stays deletable.
+MAPPING_NAMESPACES_TO_KEEP = (
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "http://www.w3.org/2000/01/rdf-schema#",
     "http://www.w3.org/2002/07/owl#",
@@ -35,13 +38,13 @@ def is_deletable_mapping_iri(iri: str, dsp_server_host: str) -> bool:
         # A mapping IRI that is not http(s) cannot be stored through the DSP-API in the first place,
         # and the remaining host checks cannot classify it.
         return False
-    if any(forbidden in host for forbidden in FORBIDDEN_MAPPING_HOST_SUBSTRINGS):
+    if any(substring in host for substring in MAPPING_HOST_SUBSTRINGS_TO_KEEP):
         return False
     if host == dsp_server_host:
         # The DSP-API does not have this rule. It is what protects same-project super-entities on a local
         # or testcontainer stack, where their IRIs are hosted at the DSP server itself.
         return False
-    if any(iri.startswith(namespace) for namespace in FORBIDDEN_MAPPING_NAMESPACES):
+    if any(iri.startswith(namespace) for namespace in MAPPING_NAMESPACES_TO_KEEP):
         return False
     return not is_dsp_project_iri(iri)
 

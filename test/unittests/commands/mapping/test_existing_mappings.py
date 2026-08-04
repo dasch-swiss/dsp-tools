@@ -82,7 +82,7 @@ class TestIsDeletableMappingIri:
             "http://datashapes.org/dash#SingleLineConstraintComponent",
         ],
     )
-    def test_forbidden_namespaces_are_not_deletable(self, iri: str):
+    def test_technical_rdf_namespaces_are_not_deletable(self, iri: str):
         assert not is_deletable_mapping_iri(iri, DSP_SERVER_HOST)
 
     @pytest.mark.parametrize(

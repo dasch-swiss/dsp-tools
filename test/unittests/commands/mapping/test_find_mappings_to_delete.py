@@ -1,8 +1,8 @@
 import pytest
 
-from dsp_tools.commands.mapping.existing_mappings import get_existing_mappings
-from dsp_tools.commands.mapping.existing_mappings import is_deletable_mapping_iri
-from dsp_tools.commands.mapping.existing_mappings import select_mappings_to_delete
+from dsp_tools.commands.mapping.find_mappings_to_delete import get_existing_mappings
+from dsp_tools.commands.mapping.find_mappings_to_delete import is_deletable_mapping_iri
+from dsp_tools.commands.mapping.find_mappings_to_delete import select_mappings_to_delete
 from dsp_tools.commands.mapping.models import ExistingMappings
 from dsp_tools.commands.mapping.models import MappingDeletion
 from dsp_tools.commands.mapping.models import MappingDeletions

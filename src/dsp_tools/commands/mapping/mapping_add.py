@@ -14,8 +14,8 @@ from dsp_tools.clients.mapping_client_live import MappingClientLive
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
-from dsp_tools.commands.mapping.existing_mappings import get_existing_mappings
-from dsp_tools.commands.mapping.existing_mappings import select_mappings_to_delete
+from dsp_tools.commands.mapping.find_mappings_to_delete import get_existing_mappings
+from dsp_tools.commands.mapping.find_mappings_to_delete import select_mappings_to_delete
 from dsp_tools.commands.mapping.models import MappingAction
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingDeletion

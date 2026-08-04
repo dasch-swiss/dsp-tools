@@ -46,6 +46,16 @@ def _resolve_one_mapping(
 ) -> tuple[ResolvedMapping, list[PrefixResolutionProblem]]:
     resolved: list[str] = []
     problems: list[PrefixResolutionProblem] = []
+    if not parsed_mapping.prefixed_mapping_iris:
+        # An entity without any mapping would be stripped of its existing mappings and get nothing in return,
+        # so this must fail before the upload phase.
+        problems.append(
+            PrefixResolutionProblem(
+                entity_name=parsed_mapping.name,
+                input_value="",
+                problem=PrefixResolutionProblemType.NO_MAPPING_IN_INPUT,
+            )
+        )
     for prefixed_iri in parsed_mapping.prefixed_mapping_iris:
         result = _resolve_prefixed_iri(prefixed_iri, prefix_lookup, parsed_mapping.name)
         if isinstance(result, PrefixResolutionProblem):

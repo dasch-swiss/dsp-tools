@@ -34,6 +34,16 @@ class MappingClientLive(MappingClient):
         url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
         return self._put(url, mapping_iris)
 
+    def delete_class_mapping(self, class_iri: str, mapping_iri: str) -> ResponseCodeAndText | None:
+        encoded_class = quote_plus(class_iri)
+        url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/classes/{encoded_class}/mapping"
+        return self._delete(url, mapping_iri)
+
+    def delete_property_mapping(self, property_iri: str, mapping_iri: str) -> ResponseCodeAndText | None:
+        encoded_prop = quote_plus(property_iri)
+        url = f"{self.server}/v3/ontologies/{self.encoded_ontology_iri}/properties/{encoded_prop}/mapping"
+        return self._delete(url, mapping_iri)
+
     def _put(self, url: str, external_iris: list[str]) -> ResponseCodeAndText | None:
         headers = {
             "Content-Type": "application/json",
@@ -59,6 +69,35 @@ class MappingClientLive(MappingClient):
             case HTTPStatus.FORBIDDEN:
                 raise BadCredentialsError(
                     "You do not have permission to add mappings to this project. "
+                    "Only a SystemAdmin or ProjectAdmin can perform this action."
+                )
+            case _:
+                return parse_api_v3_error(response)
+
+    def _delete(self, url: str, external_iri: str) -> ResponseCodeAndText | None:
+        # The query value is built into the URL so that `log_request` logs the fully encoded URL.
+        # Encoding is mandatory: a raw '#' in an external IRI would become a client-side fragment.
+        url_with_query = f"{url}?mapping={quote_plus(external_iri)}"
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("DELETE", url_with_query, TIMEOUT_30, headers=headers)
+        log_request(params)
+        try:
+            response = requests.delete(
+                url=params.url,
+                headers=params.headers,
+                timeout=params.timeout,
+            )
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        log_response(response, status_code=response.status_code)
+
+        match response.status_code:
+            case HTTPStatus.OK:
+                return None
+            case HTTPStatus.FORBIDDEN:
+                raise BadCredentialsError(
+                    "You do not have permission to delete mappings from this project. "
                     "Only a SystemAdmin or ProjectAdmin can perform this action."
                 )
             case _:

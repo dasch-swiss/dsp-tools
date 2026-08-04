@@ -539,7 +539,7 @@ def _add_mapping(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     # add
     add_parser = mapping_subparsers.add_parser(
         name="add",
-        help="Bulk-add external ontology mappings from an Excel file to a DSP project",
+        help="Replace the external ontology mappings of a DSP project with the ones from an Excel file",
     )
     add_parser.set_defaults(action="mapping add")
     add_parser.add_argument("config_file", help="path to the mapping YAML config file")

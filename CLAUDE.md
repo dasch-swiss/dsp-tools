@@ -66,7 +66,9 @@ DSP-TOOLS provides the following functionalities:
   to attributes on `<bitstream>` or `<iiif-uri>` elements.
   The command handles validation, error correction via CSV workflow, and authorship deduplication.
 - `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
-- `dsp-tools mapping [config|add]` add mapping to existing ontologies on a server
+- `dsp-tools mapping [config|add]` replace the external mappings of an existing ontology on a server.
+  The Excel file is the source of truth: `mapping add` deletes the external mappings of the whole ontology
+  that the Excel file does not ask for any more, then adds the ones it defines.
 
 
 ## Conventions and Review

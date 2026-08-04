@@ -1,4 +1,6 @@
 import time
+from collections.abc import Callable
+from functools import partial
 from http import HTTPStatus
 from urllib.parse import quote_plus
 
@@ -12,7 +14,12 @@ from dsp_tools.clients.mapping_client_live import MappingClientLive
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
+from dsp_tools.commands.mapping.existing_mappings import get_existing_mappings
+from dsp_tools.commands.mapping.existing_mappings import select_mappings_to_delete
+from dsp_tools.commands.mapping.models import MappingAction
 from dsp_tools.commands.mapping.models import MappingConfig
+from dsp_tools.commands.mapping.models import MappingDeletion
+from dsp_tools.commands.mapping.models import MappingDeletions
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.commands.mapping.models import MappingUploadFailure
 from dsp_tools.commands.mapping.models import PrefixResolutionProblem
@@ -32,6 +39,14 @@ from dsp_tools.utils.request_utils import should_retry_request
 RETRY_SLEEP_SECONDS = 5
 LIST_MESSAGE_SEPARATOR = "\n    - "
 
+RERUN_ADVICE = (
+    "This command replaces mappings: existing external mappings are deleted before the new ones are added.\n"
+    "If a deletion succeeded but the subsequent addition failed, "
+    "that class or property currently has no external mappings.\n"
+    "The command is re-runnable: fix the problems above "
+    "and run `dsp-tools mapping add` again with the same config file."
+)
+
 
 def mapping_add(info: MappingInfo) -> bool:
     logger.info(f"Starting `mapping add` for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
@@ -39,7 +54,7 @@ def mapping_add(info: MappingInfo) -> bool:
 
     match prefix_problems, upload_problems:
         case None, None:
-            print(f"{BACKGROUND_BOLD_GREEN}All mappings were added successfully.{RESET_TO_DEFAULT}")
+            print(f"{BACKGROUND_BOLD_GREEN}All mappings were replaced successfully.{RESET_TO_DEFAULT}")
             return True
         case list(), None:
             _communicate_parsing_problems(prefix_problems)
@@ -64,14 +79,20 @@ def _mapping_add(info: MappingInfo) -> tuple[list[PrefixResolutionProblem] | Non
         password=info.server.password,
     )
     ontology_iri = ontology_namespace.rstrip("#")
-    _check_if_project_and_ontology_exists(auth, info.config, ontology_iri)
+    ontology_ttl = _check_project_and_get_ontology_ttl(auth, info.config, ontology_iri)
+    existing_mappings = get_existing_mappings(ontology_ttl, ontology_namespace, auth.server)
+    deletions = select_mappings_to_delete(existing_mappings, resolved_mappings)
+    _communicate_planned_deletions(deletions)
 
     encoded_ontology_iri = quote_plus(ontology_iri)
     client = MappingClientLive(server=auth.server, encoded_ontology_iri=encoded_ontology_iri, auth=auth)
 
-    failures = _add_classes_mappings(client, resolved_mappings.classes)
-    prop_failures = _add_properties_mappings(client, resolved_mappings.properties)
-    failures.extend(prop_failures)
+    # The add phase runs even if some deletions failed: aborting in between would leave entities
+    # with fewer mappings and no replacements. All failures are collected into one report.
+    failures = _delete_class_mappings(client, deletions.classes)
+    failures.extend(_delete_property_mappings(client, deletions.properties))
+    failures.extend(_add_classes_mappings(client, resolved_mappings.classes))
+    failures.extend(_add_properties_mappings(client, resolved_mappings.properties))
 
     if failures:
         return None, failures
@@ -92,9 +113,9 @@ def _communicate_parsing_problems(problem_list: list[PrefixResolutionProblem]) -
     print(problem_str)
 
 
-def _check_if_project_and_ontology_exists(
+def _check_project_and_get_ontology_ttl(
     auth: AuthenticationClient, mapping_config: MappingConfig, ontology_iri: str
-) -> None:
+) -> str:
     logger.debug("Check if the project and ontology exists on the server.")
     project_client = ProjectClientLive(auth.server, auth)
     # If the project does not exist this will raise an error which we will let escalate,
@@ -103,100 +124,155 @@ def _check_if_project_and_ontology_exists(
 
     onto_client = OntologyGetClientLive(api_url=auth.server, shortcode=mapping_config.shortcode)
     # If no ontologies are found this will raise an error which we let escalate.
-    _, ontology_iris = onto_client.get_ontologies()
-    if ontology_iri not in ontology_iris:
-        raise OntologyReferencedNotFoundError(mapping_config.shortcode, mapping_config.ontology)
+    ontologies, ontology_iris = onto_client.get_ontologies()
+    for one_ontology, one_iri in zip(ontologies, ontology_iris, strict=True):
+        if one_iri == ontology_iri:
+            return one_ontology
+    raise OntologyReferencedNotFoundError(mapping_config.shortcode, mapping_config.ontology)
+
+
+def _communicate_planned_deletions(deletions: MappingDeletions) -> None:
+    all_deletions = [*deletions.classes, *deletions.properties]
+    if not all_deletions:
+        msg = "No existing external mappings to delete."
+        logger.info(msg)
+        print(msg)
+        return
+    affected = sorted({from_dsp_iri_to_prefixed_iri(x.entity_iri) for x in all_deletions})
+    msg = (
+        f"{len(all_deletions)} existing external mapping(s) of {len(affected)} class(es)/property(ies) "
+        f"will be deleted. The Excel file is the source of truth, so this includes classes and properties "
+        f"that the Excel file does not mention:"
+    )
+    msg += LIST_MESSAGE_SEPARATOR + LIST_MESSAGE_SEPARATOR.join(affected)
+    logger.info(msg)
+    print(msg)
+
+
+def _delete_class_mappings(client: MappingClient, deletions: list[MappingDeletion]) -> list[MappingUploadFailure]:
+    if not deletions:
+        return []
+    failures: list[MappingUploadFailure] = []
+    logger.debug("Deleting mapping from classes")
+    for deletion in tqdm(deletions, desc="    Deleting mapping from classes", dynamic_ncols=True):
+        send = partial(client.delete_class_mapping, deletion.entity_iri, deletion.mapping_iri)
+        failures.extend(
+            _send_one_request_with_retry(send, deletion.entity_iri, deletion.mapping_iri, MappingAction.DELETE)
+        )
+    return failures
+
+
+def _delete_property_mappings(client: MappingClient, deletions: list[MappingDeletion]) -> list[MappingUploadFailure]:
+    if not deletions:
+        return []
+    failures: list[MappingUploadFailure] = []
+    logger.debug("Deleting mapping from properties")
+    for deletion in tqdm(deletions, desc="    Deleting mapping from properties", dynamic_ncols=True):
+        send = partial(client.delete_property_mapping, deletion.entity_iri, deletion.mapping_iri)
+        failures.extend(
+            _send_one_request_with_retry(send, deletion.entity_iri, deletion.mapping_iri, MappingAction.DELETE)
+        )
+    return failures
 
 
 def _add_classes_mappings(
     client: MappingClient, classes_mapping: list[ResolvedClassMapping]
 ) -> list[MappingUploadFailure]:
+    if not classes_mapping:
+        return []
     failures: list[MappingUploadFailure] = []
-    progress_bar = tqdm(classes_mapping, desc="    Adding mapping to classes", dynamic_ncols=True)
     logger.debug("Adding mapping to classes")
-    for cls in progress_bar:
-        response = client.put_class_mapping(cls.iri, cls.mapping_iris)
-        # happy path
-        if response is None:
-            continue
-        # retry if it is a retriable status code
-        if should_retry_request(response):
-            logger.warning(f"Retrying to add mapping for class '{cls.iri}' in {RETRY_SLEEP_SECONDS} seconds.")
-            time.sleep(RETRY_SLEEP_SECONDS)
-            response = client.put_class_mapping(cls.iri, cls.mapping_iris)
-            if response is not None:
-                logger.error(f"Unable to add mapping for class '{cls.iri}' after retrying.")
-                failures.extend(_get_correct_user_message_for_non_ok_response(cls.iri, response))
-        # non retriable error
-        else:
-            logger.error(f"Unable to add mapping for class '{cls.iri}'.")
-            failures.extend(_get_correct_user_message_for_non_ok_response(cls.iri, response))
+    for cls in tqdm(classes_mapping, desc="    Adding mapping to classes", dynamic_ncols=True):
+        send = partial(client.put_class_mapping, cls.iri, cls.mapping_iris)
+        failures.extend(_send_one_request_with_retry(send, cls.iri, None, MappingAction.ADD))
     return failures
 
 
 def _add_properties_mappings(
     client: MappingClient, properties_mapping: list[ResolvedPropertyMapping]
 ) -> list[MappingUploadFailure]:
+    if not properties_mapping:
+        return []
     failures: list[MappingUploadFailure] = []
-    progress_bar = tqdm(properties_mapping, desc="    Adding mapping to properties", dynamic_ncols=True)
     logger.debug("Adding mapping to properties")
-    for prop in progress_bar:
-        response = client.put_property_mapping(prop.iri, prop.mapping_iris)
-        # happy path
-        if response is None:
-            continue
-        # retry if it is a retriable status code
-        if should_retry_request(response):
-            logger.warning(f"Retrying to add mapping for property '{prop.iri}' in {RETRY_SLEEP_SECONDS} seconds.")
-            time.sleep(RETRY_SLEEP_SECONDS)
-            response = client.put_property_mapping(prop.iri, prop.mapping_iris)
-            if response is not None:
-                logger.error(f"Unable to add mapping for property '{prop.iri}' after retrying.")
-                failures.extend(_get_correct_user_message_for_non_ok_response(prop.iri, response))
-        # non retriable error
-        else:
-            logger.error(f"Unable to add mapping for property '{prop.iri}'.")
-            failures.extend(_get_correct_user_message_for_non_ok_response(prop.iri, response))
+    for prop in tqdm(properties_mapping, desc="    Adding mapping to properties", dynamic_ncols=True):
+        send = partial(client.put_property_mapping, prop.iri, prop.mapping_iris)
+        failures.extend(_send_one_request_with_retry(send, prop.iri, None, MappingAction.ADD))
     return failures
 
 
+def _send_one_request_with_retry(
+    send: Callable[[], ResponseCodeAndText | None],
+    entity_iri: str,
+    mapping_iri: str | None,
+    action: MappingAction,
+) -> list[MappingUploadFailure]:
+    response = send()
+    # happy path
+    if response is None:
+        return []
+    # retry if it is a retriable status code
+    if should_retry_request(response):
+        logger.warning(f"Retrying to {action} mapping for '{entity_iri}' in {RETRY_SLEEP_SECONDS} seconds.")
+        time.sleep(RETRY_SLEEP_SECONDS)
+        response = send()
+        if response is None:
+            return []
+        logger.error(f"Unable to {action} mapping for '{entity_iri}' after retrying.")
+    # non retriable error
+    else:
+        logger.error(f"Unable to {action} mapping for '{entity_iri}'.")
+    return _get_correct_user_message_for_non_ok_response(entity_iri, response, action, mapping_iri)
+
+
 def _get_correct_user_message_for_non_ok_response(
-    iri: str, response_code_text: ResponseCodeAndText
+    iri: str, response_code_text: ResponseCodeAndText, action: MappingAction, mapping_iri: str | None
 ) -> list[MappingUploadFailure]:
     if response_code_text.status_code in (HTTPStatus.BAD_REQUEST, HTTPStatus.NOT_FOUND):
-        return _get_detailed_user_message(iri, response_code_text)
+        return _get_detailed_user_message(iri, response_code_text, action, mapping_iri)
     prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     msg = (
-        f"Unexpected error while adding mapping for class/property '{prefixed_iri}'. "
+        f"Unexpected error while trying to {action} the mapping for class/property '{prefixed_iri}'. "
         f"Original status code: {response_code_text.status_code}\nOriginal message: {response_code_text.text}"
     )
-    return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=msg)]
+    return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=mapping_iri, message=msg, action=action)]
 
 
-def _get_detailed_user_message(iri: str, response_code_text: ResponseCodeAndText) -> list[MappingUploadFailure]:
+def _get_detailed_user_message(
+    iri: str, response_code_text: ResponseCodeAndText, action: MappingAction, mapping_iri: str | None
+) -> list[MappingUploadFailure]:
     prefixed_iri = from_dsp_iri_to_prefixed_iri(iri)
     if not response_code_text.v3_errors:
-        return [MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=None, message=response_code_text.text)]
+        return [
+            MappingUploadFailure(
+                prefixed_iri=prefixed_iri,
+                mapping_iri=mapping_iri,
+                message=response_code_text.text,
+                action=action,
+            )
+        ]
     failures = []
     for v3_err in response_code_text.v3_errors:
-        mapping_iri = None
+        failed_mapping_iri = mapping_iri
         match v3_err.error_code:
             case "class_not_found":
                 msg = f"The class '{prefixed_iri}' was not found in the ontology on the server."
             case "property_not_found":
                 msg = f"The property '{prefixed_iri}' was not found in the ontology on the server."
             case "invalid_ontology_mapping_iri":
-                mapping_iri = v3_err.details.get("iri")
-                msg = f"The mapping IRI '{mapping_iri}' is not a valid external ontology IRI."
+                failed_mapping_iri = v3_err.details.get("iri") or mapping_iri
+                msg = f"The mapping IRI '{failed_mapping_iri}' is not a valid external ontology IRI."
             case _:
                 details_str = ", ".join(f"{k}={v}" for k, v in v3_err.details.items()) if v3_err.details else ""
                 msg = f"{v3_err.message}" + (f" ({details_str})" if details_str else "")
-        failures.append(MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=mapping_iri, message=msg))
+        failures.append(
+            MappingUploadFailure(prefixed_iri=prefixed_iri, mapping_iri=failed_mapping_iri, message=msg, action=action)
+        )
     return failures
 
 
 def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
-    msg_start = f"{len(failures)} mapping(s) could not be added"
+    msg_start = f"{len(failures)} mapping operation(s) failed."
     logger.error(msg_start)
     print(f"{BACKGROUND_BOLD_RED}{msg_start}{RESET_TO_DEFAULT}")
     messages = []
@@ -204,9 +280,13 @@ def _communicate_upload_failures(failures: list[MappingUploadFailure]) -> None:
     for failure in failures:
         single_line = [failure.prefixed_iri]
         if failure.mapping_iri:
-            single_line.append(f"Mapping '{failure.mapping_iri}'")
+            single_line.append(f"Could not {failure.action} mapping '{failure.mapping_iri}'")
+        else:
+            single_line.append(f"Could not {failure.action} mapping")
         single_line.append(f"Problem: {failure.message}")
         messages.append(" | ".join(single_line))
     msg = LIST_MESSAGE_SEPARATOR + LIST_MESSAGE_SEPARATOR.join(messages)
     logger.error(msg)
     print(msg)
+    logger.error(RERUN_ADVICE)
+    print(f"\n{RERUN_ADVICE}")

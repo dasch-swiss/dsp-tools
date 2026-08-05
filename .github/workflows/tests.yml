@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
         run: just unittests --cov=dsp_tools --cov-report xml
       - name: save coverage report as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-unittests
           path: coverage.xml
@@ -33,13 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
         run: just integration-tests --cov=dsp_tools --cov-report xml
       - name: save coverage report as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-integration
           path: coverage.xml
@@ -49,24 +49,24 @@ jobs:
     needs: [unittests, integration]
     steps:
       - name: download unittests coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-unittests
           path: coverage/unittests
       - name: download integration coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-integration
           path: coverage/integration
       - name: upload unittests coverage to codecov.io
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: coverage/unittests/coverage.xml
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
       - name: upload integration coverage to codecov.io
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: coverage/integration/coverage.xml
           flags: integration-tests
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: start stack

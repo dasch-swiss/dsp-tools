@@ -54,7 +54,7 @@ jobs:
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
         if: steps.get_release_pr_branch.outputs.branch != ''
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
       - name: Update uv.lock and commit it

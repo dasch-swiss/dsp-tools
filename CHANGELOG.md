@@ -1,5 +1,26 @@
 # Changelog
 
+## [18.19.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.2...v18.19.0) (2026-08-06)
+
+
+### Enhancements
+
+* add support for `RegionPreviewValue` (DEV-6760) ([#2369](https://github.com/dasch-swiss/dsp-tools/issues/2369)) ([bb43db3](https://github.com/dasch-swiss/dsp-tools/commit/bb43db3e69245e28f9c1e3ae0e674bfc341f5f85))
+
+
+### Bug Fixes
+
+* **create:** exit with code 3 from --exit-if-exists when the project already exists (DEV-6878) ([#2382](https://github.com/dasch-swiss/dsp-tools/issues/2382)) ([75176d4](https://github.com/dasch-swiss/dsp-tools/commit/75176d4a29afe31d54d25720f08bbc05c8be6b85))
+* **xmlupload:** only persist resumable upload state and trim stash message ([#2379](https://github.com/dasch-swiss/dsp-tools/issues/2379)) ([e151421](https://github.com/dasch-swiss/dsp-tools/commit/e15142197c064bf86583bf9828a12c89832050c9))
+
+
+### Maintenance
+
+* **clients:** set log level based on HTTP response code ([#2377](https://github.com/dasch-swiss/dsp-tools/issues/2377)) ([41c426c](https://github.com/dasch-swiss/dsp-tools/commit/41c426c3381d80109f76262783e1f11015ea7d4a))
+* **deps:** bump the all-dependencies group across 1 directory with 22 updates ([#2372](https://github.com/dasch-swiss/dsp-tools/issues/2372)) ([0717648](https://github.com/dasch-swiss/dsp-tools/commit/0717648d77f81071c59968179a6d5c7848c71f20))
+* **deps:** bump the all-dependencies group with 5 updates ([#2385](https://github.com/dasch-swiss/dsp-tools/issues/2385)) ([2b388ff](https://github.com/dasch-swiss/dsp-tools/commit/2b388ffa63bfd523bf8e59cf302492943ee00faa))
+* **start-stack:** bump versions to 2026.08.01 ([#2388](https://github.com/dasch-swiss/dsp-tools/issues/2388)) ([196cf50](https://github.com/dasch-swiss/dsp-tools/commit/196cf50150fbb58b0b9064846543d6216d9ee753))
+
 ## [18.18.2](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.1...v18.18.2) (2026-07-29)
 
 

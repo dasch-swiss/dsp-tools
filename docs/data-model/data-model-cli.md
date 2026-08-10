@@ -99,9 +99,8 @@ The `mapping` command links DSP ontology classes and properties to IRIs from ext
 (e.g. schema.org, CIDOC-CRM), enabling interoperability with other knowledge systems,
 through definitions from an Excel file.
 It has two subcommands: `mapping config` generates a configuration template,
-and `mapping add` writes the mappings to a DSP server,
-replacing the external mappings that are already stored there
-(see [Replace semantics](#mapping-add)).
+and `mapping update` replaces the external mappings stored on a DSP server with the ones from an Excel file
+(see [Replace semantics](#mapping-update)).
 
 <!-- markdownlint-disable MD036 -->
 
@@ -147,7 +146,7 @@ Required columns: `property`, `mapping`.
 
 ### `mapping config`
 
-Generates a YAML configuration template for the `mapping add` command.
+Generates a YAML configuration template for the `mapping update` command.
 
 ```bash
 dsp-tools mapping config [--project-shortcode SHORTCODE] [--ontology NAME]
@@ -179,12 +178,12 @@ password: test
 All fields are required.
 The `server`, `user`, and `password` fields follow the same conventions as other DSP-TOOLS commands.
 
-### `mapping add`
+### `mapping update`
 
 Reads an Excel file and replaces the external mappings of the ontology on a DSP server with the ones it defines.
 
 ```bash
-dsp-tools mapping add 0XXX-my-onto-mapping.yaml
+dsp-tools mapping update 0XXX-my-onto-mapping.yaml
 ```
 
 The available arguments are:
@@ -193,36 +192,31 @@ The available arguments are:
 
 **Replace semantics**
 
-The Excel file is the single source of truth for the external mappings of the ontology named in the config file.
-Before the mappings from the Excel file are added,
-all external mappings that the Excel file does not ask for any more are deleted.
+The Excel file is the single source of truth for the external mappings of the ontology named in the config file:
+after the command runs, the ontology's external mappings match the Excel file exactly, nothing more and nothing
+less.
 
-The following mappings are deleted:
+- **Every class and property of the ontology is affected**, including those the Excel file does not mention at
+  all. A class that was mapped in an earlier run, but is absent from the Excel file now, loses its mappings.
+- Only the ontology named in the config file is affected. Other ontologies of the same project are untouched.
+- A mapping listed in both the old and the new state is left as is. Running the command again with an unchanged
+  Excel file changes nothing on the server.
 
-- External mappings of **every class and property of the ontology**,
-  including those that the Excel file does not mention at all.
-  A class that was mapped in an earlier run, but is absent from the Excel file now, loses its mappings.
-- Only mappings of the ontology named in the config file.
-  Other ontologies of the same project are not touched.
+The following super-classes and super-properties are always kept, no matter what the Excel file says:
 
-The following super-classes and super-properties are always preserved:
+- DSP's own ones, e.g. `knora-api:Resource` and `knora-api:hasValue`, present on every DSP server.
+- Any super-class or super-property that comes from one of your project's own ontologies — whether from the
+  ontology you are mapping or from another ontology in the same project. Inheriting from your own classes and
+  properties is normal DSP modeling, not an external mapping, so it is never affected.
 
-- DSP's own ones, e.g. `knora-api:Resource` and `knora-api:hasValue`.
-- Those from DSP shared ontologies.
-- Those from other ontologies of the same project, and from the same ontology.
-
-A mapping that is listed in both the old and the new state is never removed and re-added,
-so re-running the command with an unchanged Excel file sends no delete requests at all.
-Before deleting anything, the command prints how many mappings will be deleted and which classes and properties
+Before changing anything, the command prints how many mappings will be removed and which classes and properties
 are affected.
 
 The command is re-runnable: if it fails, fix the reported problems and run it again with the same config file.
-Note that deletions happen before additions.
-If a deletion succeeds but the subsequent addition fails,
-that class or property is left without external mappings until the next successful run.
+If a class or property loses its old mappings but does not receive its new ones because of a failure, it is left
+without external mappings until the next successful run.
 
-Because the mappings are read from the server before they are written,
-a concurrent edit of the same ontology during a run may cause a deletion to be a no-op,
-or a mapping added by someone else in the meantime not to be replaced.
+If someone else edits the same ontology's mappings while the command is running, the result can be inconsistent:
+a removal may not take effect, or a mapping added by someone else in the meantime may unexpectedly survive.
 
 <!-- markdownlint-enable MD036 -->

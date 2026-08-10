@@ -54,11 +54,11 @@ def test_mapping_config_errors_when_non_interactive_and_shortcode_missing(
 
 
 @patch("dsp_tools.cli.utils._check_network_health")
-@patch("dsp_tools.cli.call_action_with_network.mapping_add")
+@patch("dsp_tools.cli.call_action_with_network.mapping_update")
 @patch("dsp_tools.cli.call_action_with_network.parse_mapping_config")
-def test_mapping_add_dispatch(
+def test_mapping_update_dispatch(
     parse_mapping_config: Mock,
-    mapping_add: Mock,
+    mapping_update: Mock,
     check_network: Mock,  # noqa: ARG001
 ) -> None:
     config_path = "testdata/xml-data/test-data-systematic-4123.xml"  # existing file for path check
@@ -67,11 +67,11 @@ def test_mapping_add_dispatch(
         server=ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test"),
     )
     parse_mapping_config.return_value = mock_info
-    mapping_add.return_value = True
+    mapping_update.return_value = True
 
-    entry_point.run(f"mapping add {config_path}".split())
+    entry_point.run(f"mapping update {config_path}".split())
     parse_mapping_config.assert_called_once_with(Path(config_path))
-    mapping_add.assert_called_once_with(mock_info)
+    mapping_update.assert_called_once_with(mock_info)
 
 
 def test_mapping_without_subcommand_raises() -> None:

@@ -44,13 +44,13 @@ RERUN_ADVICE = (
     "If a deletion succeeded but the subsequent addition failed, "
     "that class or property currently has no external mappings.\n"
     "The command is re-runnable: fix the problems above "
-    "and run `dsp-tools mapping add` again with the same config file."
+    "and run `dsp-tools mapping update` again with the same config file."
 )
 
 
-def mapping_add(info: MappingInfo) -> bool:
-    logger.info(f"Starting `mapping add` for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
-    prefix_problems, upload_problems = _mapping_add(info)
+def mapping_update(info: MappingInfo) -> bool:
+    logger.info(f"Starting `mapping update` for ontology '{info.config.ontology}' (shortcode {info.config.shortcode})")
+    prefix_problems, upload_problems = _mapping_update(info)
 
     match prefix_problems, upload_problems:
         case None, None:
@@ -66,7 +66,9 @@ def mapping_add(info: MappingInfo) -> bool:
             raise UnreachableCodeError()
 
 
-def _mapping_add(info: MappingInfo) -> tuple[list[PrefixResolutionProblem] | None, list[MappingUploadFailure] | None]:
+def _mapping_update(
+    info: MappingInfo,
+) -> tuple[list[PrefixResolutionProblem] | None, list[MappingUploadFailure] | None]:
     parsed_excel, prefix_lookup = parse_mapping_excel(info.config.excel_file)
     ontology_namespace = make_dsp_ontology_prefix(info.server.server, info.config.shortcode, info.config.ontology)
     resolved_mappings, problems = resolve_parsed_mappings(parsed_excel, prefix_lookup, ontology_namespace)

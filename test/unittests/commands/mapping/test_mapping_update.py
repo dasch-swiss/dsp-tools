@@ -9,16 +9,16 @@ from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.clients.exceptions import ProjectOntologyNotFound
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
-from dsp_tools.commands.mapping.mapping_add import RERUN_ADVICE
-from dsp_tools.commands.mapping.mapping_add import _add_classes_mappings
-from dsp_tools.commands.mapping.mapping_add import _add_properties_mappings
-from dsp_tools.commands.mapping.mapping_add import _check_project_and_get_ontology_ttl
-from dsp_tools.commands.mapping.mapping_add import _communicate_planned_deletions
-from dsp_tools.commands.mapping.mapping_add import _communicate_upload_failures
-from dsp_tools.commands.mapping.mapping_add import _delete_class_mappings
-from dsp_tools.commands.mapping.mapping_add import _delete_property_mappings
-from dsp_tools.commands.mapping.mapping_add import _get_correct_user_message_for_non_ok_response
-from dsp_tools.commands.mapping.mapping_add import _get_detailed_user_message
+from dsp_tools.commands.mapping.mapping_update import RERUN_ADVICE
+from dsp_tools.commands.mapping.mapping_update import _add_classes_mappings
+from dsp_tools.commands.mapping.mapping_update import _add_properties_mappings
+from dsp_tools.commands.mapping.mapping_update import _check_project_and_get_ontology_ttl
+from dsp_tools.commands.mapping.mapping_update import _communicate_planned_deletions
+from dsp_tools.commands.mapping.mapping_update import _communicate_upload_failures
+from dsp_tools.commands.mapping.mapping_update import _delete_class_mappings
+from dsp_tools.commands.mapping.mapping_update import _delete_property_mappings
+from dsp_tools.commands.mapping.mapping_update import _get_correct_user_message_for_non_ok_response
+from dsp_tools.commands.mapping.mapping_update import _get_detailed_user_message
 from dsp_tools.commands.mapping.models import MappingAction
 from dsp_tools.commands.mapping.models import MappingConfig
 from dsp_tools.commands.mapping.models import MappingDeletion
@@ -55,9 +55,9 @@ class TestCheckProjectAndGetOntologyTtl:
         return auth
 
     def test_ontology_found_returns_its_turtle(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
-            with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
+            with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.return_value = ([TARGET_TTL, OTHER_TTL], [ONTO_IRI, OTHER_IRI])
                 mock_onto_cls.return_value = mock_onto_client
@@ -65,9 +65,9 @@ class TestCheckProjectAndGetOntologyTtl:
         assert result == TARGET_TTL
 
     def test_turtle_is_selected_by_index_not_by_position(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
-            with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
+            with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.return_value = ([OTHER_TTL, TARGET_TTL], [OTHER_IRI, ONTO_IRI])
                 mock_onto_cls.return_value = mock_onto_client
@@ -75,9 +75,9 @@ class TestCheckProjectAndGetOntologyTtl:
         assert result == TARGET_TTL
 
     def test_ontology_not_found_raises(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
-            with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
+            with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.return_value = ([OTHER_TTL], [OTHER_IRI])
                 mock_onto_cls.return_value = mock_onto_client
@@ -85,7 +85,7 @@ class TestCheckProjectAndGetOntologyTtl:
                     _check_project_and_get_ontology_ttl(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_project_not_found_propagates(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_client = Mock()
             mock_project_client.get_project_iri.side_effect = ProjectNotFoundError("0001")
             mock_project_cls.return_value = mock_project_client
@@ -93,9 +93,9 @@ class TestCheckProjectAndGetOntologyTtl:
                 _check_project_and_get_ontology_ttl(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_get_ontologies_project_not_found_propagates(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
-            with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
+            with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.side_effect = ProjectOntologyNotFound("0001")
                 mock_onto_cls.return_value = mock_onto_client
@@ -103,9 +103,9 @@ class TestCheckProjectAndGetOntologyTtl:
                     _check_project_and_get_ontology_ttl(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_get_ontologies_fatal_error_propagates(self):
-        with patch("dsp_tools.commands.mapping.mapping_add.ProjectClientLive") as mock_project_cls:
+        with patch("dsp_tools.commands.mapping.mapping_update.ProjectClientLive") as mock_project_cls:
             mock_project_cls.return_value = Mock()
-            with patch("dsp_tools.commands.mapping.mapping_add.OntologyGetClientLive") as mock_onto_cls:
+            with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
                 mock_onto_client.get_ontologies.side_effect = FatalNonOkApiResponseCode(ONTO_IRI, 500, "server error")
                 mock_onto_cls.return_value = mock_onto_client
@@ -149,8 +149,8 @@ class TestAddClassesMappings:
             None,
         ]
         classes = [ResolvedClassMapping(iri=CLASS_IRI, mapping_iris=[MAPPING_IRI])]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _add_classes_mappings(client, classes)
         assert result == []
         assert client.put_class_mapping.call_count == 2
@@ -163,8 +163,8 @@ class TestAddClassesMappings:
         client = Mock()
         client.put_class_mapping.side_effect = [err_response, err_response]
         classes = [ResolvedClassMapping(iri=CLASS_IRI, mapping_iris=[MAPPING_IRI])]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _add_classes_mappings(client, classes)
         assert len(result) == 1
         assert client.put_class_mapping.call_count == 2
@@ -206,8 +206,8 @@ class TestAddPropertiesMappings:
             None,
         ]
         props = [ResolvedPropertyMapping(iri=PROP_IRI, mapping_iris=[MAPPING_IRI])]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _add_properties_mappings(client, props)
         assert result == []
         assert client.put_property_mapping.call_count == 2
@@ -217,8 +217,8 @@ class TestAddPropertiesMappings:
         client = Mock()
         client.put_property_mapping.side_effect = [err_response, err_response]
         props = [ResolvedPropertyMapping(iri=PROP_IRI, mapping_iris=[MAPPING_IRI])]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _add_properties_mappings(client, props)
         assert len(result) == 1
         assert client.put_property_mapping.call_count == 2
@@ -261,8 +261,8 @@ class TestDeleteClassMappings:
             None,
         ]
         deletions = [MappingDeletion(entity_iri=CLASS_IRI, mapping_iri=MAPPING_IRI)]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _delete_class_mappings(client, deletions)
         assert result == []
         assert client.delete_class_mapping.call_count == 2
@@ -272,8 +272,8 @@ class TestDeleteClassMappings:
         client = Mock()
         client.delete_class_mapping.side_effect = [err_response, err_response]
         deletions = [MappingDeletion(entity_iri=CLASS_IRI, mapping_iri=MAPPING_IRI)]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _delete_class_mappings(client, deletions)
         assert len(result) == 1
         assert result[0].action is MappingAction.DELETE
@@ -325,8 +325,8 @@ class TestDeletePropertyMappings:
             None,
         ]
         deletions = [MappingDeletion(entity_iri=PROP_IRI, mapping_iri=MAPPING_IRI)]
-        with patch("dsp_tools.commands.mapping.mapping_add.should_retry_request", return_value=True):
-            with patch("dsp_tools.commands.mapping.mapping_add.time.sleep"):
+        with patch("dsp_tools.commands.mapping.mapping_update.should_retry_request", return_value=True):
+            with patch("dsp_tools.commands.mapping.mapping_update.time.sleep"):
                 result = _delete_property_mappings(client, deletions)
         assert result == []
         assert client.delete_property_mapping.call_count == 2

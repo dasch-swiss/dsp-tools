@@ -16,7 +16,7 @@ from dsp_tools.cli.call_action_with_network import call_create
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
-from dsp_tools.cli.call_action_with_network import call_mapping_add
+from dsp_tools.cli.call_action_with_network import call_mapping_update
 from dsp_tools.cli.call_action_with_network import call_migration_clean_up
 from dsp_tools.cli.call_action_with_network import call_migration_complete
 from dsp_tools.cli.call_action_with_network import call_migration_export
@@ -93,8 +93,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             )
         case "mapping config":
             result = call_mapping_config(args)
-        case "mapping add":
-            result = call_mapping_add(args)
+        case "mapping update":
+            result = call_mapping_update(args)
         case "migration":
             raise CliCommandNotInvokableError(
                 "The command `migration` cannot be used as a stand-alone command. "

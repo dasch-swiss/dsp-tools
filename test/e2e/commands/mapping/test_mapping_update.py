@@ -11,7 +11,7 @@ from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
-from dsp_tools.commands.mapping.mapping_add import mapping_add
+from dsp_tools.commands.mapping.mapping_update import mapping_update
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
 from dsp_tools.utils.exceptions import DspToolsRequestException
@@ -68,11 +68,11 @@ def _get_super_entities(onto_g: Graph, entity_iri: str, predicate: URIRef) -> se
 
 @pytest.mark.usefixtures("create_minimal_project")
 @pytest.mark.run("first")
-def test_add_mapping_good(creds: ServerCredentials):
+def test_update_mapping_good(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-good.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
-    success = mapping_add(config_info)
+    success = mapping_update(config_info)
     assert success
 
 
@@ -96,38 +96,38 @@ def test_check_successful_mapping_result(ontology_namespace):
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_inexistent_onto(creds: ServerCredentials):
+def test_update_mapping_inexistent_onto(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-inexistent-onto.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
     with pytest.raises(OntologyReferencedNotFoundError):
-        mapping_add(config_info)
+        mapping_update(config_info)
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_inexistent_project(creds: ServerCredentials):
+def test_update_mapping_inexistent_project(creds: ServerCredentials):
     config_file = Path("testdata/mapping/F000-testonto-mapping-project-not-exist.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
     with pytest.raises(ProjectNotFoundError):
-        mapping_add(config_info)
+        mapping_update(config_info)
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_inexistent_references(creds: ServerCredentials):
+def test_update_mapping_inexistent_references(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-inexistent-references.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
-    success = mapping_add(config_info)
+    success = mapping_update(config_info)
     assert not success
 
 
 @pytest.mark.usefixtures("create_minimal_project")
-def test_add_mapping_missing_prefix(creds: ServerCredentials):
+def test_update_mapping_missing_prefix(creds: ServerCredentials):
     config_file = Path("testdata/mapping/4124-testonto-mapping-missing-prefix.yaml")
     config_info = parse_mapping_config(config_file)
     config_info = _adjust_api_url_to_test_container(config_info, creds)
-    success = mapping_add(config_info)
+    success = mapping_update(config_info)
     assert not success
 
 
@@ -137,10 +137,10 @@ def test_replace_mapping_with_different_excel(creds: ServerCredentials):
     # the earlier tests do not list `otherResource` and `hasOtherText`, so under replace semantics those two are
     # already stripped by the time this test runs, and the assertions of the next test would prove nothing.
     good_config = parse_mapping_config(Path("testdata/mapping/4124-testonto-mapping-good.yaml"))
-    assert mapping_add(_adjust_api_url_to_test_container(good_config, creds))
+    assert mapping_update(_adjust_api_url_to_test_container(good_config, creds))
 
     replace_config = parse_mapping_config(Path("testdata/mapping/4124-testonto-mapping-replace.yaml"))
-    assert mapping_add(_adjust_api_url_to_test_container(replace_config, creds))
+    assert mapping_update(_adjust_api_url_to_test_container(replace_config, creds))
 
 
 @pytest.mark.usefixtures("create_minimal_project")

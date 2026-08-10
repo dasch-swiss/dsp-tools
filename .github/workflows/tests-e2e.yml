@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: ingest-xmlupload
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: validate-data
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: xmlupload
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: project
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: mapping
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: create-get-xmlupload
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: start stack

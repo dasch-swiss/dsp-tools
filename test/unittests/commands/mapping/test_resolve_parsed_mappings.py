@@ -76,6 +76,19 @@ class TestResolveOneMapping:
         assert resolved.mapping_iris == ["http://schema.org/Book"]
         assert len(problems) == 1
 
+    def test_empty_input_returns_problem(self):
+        parsed = ParsedClassMapping("Book", [])
+        resolved, problems = _resolve_one_mapping(parsed, PREFIX_LOOKUP, ONTO_NS, ResolvedClassMapping)
+        assert resolved.mapping_iris == []
+        assert len(problems) == 1
+        assert problems[0].entity_name == "Book"
+        assert problems[0].problem == PrefixResolutionProblemType.NO_MAPPING_IN_INPUT
+
+    def test_unresolvable_input_does_not_also_report_empty_input(self):
+        parsed = ParsedClassMapping("Book", ["no_colon"])
+        _, problems = _resolve_one_mapping(parsed, PREFIX_LOOKUP, ONTO_NS, ResolvedClassMapping)
+        assert [p.problem for p in problems] == [PrefixResolutionProblemType.NO_PREFIX_IN_INPUT]
+
 
 class TestResolveParsedMappings:
     def test_resolves_classes_and_properties(self):
@@ -100,3 +113,14 @@ class TestResolveParsedMappings:
         _, problems = resolve_parsed_mappings(parsed, PREFIX_LOOKUP, ONTO_NS)
         assert len(problems) == 1
         assert isinstance(problems[0], PrefixResolutionProblem)
+
+    def test_entity_without_any_mapping_is_reported(self):
+        # A mapping cell containing only ';' parses to an empty list. Without this problem the entity would be
+        # wiped by the delete phase and then get no replacement.
+        parsed = ParsedMappings(
+            classes=[ParsedClassMapping("Book", [])],
+            properties=[ParsedPropertyMapping("hasTitle", [])],
+        )
+        _, problems = resolve_parsed_mappings(parsed, PREFIX_LOOKUP, ONTO_NS)
+        assert [p.entity_name for p in problems] == ["Book", "hasTitle"]
+        assert {p.problem for p in problems} == {PrefixResolutionProblemType.NO_MAPPING_IN_INPUT}

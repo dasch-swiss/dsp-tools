@@ -26,6 +26,17 @@
                             "en": "Text"
                         },
                         "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasOtherText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Other Text"
+                        },
+                        "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [
@@ -38,6 +49,19 @@
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
+                                "cardinality": "0-1"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "otherResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Other Resource"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasOtherText",
                                 "cardinality": "0-1"
                             }
                         ]

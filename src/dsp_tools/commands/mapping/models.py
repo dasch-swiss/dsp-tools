@@ -40,6 +40,7 @@ class PrefixResolutionProblemType(StrEnum):
     NO_PREFIX_IN_INPUT = "There is no prefix in the mapping."
     NO_LOCAL_NAME_IN_INPUT = "The mapping only contains a prefix."
     PREFIX_NOT_FOUND = "The prefix in the mapping is not declared in the prefix sheet."
+    NO_MAPPING_IN_INPUT = "There is no mapping IRI for this class or property."
 
 
 @dataclass
@@ -68,7 +69,35 @@ class ResolvedMappings:
 
 
 @dataclass
+class ExistingMappings:
+    """The external mappings currently stored on the server, per entity. Entities without any are omitted."""
+
+    classes: dict[str, list[str]]
+    properties: dict[str, list[str]]
+
+
+@dataclass
+class MappingDeletion:
+    """One entity/external-IRI pair, matching the one-triple-per-call granularity of the DELETE endpoint."""
+
+    entity_iri: str
+    mapping_iri: str
+
+
+@dataclass
+class MappingDeletions:
+    classes: list[MappingDeletion]
+    properties: list[MappingDeletion]
+
+
+class MappingAction(StrEnum):
+    ADD = "add"
+    DELETE = "delete"
+
+
+@dataclass
 class MappingUploadFailure:
     prefixed_iri: str
     mapping_iri: str | None
     message: str
+    action: MappingAction

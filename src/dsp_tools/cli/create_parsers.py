@@ -530,16 +530,16 @@ def _add_mapping(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     # config
     config_parser = mapping_subparsers.add_parser(
         name="config",
-        help="Generate a YAML config file for the `mapping add` command",
+        help="Generate a YAML config file for the `mapping update` command",
     )
     config_parser.set_defaults(action="mapping config")
     config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")
     config_parser.add_argument("--ontology", help="name of the ontology to add mappings to")
 
-    # add
-    add_parser = mapping_subparsers.add_parser(
-        name="add",
-        help="Bulk-add external ontology mappings from an Excel file to a DSP project",
+    # update
+    update_parser = mapping_subparsers.add_parser(
+        name="update",
+        help="Replace the external ontology mappings of a DSP project with the ones from an Excel file",
     )
-    add_parser.set_defaults(action="mapping add")
-    add_parser.add_argument("config_file", help="path to the mapping YAML config file")
+    update_parser.set_defaults(action="mapping update")
+    update_parser.add_argument("config_file", help="path to the mapping YAML config file")

@@ -13,3 +13,9 @@ class MappingClient(Protocol):
 
     def put_property_mapping(self, property_iri: str, mapping_iris: list[str]) -> ResponseCodeAndText | None:
         """PUT mapping for a property. Returns None on success, ResponseCodeAndText otherwise."""
+
+    def delete_class_mapping(self, class_iri: str, mapping_iri: str) -> ResponseCodeAndText | None:
+        """DELETE one mapping of a class. Returns None on success, ResponseCodeAndText otherwise."""
+
+    def delete_property_mapping(self, property_iri: str, mapping_iri: str) -> ResponseCodeAndText | None:
+        """DELETE one mapping of a property. Returns None on success, ResponseCodeAndText otherwise."""

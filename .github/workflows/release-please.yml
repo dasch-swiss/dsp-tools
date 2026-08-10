@@ -16,7 +16,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           # Do not use the default token (GITHUB_TOKEN) for this action,
           # as any actions triggered by the user of this token will not trigger further actions
@@ -47,14 +47,14 @@ jobs:
 
           branch_name=$(echo "$release_pr" | jq -r '.head.ref')
           echo "branch=$branch_name" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: steps.get_release_pr_branch.outputs.branch != ''
         with:
           fetch-depth: 0
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
         if: steps.get_release_pr_branch.outputs.branch != ''
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
       - name: Update uv.lock and commit it

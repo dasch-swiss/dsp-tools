@@ -46,16 +46,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      # contents+pull-requests WRITE on dsp-tools ONLY. Used both to open the PR
+      # and to merge it: the App is a review-bypass actor on main, which is what
+      # lets a bot-authored PR merge without a human approval.
+      # SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
+      - name: Mint DaSCH Bot App token (write — dsp-tools only)
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
+          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
+          owner: dasch-swiss
+          repositories: dsp-tools
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Bump versions
         id: bump
         run: python scripts/bump_stack_versions.py
         env:
-          # Do not use the default token (GITHUB_TOKEN) for this action,
+          # Do not use the default token (GITHUB_TOKEN) to open the PR,
           # as any actions triggered by the user of this token will not trigger further actions
-          # (i.e. tests on the version bumping PR).
-          # See https://github.com/googleapis/release-please-action and
-          # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
-          GH_TOKEN: ${{ secrets.DASCHBOT_PAT }}
+          # (i.e. tests on the version bumping PR). An App installation token does trigger them.
+          # See https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/
+          # triggering-a-workflow#triggering-a-workflow-from-a-workflow
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           RELEASE: ${{ inputs.release }}
           API: ${{ inputs.api }}
           APP: ${{ inputs.app }}
@@ -74,21 +89,6 @@ jobs:
           else
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
-
-      # contents+pull-requests WRITE on dsp-tools ONLY. The App is a review-bypass
-      # actor on main, which is what lets a bot-authored PR merge without a human
-      # approval. SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
-      - name: Mint DaSCH Bot App token (write — dsp-tools only)
-        id: app-token
-        if: steps.bump.outputs.pr_url != '' && steps.kill_switch.outputs.enabled == 'true'
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
-        with:
-          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
-          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
-          owner: dasch-swiss
-          repositories: dsp-tools
-          permission-contents: write
-          permission-pull-requests: write
 
       # The script emits pr_url only when it actually opened a PR. No output means
       # versions.env was already current — a no-op, not an error.

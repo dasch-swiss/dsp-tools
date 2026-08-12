@@ -1,5 +1,22 @@
 # Changelog
 
+## [19.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.19.0...v19.0.0) (2026-08-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mapping:** replace existing external mappings instead of adding to them (DEV-6897) ([#2386](https://github.com/dasch-swiss/dsp-tools/issues/2386))
+
+### Enhancements
+
+* **mapping:** replace existing external mappings instead of adding to them (DEV-6897) ([#2386](https://github.com/dasch-swiss/dsp-tools/issues/2386)) ([9730d3e](https://github.com/dasch-swiss/dsp-tools/commit/9730d3ef912e9db4ab597b1ae3bfbab7cf438d8b))
+
+
+### Maintenance
+
+* **ci:** bump outdated GitHub Actions to latest major versions ([#2387](https://github.com/dasch-swiss/dsp-tools/issues/2387)) ([281b396](https://github.com/dasch-swiss/dsp-tools/commit/281b3963985f4eb8c376b54018f77d50348f751a))
+* **start-stack:** bump versions to 2026.08.02 ([#2391](https://github.com/dasch-swiss/dsp-tools/issues/2391)) ([b784e99](https://github.com/dasch-swiss/dsp-tools/commit/b784e99a25bd9e0de908d1a3f7eb4bd9ea081453))
+
 ## [18.19.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.18.2...v18.19.0) (2026-08-06)
 
 

@@ -168,6 +168,22 @@ This PR will follow semantic versioning and update the change log.
 Once all desired features are merged, the release can be published by merging this release pull request into `main`. 
 This will trigger actions that create a release on GitHub and on PyPI.
 
+During the weekly DSP release train, these two merges happen without human interaction:
+
+- After a production deployment, `bump-stack-versions.yml` opens the 
+  `chore(start-stack): bump versions to <DSP>` PR and merges it once its required checks are green.
+- That merge is the only push to `main` that makes `release-please.yml` merge the release PR, too, 
+  after verifying that the PR title, `.github/release-please-manifest.json`, and `pyproject.toml` agree on the version. 
+  Every other push to `main` leaves the release PR open, as described above.
+
+Both merges are performed by the DaSCH Bot App, 
+which is a review-bypass actor on `main` (required status checks are never bypassed). 
+Set the repository variable `RELEASE_AUTO_MERGE_ENABLED` to `false` to turn the automation off 
+and go back to merging both PRs by hand. 
+If the bump PR is ever merged by hand, squash it: 
+the release PR is only picked up when the head commit of `main` still carries the bump PR's title. 
+Failures are reported to the internal DSP release Google Chat space.
+
 
 
 ## Testing

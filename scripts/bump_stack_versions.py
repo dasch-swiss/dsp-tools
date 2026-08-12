@@ -7,6 +7,10 @@ writes src/dsp_tools/resources/start-stack/versions.env, creates a branch,
 commits, pushes, and opens a pull request. The docker-compose.yml interpolates
 the version values at `docker compose up` time via `--env-file versions.env`.
 
+The URL of the created PR is written to $GITHUB_OUTPUT as `pr_url`, so the
+workflow can merge exactly that PR instead of searching for it afterwards.
+No output means no PR was opened (versions.env was already up to date).
+
 Prerequisites:
 - RELEASE, API, APP, DB env vars must be set
 """
@@ -41,7 +45,9 @@ def main() -> None:
     subprocess.run(["git", "commit", "-m", git_msg], check=True)
     subprocess.run(["git", "push", "-u", "origin", branch_name], check=True)
 
-    subprocess.run(
+    # stdout is captured to get the PR URL; stderr stays inherited so gh's
+    # diagnostics still show up in the CI log if the call fails.
+    result = subprocess.run(
         [
             "gh",
             "pr",
@@ -54,8 +60,29 @@ def main() -> None:
             "",
         ],
         check=True,
+        stdout=subprocess.PIPE,
+        text=True,
     )
-    print(f"Pull request created for branch '{branch_name}'.")
+    pr_url = _parse_pr_url(result.stdout)
+    print(f"Pull request created for branch '{branch_name}': {pr_url}")
+    _write_github_output("pr_url", pr_url)
+
+
+def _parse_pr_url(gh_stdout: str) -> str:
+    # `gh pr create` prints the URL of the new PR as the last line of stdout.
+    lines = [line.strip() for line in gh_stdout.splitlines() if line.strip()]
+    if not lines or not lines[-1].startswith("https://"):
+        print(f"ERROR: could not parse the PR URL from the output of `gh pr create`: {gh_stdout!r}")
+        sys.exit(1)
+    return lines[-1]
+
+
+def _write_github_output(name: str, value: str) -> None:
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if not github_output:  # running outside GitHub Actions
+        return
+    with Path(github_output).open("a", encoding="utf-8") as f:
+        f.write(f"{name}={value}\n")
 
 
 def _get_versions_from_env() -> tuple[str, dict[str, str]]:

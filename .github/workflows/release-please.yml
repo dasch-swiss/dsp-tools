@@ -15,8 +15,12 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      # Empty when release-please neither created nor updated a release PR in this run.
+      release_pr_number: ${{ steps.release_pr.outputs.number }}
     steps:
       - uses: googleapis/release-please-action@v5
+        id: release_please
         with:
           # Do not use the default token (GITHUB_TOKEN) for this action,
           # as any actions triggered by the user of this token will not trigger further actions
@@ -28,44 +32,52 @@ jobs:
           token: ${{ secrets.DASCHBOT_PAT }}
           config-file: .github/release-please-config.json
           manifest-file: .github/release-please-manifest.json
-      - name: Get branch of open release-please PR
-        id: get_release_pr_branch
+      # The action itself reports the release PR it just created or updated, so
+      # neither this job nor the one below has to search for it afterwards.
+      # https://github.com/googleapis/release-please-action#outputs
+      - name: Read the release PR reported by release-please
+        id: release_pr
         env:
-          PAT: ${{ secrets.DASCHBOT_PAT }}
+          RELEASE_PR: ${{ steps.release_please.outputs.pr }}
         run: |
-          pr_data=$(curl -s -H "Authorization: token $PAT" \
-            "https://api.github.com/repos/dasch-swiss/dsp-tools/pulls?state=open")
-
-          # iterate over the JSON array with `.[]`, then select PR if title matches condition
-          release_pr=$(echo "$pr_data" | jq '.[] | select(.title | startswith("chore: release"))')
-
-          if [[ -z "$release_pr" ]]; then  # -z exits with code 0 if the string has length 0
-            echo "No open release-please PR found — skipping uv.lock update."
-            echo "branch=" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          echo "release-please pr output: ${RELEASE_PR:-<unset>}"
+          if [[ -z "$RELEASE_PR" ]]; then
+            echo "::notice::release-please created or updated no release PR — skipping uv.lock update"
             exit 0
           fi
-
-          branch_name=$(echo "$release_pr" | jq -r '.head.ref')
-          echo "branch=$branch_name" >> $GITHUB_OUTPUT
+          number=$(jq -r '.number // empty' <<<"$RELEASE_PR")
+          branch=$(jq -r '.headBranchName // empty' <<<"$RELEASE_PR")
+          # Fail here rather than let a bad number reach `gh pr view` or a bad
+          # branch reach `git checkout`, where the error would be cryptic.
+          if [[ ! "$number" =~ ^[0-9]+$ || -z "$branch" ]]; then
+            echo "::error::unexpected shape of the release-please pr output (see the line above)"
+            exit 1
+          fi
+          {
+            echo "number=$number"
+            echo "branch=$branch"
+          } >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7
-        if: steps.get_release_pr_branch.outputs.branch != ''
+        if: steps.release_pr.outputs.branch != ''
         with:
           fetch-depth: 0
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
-        if: steps.get_release_pr_branch.outputs.branch != ''
+        if: steps.release_pr.outputs.branch != ''
         uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
       - name: Update uv.lock and commit it
-        if: steps.get_release_pr_branch.outputs.branch != ''
+        if: steps.release_pr.outputs.branch != ''
         env:
           PAT: ${{ secrets.DASCHBOT_PAT }}
+          BRANCH: ${{ steps.release_pr.outputs.branch }}
         run: |
           git config user.name "daschbot"
           git config user.email "daschbot@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${PAT}@github.com/dasch-swiss/dsp-tools.git"
-          git checkout ${{ steps.get_release_pr_branch.outputs.branch }}
+          git checkout "$BRANCH"
           uv lock
           git add uv.lock
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
@@ -81,17 +93,19 @@ jobs:
     if: >-
       github.event_name == 'push'
       && startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
+      && needs.release-please.outputs.release_pr_number != ''
     runs-on: ubuntu-latest
     # Own group so the merge wait never serialises the release-please job above.
     concurrency:
       group: auto-merge-release-pr
       cancel-in-progress: false
     steps:
-      - name: Find the release PR (kill switch, idempotency guard)
+      - name: Resolve the release PR (kill switch, idempotency guard)
         id: find_pr
         env:
-          GH_TOKEN: ${{ secrets.DASCHBOT_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ needs.release-please.outputs.release_pr_number }}
           # Evaluated in bash, not in a job-level `if:`, so that both halves of the
           # kill switch normalize case the same way — GitHub Actions expressions
           # have no tolower(), so a job-level check would only catch the casings
@@ -103,12 +117,13 @@ jobs:
             echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PR for a human to merge"
             exit 0
           fi
-          # No open release PR means release-please found nothing to release, or a
-          # peer run already merged it — both are no-ops, not errors.
-          release_pr=$(gh pr list --repo "$REPO" --state open --json title,url,headRefName \
-            --jq 'map(select(.title | startswith("chore: release"))) | .[0] // empty')
-          if [[ -z "$release_pr" ]]; then
-            echo "::notice::no open release-please PR, nothing to merge"
+          # Read title and branch from the PR itself rather than from the action
+          # output, so the checks below are made against the server's state.
+          release_pr=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state,url,headRefName,title)
+          echo "$release_pr"
+          # Not open means a peer run already merged it — a no-op, not an error.
+          if [[ "$(jq -r .state <<<"$release_pr")" != "OPEN" ]]; then
+            echo "::notice::release PR #$PR_NUMBER is not open, nothing to merge"
             exit 0
           fi
           {

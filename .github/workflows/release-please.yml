@@ -78,25 +78,31 @@ jobs:
   auto-merge-release-pr:
     name: Auto-merge release PR (release train only)
     needs: [release-please]
-    # Kill-switch comparisons enumerate case variants since GitHub Actions
-    # expressions don't have a tolower() function.
     if: >-
       github.event_name == 'push'
       && startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
-      && !contains(fromJSON('["false","False","FALSE"]'), vars.RELEASE_AUTO_MERGE_ENABLED)
     runs-on: ubuntu-latest
     # Own group so the merge wait never serialises the release-please job above.
     concurrency:
       group: auto-merge-release-pr
       cancel-in-progress: false
     steps:
-      - name: Find the release PR (idempotency guard)
+      - name: Find the release PR (kill switch, idempotency guard)
         id: find_pr
         env:
           GH_TOKEN: ${{ secrets.DASCHBOT_PAT }}
           REPO: ${{ github.repository }}
+          # Evaluated in bash, not in a job-level `if:`, so that both halves of the
+          # kill switch normalize case the same way — GitHub Actions expressions
+          # have no tolower(), so a job-level check would only catch the casings
+          # it enumerates and could leave this half enabled while the other is off.
+          AUTO_MERGE_ENABLED: ${{ vars.RELEASE_AUTO_MERGE_ENABLED }}
         run: |
           set -euo pipefail
+          if [[ "${AUTO_MERGE_ENABLED,,}" == "false" ]]; then
+            echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PR for a human to merge"
+            exit 0
+          fi
           # No open release PR means release-please found nothing to release, or a
           # peer run already merged it — both are no-ops, not errors.
           release_pr=$(gh pr list --repo "$REPO" --state open --json title,url,headRefName \

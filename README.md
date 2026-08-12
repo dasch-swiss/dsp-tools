@@ -180,6 +180,8 @@ Both merges are performed by the DaSCH Bot App,
 which is a review-bypass actor on `main` (required status checks are never bypassed). 
 Set the repository variable `RELEASE_AUTO_MERGE_ENABLED` to `false` to turn the automation off 
 and go back to merging both PRs by hand. 
+If the bump PR is ever merged by hand, squash it: 
+the release PR is only picked up when the head commit of `main` still carries the bump PR's title. 
 Failures are reported to the internal DSP release Google Chat space.
 
 

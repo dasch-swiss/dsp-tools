@@ -26,6 +26,12 @@ permissions:
   contents: write
   pull-requests: write
 
+# Per-release group lets unrelated releases run in parallel; same-release
+# dispatches serialise, so two runs can't race on the same bump PR.
+concurrency:
+  group: bump-stack-versions-${{ inputs.release }}
+  cancel-in-progress: false
+
 jobs:
   bump:
     runs-on: ubuntu-latest
@@ -53,3 +59,64 @@ jobs:
           API: ${{ inputs.api }}
           APP: ${{ inputs.app }}
           DB: ${{ inputs.db }}
+
+      - name: Find the bump PR to merge (kill switch, idempotency guard)
+        id: find_pr
+        env:
+          GH_TOKEN: ${{ secrets.DASCHBOT_PAT }}
+          RELEASE: ${{ inputs.release }}
+          # Normalize case so `False` / `FALSE` typed in the GitHub UI don't silently no-op.
+          AUTO_MERGE_ENABLED: ${{ vars.RELEASE_AUTO_MERGE_ENABLED }}
+        run: |
+          set -euo pipefail
+          if [[ "${AUTO_MERGE_ENABLED,,}" == "false" ]]; then
+            echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the bump PR for a human to merge"
+            exit 0
+          fi
+          # Branch name is the one scripts/bump_stack_versions.py creates. No open
+          # PR means either versions.env was already current (script exited early)
+          # or a previous run already merged it — both are no-ops, not errors.
+          branch="chore/bump-version-$RELEASE"
+          pr_url=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
+          if [[ -z "$pr_url" ]]; then
+            echo "::notice::no open PR on $branch, nothing to merge"
+            exit 0
+          fi
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      # contents+pull-requests WRITE on dsp-tools ONLY. The App is a review-bypass
+      # actor on main, which is what lets a bot-authored PR merge without a human
+      # approval. SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
+      - name: Mint DaSCH Bot App token (write — dsp-tools only)
+        id: app-token
+        if: steps.find_pr.outputs.pr_url != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
+          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
+          owner: dasch-swiss
+          repositories: dsp-tools
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Merge the bump PR once its checks are green
+        if: steps.find_pr.outputs.pr_url != ''
+        uses: ./.github/actions/merge-pr-when-green
+        with:
+          pr-url: ${{ steps.find_pr.outputs.pr_url }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Notify on failure (internal)
+        if: failure()
+        env:
+          INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
+          RELEASE: ${{ inputs.release }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
+          text="❌ bump-stack-versions.yml failed for DSP=$RELEASE · <$run_url|view run>"
+          curl -fsSL -X POST -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg text "$text" '{text:$text}')" \
+            "$INTERNAL_WEBHOOK"

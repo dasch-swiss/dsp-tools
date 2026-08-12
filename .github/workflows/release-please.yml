@@ -70,3 +70,105 @@ jobs:
           git add uv.lock
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
           git push
+
+  # Release-train leg: merging `chore(start-stack): bump versions to <DSP>` is the
+  # last step before dsp-tools is released, so the release PR it produces is
+  # merged automatically. Any other push to main leaves the release PR open, as
+  # before — releases outside the train stay a deliberate human merge.
+  auto-merge-release-pr:
+    name: Auto-merge release PR (release train only)
+    needs: [release-please]
+    # Kill-switch comparisons enumerate case variants since GitHub Actions
+    # expressions don't have a tolower() function.
+    if: >-
+      github.event_name == 'push'
+      && startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
+      && !contains(fromJSON('["false","False","FALSE"]'), vars.RELEASE_AUTO_MERGE_ENABLED)
+    runs-on: ubuntu-latest
+    # Own group so the merge wait never serialises the release-please job above.
+    concurrency:
+      group: auto-merge-release-pr
+      cancel-in-progress: false
+    steps:
+      - name: Find the release PR (idempotency guard)
+        id: find_pr
+        env:
+          GH_TOKEN: ${{ secrets.DASCHBOT_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # No open release PR means release-please found nothing to release, or a
+          # peer run already merged it — both are no-ops, not errors.
+          release_pr=$(gh pr list --repo "$REPO" --state open --json title,url,headRefName \
+            --jq 'map(select(.title | startswith("chore: release"))) | .[0] // empty')
+          if [[ -z "$release_pr" ]]; then
+            echo "::notice::no open release-please PR, nothing to merge"
+            exit 0
+          fi
+          {
+            echo "pr_url=$(jq -r .url <<<"$release_pr")"
+            echo "branch=$(jq -r .headRefName <<<"$release_pr")"
+            echo "title=$(jq -r .title <<<"$release_pr")"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        if: steps.find_pr.outputs.pr_url != ''
+        with:
+          ref: ${{ steps.find_pr.outputs.branch }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify the release PR is internally consistent
+        if: steps.find_pr.outputs.pr_url != ''
+        env:
+          PR_TITLE: ${{ steps.find_pr.outputs.title }}
+        run: |
+          set -euo pipefail
+          # release-please derives all three from the same conventional commits, so
+          # disagreement means the PR was hand-edited or a run was interrupted —
+          # never something to merge unattended.
+          title_version="${PR_TITLE#chore: release }"
+          manifest_version=$(jq -r '."."' .github/release-please-manifest.json)
+          pyproject_version=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/^version = "(.*)"/\1/')
+          echo "title=$title_version manifest=$manifest_version pyproject=$pyproject_version"
+          if [[ "$title_version" != "$manifest_version" || "$title_version" != "$pyproject_version" ]]; then
+            echo "::error::version mismatch on the release PR — refusing to merge"
+            exit 1
+          fi
+
+      # contents+pull-requests WRITE on dsp-tools ONLY. The App is a review-bypass
+      # actor on main, which is what lets a bot-authored PR merge without a human
+      # approval. SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
+      - name: Mint DaSCH Bot App token (write — dsp-tools only)
+        id: app-token
+        if: steps.find_pr.outputs.pr_url != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
+          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
+          owner: dasch-swiss
+          repositories: dsp-tools
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Merge the release PR once its checks are green
+        if: steps.find_pr.outputs.pr_url != ''
+        uses: ./.github/actions/merge-pr-when-green
+        with:
+          pr-url: ${{ steps.find_pr.outputs.pr_url }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Notify on failure (internal)
+        if: failure()
+        env:
+          INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
+          PR_URL: ${{ steps.find_pr.outputs.pr_url }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
+          text="❌ auto-merge of the dsp-tools release PR (${PR_URL:-unknown}) failed · <$run_url|view run>"
+          curl -fsSL -X POST -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg text "$text" '{text:$text}')" \
+            "$INTERNAL_WEBHOOK"

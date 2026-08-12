@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
 from scripts.bump_stack_versions import _get_versions_from_env
+from scripts.bump_stack_versions import _parse_pr_url
 from scripts.bump_stack_versions import _require_env
+from scripts.bump_stack_versions import _write_github_output
 
 
 class TestRequireEnv:
@@ -69,3 +73,31 @@ class TestGetVersionsFromEnv:
         monkeypatch.setenv("DB", "5.5.0-3")
         with pytest.raises(SystemExit):
             _get_versions_from_env()
+
+
+class TestParsePrUrl:
+    def test_takes_the_url_from_the_last_line(self) -> None:
+        stdout = "Warning: 1 uncommitted change\nhttps://github.com/dasch-swiss/dsp-tools/pull/2392\n"
+        assert _parse_pr_url(stdout) == "https://github.com/dasch-swiss/dsp-tools/pull/2392"
+
+    def test_exits_when_no_url(self) -> None:
+        with pytest.raises(SystemExit):
+            _parse_pr_url("Creating pull request for chore/bump-version-2026.03.04 into main\n")
+
+    def test_exits_when_empty(self) -> None:
+        with pytest.raises(SystemExit):
+            _parse_pr_url("")
+
+
+class TestWriteGithubOutput:
+    def test_appends_key_value(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        output_file = tmp_path / "github_output"
+        output_file.write_text("existing=value\n", encoding="utf-8")
+        monkeypatch.setenv("GITHUB_OUTPUT", str(output_file))
+        _write_github_output("pr_url", "https://github.com/dasch-swiss/dsp-tools/pull/2392")
+        expected = "existing=value\npr_url=https://github.com/dasch-swiss/dsp-tools/pull/2392\n"
+        assert output_file.read_text(encoding="utf-8") == expected
+
+    def test_is_a_no_op_outside_github_actions(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("GITHUB_OUTPUT", raising=False)
+        _write_github_output("pr_url", "https://github.com/dasch-swiss/dsp-tools/pull/2392")

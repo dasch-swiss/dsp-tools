@@ -650,7 +650,7 @@ Example:
 ```
 
 
-#### `RegionPreviewValue`
+#### `hasRegionPreview` Property
 
 `"object": "RegionPreviewValue"`
 

@@ -470,6 +470,36 @@ Example:
 ```
 
 
+### `RegionPreviewValue`
+
+`"object": "RegionPreviewValue"`
+
+A value pointing to a `Region` resource (displayed as an *Annotation* in DSP-APP) so that the region's 
+image area is rendered as a standalone preview (a cropped image) on the resource. 
+Has to be used in combination with `"super": ["hasRegionPreview"]`.
+[xmlupload documentation](../../data-file/xml-data-file.md#region-preview-prop) for more information.
+
+*gui_elements*:
+
+- `RegionPreview`: The only GUI element for *hasRegionPreview*.
+
+Example:
+
+```json
+{
+    "name": "hasPreview",
+    "super": [
+        "hasRegionPreview"
+    ],
+    "object": "RegionPreviewValue",
+    "labels": {
+        "en": "hasRegionPreview"
+    },
+    "gui_element": "RegionPreview"
+}
+```
+
+
 #### `TextValue`
 
 `"object": "TextValue"`
@@ -648,7 +678,6 @@ Example:
   "gui_element": "Searchbox"
 }
 ```
-
 
 #### `hasRepresentation` Property
 

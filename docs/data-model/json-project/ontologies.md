@@ -487,7 +487,7 @@ Example:
 
 ```json
 {
-    "name": "hasRegionPreview",
+    "name": "hasPreview",
     "super": [
         "hasRegionPreview"
     ],

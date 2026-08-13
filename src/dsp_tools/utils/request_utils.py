@@ -144,7 +144,10 @@ def log_response(response: Response, status_code: int, include_response_content:
     else:
         dumpobj["content"] = "too big to be logged"
     log_str = f"RESPONSE: {json.dumps(dumpobj)}"
-    if status_code == HTTPStatus.OK:
+
+    debug_log_levels = [HTTPStatus.OK, HTTPStatus.ACCEPTED, HTTPStatus.NO_CONTENT]
+
+    if status_code in debug_log_levels:
         logger.debug(log_str)
     else:
         logger.warning(log_str)

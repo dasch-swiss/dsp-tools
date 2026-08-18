@@ -1,15 +1,16 @@
 ---
 name: change-blast-radius
 description: >-
-  Use this skill during FEATURE WORK in dsp-tools to map a change's blast radius across the whole suite —
-  the full list of places that must be touched — either before you start (planning) or against a drafted
-  change (audit). Trigger it for "where do I need to change things for this feature", "I'm adding a field
-  to the project JSON / data model", "I added a new value type / gui_element / section", "add a new CLI
-  command or sub-command", "add an xmllib helper", "I changed the schema — what else needs updating?",
-  "did I implement X everywhere?", "map the blast radius of this change", or "audit my change for missed
-  subsystems". It reports the places only (read-only) and delegates the detailed work to other agents. Do
-  NOT use it for small refactors, renames, performance tweaks, or code-quality-only edits that keep the
-  same contract.
+  Maps a change's blast radius across dsp-tools during FEATURE WORK: the full list of places that must be
+  touched, before you start (planning) or against a drafted change (audit). Trigger it for "where do I need
+  to change things for this feature", "I'm adding a field to the project JSON / data model", "I added a new
+  value type / gui_element / section", "add a new CLI command or sub-command", "add an xmllib helper", "I
+  changed the schema, what else needs updating?", "did I implement X everywhere?", "map the blast radius of
+  this change", or "audit my change for missed subsystems". Read-only: reports the places and delegates the
+  detailed work to other agents. Not for small refactors, renames, performance tweaks, or code-quality-only
+  edits that keep the same contract.
+allowed-tools: Read, Grep, Glob, Bash, Task
+version: "1.0"
 ---
 
 # Change Blast-Radius Playbook
@@ -36,12 +37,12 @@ Run it **before** starting (to plan every place) or **after** drafting (to audit
 **Skip it** for small refactors, performance tweaks, or code-quality-only edits that keep the same
 user-visible and cross-module contract — these have no cross-suite blast radius worth mapping.
 
-## Phase 1 — Gate
+## Phase 1: Gate
 
 Confirm this is feature work. If it is a pure refactor / code-quality change with an unchanged contract,
 stop and say so. Otherwise, continue.
 
-## Phase 2 — Classify
+## Phase 2: Classify
 
 Pick the playbook that fits. Infer the change from the working-tree diff if one exists, otherwise from the
 described intent:
@@ -54,7 +55,7 @@ described intent:
 
 A change can be both **A** and **B** — run both checklists.
 
-## Phase 3 — Trace (sub-agent fan-out)
+## Phase 3: Trace (sub-agent fan-out)
 
 This is classic sub-agent work. Fan out read-only Explore sub-agents **in parallel** to locate every touch
 point in **live code** — do not trust this document's paths blindly; the code moves. Give each agent:
@@ -66,7 +67,7 @@ point in **live code** — do not trust this document's paths blindly; the code 
 Trace **two** precedents and union their locations, because a single precedent can carry its own blind
 spot.
 
-## Phase 4 — Report (hard stop)
+## Phase 4: Report (hard stop)
 
 Return one consolidated table, then stop. Do **not** implement.
 
@@ -96,14 +97,13 @@ The project and ontology checklist (verify each against live code in Phase 3):
 - [ ] **create** — parse in `commands/create/parsing/parse_project.py`; model in
   `commands/create/models/parsed_project.py`; serialise in `commands/create/serialisation/project.py`; send
   in `commands/create/create_on_server/project.py` (mind the project-create payload vs. the separate
-  `LegalInfoClient` path — `data_license` goes via legal-info, `enabled_licenses` via the create payload).
-- [ ] **get** (round-trip) — `commands/get/legacy_models/project.py` (`fromJsonObj` +
-  `createDefinitionFileObj`); permissions via `commands/get/get_permissions.py`.
-- [ ] **excel2json — the historically missed spot.** Update `commands/excel2json/models/json_header.py`
-  (the `Project` dataclass + `to_dict()`), `commands/excel2json/json_header.py` (`_check_project_sheet` /
-  `_extract_project`), and the `ordered_keys` list in `_sort_project_dict` (`commands/excel2json/project.py`)
-  — which **raises `UnreachableCodeError` on any key it does not know**, so a field added everywhere else
-  errors *here* at runtime. Follow the "Column Processing Pattern" in `commands/excel2json/CLAUDE.md`.
+  legal-info path — `data_license` goes via legal-info, `enabled_licenses` via the create payload).
+- [ ] **get** (round-trip) — `commands/get/legacy_models/project.py`; permissions via
+  `commands/get/get_permissions.py`.
+- [ ] **excel2json — the historically missed spot.** Update `commands/excel2json/models/json_header.py`,
+  `commands/excel2json/json_header.py`, and `commands/excel2json/project.py` — where the ordered-keys check
+  **raises `UnreachableCodeError` on any key it does not know**, so a field added everywhere else errors
+  *here* at runtime. Follow the "Column Processing Pattern" in `commands/excel2json/CLAUDE.md`.
 - [ ] **validate-data** — only if the field drives SHACL (as `enabled_licenses` does):
   `commands/validate_data/prepare_data/`, `commands/validate_data/models/api_responses.py`,
   `commands/validate_data/sparql/construct_shacl.py` / `legal_info_shacl.py`. A new RDF-mapped property must
@@ -127,7 +127,8 @@ The data side of the same fan-out. Checklist:
 - [ ] **xmlupload** — `commands/xmlupload/` (`make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`,
   `xmlupload.py`).
 - [ ] **validate-data** — the SHACL side: `commands/validate_data/prepare_data/get_rdf_like_data.py`,
-  `mappers.py`, `models/rdf_like_data.py`, `resources/validate_data/api-shapes.ttl`. **Authoring a shape?
+  `commands/validate_data/mappers.py`, `commands/validate_data/models/rdf_like_data.py`,
+  `resources/validate_data/api-shapes.ttl`. **Authoring a shape?
   run the `add-shacl-shape` skill.**
 - [ ] **xmllib** — public API + serialisation: `xmllib/__init__.py`,
   `xmllib/internal/serialise_resource.py`, `xmllib/models/`.
@@ -152,6 +153,17 @@ the nearest precedent (e.g. an existing command when adding a command). Worked h
   or it silently never runs.
 - [ ] **external** — flag `0854-daschland-scripts` if the change touches `xmllib` / `create` / `excel2json`
   / `xmlupload` (see Phase 4).
+
+---
+
+## Error handling
+
+| Failure                                                                | Response                                                                                                          |
+|------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| The `CONVENTIONS.md` subsystem-inventory section is missing or renamed | Stop and report it. Do **not** reconstruct the map from this file — that inventory is the single source of truth. |
+| Verify mode requested but no working-tree diff exists                  | Fall back to planning mode (every touch point `TODO`) and say so; do not invent a diff to audit.                  |
+| A Phase 3 precedent grep returns nothing                               | Widen the search or pick a different precedent; do not conclude there are zero touch points.                      |
+| A fan-out sub-agent returns empty or dies                              | Note the gap in the report and re-run or trace that playbook manually; never silently drop a touch point.         |
 
 ---
 

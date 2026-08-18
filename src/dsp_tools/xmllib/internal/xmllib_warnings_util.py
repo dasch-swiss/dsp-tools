@@ -20,8 +20,14 @@ from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 read_dotenv_if_exists()
 
 
+class _WarningFileState:
+    initialised = False
+
+
 def initialise_warning_file() -> None:
-    """Initialise warnings file if the user configured it."""
+    """Initialise warnings file if the user configured it. Safe to call more than once per process."""
+    if _WarningFileState.initialised:
+        return
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         try:
             new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
@@ -39,12 +45,14 @@ def initialise_warning_file() -> None:
                 f"The filepath '{file_path}' you entered in your .env file does not exist. "
                 f"Please ensure that the folder you named exists."
             ) from None
+    _WarningFileState.initialised = True
 
 
 def write_message_to_csv(
     file_path: str, msg: MessageInfo, function_trace: str | None, severity: UserMessageSeverity
 ) -> None:
     """Write the message to the csv."""
+    initialise_warning_file()
     new_row = [
         function_trace if function_trace else "",
         str(severity),

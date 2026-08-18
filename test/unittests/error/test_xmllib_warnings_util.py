@@ -2,7 +2,9 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.xmllib.internal import xmllib_warnings_util
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.internal.xmllib_warnings import UserMessageSeverity
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import _filter_stack_frames
@@ -12,11 +14,20 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_inf
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import get_user_message_string
+from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
+from dsp_tools.xmllib.internal.xmllib_warnings_util import write_message_to_csv
 
 
 @pytest.fixture
 def message_info():
     return MessageInfo("msg", "id")
+
+
+@pytest.fixture(autouse=True)
+def _reset_warning_file_initialised():
+    xmllib_warnings_util._WarningFileState.initialised = False
+    yield
+    xmllib_warnings_util._WarningFileState.initialised = False
 
 
 def test_emit_xmllib_input_info(message_info):
@@ -38,6 +49,42 @@ def test_emit_xmllib_input_type_mismatch_warning():
     )
     with pytest.warns(XmllibInputWarning, match=expected):
         emit_xmllib_input_type_mismatch_warning(expected_type="string", value=pd.NA, res_id="id", value_field="field")
+
+
+class TestInitialiseWarningFile:
+    def test_creates_file_with_header(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        initialise_warning_file()
+        assert csv_path.read_text().splitlines() == ["File,Severity,Message,Resource ID,Property,Field"]
+
+    def test_second_call_is_a_no_op(self, tmp_path, monkeypatch, capsys):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        initialise_warning_file()
+        capsys.readouterr()
+        csv_path.write_text(csv_path.read_text() + "trace,WARNING,msg,id,,\n")
+        initialise_warning_file()
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert len(csv_path.read_text().splitlines()) == 2
+
+
+class TestWriteMessageToCsv:
+    def test_triggers_initialisation_before_appending(self, tmp_path, monkeypatch, message_info):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        lines = csv_path.read_text().splitlines()
+        assert lines[0] == "File,Severity,Message,Resource ID,Property,Field"
+        assert lines[1] == ",WARNING,msg,id,,"
+
+    def test_does_not_reinitialise_on_second_call(self, tmp_path, monkeypatch, message_info):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.INFO)
+        assert len(csv_path.read_text().splitlines()) == 3
 
 
 class TestGetMessageString:

@@ -374,7 +374,7 @@ Supported file extensions:
 | `StillImageRepresentation`  | JPG, JPEG, PNG, TIF, TIFF, JP2, SVG                |
 | `TextRepresentation`        | TXT, CSV, XML, HTM, HTML, XSL, XSD, ODD, RNG, JSON |
 
-For more details, please consult the [API docs](https://docs.dasch.swiss/latest/DSP-API/01-introduction/file-formats/).
+For more details, please consult the [API docs](https://docs.dasch.swiss/DSP-API/01-introduction/file-formats/).
 
 Attributes:
 
@@ -900,7 +900,7 @@ The `<text>` element has the following attributes:
 - `encoding` (required)
     - `utf8`: To be used for `SimpleText` and `Textarea` properties.
     - `xml`: To be used for `Richtext` properties. It must follow the XML format as defined by the
-  [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+  [DSP standard mapping](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
 - `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))

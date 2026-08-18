@@ -18,6 +18,6 @@ class InvalidLicenseError(UserError):
         msg = (
             f"The provided license string is invalid and cannot be parsed: '{license_str}'"
             "You must provide a license that can be parsed by xmllib.find_license_in_string(). "
-            "See https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string"
+            "See https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string"
         )
         super().__init__(msg)

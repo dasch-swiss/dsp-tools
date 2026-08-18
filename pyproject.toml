@@ -45,7 +45,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://www.dasch.swiss/"
-Documentation = "https://docs.dasch.swiss/latest/DSP-TOOLS/"
+Documentation = "https://docs.dasch.swiss/DSP-TOOLS/"
 Repository = "https://github.com/dasch-swiss/dsp-tools.git"
 
 

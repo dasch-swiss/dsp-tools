@@ -109,7 +109,7 @@ def _find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
 
 
 def _categorize_url(url: str) -> LinkCategory:
-    if "docs.dasch.swiss/latest/DSP-TOOLS/" in url:
+    if "docs.dasch.swiss/DSP-TOOLS/" in url:
         return LinkCategory.DSP_TOOLS_INTERNAL
     else:
         return LinkCategory.EXTERNAL

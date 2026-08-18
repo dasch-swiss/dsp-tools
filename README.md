@@ -13,11 +13,11 @@ This document is intended for developers who want to work with the code of DSP-T
 
 > [!NOTE]
 > This technical document was written as a guide for developers.
-> For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS).
+> For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/DSP-TOOLS).
  
 > [!TIP]
 > This README contains basic information for getting started. 
-> More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
+> More details can be found in the [developers' documentation](https://docs.dasch.swiss/DSP-TOOLS/developers/).
 
 
 
@@ -73,7 +73,7 @@ Then run `/mcp` inside Claude Code to trigger the login.
 
 Curious what uv is and why we use it? 
 Check out the respective section in the
-[developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
+[developers' documentation](https://docs.dasch.swiss/DSP-TOOLS/developers/packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
@@ -162,7 +162,7 @@ This multi-layered approach ensures compatibility without adding overhead to PRs
 
 Publishing is automated with GitHub Actions. 
 Please follow the 
-[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/contribution/#pull-request-guidelines). 
+[Pull Request Guidelines](https://docs.dasch.swiss/developers/contribution/#pull-request-guidelines). 
 When merging a pull request into `main`, the `release-please` action will create or update a release PR. 
 This PR will follow semantic versioning and update the change log. 
 Once all desired features are merged, the release can be published by merging this release pull request into `main`. 
@@ -212,7 +212,7 @@ The following are self-contained and can be run without further requirements:
 
 The following need a DSP stack running in the background.
 A DSP stack can be started with the command 
-[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack).
+[`dsp-tools start-stack`](https://docs.dasch.swiss/DSP-TOOLS/cli-commands/#start-stack).
 
 - `test/legacy-e2e`
   
@@ -333,14 +333,14 @@ by embedding all three repositories as git submodules
 into the central [dsp-docs](https://github.com/dasch-swiss/dsp-docs) repository.
 If conflicting, the configurations of dsp-docs will override the configurations of the dsp-tools repository.
 In rare cases, a certain syntax may be correctly rendered locally, 
-but not on <https://docs.dasch.swiss/latest/DSP-TOOLS>. 
+but not on <https://docs.dasch.swiss/DSP-TOOLS>. 
 In order to keep this difference minimal, 
 `mkdocs.yml` of dsp-tools should be as close as possible to the `mkdocs.yml` of dsp-docs.
 
 During the centralized deployment process of all components of the DSP software stack,
-the docs of dsp-tools get built from the latest release tag to <https://docs.dasch.swiss/latest/DSP-TOOLS>.
+the docs of dsp-tools get built from the latest release tag to <https://docs.dasch.swiss/DSP-TOOLS>.
 
-This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
+This means that in order to modify the contents of <https://docs.dasch.swiss/DSP-TOOLS>, 
 it is necessary to:
 
 - Merge the modifications into the main branch of the dsp-tools repository,

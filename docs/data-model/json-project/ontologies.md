@@ -523,7 +523,7 @@ A short overview how to choose the most suitable `TextValue` type for a particul
         - Must not contain formatting or mark-up of any kind (XML, HTML, markdown, etc.).
 - `Richtext`
     - Suitable for a longer text containing the 
-      [DSP standard mark-up](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+      [DSP standard mark-up](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
     - Please note that `Richtext` values use much more space in the database than the other types. 
       To economize space in the database, we advise to use it only if mark-up is required.
     - Specifics:

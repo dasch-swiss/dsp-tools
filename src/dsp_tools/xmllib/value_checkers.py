@@ -421,7 +421,7 @@ def check_richtext_syntax(richtext: str) -> None:
     Then, it tries to parse the resulting XML.
 
     Note: Only DSP standard standoff tags are allowed in richtexts. They are documented
-    [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+    [here](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 
     Args:
         richtext: richtext to check

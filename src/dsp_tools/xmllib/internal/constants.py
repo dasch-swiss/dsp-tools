@@ -1,4 +1,4 @@
-# The accepted XML tags are defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+# The accepted XML tags are defined at https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/
 _COMMON_BASE = [
     "p",
     "em",

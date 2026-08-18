@@ -145,7 +145,7 @@ See the [documentation](./resource.md) for all options.
 ### Reformatting the Input With Conversion Functions
 
 We provide a number of functions to help convert your input. For example DSP requires a special format for dates. 
-[Reformat](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
+[Reformat](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.reformat_date) 
 your input into the correct format.
 
 ```python

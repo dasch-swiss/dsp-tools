@@ -179,9 +179,9 @@ def reformat_date(
         date: date string to be reformatted
         date_precision_separator: the separation between the day, month and year
         date_range_separator: the separation between two dates
-        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.DateFormat)
-        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Calendar)
-        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Era)
+        date_format: the format of the date, see [`DateFormat` for options](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.DateFormat)
+        calendar: the calendar of the date, see [`Calendar` for options](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Calendar)
+        era: the era of the date, see [`Era` for options](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/date_formats/#xmllib.models.date_formats.Era)
         resource_id: the ID of the associated resource, this is to improve the error message
 
     Returns:
@@ -363,7 +363,7 @@ def find_dates_in_string(string: str) -> set[str]:
     Checks if a string contains date values (single dates, or date ranges),
     and return all found dates as set of DSP-formatted strings.
     Returns an empty set if no date was found.
-    [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#date).
+    [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#date).
 
     Notes:
         - If no era or calendar is given, dates are interpreted in the Common Era and the Gregorian calendar.

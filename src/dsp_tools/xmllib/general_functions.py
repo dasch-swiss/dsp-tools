@@ -508,7 +508,7 @@ def escape_reserved_xml_characters(text: str) -> str:
     but only if they are not part of a standard standoff tag or escape sequence.
 
     [See the documentation for the standard standoff tags allowed by DSP-API,
-    which will not be escaped.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
+    which will not be escaped.](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
 
     Args:
         text: the richtext string to be escaped
@@ -745,7 +745,7 @@ def find_license_in_string(string: str) -> License | None:  # noqa: PLR0911 (too
     Look out: Your string should contain no more than 1 license.
     If it contains more, there is no guarantee which one will be returned.
 
-    See [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/)
+    See [recommended licenses](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/recommended/)
     for details.
 
     Args:

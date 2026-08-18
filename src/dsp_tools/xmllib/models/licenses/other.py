@@ -6,10 +6,10 @@ from dsp_tools.xmllib.models.licenses.recommended import License
 class LicenseOther:
     """
     Pre-defined licenses that are available in DSP.
-    If the user is free to choose a license, we recommend to choose from our [recommended licenses](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
+    If the user is free to choose a license, we recommend to choose from our [recommended licenses](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/recommended/).
 
-    - `Public`: [See `Public` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Public).
-    - `Various`: [See `Various` for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Various).
+    - `Public`: [See `Public` for details](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Public).
+    - `Various`: [See `Various` for details](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/other/#xmllib.models.licenses.other.Various).
 
     Examples:
         ```python
@@ -30,7 +30,7 @@ class LicenseOther:
 class Public(License):
     """
     Pre-defined public domain licenses.
-    [See the API documentation for details about the licenses.](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license)
+    [See the API documentation for details about the licenses.](https://docs.dasch.swiss/DSP-API/01-introduction/legal-info/#license)
 
     - `CC_0_1_0`: CC0 1.0 Universal
     - `CC_PDM_1_0`: Public Domain Mark 1.0 Universal
@@ -43,7 +43,7 @@ class Public(License):
 class Various(License):
     """
     A collection of various, pre-defined licenses.
-    [See the API documentation for details about the licenses.](https://docs.dasch.swiss/latest/DSP-API/01-introduction/legal-info/#license)
+    [See the API documentation for details about the licenses.](https://docs.dasch.swiss/DSP-API/01-introduction/legal-info/#license)
 
     - `BORIS_STANDARD`: BORIS Standard License
     - `FRANCE_OUVERTE`: LICENCE OUVERTE 2.0

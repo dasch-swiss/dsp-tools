@@ -76,7 +76,7 @@ def make_root(
         >>> root = excel2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
         >>> root = excel2xml.append_permissions(root)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
     schema_url = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
     schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
@@ -108,7 +108,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
         >>> root = excel2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
         >>> root = excel2xml.append_permissions(root)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-permissions-with-permissions-elements
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#describing-permissions-with-permissions-elements
     """
 
     PERMISSIONS = E.permissions
@@ -166,7 +166,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
         >>> resource.append(excel2xml.make_text_prop(...))
         >>> root.append(resource)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
     if not check_notna(label):
         msg = f"Your resource's label looks suspicious (resource with id '{id}' and label '{label}')"
@@ -221,7 +221,7 @@ def make_bitstream_prop(
         >>> resource.append(excel2xml.make_bitstream_prop("data/images/tree.jpg"))
         >>> root.append(resource)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#bitstream
     """
 
     if check and not Path(path).is_file():
@@ -346,7 +346,7 @@ def make_boolean_prop(
                     <boolean permissions="private" comment="example">true</boolean>
                 </boolean-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#boolean-prop
     """
 
     # validate input
@@ -414,7 +414,7 @@ def make_color_prop(
                     <color permissions="public">#000000</color>
                 </color-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#color-prop
     """
 
     # check the input: prepare a list with valid values
@@ -491,7 +491,7 @@ def make_date_prop(
                     </date>
                 </date-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#date-prop
     """
 
     # check the input: prepare a list with valid values
@@ -563,7 +563,7 @@ def make_decimal_prop(
                     <decimal permissions="public">2.718</decimal>
                 </decimal-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#decimal-prop
     """
 
     # check the input: prepare a list with valid values
@@ -636,7 +636,7 @@ def make_geometry_prop(
                     <geometry permissions="public">{JSON}</geometry>
                 </geometry-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#geometry-prop
     """
 
     # check the input: prepare a list with valid values
@@ -721,7 +721,7 @@ def make_geoname_prop(
                     <geoname permissions="public">1010101</geoname>
                 </geoname-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#geoname-prop
     """
 
     # check the input: prepare a list with valid values
@@ -793,7 +793,7 @@ def make_integer_prop(
                     <integer permissions="public">1010101</integer>
                 </integer-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#integer-prop
     """
 
     # check the input: prepare a list with valid values
@@ -868,7 +868,7 @@ def make_list_prop(
                     <list permissions="public">second_node</list>
                 </list-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#list-prop
     """
 
     # check the input: prepare a list with valid values
@@ -940,7 +940,7 @@ def make_resptr_prop(
                     <resptr permissions="public">resource_2</resptr>
                 </resptr-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1013,7 +1013,7 @@ def make_text_prop(
                     <text encoding="utf8" permissions="public">second text</text>
                 </text-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#text-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1084,7 +1084,7 @@ def _escape_reserved_chars(text: str) -> str:
     From richtext strings (encoding="xml"), escape the reserved characters <, > and &,
     but only if they are not part of a standard standoff tag or escape sequence.
     The standard standoff tags allowed by DSP-API are documented here:
-    https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+    https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/
 
     Args:
         text: the richtext string to be escaped
@@ -1172,7 +1172,7 @@ def make_time_prop(
                     </time>
                 </time-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#time-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1244,7 +1244,7 @@ def make_uri_prop(
                     <uri permissions="public">www.2.com</uri>
                 </uri-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri-prop
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#uri-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1310,7 +1310,7 @@ def make_region(  # noqa: D417 (undocumented-param)
         >>> region.append(excel2xml.make_geometry_prop("hasGeometry", "{...}"))
         >>> root.append(region)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#region
     """
 
     kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
@@ -1365,7 +1365,7 @@ def make_link(  # noqa: D417 (undocumented-param)
         >>> link.append(excel2xml.make_resptr_prop("hasLinkTo", ["resource_0", "resource_1"]))
         >>> root.append(link)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#link
     """
 
     kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
@@ -1413,7 +1413,7 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
         >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(audio_segment)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
     return etree.Element(
         "{%s}audio-segment" % xml_namespace_map[None],
@@ -1445,7 +1445,7 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
         >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
+    See https://docs.dasch.swiss/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
     return etree.Element(
         "{%s}video-segment" % xml_namespace_map[None],
@@ -1930,7 +1930,7 @@ def write_xml(
     """
     warn_msg = (
         "The excel2xml lib is deprecated in favor of the xmllib. It will be removed in a future release.\n"
-        "See the xmllib docs: https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/xmlroot/"
+        "See the xmllib docs: https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/xmlroot/"
     )
     warnings.warn(DspToolsUserWarning(warn_msg))
     etree.indent(root, space="    ")

@@ -54,7 +54,7 @@ class RegionResource:
         Exactly one geometry shape has to be added to the resource with one of the following methods:
         `add_rectangle`, `add_polygon`, `add_circle` (see documentation below for more information).
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#region)
 
         Args:
             res_id: ID of this region resource
@@ -109,7 +109,7 @@ class RegionResource:
         """
         Add a rectangle shape to the region.
 
-        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geometry)
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geometry)
 
         Args:
             point1: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
@@ -162,7 +162,7 @@ class RegionResource:
         A polygon should have at least three points.
         If you wish to create a rectangle, please use the designated `add_rectangle` method.
 
-        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geometry)
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geometry)
 
         **Please note that this cannot currently be displayed in the dsp-app.**
 
@@ -209,7 +209,7 @@ class RegionResource:
         """
         Add a circle shape to the region.
 
-        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geometry)
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geometry)
 
         **Please note that this cannot currently be displayed in the dsp-app.**
 
@@ -388,7 +388,7 @@ class LinkResource:
         Creates a new link resource.
         A link resource is like a container that groups together several other resources of different classes.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#link)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#link)
 
         Args:
             res_id: ID of this link resource
@@ -579,7 +579,7 @@ class VideoSegmentResource:
         """
         Creates a new video segment resource, i.e. a time span of a MovingImageRepresentation.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#video-segment-and-audio-segment)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#video-segment-and-audio-segment)
 
         Args:
             res_id: ID of this video segment resource
@@ -1097,7 +1097,7 @@ class AudioSegmentResource:
         """
         Creates a new audio segment resource, i.e. a time span of an AudioRepresentation.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#video-segment-and-audio-segment)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#video-segment-and-audio-segment)
 
         Args:
             res_id: ID of this audio segment resource

@@ -65,7 +65,7 @@ class Resource:
         Create a new resource.
 
         Tip:
-            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.make_xsd_compatible_id)
+            Use the helper function [`make_xsd_compatible_id()`](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.make_xsd_compatible_id)
             to transform the resource ID into a format that meets the requirements for an XML ID.
 
         Args:
@@ -144,7 +144,7 @@ class Resource:
         """
         Add a boolean value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#boolean)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#boolean)
 
         Conversions:
          - The conversion is case-insensitive, meaning that the words can also be capitalised.
@@ -185,7 +185,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#boolean)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#boolean)
 
         Conversions:
          - The conversion is case-insensitive, meaning that the words can also be capitalised.
@@ -235,7 +235,7 @@ class Resource:
         """
         Add a color value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#color)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -244,7 +244,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -280,7 +280,7 @@ class Resource:
         """
         Add several color values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#color)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -289,7 +289,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -322,7 +322,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#color)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -366,11 +366,11 @@ class Resource:
     ) -> Resource:
         """
         Add a date value to the resource.
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#date)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#date)
 
         Tip:
-            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date)
-            or [`find_dates_in_string()`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string)
+            Use one of the helper functions [`reformat_date()`](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.reformat_date)
+            or [`find_dates_in_string()`](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_dates_in_string)
             to transform a date into the DSP conform format.
 
         Args:
@@ -380,7 +380,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -416,7 +416,7 @@ class Resource:
         """
         Add several date values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#date)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#date)
 
         Args:
             prop_name: name of the property
@@ -425,7 +425,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -458,7 +458,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#date)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#date)
 
         Args:
             prop_name: name of the property
@@ -504,7 +504,7 @@ class Resource:
         Add a decimal value to the resource.
         If the value is provided as string, it must be convertible to integer or float.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#decimal)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -513,7 +513,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -550,7 +550,7 @@ class Resource:
         Add several decimal values to the resource.
         If the values are provided as string, they must be convertible to integer or float.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#decimal)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -559,7 +559,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -593,7 +593,7 @@ class Resource:
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         If the value is provided as string, it must be convertible to integer or float.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#decimal)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -640,7 +640,7 @@ class Resource:
         The [geonames.org](https://www.geonames.org/) identifier must be provided as integer
         or string that is convertible to integer.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geoname)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geoname)
 
 
         Args:
@@ -650,7 +650,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -688,7 +688,7 @@ class Resource:
         The [geonames.org](https://www.geonames.org/) identifiers must be provided as integers
         or strings that are convertible to integers.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geoname)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geoname)
 
         Args:
             prop_name: name of the property
@@ -697,7 +697,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -732,7 +732,7 @@ class Resource:
         The [geonames.org](https://www.geonames.org/) identifier must be provided as integer
         or string that is convertible to integer.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#geoname)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geoname)
 
         Args:
             prop_name: name of the property
@@ -778,7 +778,7 @@ class Resource:
         Add an integer value to the resource.
         If the value is provided as string, it must be convertible to integer.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#integer)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -787,7 +787,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -824,7 +824,7 @@ class Resource:
         Add several integer values to the resource.
         If the values are provided as string, they must be convertible to integer.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#integer)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -833,7 +833,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -867,7 +867,7 @@ class Resource:
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         If the value is provided as string, it must be convertible to integer.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#integer)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -913,7 +913,7 @@ class Resource:
         Add a link value to the resource. The value is either the internal ID of another resource
         inside the XML, or the IRI of an already existing resource on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#resptr)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -922,7 +922,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -959,7 +959,7 @@ class Resource:
         Add several link values to the resource. Each value is either the internal ID of another
         resource inside the XML, or the IRI of an already existing resource on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#resptr)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -969,7 +969,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1004,7 +1004,7 @@ class Resource:
         If non-empty, the value must be the internal ID of another resource inside the XML,
         or the IRI of an already existing resource on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#resptr)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -1051,7 +1051,7 @@ class Resource:
         Add a region-preview value to the resource. The value is either the internal ID of a Region
         inside the XML, or the IRI of an already existing Region on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
@@ -1060,7 +1060,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1097,7 +1097,7 @@ class Resource:
         Add several region-preview values to the resource. Each value is either the internal ID of a
         Region inside the XML, or the IRI of an already existing Region on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
@@ -1107,7 +1107,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1142,7 +1142,7 @@ class Resource:
         If non-empty, the value must be the internal ID of a Region inside the XML,
         or the IRI of an already existing Region on DSP.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#region-preview)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#region-preview)
 
         Args:
             prop_name: name of the property
@@ -1188,10 +1188,10 @@ class Resource:
         """
         Add a list value to the resource, i.e. a name of a list node.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#list)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#list)
 
         Tip:
-            Use the helper [`ListLookup`](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.ListLookup)
+            Use the helper [`ListLookup`](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.ListLookup)
             to retrieve the correct list name based on the label.
 
         Args:
@@ -1202,7 +1202,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1241,7 +1241,7 @@ class Resource:
         """
         Add several list values to the resource, i.e. names of list nodes.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#list)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#list)
 
         Args:
             prop_name: name of the property
@@ -1251,7 +1251,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1286,7 +1286,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#list)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#list)
 
         Args:
             prop_name: name of the property
@@ -1334,7 +1334,7 @@ class Resource:
         """
         Add a simple text value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1343,7 +1343,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1379,7 +1379,7 @@ class Resource:
         """
         Add several simple text values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1388,7 +1388,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1421,7 +1421,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1466,7 +1466,7 @@ class Resource:
         """
         Add a textarea value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1475,7 +1475,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1502,7 +1502,7 @@ class Resource:
         """
         Add several textarea values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1511,7 +1511,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1537,7 +1537,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1582,15 +1582,15 @@ class Resource:
         """
         Add a rich text value to the resource.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
+        as [documented here.](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1599,7 +1599,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1647,15 +1647,15 @@ class Resource:
         """
         Add several rich text values to the resource.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
+        as [documented here.](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1664,7 +1664,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1712,15 +1712,15 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
+        as [documented here.](https://docs.dasch.swiss/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#text)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1729,7 +1729,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -1769,7 +1769,7 @@ class Resource:
         """
         Add a time value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#time)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1778,7 +1778,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1814,7 +1814,7 @@ class Resource:
         """
         Add several time values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#time)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1823,7 +1823,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1856,7 +1856,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#time)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1901,7 +1901,7 @@ class Resource:
         """
         Add a URI value to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#uri)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -1910,7 +1910,7 @@ class Resource:
             comment: optional comment
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
-                   [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added value
@@ -1946,7 +1946,7 @@ class Resource:
         """
         Add several URI values to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#uri)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -1955,7 +1955,7 @@ class Resource:
             comment: optional comment
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
-                                 [See documentation for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#value-order)
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
 
         Returns:
             The original resource, with the added values
@@ -1988,7 +1988,7 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#uri)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -2034,11 +2034,11 @@ class Resource:
         """
         Add a file (bitstream) to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#bitstream)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#bitstream)
 
         Args:
             filename: path to the file
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -2112,11 +2112,11 @@ class Resource:
         """
         Add a IIIF URI to the resource.
 
-        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/data-file/xml-data-file/#iiif-uri)
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#iiif-uri)
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/licenses/recommended/).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/licenses/recommended/).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.

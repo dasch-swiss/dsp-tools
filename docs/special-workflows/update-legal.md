@@ -110,7 +110,7 @@ For each multimedia resource, one or more of these errors may occur:
 4. license not parseable
     - If license information is present, 
       an attempt is made to parse it using [`xmllib.find_license_in_string()`](
-      https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string)
+      https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string)
 
 If there were errors, you will get 2 output files:
 
@@ -164,7 +164,7 @@ CSV Output:
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
-https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string):
+https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string):
 
 | file     | resource_id | license | copyright | authorship_1  | authorship_2 |
 | -------- | ----------- | ------- | --------- | ------------- | ------------ |

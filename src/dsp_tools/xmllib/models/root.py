@@ -268,8 +268,8 @@ class XMLRoot:
             f.write(xml_string)
             print(f"The XML file was successfully saved to {filepath}.")
         if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
-            df = pd.read_csv(file_path)
-            if len(df) > 0:
+            # The file only exists if a warning was actually written to it during the run.
+            if Path(file_path).is_file() and len(df := pd.read_csv(file_path)) > 0:
                 msg = f"{len(df)} warnings occurred, please consult '{file_path}' for details."
                 print(BOLD_RED, msg, RESET_TO_DEFAULT)
             else:

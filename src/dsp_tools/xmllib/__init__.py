@@ -1,5 +1,3 @@
-from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
-
 from .general_functions import ListLookup as ListLookup
 from .general_functions import clean_whitespaces_from_string as clean_whitespaces_from_string
 from .general_functions import create_footnote_element as create_footnote_element
@@ -47,5 +45,3 @@ from .value_converters import reformat_date as reformat_date
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags
-
-initialise_warning_file()

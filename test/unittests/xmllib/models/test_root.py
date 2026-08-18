@@ -387,6 +387,19 @@ def _authorship_by_id(serialised: etree._Element) -> dict[str, list[str | None]]
     return lookup
 
 
+class TestWriteFile:
+    def test_reports_no_warnings_when_warnings_file_was_never_written(self, tmp_path, monkeypatch, capsys) -> None:
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        out_file = tmp_path / "out.xml"
+        root = XMLRoot.create_new("0000", "test")
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        root.write_file(out_file)
+        assert not csv_path.is_file()
+        captured = capsys.readouterr()
+        assert "No warnings occurred during the runtime." in captured.out
+
+
 class TestApplyDefaultResourceAuthorship:
     def test_literal_normalised_on_create(self) -> None:
         root = XMLRoot.create_new("0000", "test", apply_default_resource_authorship=["B", "A"])

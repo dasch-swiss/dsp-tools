@@ -153,6 +153,24 @@ For handling circular references:
 - Validation at multiple stages (XML, values, permissions)
 - Comprehensive diagnostic output including ID-to-IRI mappings and upload state persistence
 
+All handlers that end a running upload live in `handle_errors.py`.
+None of them exits the interpreter: the exception they raise determines the exit code
+in `entry_point.py` (see `docs/developers/architecture/error-handling.md`).
+
+- Reaching the `--interrupt-after` limit is an expected outcome, not an error:
+  `interruption_is_indicated()` is a predicate, and `_upload_all_resources()` returns `True`
+  so that `execute_upload()` reports success (exit code 0).
+- `handle_keyboard_interrupt()` and `handle_keyboard_interrupt_during_creation()` raise
+  `KeyboardInterrupt`, which exits with 130. Because `entry_point.py` prints nothing for a
+  `KeyboardInterrupt`, these two handlers emit their message as a `DspToolsUserWarning`.
+- `handle_permanent_connection_error()` and `handle_permanent_timeout()` raise
+  `XmlUploadInterruptedError`, which exits with 1.
+- A `BadCredentialsError` stops the upload immediately instead of being registered as a failed
+  resource: the credentials will not become valid by uploading the next resource.
+
+Every one of these paths calls `persist_state_for_resume()` once, in `_upload_all_resources()`,
+so that the upload can be continued with `resume-xmlupload`.
+
 ## Diagnostic Output and Troubleshooting
 
 ### ID-to-IRI Mapping Files

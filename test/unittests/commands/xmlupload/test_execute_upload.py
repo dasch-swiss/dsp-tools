@@ -20,6 +20,7 @@ from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.exceptions import DspToolsRequestException
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -107,7 +108,7 @@ class TestExecuteOneUpload:
         iri_lookups: IRILookups,
     ) -> None:
         resource_client.post_resource.return_value = RES_IRI
-        _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups)
         ingest_client.get_bitstream_info.assert_not_called()
         assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
@@ -122,7 +123,7 @@ class TestExecuteOneUpload:
         ingest_client.get_bitstream_info.return_value = BitstreamInfo("internal.jpg")
         resource_client.post_resource.return_value = RES_IRI
         upload_state.pending_resources = [resource_with_file]
-        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups)
         assert upload_state.iri_resolver.lookup == {RES_ID: RES_IRI}
 
     def test_upload_ingest_returns_none(
@@ -135,7 +136,7 @@ class TestExecuteOneUpload:
     ) -> None:
         ingest_client.get_bitstream_info.return_value = None
         upload_state.pending_resources = [resource_with_file]
-        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0)
+        _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups)
         assert RES_ID in upload_state.failed_uploads
 
     def test_upload_ingest_permanent_connection_error(
@@ -149,9 +150,7 @@ class TestExecuteOneUpload:
         ingest_client.get_bitstream_info.side_effect = PermanentConnectionError("conn err")
         upload_state.pending_resources = [resource_with_file]
         with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(
-                resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
-            )
+            _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups)
 
     def test_upload_ingest_keyboard_interrupt(
         self,
@@ -163,10 +162,10 @@ class TestExecuteOneUpload:
     ) -> None:
         ingest_client.get_bitstream_info.side_effect = KeyboardInterrupt()
         upload_state.pending_resources = [resource_with_file]
-        with pytest.raises(XmlUploadInterruptedError):
+        with pytest.raises(KeyboardInterrupt):
             with pytest.warns(DspToolsUserWarning):
                 _execute_one_resource_upload(
-                    resource_with_file, upload_state, resource_client, ingest_client, iri_lookups, 0
+                    resource_with_file, upload_state, resource_client, ingest_client, iri_lookups
                 )
 
     def test_upload_data_permanent_connection_error(
@@ -179,7 +178,36 @@ class TestExecuteOneUpload:
     ) -> None:
         resource_client.post_resource.side_effect = PermanentConnectionError("conn err")
         with pytest.raises(XmlUploadInterruptedError):
-            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups)
+
+    def test_upload_data_bad_credentials_halts_upload(
+        self,
+        resource: ProcessedResource,
+        upload_state: UploadState,
+        resource_client: MagicMock,
+        ingest_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = BadCredentialsError("token expired")
+        with pytest.raises(BadCredentialsError):
+            _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups)
+        assert not upload_state.failed_uploads
+        assert upload_state.pending_resources == [resource]
+
+    def test_upload_ingest_bad_credentials_halts_upload(
+        self,
+        resource_with_file: ProcessedResource,
+        upload_state: UploadState,
+        resource_client: MagicMock,
+        ingest_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        ingest_client.get_bitstream_info.side_effect = BadCredentialsError("token expired")
+        upload_state.pending_resources = [resource_with_file]
+        with pytest.raises(BadCredentialsError):
+            _execute_one_resource_upload(resource_with_file, upload_state, resource_client, ingest_client, iri_lookups)
+        assert not upload_state.failed_uploads
+        assert upload_state.pending_resources == [resource_with_file]
 
     def test_upload_keyboard_interrupt_in_tidy_up(
         self,
@@ -194,9 +222,9 @@ class TestExecuteOneUpload:
             "dsp_tools.commands.xmlupload.execute_upload.tidy_up_resource_creation_idempotent",
             side_effect=[KeyboardInterrupt(), None],
         ) as mock_tidy:
-            with pytest.raises(XmlUploadInterruptedError):
+            with pytest.raises(KeyboardInterrupt):
                 with pytest.warns(DspToolsUserWarning):
-                    _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups, 0)
+                    _execute_one_resource_upload(resource, upload_state, resource_client, ingest_client, iri_lookups)
         assert mock_tidy.call_count == 2
 
 
@@ -233,6 +261,17 @@ class TestResourceDataUpload:
         result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert result == RES_IRI
         assert resource_client.post_resource.call_count == 2
+
+    def test_data_upload_does_not_log_traceback_twice(
+        self,
+        resource: ProcessedResource,
+        resource_client: MagicMock,
+        iri_lookups: IRILookups,
+    ) -> None:
+        resource_client.post_resource.side_effect = [DspToolsRequestException("err"), RES_IRI]
+        with patch("dsp_tools.commands.xmlupload.execute_upload.log_request_failure_and_sleep") as log_mock:
+            _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
+        log_mock.assert_called_once_with("Connection Error", 0, exc_info=False)
 
     def test_data_upload_retry_exhaustion(
         self,

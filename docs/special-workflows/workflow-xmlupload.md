@@ -111,7 +111,9 @@ The most frequently used options are:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
+- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded. 
+  The command then exits with code `0` and saves its state, 
+  so that the upload can be continued with [`resume-xmlupload`](../data-file/data-file-commands.md#resume-xmlupload).
 
 To see all possible options, type `dsp-tools ingest-xmlupload --help`.
 

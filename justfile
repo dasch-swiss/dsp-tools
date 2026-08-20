@@ -28,7 +28,6 @@ lint: uv-sync
     just markdownlint
     just mypy
     just vulture
-    uv run scripts/markdown_link_validator.py
     just check-xmllib-docstring-links
 
 

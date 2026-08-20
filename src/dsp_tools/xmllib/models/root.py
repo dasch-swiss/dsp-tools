@@ -255,7 +255,10 @@ class XMLRoot:
         # The logging is only configured when using the CLI entry point.
         # If this is not disabled, then the statements will also be printed out on the terminal.
         logger.disable("dsp_tools")
-        validate_root_emit_user_message(root, Path(filepath).parent)
+        try:
+            validate_root_emit_user_message(root, Path(filepath).parent)
+        finally:
+            logger.enable("dsp_tools")
 
         etree.indent(root, space="    ")
         xml_string = etree.tostring(

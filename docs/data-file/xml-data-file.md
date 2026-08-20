@@ -330,7 +330,7 @@ This is **distinct** from:
   to uploaded data on its own. To actually apply it, set the
   [`use-project-default-resource-authorship`](#the-root-element-knora) attribute on the `<knora>` root
   (most easily via the xmllib option 
-- `apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`), which fills
+  `apply_default_resource_authorship=xmllib.ResourceAuthorshipDefault.PROJECT_DEFAULT`), which fills
   it in for every resource without its own `authorship-id` at `xmlupload`.
 
 

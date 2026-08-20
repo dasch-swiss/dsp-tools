@@ -1,5 +1,9 @@
 ---
 
+# Every step here is hermetic, which is what makes this job safe as a required
+# status check on main. External links are checked by check-external-links.yml
+# instead: they depend on third-party hosts, so a merge gate built on them
+# fails for reasons unrelated to the pull request under test.
 name: Check Docs
 
 on:
@@ -22,11 +26,6 @@ jobs:
           python-version: "3.12"
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: check external links in docs
-        uses: lycheeverse/lychee-action@v2
-        with:
-          # Same ./docs scope and lychee.toml config as `just check-links`.
-          args: ./docs
       - name: check docstring links in xmllib
         run: just check-xmllib-docstring-links
       - name: markdownlint

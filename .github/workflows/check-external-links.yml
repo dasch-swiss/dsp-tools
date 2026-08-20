@@ -1,0 +1,59 @@
+---
+
+# Link rot is a function of time, not of commits: a link dies because the remote
+# changed, never because a pull request did. So the external links in ./docs are
+# checked on a schedule rather than on every PR, and this workflow is
+# deliberately NOT a required status check — see check-docs.yml, which keeps the
+# hermetic docs checks on the merge gate.
+name: Check External Links
+
+on:
+  schedule:
+    # Thursdays 04:00 UTC — mid-week, away from the Monday release train, so a
+    # rotten link does not surface as noise on release day.
+    - cron: "0 4 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-external-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v7
+
+      # `fail: false` so that a broken link produces an issue rather than a red
+      # run nobody is subscribed to.
+      - name: Check external links in docs
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Same ./docs scope and lychee.toml config as `just check-links`.
+          args: ./docs
+          fail: false
+
+      # One rolling issue, not one per run: a host that stays down would
+      # otherwise open a new issue every week.
+      - name: Report broken links in an issue
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TITLE: "Broken links in the documentation"
+        run: |
+          set -euo pipefail
+          report=$(cat lychee/out.md 2>/dev/null || echo "lychee produced no report; see the run log.")
+          body=$(printf '%s\n\n· [view run](%s)\n' "$report" "$RUN_URL")
+          # env.TITLE rather than shell interpolation, so the title never reaches jq as code.
+          existing=$(gh issue list --repo "$REPO" --state open --limit 100 \
+            --json number,title --jq '[.[] | select(.title == env.TITLE)] | first | .number // empty')
+          if [[ -n "$existing" ]]; then
+            echo "::notice::commenting on existing issue #$existing"
+            gh issue comment "$existing" --repo "$REPO" --body "$body"
+          else
+            gh issue create --repo "$REPO" --title "$TITLE" --body "$body"
+          fi

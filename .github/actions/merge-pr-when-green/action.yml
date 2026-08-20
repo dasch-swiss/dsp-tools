@@ -10,7 +10,9 @@ inputs:
     description: URL of the pull request to merge
     required: true
   token:
-    description: DaSCH Bot App installation token with contents+pull-requests write on this repo
+    description: >
+      DaSCH Bot App installation token with contents+pull-requests write on this
+      repo, plus actions write so a flaky required check can be re-run once.
     required: true
   timeout-minutes:
     description: How long to wait for the required checks to go green before failing
@@ -29,6 +31,10 @@ runs:
     # Retrying the merge therefore both waits for the checks AND can never merge
     # before they are green. (`--admin` only skips gh's client-side mergeability
     # refusal; the server still enforces the checks.)
+    #
+    # Note that the server's rejection message always names the missing review,
+    # even for this App. That clause is noise — the bypass is applied once the
+    # checks pass — so it is not a signal to act on.
     - name: Merge once required checks pass
       shell: bash
       env:
@@ -39,6 +45,9 @@ runs:
         set -euo pipefail
         echo "::notice::merging $PR_URL once required checks pass (App bypasses the review)"
         deadline=$(( $(date +%s) + TIMEOUT_MINUTES * 60 ))
+        # run id -> attempt number at the moment we re-ran it
+        declare -A reran_at_attempt
+
         until merge_out=$(gh pr merge --squash --admin "$PR_URL" 2>&1); do
           echo "$merge_out"
           if [[ "$(gh pr view "$PR_URL" --json state --jq .state 2>/dev/null)" == "MERGED" ]]; then
@@ -48,6 +57,34 @@ runs:
             echo "::error::could not merge $PR_URL within budget (check failing or branch blocked)"
             exit 1
           fi
+
+          # A required check in a terminal `fail` state never turns green on its
+          # own, so polling it to the deadline only delays the alert — that is
+          # how one transient link-checker failure cost the 19.0.1 release train
+          # its whole 30-minute budget. Re-run such a check once, since flakes
+          # dominate these failures, and give up as soon as the re-run has
+          # itself completed and failed.
+          while read -r run_id; do
+            [[ -n "$run_id" ]] || continue
+            read -r attempt status < <(gh run view "$run_id" --json attempt,status --jq '"\(.attempt) \(.status)"')
+            if [[ -z "${reran_at_attempt[$run_id]:-}" ]]; then
+              echo "::notice::required check in run $run_id failed; re-running it once in case it is a flake"
+              if ! gh run rerun "$run_id" --failed; then
+                echo "::error::required check in run $run_id failed and could not be re-run"
+                exit 1
+              fi
+              # Comparing against the attempt seen *before* the re-run is what
+              # keeps the check below from reading the pre-re-run failure as a
+              # second one.
+              reran_at_attempt[$run_id]=$attempt
+            elif [[ "$status" == "completed" && "$attempt" -gt "${reran_at_attempt[$run_id]}" ]]; then
+              echo "::error::required check in run $run_id failed again after a re-run — not a flake"
+              exit 1
+            fi
+          done < <(gh pr checks "$PR_URL" --required --json bucket,link --jq '
+            [.[] | select(.bucket == "fail") | .link | capture("/actions/runs/(?<id>[0-9]+)").id]
+            | unique | .[]' || true)
+
           # main is strict, so a branch behind base can never merge. Refresh only
           # when the merge output says so; doing it unconditionally would
           # re-trigger the checks every loop and never converge.

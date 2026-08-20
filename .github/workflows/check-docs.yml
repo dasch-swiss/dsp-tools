@@ -1,5 +1,9 @@
 ---
 
+# Every step here is hermetic, which is what makes this job safe as a required
+# status check on main. External links are checked by check-external-links.yml
+# instead: they depend on third-party hosts, so a merge gate built on them
+# fails for reasons unrelated to the pull request under test.
 name: Check Docs
 
 on:
@@ -22,10 +26,6 @@ jobs:
           python-version: "3.12"
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: check external links in docs
-        run: |
-          npm install -g markdown-link-validator
-          just check-links
       - name: check docstring links in xmllib
         run: just check-xmllib-docstring-links
       - name: markdownlint

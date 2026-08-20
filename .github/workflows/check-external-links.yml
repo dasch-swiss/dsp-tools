@@ -2,16 +2,25 @@
 
 # Link rot is a function of time, not of commits: a link dies because the remote
 # changed, never because a pull request did. So the external links in ./docs are
-# checked on a schedule rather than on every PR, and this workflow is
-# deliberately NOT a required status check — see check-docs.yml, which keeps the
-# hermetic docs checks on the merge gate.
+# NOT checked per PR, and this workflow is deliberately not a required status
+# check — see check-docs.yml, which keeps the hermetic docs checks on the merge
+# gate.
+#
+# It runs on the release train instead of on a bare cron. Merging
+# `chore(start-stack): bump versions to <DSP>` is the step that leads to a
+# dsp-tools release, so a dead link found here is release news, reported to the
+# same internal Chat space as every other release-train failure — and it arrives
+# while someone is watching the release. A standalone weekly cron would post
+# off-topic alerts into that space at 04:00 on a day nobody is releasing.
+#
+# The train runs roughly weekly, so the cadence is about the same. Use the manual
+# dispatch to check between trains.
 name: Check External Links
 
 on:
-  schedule:
-    # Thursdays 04:00 UTC — mid-week, away from the Monday release train, so a
-    # rotten link does not surface as noise on release day.
-    - cron: "0 4 * * 4"
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -19,6 +28,11 @@ permissions:
 
 jobs:
   check-external-links:
+    # Same predicate as the release-train leg of release-please.yml. On
+    # workflow_dispatch there is no head_commit, hence the explicit event check.
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

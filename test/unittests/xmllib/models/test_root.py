@@ -4,9 +4,12 @@ from pathlib import Path
 
 import pytest
 import regex
+from loguru import logger
 from lxml import etree
 from pytest_unordered import unordered
 
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
@@ -398,6 +401,20 @@ class TestWriteFile:
         assert not csv_path.is_file()
         captured = capsys.readouterr()
         assert "No warnings occurred during the runtime." in captured.out
+
+    def test_leaves_dsp_tools_logging_enabled(self, tmp_path) -> None:
+        emitted: list[str] = []
+        handler_id = logger.add(sink=emitted.append, level="DEBUG")
+        root = XMLRoot.create_new("0000", "test")
+        root.add_resource(Resource.create_new("id_1", ":ResType", "lbl"))
+        try:
+            root.write_file(tmp_path / "out.xml")
+            # A log statement issued from within dsp_tools must still reach the sink,
+            # because loguru filters on the module of the call site.
+            log_request(RequestParameters(method="GET", url="http://example.com", timeout=1))
+        finally:
+            logger.remove(handler_id)
+        assert any("REQUEST:" in msg for msg in emitted)
 
 
 class TestApplyDefaultResourceAuthorship:

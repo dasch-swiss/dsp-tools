@@ -47,7 +47,20 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 ### Naming and comments
 
 - Names are **evergreen**: never `new`/`improved`/`enhanced`. What is new today is old tomorrow.
-- Comments describe the code as it is, not how it evolved — no references to refactors or "recently changed".
+- Comments are **evergreen** too, in all formats, and in `docs/` prose. State what the code does and
+  why it must be that way, as a standing fact; never describe a change, an incident, or a previous state.
+    - The test: **can a reader holding only this file tell whether the comment is still true?**
+      A historical claim is true only against a baseline that is not written down, so when the baseline
+      moves the comment turns **false** rather than merely obscure, and nothing flags it. Agents compound
+      this — they read comments as directives, so `the important one` becomes a ranking nobody decided.
+    - Markers that usually mean the test fails: `no longer`, `used to`, `previously`, `formerly`,
+      `recently`, `anymore`, `we changed/switched/moved`, `before this`, `until now`, `new in`,
+      `the important one`, and an incident/release/PR named as the reason for a setting.
+    - **Rewrite, don't delete** — the rationale is the valuable half. But flipping the tense is not the
+      fix and often yields a false statement: `used to fail the whole run` → `fails the whole run` is
+      simply wrong, because the setting being documented is what prevents it. Restate *why the code has
+      to be this way*: *"we switched to a set because the list lookup was too slow"* →
+      *"a set, not a list: membership is checked once per row, so a linear lookup is too slow here"*.
 - Docstrings (Google-style) only for high-level functions or where the name cannot carry the intent.
   Lower-level and test functions are self-explanatory and need none.
 - **`default_*` prefix** marks a **project-wide value that can be overridden per resource**

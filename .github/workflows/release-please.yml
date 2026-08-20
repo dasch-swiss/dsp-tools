@@ -85,6 +85,11 @@ jobs:
           git config user.email "daschbot@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${PAT}@github.com/dasch-swiss/dsp-tools.git"
           git checkout "$BRANCH"
+          # Plain `uv lock` — never add `-U`/`--upgrade`. Without it, "locking will
+          # have no effect" unless pyproject.toml's dependencies changed, so the only
+          # diff here is dsp-tools' own version. tests-e2e.yml relies on exactly that
+          # to skip the e2e suite on release PRs: an upgrade flag would let a release
+          # ship different dependencies with no e2e run behind it.
           uv lock
           git add uv.lock
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"

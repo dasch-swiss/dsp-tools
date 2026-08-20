@@ -10,6 +10,24 @@ permissions:
   contents: read
   pull-requests: read
 
+# Release-please PRs (head branch `release-please--*`) bump only CHANGELOG.md,
+# pyproject.toml, the release-please manifest and uv.lock — the source is
+# identical to a main that already passed these very jobs on the feature PRs
+# behind it, so re-running them proves nothing and costs ~4 minutes of
+# time-to-green on the release train. Every job below is therefore skipped for
+# them. A required check skipped by a job-level `if:` counts as passing in
+# branch protection, so the release PR stays mergeable. (A workflow skipped by
+# `branches`/`paths` filters would instead leave the check Pending forever and
+# block the PR — hence the job-level guard rather than a trigger filter.)
+#
+# The predicate keys on the HEAD BRANCH on purpose. Do NOT rewrite it as a
+# bot-author check: the start-stack bump PR (`chore/bump-version-*`) is
+# bot-authored too, and it is the one PR that MUST run these jobs. It changes
+# src/dsp_tools/resources/start-stack/versions.env, which is exactly where
+# test/e2e/setup_testcontainers/setup.py reads the DSP-API / Sipi / Ingest /
+# Fuseki image tags from — so this suite is the only thing that validates
+# dsp-tools against a newly released DSP stack before dsp-tools is released
+# against it.
 env:
   DSP_TOOLS_TESTING: true
   # Literal, not a secret: Dependabot PRs cannot read Actions secrets, and this value only creates
@@ -19,6 +37,7 @@ env:
 jobs:
   ingest-xmlupload:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -36,6 +55,7 @@ jobs:
 
   validate-data:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -53,6 +73,7 @@ jobs:
 
   xmlupload:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -70,6 +91,7 @@ jobs:
 
   project:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -87,6 +109,7 @@ jobs:
 
   mapping:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -104,6 +127,7 @@ jobs:
 
   create-get-xmlupload:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -121,6 +145,7 @@ jobs:
 
   legacy:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7

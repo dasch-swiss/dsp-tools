@@ -46,9 +46,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # contents+pull-requests WRITE on dsp-tools ONLY. Used both to open the PR
-      # and to merge it: the App is a review-bypass actor on main, which is what
-      # lets a bot-authored PR merge without a human approval.
+      # contents+pull-requests+actions WRITE on dsp-tools ONLY. Used both to open
+      # the PR and to merge it: the App is a review-bypass actor on main, which is
+      # what lets a bot-authored PR merge without a human approval; actions write
+      # lets merge-pr-when-green re-run a flaky required check once.
       # SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
       - name: Mint DaSCH Bot App token (write — dsp-tools only)
         id: app-token
@@ -58,6 +59,7 @@ jobs:
           private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
           owner: dasch-swiss
           repositories: dsp-tools
+          permission-actions: write
           permission-contents: write
           permission-pull-requests: write
 

@@ -4,6 +4,13 @@ name: Release-Please
 
 on:
   workflow_dispatch:  # trigger manually
+    inputs:
+      merge_release_pr:
+        description: >
+          Also merge the open release PR once its checks are green. Use this to
+          resume the release train after a transient check failure stranded it.
+        type: boolean
+        default: false
   push:
     branches:
       - main
@@ -87,13 +94,19 @@ jobs:
   # last step before dsp-tools is released, so the release PR it produces is
   # merged automatically. Any other push to main leaves the release PR open, as
   # before — releases outside the train stay a deliberate human merge.
+  #
+  # The workflow_dispatch arm is the resume path. Without it a stranded release
+  # PR can only be finished by hand: a manual re-run carries no head_commit, and
+  # release-please reports no PR number when it has nothing left to change, so
+  # both halves of the push condition are false on a second attempt.
   auto-merge-release-pr:
     name: Auto-merge release PR (release train only)
     needs: [release-please]
     if: >-
-      github.event_name == 'push'
+      (github.event_name == 'push'
       && startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
-      && needs.release-please.outputs.release_pr_number != ''
+      && needs.release-please.outputs.release_pr_number != '')
+      || (github.event_name == 'workflow_dispatch' && inputs.merge_release_pr)
     runs-on: ubuntu-latest
     # Own group so the merge wait never serialises the release-please job above.
     concurrency:
@@ -116,6 +129,18 @@ jobs:
           if [[ "${AUTO_MERGE_ENABLED,,}" == "false" ]]; then
             echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PR for a human to merge"
             exit 0
+          fi
+          # On the resume path release-please reports no PR number, because the
+          # PR it would point at already exists and needed no change. Fall back
+          # to the open release-please branch.
+          if [[ -z "$PR_NUMBER" ]]; then
+            PR_NUMBER=$(gh pr list --repo "$REPO" --state open --limit 50 --json number,headRefName \
+              --jq '[.[] | select(.headRefName | startswith("release-please--"))] | first | .number // empty')
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "::notice::no open release PR to merge"
+              exit 0
+            fi
+            echo "::notice::resuming with release PR #$PR_NUMBER"
           fi
           # Read title and branch from the PR itself rather than from the action
           # output, so the checks below are made against the server's state.

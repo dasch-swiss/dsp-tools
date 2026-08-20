@@ -71,6 +71,35 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - **IRI-valued fields get a `pattern`** even when not enumerable
   (precedent: `enabled_licenses` in `src/dsp_tools/resources/schema/project.json`).
 
+## dsp-tools subsystem inventory (blast-radius reference)
+
+The map of the whole suite: when you do **feature work**, a change usually has to fan out across several of
+these subsystems. Use the **`change-blast-radius`** skill to walk this inventory against your change —
+before you start (to plan) or against a drafted diff (to audit) — so nothing is silently missed, the way
+`excel2json` was missed when `data_license` was added. This table is the single source of truth the skill
+and reviewers reuse; keep it current when a subsystem is added, moved, or renamed.
+
+| Subsystem | Path | Role & cross-cutting wiring |
+| --- | --- | --- |
+| CLI | `src/dsp_tools/cli/` | Command wiring in **three places**: `create_parsers.py` (argparse), `call_action.py` (dispatch), `call_action_files_only.py` (thin file-only wrappers). A new command touches all three. |
+| clients | `src/dsp_tools/clients/` | Generic, reusable HTTP clients (no retry logic). |
+| create | `src/dsp_tools/commands/create/` | JSON project file → server. Pipeline `parsing/` → `models/` → `serialisation/` → `create_on_server/`. Legal metadata (`data_license`, …) is sent via `LegalInfoClient`; `enabled_licenses` via the create payload. |
+| get | `src/dsp_tools/commands/get/` | Server → JSON project file (round-trip). Project modelling in `legacy_models/project.py`; permissions in `get_permissions.py`. **No `get/CLAUDE.md` exists.** |
+| excel2json | `src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
+| validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
+| xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
+| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `start_stack` / `stop_stack`. |
+| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals; exports live in `xmllib/__init__.py`. |
+| utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
+| schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
+| docs | `docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |
+| test data + tests | `testdata/`, `test/` | `test/unittests`, `test/integration`, `test/e2e`, `test/legacy_e2e`. Prefer extending the systematic project/XML over new fixtures; register shortcodes in `testdata/USED_SHORTCODE_SHORTNAMES.md`. E2E needs the **three-place wiring** (test dir + `just` recipe + `tests-e2e.yml` job). |
+| external: `0854-daschland-scripts` | <https://github.com/dasch-swiss/0854-daschland-scripts> | DaSCH's **demo importer** (separate repo → separate PR). Depends on `dsp-tools` + the public `xmllib` API, with its own project ontology + generated XML. May need a companion PR when a change touches **`xmllib`, `excel2json`, `create`, or `xmlupload`** — **not** for validate-data-only changes. `change-blast-radius` flags it only; it does not trace it. |
+
+The recurring cross-cutting rules that go with this map — the **e2e three-place wiring**, the JSON-schema
+**`enum`/`pattern`** rules, the **`default_*` prefix**, and **RDF-mapped property → validate-data**
+threading — are detailed in the sections above and under "Testing Conventions" below.
+
 ## Testing Conventions
 
 - **Every feature is tested.** Logic (parsers, serialisers, mappers, validators) gets unit tests;
@@ -129,6 +158,8 @@ workflow — check recent `git log` for the prevailing style. Common prefixes in
 
 ## Where to go for depth
 
+- **"dsp-tools subsystem inventory (blast-radius reference)"** (this file) — the cross-suite touch-point
+  map; walk it with the `change-blast-radius` skill on any feature work.
 - `CLAUDE.md` — repository overview, commands, architecture, working agreements.
 - `src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
 - `src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.

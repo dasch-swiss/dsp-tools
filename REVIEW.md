@@ -17,6 +17,9 @@ Flag anything below that a change violates.
 
 ### Architecture & code
 
+- [ ] **Feature work:** the change's full blast radius was mapped — every subsystem the change kind touches
+      is addressed, none silently skipped (the `excel2json`/`data_license` class of miss). See the
+      "dsp-tools subsystem inventory" in `CONVENTIONS.md` / the `change-blast-radius` skill
 - [ ] No command imports from another command — shared logic is in `utils/`, shared HTTP routes in `clients/`
 - [ ] Behaviour lives in stateless functions; classes only bundle data (`@dataclass`)
 - [ ] HTTP goes through `utils/request_utils.py` (no raw requests, no retry logic in `clients/`)

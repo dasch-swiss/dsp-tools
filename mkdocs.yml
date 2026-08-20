@@ -71,7 +71,7 @@ nav:
           - Error Handling: developers/architecture/error-handling.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
-      - MkDocs and markdown-link-validator: developers/mkdocs.md
+      - MkDocs and Link Checking: developers/mkdocs.md
       - Code quality tools:
           - Overview: developers/code-quality-tools/code-quality-tools.md
           - General formatting: developers/code-quality-tools/general-formatting.md

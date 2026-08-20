@@ -62,11 +62,10 @@ mypy:
     uv run dmypy run --timeout 86400 -- .
 
 
-# Check that there are no dead links in the docs
-# links to w3.org and docutils.sourceforge.io are ignored because they block automated requests and are always reported as invalid
+# Check that there are no dead links in the docs (configured in lychee.toml)
 [no-exit-message]
 check-links:
-    markdown-link-validator ./docs -i ./assets/.+ -i https://www.w3.org/ -i https://docutils.sourceforge.io/
+    lychee ./docs
 
 
 # Check that docstring links in xmllib are valid

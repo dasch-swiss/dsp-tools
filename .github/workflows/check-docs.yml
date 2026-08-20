@@ -23,9 +23,10 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: check external links in docs
-        run: |
-          npm install -g markdown-link-validator
-          just check-links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Same ./docs scope and lychee.toml config as `just check-links`.
+          args: ./docs
       - name: check docstring links in xmllib
         run: just check-xmllib-docstring-links
       - name: markdownlint

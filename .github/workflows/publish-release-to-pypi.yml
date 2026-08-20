@@ -27,6 +27,13 @@ jobs:
           enable-cache: true
       - name: build wheel
         run: uv build
+      # A PyPI version cannot be re-uploaded, so this is the last reversible
+      # moment. It is also the only look at the artifact: release PRs skip the
+      # `distribution` job (see tests.yml), since packaging is not what they
+      # change. Checking here validates the wheel that is actually published,
+      # rather than an equivalent one built earlier on a pull request.
+      - name: check the wheel for correctness
+        run: uvx check-wheel-contents dist/
       - name: publish new version to PyPI
         run: uv publish
 

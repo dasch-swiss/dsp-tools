@@ -13,9 +13,20 @@ permissions:
 env:
   DSP_TOOLS_TESTING: true
 
+# A release-please PR bumps CHANGELOG.md, pyproject.toml, the release-please
+# manifest and uv.lock — no source, and `uv lock` without `--upgrade` cannot move
+# a dependency, so these jobs would run against a tree they already passed on the
+# feature PRs behind it. They are skipped for those PRs; a skipped job counts as
+# passing in branch protection.
+#
+# `distribution` deliberately still runs: it builds and installs the wheel at the
+# new version, which is the one thing a release PR actually changes, and it is the
+# last check before an irreversible PyPI upload. `upload-coverage` needs unittests
+# and integration, so it skips on its own.
 jobs:
   unittests:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -31,6 +42,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
@@ -75,6 +87,7 @@ jobs:
 
   benchmarking:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7

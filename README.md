@@ -29,8 +29,7 @@ To get started quickly, without reading the details, just execute these commands
 - `uv sync --all-extras --dev`
 - `source .venv/bin/activate`
 - `pre-commit install`
-- `npm install -g markdown-link-validator`
-- `brew install just parallel yamlfmt`
+- `brew install just parallel yamlfmt lychee`
 - `echo DSP_USER_PASSWORD="pw" >> .env` (required variable for e2e tests)
 
 The remainder of this README explains these commands in more detail.
@@ -237,7 +236,7 @@ We use the following linters:
 
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
-- [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
+- [lychee](https://github.com/lycheeverse/lychee) (configured in `lychee.toml`)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)
 - [yamlfmt](https://github.com/google/yamlfmt) (configured in `.yamlfmt.yml`)

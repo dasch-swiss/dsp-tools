@@ -6,6 +6,18 @@ repo_url: https://github.com/dasch-swiss/dsp-tools
 repo_name: dasch-swiss/dsp-tools
 edit_uri: blob/main/docs/
 
+# Maximal strictness, as recommended by the MkDocs docs. Combined with the
+# `--strict` flag in CI, this turns every one of these into a build error.
+# `anchors` (new in MkDocs 1.6) is the important one: it validates `#heading`
+# targets with Python-Markdown's own slug algorithm — the same one that
+# produces docs.dasch.swiss — so a heading rename can no longer silently leave
+# dead in-page links behind.
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
 nav:
   - Overview: index.md
   - User Guides:
@@ -59,7 +71,7 @@ nav:
           - Error Handling: developers/architecture/error-handling.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
-      - MkDocs and markdown-link-validator: developers/mkdocs.md
+      - MkDocs and Link Checking: developers/mkdocs.md
       - Code quality tools:
           - Overview: developers/code-quality-tools/code-quality-tools.md
           - General formatting: developers/code-quality-tools/general-formatting.md

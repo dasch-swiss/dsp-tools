@@ -77,6 +77,9 @@ DSP-TOOLS provides the following functionalities:
   conventions (work phase).
 - See `REVIEW.md` for the code-review checklist (review phase) — reviewer agents should flag anything a
   change violates.
+- Before feature work, map the change's blast radius with the `change-blast-radius` skill against the
+  "dsp-tools subsystem inventory" in `CONVENTIONS.md`, so no subsystem is silently missed
+  (the class of miss where `data_license` skipped `excel2json`).
 - Keep both in sync with this file and the per-module `CLAUDE.md` files whenever a convention changes.
 
 ## Development Commands

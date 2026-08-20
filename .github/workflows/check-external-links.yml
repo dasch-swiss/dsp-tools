@@ -1,38 +1,34 @@
 ---
 
-# Link rot is a function of time, not of commits: a link dies because the remote
-# changed, never because a pull request did. So the external links in ./docs are
-# NOT checked per PR, and this workflow is deliberately not a required status
-# check — see check-docs.yml, which keeps the hermetic docs checks on the merge
-# gate.
+# The external links in ./docs reach ~40 third-party hosts, so this check must
+# never be able to block a merge: it is deliberately kept OUT of the
+# required-status-check list on main. A dead link surfaces as a red ✗ on the pull
+# request — visible to the author, who is the person best placed to fix a link
+# they just added — but the merge stays available, so an outage at one host
+# cannot stall every open PR in the repo.
 #
-# It runs on the release train instead of on a bare cron. Merging
-# `chore(start-stack): bump versions to <DSP>` is the step that leads to a
-# dsp-tools release, so a dead link found here is release news, reported to the
-# same internal Chat space as every other release-train failure — and it arrives
-# while someone is watching the release. A standalone weekly cron would post
-# off-topic alerts into that space at 04:00 on a day nobody is releasing.
-#
-# The train runs roughly weekly, so the cadence is about the same. Use the manual
-# dispatch to check between trains.
+# Internal links and `#heading` anchors are NOT checked here: `mkdocs build
+# --strict` owns those (see the `validation:` block in mkdocs.yml), and it is a
+# required check precisely because it depends on nothing outside this repository.
 name: Check External Links
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
 
 permissions:
   contents: read
 
 jobs:
   check-external-links:
-    # Same predicate as the release-train leg of release-please.yml. On
-    # workflow_dispatch there is no head_commit, hence the explicit event check.
+    # Neither bot-authored release PR changes documentation — release-please
+    # bumps CHANGELOG/version/uv.lock, and the start-stack bump touches only
+    # versions.env (see scripts/bump_stack_versions.py) — so there is nothing
+    # here for them to check, and no reason to hang a red ✗ on a PR that merges
+    # unattended.
     if: >-
-      github.event_name == 'workflow_dispatch'
-      || startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
+      ${{ !startsWith(github.head_ref, 'release-please--')
+      && !startsWith(github.head_ref, 'chore/bump-version-') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -43,22 +39,3 @@ jobs:
         with:
           # Same ./docs scope and lychee.toml config as `just check-links`.
           args: ./docs
-
-      # A scheduled run has no PR to block, and GitHub notifies only whoever last
-      # touched the cron line, so the alert has to be pushed somewhere the team
-      # reads. Same internal-alert pattern as release-please.yml,
-      # bump-stack-versions.yml and dsp-docs. The dead links themselves are in the
-      # run's job summary, which lychee-action writes.
-      - name: Notify on failure (internal)
-        if: failure()
-        env:
-          INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
-          REPO: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
-          text="❌ dead links in the dsp-tools documentation · <$run_url|view run>"
-          curl -fsSL -X POST -H 'Content-Type: application/json' \
-            -d "$(jq -n --arg text "$text" '{text:$text}')" \
-            "$INTERNAL_WEBHOOK"

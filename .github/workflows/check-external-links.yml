@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   check-external-links:
@@ -25,35 +24,27 @@ jobs:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
 
-      # `fail: false` so that a broken link produces an issue rather than a red
-      # run nobody is subscribed to.
       - name: Check external links in docs
-        id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
           # Same ./docs scope and lychee.toml config as `just check-links`.
           args: ./docs
-          fail: false
 
-      # One rolling issue, not one per run: a host that stays down would
-      # otherwise open a new issue every week.
-      - name: Report broken links in an issue
-        if: steps.lychee.outputs.exit_code != 0
+      # A scheduled run has no PR to block, and GitHub notifies only whoever last
+      # touched the cron line, so the alert has to be pushed somewhere the team
+      # reads. Same internal-alert pattern as release-please.yml,
+      # bump-stack-versions.yml and dsp-docs. The dead links themselves are in the
+      # run's job summary, which lychee-action writes.
+      - name: Notify on failure (internal)
+        if: failure()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
           REPO: ${{ github.repository }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TITLE: "Broken links in the documentation"
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          report=$(cat lychee/out.md 2>/dev/null || echo "lychee produced no report; see the run log.")
-          body=$(printf '%s\n\n· [view run](%s)\n' "$report" "$RUN_URL")
-          # env.TITLE rather than shell interpolation, so the title never reaches jq as code.
-          existing=$(gh issue list --repo "$REPO" --state open --limit 100 \
-            --json number,title --jq '[.[] | select(.title == env.TITLE)] | first | .number // empty')
-          if [[ -n "$existing" ]]; then
-            echo "::notice::commenting on existing issue #$existing"
-            gh issue comment "$existing" --repo "$REPO" --body "$body"
-          else
-            gh issue create --repo "$REPO" --title "$TITLE" --body "$body"
-          fi
+          run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
+          text="❌ dead links in the dsp-tools documentation · <$run_url|view run>"
+          curl -fsSL -X POST -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg text "$text" '{text:$text}')" \
+            "$INTERNAL_WEBHOOK"

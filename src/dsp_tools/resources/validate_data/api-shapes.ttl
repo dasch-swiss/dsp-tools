@@ -421,10 +421,11 @@ api-shapes:IntValue_ClassShape
                  [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:intValueAsInt ;
-                    # Due to performance reasons we changed to the oxigraph backend of rdflib.
-                    # They normalise xsd:int into xsd:integer, (https://github.com/oxigraph/oxigraph/issues/526)
-                    # therefore even though we input xsd:int into the Graph, the serialisation is of type xsd:integer.
-                    # The performance reasons outweighed this as we can validate it differently.
+                    # rdflib runs on the oxigraph backend here, for performance, and oxigraph
+                    # normalises xsd:int into xsd:integer
+                    # (https://github.com/oxigraph/oxigraph/issues/526), so an xsd:int put into the
+                    # Graph serialises as xsd:integer. Targeting xsd:integer and bounding the range
+                    # below is equivalent, which is what makes that acceptable.
                     # IMPORTANT: this cannot be used on the data that is sent to the API as it will be the correct
                     # xsd:int there, and would erroneously fail validation with this file.
                     sh:datatype xsd:integer ;
@@ -519,11 +520,11 @@ api-shapes:TimeValue_ClassShape
   sh:property    [
                     a           sh:PropertyShape ;
                     sh:path     knora-api:timeValueAsTimeStamp ;
-                    # Due to performance reasons we changed to the oxigraph backend of rdflib.
-                    # They normalise xsd:dateTimeStamp into xsd:dateTime,
-                    # (https://github.com/oxigraph/oxigraph/issues/526) therefore even though we input
-                    # xsd:dateTimeStamp into the Graph, the serialisation is of type xsd:dateTime.
-                    # The performance reasons outweighed this as we can validate it differently.
+                    # rdflib runs on the oxigraph backend here, for performance, and oxigraph
+                    # normalises xsd:dateTimeStamp into xsd:dateTime
+                    # (https://github.com/oxigraph/oxigraph/issues/526), so an xsd:dateTimeStamp put
+                    # into the Graph serialises as xsd:dateTime. Matching xsd:dateTime is therefore
+                    # what this shape has to target.
                     # IMPORTANT: this cannot be used on the data that is sent to the API as it will be the correct
                     # xsd:dateTimeStamp there, and would erroneously fail validation with this file.
                     sh:datatype xsd:dateTime ;

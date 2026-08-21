@@ -65,7 +65,7 @@ Different IDEs use different slug algorithms, too,
 which might lead to misleading hints from the IDE.
 `mkdocs build --strict` is the arbiter: with `validation.anchors` enabled it fails the build
 on an anchor that does not exist on the published site,
-so a link of this kind can no longer reach `https://docs.dasch.swiss/` unnoticed.
+so a link of this kind cannot reach `https://docs.dasch.swiss/` unnoticed.
 
 
 ### The Best Solution How to Deal With This
@@ -78,7 +78,8 @@ so a link of this kind can no longer reach `https://docs.dasch.swiss/` unnoticed
 
 - MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
   (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).
-- Python Markdown's default slugify used to strip out all Unicode chars
+- Python Markdown's default slugify transliterates Extended Latin to ASCII (`žlutý` becomes `zluty`),
+  drops what it cannot transliterate, and strips punctuation
   (see [here](https://facelessuser.github.io/pymdown-extensions/extras/slugs/)).
 - VS Code targets the CommonMark Markdown specification using the 
   [markdown-it](https://github.com/markdown-it/markdown-it) library

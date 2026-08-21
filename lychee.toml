@@ -12,8 +12,9 @@
 
 no_progress = true
 
-# Retry before declaring a link dead, and treat "rate limited" as alive. A
-# single Cloudflare challenge on one of ~400 links used to fail the whole run.
+# Retry before declaring a link dead, and treat "rate limited" as alive:
+# ~400 links are checked, so without this a single transient Cloudflare
+# challenge fails the entire run.
 max_retries = 3
 retry_wait_time = 5
 timeout = 30

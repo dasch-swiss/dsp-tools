@@ -47,7 +47,38 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 ### Naming and comments
 
 - Names are **evergreen**: never `new`/`improved`/`enhanced`. What is new today is old tomorrow.
-- Comments describe the code as it is, not how it evolved — no references to refactors or "recently changed".
+  This holds in prose as much as in identifiers: a format or workflow called "the new format" carries
+  a name that expires the day the migration ends. Name what it *is* — `text-property-based`,
+  `attribute-based`.
+- Comments are **evergreen** too, in all formats, and in `docs/` prose. State what the code does and
+  why it must be that way, as a standing fact; never describe a change, an incident, or a previous state.
+    - The test: **can a reader holding only this file tell whether the comment is still true?**
+      A historical claim is true only against a baseline that is not written down, so when the baseline
+      moves the comment turns **false** rather than merely obscure, and nothing flags it. Agents compound
+      this — they read comments as directives, so `the important one` becomes a ranking nobody decided.
+    - Grep for `no longer`, `used to`, `previously`, `formerly`, `recently`, `anymore`, `at the moment`,
+      `currently`, `we changed/switched/moved`, `until now`, `new in`, `the old/new <thing>`,
+      `the important one`, and incidents/releases cited as the reason for a setting. These are
+      candidates, not verdicts — apply the test. Three kinds pass it routinely: `used to` meaning
+      *employed to* ("a parser used to parse the arguments"); a marker whose baseline **is** written
+      down nearby (`xmllib-docs/advanced-set-up.md` says warnings are no longer printed, directly
+      beneath the `.env` snippet that causes it); and `now`/`currently`/`before` describing execution
+      order or live server state, where the baseline is the program state.
+    - **Claims about the outside world take a date, not the present tense** — another service, a
+      third-party library, another team's product. No phrasing makes these checkable from this file, so
+      give them a date or a link to the authority that settles them. An undated `currently` is the worst
+      option: it looks current and cannot be verified.
+      `docs/developers/code-quality-tools/python-see-also.md` ("As of mid-2023, …") is the form to copy,
+      not to repair.
+    - **Rewrite, don't delete** — the rationale is the valuable half. But flipping the tense is not the
+      fix and often yields a false statement: `used to fail the whole run` → `fails the whole run` is
+      simply wrong, because the setting being documented is what prevents it. Restate *why the code has
+      to be this way*: *"we switched to a set because the list lookup was too slow"* →
+      *"a set, not a list: membership is checked once per row, so a linear lookup is too slow here"*.
+      Where the reason genuinely **is** a past event (a compatibility shim, a workaround kept for old
+      servers), state the durable consequence and add a followable pointer — `see #1787`. That is not
+      the same as citing an incident *instead of* a reason that was statable in the present tense; the
+      ban above is on the substitution, not on the pointer.
 - Docstrings (Google-style) only for high-level functions or where the name cannot carry the intent.
   Lower-level and test functions are self-explanatory and need none.
 - **`default_*` prefix** marks a **project-wide value that can be overridden per resource**

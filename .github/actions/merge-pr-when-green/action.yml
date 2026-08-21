@@ -59,9 +59,8 @@ runs:
           fi
 
           # A required check in a terminal `fail` state never turns green on its
-          # own, so polling it to the deadline only delays the alert — that is
-          # how one transient link-checker failure cost the 19.0.1 release train
-          # its whole 30-minute budget. Re-run such a check once, since flakes
+          # own, so polling it to the deadline burns the entire timeout budget
+          # and only delays the alert. Re-run such a check once, since flakes
           # dominate these failures, and give up as soon as the re-run has
           # itself completed and failed.
           while read -r run_id; do

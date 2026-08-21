@@ -607,13 +607,10 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
 def create_list_from_string(string: str, separator: str) -> list[str]:  # noqa:ARG001
     """
     Attention:
-        This function is deprecated, use the new function called 'create_list_from_input' instead.
+        This function is deprecated, use `create_list_from_input` instead.
     """
     raise_xmllib_input_error(
-        MessageInfo(
-            "The function 'create_list_from_string' is deprecated. "
-            "Use the new function called 'create_list_from_input' instead."
-        )
+        MessageInfo("The function 'create_list_from_string' is deprecated. Use 'create_list_from_input' instead.")
     )
 
 

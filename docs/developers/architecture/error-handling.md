@@ -119,6 +119,24 @@ Codes other than `0` and `1` are used sparingly — only where a caller needs to
 specific, machine-readable outcome. Most failures should surface as `1` via the `entry_point.py` handler;
 introduce a dedicated code only when it is genuinely required.
 
+### Interrupted uploads
+
+An `xmlupload` can end before all resources are created. The exit code distinguishes the reason,
+so that a script driving a chunked upload can react to it:
+
+| Reason                                                            | Code  |
+| ----------------------------------------------------------------- | ----- |
+| The number of resources requested with `--interrupt-after` is done | `0`   |
+| Ctrl-C                                                            | `130` |
+| The connection to the server was permanently lost, or a request permanently timed out | `1` |
+| The server rejected the credentials                               | `1`   |
+
+In all four cases the upload attempts to save its state, so the upload can be continued with
+`resume-xmlupload`. Only `--interrupt-after` guarantees this save happens at a clean boundary
+between resources — see the caveat in `docs/data-file/data-file-commands.md` for the other three cases.
+Reaching the `--interrupt-after` limit is an expected outcome, not an error,
+and is therefore signalled with a return value instead of an exception.
+
 ## When to Catch vs. Let Fail
 
 ### Do NOT catch

@@ -29,7 +29,12 @@ class XmlUploadError(InternalError):
 
 
 class XmlUploadInterruptedError(XmlUploadError):
-    """Represents an error raised when the xmlupload was interrupted."""
+    """
+    Represents a failure that aborted the xmlupload, e.g. a permanently lost connection to the server.
+    The upload state is saved, so the upload can be continued with 'resume-xmlupload'.
+    An xmlupload that ends as requested with '--interrupt-after' is an expected outcome, not an error,
+    and therefore does not raise this exception.
+    """
 
 
 class XmlInputConversionError(InternalError):

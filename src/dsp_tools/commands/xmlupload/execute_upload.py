@@ -16,11 +16,12 @@ from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
+from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt_during_creation
 from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_connection_error
-from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout_or_keyboard_interrupt
-from dsp_tools.commands.xmlupload.handle_errors import handle_upload_error
+from dsp_tools.commands.xmlupload.handle_errors import handle_permanent_timeout
 from dsp_tools.commands.xmlupload.handle_errors import inform_about_resource_creation_failure
-from dsp_tools.commands.xmlupload.handle_errors import interrupt_if_indicated
+from dsp_tools.commands.xmlupload.handle_errors import interruption_is_indicated
+from dsp_tools.commands.xmlupload.handle_errors import persist_state_for_resume
 from dsp_tools.commands.xmlupload.handle_errors import save_upload_state
 from dsp_tools.commands.xmlupload.handle_errors import tidy_up_resource_creation_idempotent
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_resource
@@ -52,7 +53,9 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         upload_state: the initial state of the upload to execute
 
     Returns:
-        True if all resources could be uploaded without errors; False if any resource could not be uploaded
+        True if all resources could be uploaded without errors,
+        or if the upload was interrupted as requested with '--interrupt-after';
+        False if any resource could not be uploaded
     """
     logger.debug("Start uploading data")
     db_metrics = None
@@ -60,7 +63,9 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         db_metrics = FusekiMetrics()
         db_metrics.try_get_start_size()
     upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
-    _upload_all_resources(clients, upload_state)
+    if _upload_all_resources(clients, upload_state):
+        # the upload was interrupted as requested by the user: the state is saved, so it can be resumed
+        return True
     if db_metrics is not None:
         db_metrics.try_get_end_size()
         communicate_fuseki_bloating(db_metrics)
@@ -81,7 +86,23 @@ def _get_copyright_holders(resources: list[ProcessedResource]) -> list[str]:
     return [x for x in copyright_holders if x]
 
 
-def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> None:
+def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> bool:
+    """
+    Create all pending resources, then re-apply the pending stash.
+
+    Args:
+        clients: the clients needed for the upload
+        upload_state: the current state of the upload
+
+    Raises:
+        XmlUploadInterruptedError: if the connection to the DSP server was permanently lost
+        BadCredentialsError: if the DSP server rejected the credentials
+        KeyboardInterrupt: if the user interrupted the upload
+
+    Returns:
+        True if the upload was interrupted because the number of resources
+        requested with '--interrupt-after' has been created
+    """
     project_client = ProjectClientLive(clients.legal_info_client.server, clients.legal_info_client.auth)
     project_iri = project_client.get_project_iri(upload_state.config.shortcode)
 
@@ -101,13 +122,26 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
                 resource_client=resource_client,
                 asset_client=clients.asset_client,
                 iri_lookups=iri_lookup,
-                creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
+            if interruption_is_indicated(upload_state, creation_attempts_of_this_round):
+                _report_planned_interruption(upload_state)
+                return True
         if upload_state.pending_stash:
             _upload_stash(upload_state, resource_client)
-    except XmlUploadInterruptedError as err:
-        handle_upload_error(err, upload_state)
+    except (XmlUploadInterruptedError, BadCredentialsError, KeyboardInterrupt):
+        # the upload cannot continue, but it can be resumed later, so the state must be saved.
+        # The error itself is reported and logged by entry_point.py.
+        persist_state_for_resume(upload_state)
+        raise
+    return False
+
+
+def _report_planned_interruption(upload_state: UploadState) -> None:
+    msg = f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
+    logger.info(msg)
+    print(f"\n{datetime.now()}: {msg}")
+    persist_state_for_resume(upload_state)
 
 
 def _execute_one_resource_upload(
@@ -116,7 +150,6 @@ def _execute_one_resource_upload(
     resource_client: ResourceClient,
     asset_client: AssetClient,
     iri_lookups: IRILookups,
-    creation_attempts_of_this_round: int,
 ) -> None:
     media_info = None
     if file_found := resource.file_value:
@@ -135,17 +168,22 @@ def _execute_one_resource_upload(
     iri = None
     try:
         iri = _execute_one_resource_data_upload(resource, media_info, resource_client, iri_lookups)
-    except (TimeoutError, ReadTimeout, KeyboardInterrupt) as err:
-        handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
+    except (TimeoutError, ReadTimeout) as err:
+        handle_permanent_timeout(err, resource.res_id)
+    except KeyboardInterrupt:
+        handle_keyboard_interrupt_during_creation(resource.res_id)
     except PermanentConnectionError as err:
         handle_permanent_connection_error(err)
+    except BadCredentialsError:
+        # The credentials will not become valid by uploading the next resource, so the upload must stop.
+        # The resource stays pending, so that 'resume-xmlupload' retries it once the credentials are fixed.
+        raise
     except Exception as err:  # noqa: BLE001 (blind-except)
         err_msg = err.message if isinstance(err, BaseError) else None
         inform_about_resource_creation_failure(resource, err_msg)
 
     try:
         tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
         tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         handle_keyboard_interrupt()
@@ -168,10 +206,9 @@ def _execute_one_resource_data_upload(
     for retry_counter in range(num_of_retries):
         try:
             creation_result = resource_client.post_resource(resource_dict, bool(media_info))
-        except BadCredentialsError as err:
-            raise err from None
         except DspToolsRequestException:
-            log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=True)
+            # the traceback was already logged when the request exception was converted
+            log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=False)
             continue
         if isinstance(creation_result, str):
             return creation_result

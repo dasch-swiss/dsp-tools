@@ -1,5 +1,26 @@
 # Changelog
 
+## [19.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.1...v19.0.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* **xmllib:** scope the loguru disable in XMLRoot.write_file ([#2406](https://github.com/dasch-swiss/dsp-tools/issues/2406)) ([9fcff5e](https://github.com/dasch-swiss/dsp-tools/commit/9fcff5e39c2e57689c923dc98471625c6682dbff))
+
+
+### Maintenance
+
+* **ci:** skip the e2e suite on release-please PRs ([#2404](https://github.com/dasch-swiss/dsp-tools/issues/2404)) ([6514ca2](https://github.com/dasch-swiss/dsp-tools/commit/6514ca25ebd528cfbef3c4a68a0d82c2d2f5f632))
+* **ci:** take external link checking off the release-train critical path ([#2403](https://github.com/dasch-swiss/dsp-tools/issues/2403)) ([9fafb3e](https://github.com/dasch-swiss/dsp-tools/commit/9fafb3e61291aad49d40f484c7ff6f18bb8284ed))
+* **deps:** bump the all-dependencies group with 5 updates ([#2409](https://github.com/dasch-swiss/dsp-tools/issues/2409)) ([fd23dfd](https://github.com/dasch-swiss/dsp-tools/commit/fd23dfd4571f20cf4c0cfe30cc66ec76cbfb2187))
+* **skills:** add skill to identify blast-radius of feature work ([#2400](https://github.com/dasch-swiss/dsp-tools/issues/2400)) ([a6eee4f](https://github.com/dasch-swiss/dsp-tools/commit/a6eee4f945eb8a514b13b48301abb1d888cccfe7))
+* **start-stack:** bump versions to 2026.08.04 ([#2410](https://github.com/dasch-swiss/dsp-tools/issues/2410)) ([659b3fb](https://github.com/dasch-swiss/dsp-tools/commit/659b3fb8ab69fff352575c90d306749f9a75ce3a))
+
+
+### Documentation
+
+* make comments checkable against the code they annotate ([#2408](https://github.com/dasch-swiss/dsp-tools/issues/2408)) ([fe2289b](https://github.com/dasch-swiss/dsp-tools/commit/fe2289bba8c17a12b6a318236dd88795796c864f))
+
 ## [19.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.0...v19.0.1) (2026-08-20)
 
 

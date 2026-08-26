@@ -10,9 +10,13 @@ permissions:
   contents: read
   pull-requests: read
 
+# Skipped on release-please PRs: they change no Python and no YAML, so there is
+# nothing here for ruff, mypy, vulture, yamllint or yamlfmt to look at. A skipped
+# job counts as passing in branch protection.
 jobs:
   lint:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7

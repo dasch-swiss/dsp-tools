@@ -1,0 +1,34 @@
+# Configuration for `just check-links` (see .github/workflows/check-external-links.yml).
+#
+# This checks that the links in ./docs still resolve. It is deliberately NOT a
+# required status check: it depends on ~40 third-party hosts staying up and not
+# rate-limiting GitHub runner IPs, so as a merge gate it fails for reasons that
+# have nothing to do with the pull request under test.
+#
+# Internal links and `#heading` anchors are NOT validated here — `mkdocs build
+# --strict` owns those (see the `validation:` block in mkdocs.yml), and it uses
+# the site's real slug algorithm. Leaving `include_fragments` off keeps this
+# file from second-guessing it with a different one.
+
+no_progress = true
+
+# Retry before declaring a link dead, and treat "rate limited" as alive:
+# ~400 links are checked, so without this a single transient Cloudflare
+# challenge fails the entire run.
+max_retries = 3
+retry_wait_time = 5
+timeout = 30
+accept = ["200..=204", "429"]
+
+# Gentler than the default 14, which is itself a cause of rate-limiting.
+max_concurrency = 8
+
+# The local-stack docs link to 0.0.0.0:3333 and friends, which exist only on a
+# developer machine.
+exclude_all_private = true
+
+exclude = [
+    # Cloudflare-protected: answers 403 to any non-browser client, with or
+    # without a custom user agent. Verified by hand; the links are fine.
+    '^https?://(www\.)?stackoverflow\.com',
+]

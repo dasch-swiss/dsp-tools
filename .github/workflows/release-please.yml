@@ -4,6 +4,13 @@ name: Release-Please
 
 on:
   workflow_dispatch:  # trigger manually
+    inputs:
+      merge_release_pr:
+        description: >
+          Also merge the open release PR once its checks are green. Use this to
+          resume the release train after a transient check failure stranded it.
+        type: boolean
+        default: false
   push:
     branches:
       - main
@@ -78,6 +85,11 @@ jobs:
           git config user.email "daschbot@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${PAT}@github.com/dasch-swiss/dsp-tools.git"
           git checkout "$BRANCH"
+          # Plain `uv lock` — never add `-U`/`--upgrade`. Without it, "locking will
+          # have no effect" unless pyproject.toml's dependencies changed, so the only
+          # diff here is dsp-tools' own version. tests-e2e.yml relies on exactly that
+          # to skip the e2e suite on release PRs: an upgrade flag would let a release
+          # ship different dependencies with no e2e run behind it.
           uv lock
           git add uv.lock
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
@@ -87,13 +99,19 @@ jobs:
   # last step before dsp-tools is released, so the release PR it produces is
   # merged automatically. Any other push to main leaves the release PR open, as
   # before — releases outside the train stay a deliberate human merge.
+  #
+  # The workflow_dispatch arm is the resume path. Without it a stranded release
+  # PR can only be finished by hand: a manual re-run carries no head_commit, and
+  # release-please reports no PR number when it has nothing left to change, so
+  # both halves of the push condition are false on a second attempt.
   auto-merge-release-pr:
     name: Auto-merge release PR (release train only)
     needs: [release-please]
     if: >-
-      github.event_name == 'push'
+      (github.event_name == 'push'
       && startsWith(github.event.head_commit.message, 'chore(start-stack): bump versions to')
-      && needs.release-please.outputs.release_pr_number != ''
+      && needs.release-please.outputs.release_pr_number != '')
+      || (github.event_name == 'workflow_dispatch' && inputs.merge_release_pr)
     runs-on: ubuntu-latest
     # Own group so the merge wait never serialises the release-please job above.
     concurrency:
@@ -116,6 +134,18 @@ jobs:
           if [[ "${AUTO_MERGE_ENABLED,,}" == "false" ]]; then
             echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PR for a human to merge"
             exit 0
+          fi
+          # On the resume path release-please reports no PR number, because the
+          # PR it would point at already exists and needed no change. Fall back
+          # to the open release-please branch.
+          if [[ -z "$PR_NUMBER" ]]; then
+            PR_NUMBER=$(gh pr list --repo "$REPO" --state open --limit 50 --json number,headRefName \
+              --jq '[.[] | select(.headRefName | startswith("release-please--"))] | first | .number // empty')
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "::notice::no open release PR to merge"
+              exit 0
+            fi
+            echo "::notice::resuming with release PR #$PR_NUMBER"
           fi
           # Read title and branch from the PR itself rather than from the action
           # output, so the checks below are made against the server's state.
@@ -157,9 +187,11 @@ jobs:
             exit 1
           fi
 
-      # contents+pull-requests WRITE on dsp-tools ONLY. The App is a review-bypass
-      # actor on main, which is what lets a bot-authored PR merge without a human
-      # approval. SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
+      # contents+pull-requests+actions WRITE on dsp-tools ONLY. The App is a
+      # review-bypass actor on main, which is what lets a bot-authored PR merge
+      # without a human approval; actions write lets merge-pr-when-green re-run a
+      # flaky required check once.
+      # SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.
       - name: Mint DaSCH Bot App token (write — dsp-tools only)
         id: app-token
         if: steps.find_pr.outputs.pr_url != ''
@@ -169,6 +201,7 @@ jobs:
           private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
           owner: dasch-swiss
           repositories: dsp-tools
+          permission-actions: write
           permission-contents: write
           permission-pull-requests: write
 

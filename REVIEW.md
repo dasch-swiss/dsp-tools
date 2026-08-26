@@ -17,11 +17,25 @@ Flag anything below that a change violates.
 
 ### Architecture & code
 
+- [ ] **Feature work:** the change's full blast radius was mapped — every subsystem the change kind touches
+      is addressed, none silently skipped (the `excel2json`/`data_license` class of miss). See the
+      "dsp-tools subsystem inventory" in `CONVENTIONS.md` / the `change-blast-radius` skill
 - [ ] No command imports from another command — shared logic is in `utils/`, shared HTTP routes in `clients/`
 - [ ] Behaviour lives in stateless functions; classes only bundle data (`@dataclass`)
 - [ ] HTTP goes through `utils/request_utils.py` (no raw requests, no retry logic in `clients/`)
 - [ ] `pathlib.Path` used throughout — no `os.path`, no paths passed as strings
-- [ ] Names are evergreen (no `new`/`improved`/`enhanced`); comments describe code as-is, not its history
+- [ ] Names are evergreen (no `new`/`improved`/`enhanced`), in prose as well as identifiers — not
+      "the new format" for something that will simply be the format once the migration ends
+- [ ] Comments are evergreen, in all formats — config, CI, and docs prose, not only `.py`. Grep the
+      diff's added comment lines for `no longer`, `used to`, `previously`, `formerly`, `recently`,
+      `anymore`, `at the moment`, `currently`, `until now`, `new in`, `the old/new <thing>`,
+      `the important one`, and named incidents or releases. Ask of each: *can a reader holding only
+      this file tell whether it is still true?* Flag as **rewrite**, never as **delete** — the
+      rationale must survive, and a bare tense-flip usually does not fix it
+- [ ] Expected non-violations, do not flag: `used to` meaning *employed to*; a marker whose baseline is
+      stated nearby; `now`/`currently`/`before` describing execution order or live server state
+- [ ] A claim about another service, library, or product carries a date or a source link — an undated
+      `currently` cannot be checked from the file at all
 - [ ] No redundant conversions — e.g. don't wrap an already-`list` value in `list(...)`; don't re-parse /
       re-iterate a structure that is already being iterated
 - [ ] Control flow is as flat as the logic allows (early returns kept where they clarify; a helper that only

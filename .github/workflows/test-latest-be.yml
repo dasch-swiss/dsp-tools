@@ -10,9 +10,13 @@ on:
 env:
   DSP_TOOLS_TESTING: true
 
+# Skipped on release-please PRs: no source changes, so there is nothing to
+# integrate against a backend. The nightly schedule is unaffected — `head_ref` is
+# empty on a schedule event, so the guard below is true there.
 jobs:
   latest-backend-components:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7

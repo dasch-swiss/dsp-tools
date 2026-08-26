@@ -1,0 +1,41 @@
+---
+
+# The external links in ./docs reach ~40 third-party hosts, so this check must
+# never be able to block a merge: it is deliberately kept OUT of the
+# required-status-check list on main. A dead link surfaces as a red ✗ on the pull
+# request — visible to the author, who is the person best placed to fix a link
+# they just added — but the merge stays available, so an outage at one host
+# cannot stall every open PR in the repo.
+#
+# Internal links and `#heading` anchors are NOT checked here: `mkdocs build
+# --strict` owns those (see the `validation:` block in mkdocs.yml), and it is a
+# required check precisely because it depends on nothing outside this repository.
+name: Check External Links
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  check-external-links:
+    # Neither bot-authored release PR changes documentation — release-please
+    # bumps CHANGELOG/version/uv.lock, and the start-stack bump touches only
+    # versions.env (see scripts/bump_stack_versions.py) — so there is nothing
+    # here for them to check, and no reason to hang a red ✗ on a PR that merges
+    # unattended.
+    if: >-
+      ${{ !startsWith(github.head_ref, 'release-please--')
+      && !startsWith(github.head_ref, 'chore/bump-version-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v7
+
+      - name: Check external links in docs
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Same ./docs scope and lychee.toml config as `just check-links`.
+          args: ./docs

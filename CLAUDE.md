@@ -61,7 +61,7 @@ DSP-TOOLS provides the following functionalities:
   to convert data from a tabular format into XML.
 - `dsp-tools id2iri` takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
   The mapping has to be provided with a JSON file.
-- `dsp-tools update-legal` converts legal metadata in XML files from the old format to the new format.
+- `dsp-tools update-legal` converts legal metadata in XML files to `<bitstream>` attributes.
   Legal metadata (authorship, copyright, license) is migrated from `<text-prop>` elements
   to attributes on `<bitstream>` or `<iiif-uri>` elements.
   The command handles validation, error correction via CSV workflow, and authorship deduplication.
@@ -77,6 +77,9 @@ DSP-TOOLS provides the following functionalities:
   conventions (work phase).
 - See `REVIEW.md` for the code-review checklist (review phase) — reviewer agents should flag anything a
   change violates.
+- Before feature work, map the change's blast radius with the `change-blast-radius` skill against the
+  "dsp-tools subsystem inventory" in `CONVENTIONS.md`, so no subsystem is silently missed
+  (the class of miss where `data_license` skipped `excel2json`).
 - Keep both in sync with this file and the per-module `CLAUDE.md` files whenever a convention changes.
 
 ## Development Commands

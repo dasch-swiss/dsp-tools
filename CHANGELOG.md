@@ -1,5 +1,50 @@
 # Changelog
 
+## [19.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.1...v19.0.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* **xmllib:** scope the loguru disable in XMLRoot.write_file ([#2406](https://github.com/dasch-swiss/dsp-tools/issues/2406)) ([9fcff5e](https://github.com/dasch-swiss/dsp-tools/commit/9fcff5e39c2e57689c923dc98471625c6682dbff))
+
+
+### Maintenance
+
+* **ci:** skip the e2e suite on release-please PRs ([#2404](https://github.com/dasch-swiss/dsp-tools/issues/2404)) ([6514ca2](https://github.com/dasch-swiss/dsp-tools/commit/6514ca25ebd528cfbef3c4a68a0d82c2d2f5f632))
+* **ci:** take external link checking off the release-train critical path ([#2403](https://github.com/dasch-swiss/dsp-tools/issues/2403)) ([9fafb3e](https://github.com/dasch-swiss/dsp-tools/commit/9fafb3e61291aad49d40f484c7ff6f18bb8284ed))
+* **deps:** bump the all-dependencies group with 5 updates ([#2409](https://github.com/dasch-swiss/dsp-tools/issues/2409)) ([fd23dfd](https://github.com/dasch-swiss/dsp-tools/commit/fd23dfd4571f20cf4c0cfe30cc66ec76cbfb2187))
+* **skills:** add skill to identify blast-radius of feature work ([#2400](https://github.com/dasch-swiss/dsp-tools/issues/2400)) ([a6eee4f](https://github.com/dasch-swiss/dsp-tools/commit/a6eee4f945eb8a514b13b48301abb1d888cccfe7))
+* **start-stack:** bump versions to 2026.08.04 ([#2410](https://github.com/dasch-swiss/dsp-tools/issues/2410)) ([659b3fb](https://github.com/dasch-swiss/dsp-tools/commit/659b3fb8ab69fff352575c90d306749f9a75ce3a))
+
+
+### Documentation
+
+* make comments checkable against the code they annotate ([#2408](https://github.com/dasch-swiss/dsp-tools/issues/2408)) ([fe2289b](https://github.com/dasch-swiss/dsp-tools/commit/fe2289bba8c17a12b6a318236dd88795796c864f))
+
+## [19.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.0...v19.0.1) (2026-08-20)
+
+
+### Bug Fixes
+
+* **xmllib:** only initialise warnings CSV when xmllib is actually used (DEV-6992) ([#2398](https://github.com/dasch-swiss/dsp-tools/issues/2398)) ([21b8557](https://github.com/dasch-swiss/dsp-tools/commit/21b85577265655464c795ee8757a9b4d7f7ceec2))
+
+
+### Maintenance
+
+* **ci:** auto-merge the dsp-tools release-train PRs via the DaSCH Bot App (DEV-6956) ([#2392](https://github.com/dasch-swiss/dsp-tools/issues/2392)) ([37be617](https://github.com/dasch-swiss/dsp-tools/commit/37be617aac65b77b7fd2b63e9cc2e47433260ab7))
+* **claude:** add "update-docs" skill for user-facing doc changes (DEV-6961) ([#2394](https://github.com/dasch-swiss/dsp-tools/issues/2394)) ([78741e6](https://github.com/dasch-swiss/dsp-tools/commit/78741e608da639dca5c97d777df8aa448e2b9b19))
+* **deps-dev:** bump the all-dependencies group across 1 directory with 5 updates ([#2397](https://github.com/dasch-swiss/dsp-tools/issues/2397)) ([a1682f0](https://github.com/dasch-swiss/dsp-tools/commit/a1682f0656c2d584f267d20cf8b6f2c61aa5e6e1))
+* **deps:** bump the all-dependencies group across 1 directory with 5 updates ([#2390](https://github.com/dasch-swiss/dsp-tools/issues/2390)) ([7347541](https://github.com/dasch-swiss/dsp-tools/commit/734754108febae0914497608849ecaf689f198b6))
+* improve log level for HTTP status "accepted" and "no content" ([#2396](https://github.com/dasch-swiss/dsp-tools/issues/2396)) ([4d2374c](https://github.com/dasch-swiss/dsp-tools/commit/4d2374c208333060b047c3272de0f2484d383b14))
+* **start-stack:** bump versions to 2026.08.03 ([#2402](https://github.com/dasch-swiss/dsp-tools/issues/2402)) ([9b19e25](https://github.com/dasch-swiss/dsp-tools/commit/9b19e25f7c0c38fd440c13add28611a03d17f468))
+* stop emitting docs.dasch.swiss/latest links (DEV-6966) ([#2399](https://github.com/dasch-swiss/dsp-tools/issues/2399)) ([4336472](https://github.com/dasch-swiss/dsp-tools/commit/4336472226476f7bac449341c6852fcc03bacd55))
+
+
+### Documentation
+
+* add missing ontology documentation for `RegionPreviewValue` (DEV-6962) ([#2395](https://github.com/dasch-swiss/dsp-tools/issues/2395)) ([824d327](https://github.com/dasch-swiss/dsp-tools/commit/824d3276eb75ff29006530d710de48a92e91a9da))
+* fix typo ([#2401](https://github.com/dasch-swiss/dsp-tools/issues/2401)) ([b021b1c](https://github.com/dasch-swiss/dsp-tools/commit/b021b1cb09b7b2da24b4db3829b0882aff05f69b))
+
 ## [19.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v18.19.0...v19.0.0) (2026-08-12)
 
 

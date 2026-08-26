@@ -131,7 +131,9 @@ so that a script driving a chunked upload can react to it:
 | The connection to the server was permanently lost, or a request permanently timed out | `1` |
 | The server rejected the credentials                               | `1`   |
 
-In all four cases the upload state is saved, so the upload can be continued with `resume-xmlupload`.
+In all four cases the upload attempts to save its state, so the upload can be continued with
+`resume-xmlupload`. Only `--interrupt-after` guarantees this save happens at a clean boundary
+between resources — see the caveat in `docs/data-file/data-file-commands.md` for the other three cases.
 Reaching the `--interrupt-after` limit is an expected outcome, not an error,
 and is therefore signalled with a return value instead of an exception.
 

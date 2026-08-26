@@ -153,9 +153,11 @@ For handling circular references:
 - Validation at multiple stages (XML, values, permissions)
 - Comprehensive diagnostic output including ID-to-IRI mappings and upload state persistence
 
-All handlers that end a running upload live in `handle_errors.py`.
+Most handlers that end a running upload live in `handle_errors.py`.
 None of them exits the interpreter: the exception they raise determines the exit code
 in `entry_point.py` (see `docs/developers/architecture/error-handling.md`).
+The exception is `BadCredentialsError`: the DSP client raises it natively, and
+`execute_upload.py` only re-raises it (`except BadCredentialsError: raise`) to stop the upload.
 
 - Reaching the `--interrupt-after` limit is an expected outcome, not an error:
   `interruption_is_indicated()` is a predicate, and `_upload_all_resources()` returns `True`
@@ -168,8 +170,9 @@ in `entry_point.py` (see `docs/developers/architecture/error-handling.md`).
 - A `BadCredentialsError` stops the upload immediately instead of being registered as a failed
   resource: the credentials will not become valid by uploading the next resource.
 
-Every one of these paths calls `persist_state_for_resume()` once, in `_upload_all_resources()`,
-so that the upload can be continued with `resume-xmlupload`.
+Every one of these paths calls `persist_state_for_resume()` once, in or via
+`_upload_all_resources()` (the `--interrupt-after` path calls it through
+`_report_planned_interruption()`), so that the upload can be continued with `resume-xmlupload`.
 
 ## Diagnostic Output and Troubleshooting
 

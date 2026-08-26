@@ -15,8 +15,10 @@ from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 
 # The handlers below convert a low-level failure into the exception that determines the exit code:
-# XmlUploadInterruptedError (an InternalError) and BadCredentialsError (a UserError) exit with 1,
-# a KeyboardInterrupt exits with 130. Their messages reach the user in different ways:
+# XmlUploadInterruptedError (an InternalError) exits with 1, a KeyboardInterrupt exits with 130.
+# BadCredentialsError (a UserError) also exits with 1, but it is raised natively by the client
+# and only re-raised in execute_upload.py, not converted by a handler here.
+# Their messages reach the user in different ways:
 # entry_point.py prints the DSP-TOOLS exceptions, but not a KeyboardInterrupt.
 # Therefore the keyboard interrupt handlers emit their message as a user warning, which is printed.
 

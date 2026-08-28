@@ -35,7 +35,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 
 
 def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
-    status_start_text = "Wait until mapping CSV is ready."
+    status_start_text = "Processing files on the server"
     sp = get_green_bouncy_ball_spinner(status_start_text)
     logger.debug(status_start_text)
 
@@ -51,7 +51,7 @@ def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
                     logger.warning(f"Attempt {num_of_attempts}: server error")
                     num_of_attempts += 1
                 case str():
-                    logger.info("Ingest complete retrieved mapping.")
+                    logger.info("Ingest complete, retrieved CSV mapping.")
                     sp.ok("✔")
                     break
                 case _:

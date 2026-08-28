@@ -51,6 +51,7 @@ def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
                     logger.warning(f"Attempt {num_of_attempts}: server error")
                     num_of_attempts += 1
                 case str():
+                    logger.info("Ingest complete retrieved mapping.")
                     sp.ok("✔")
                     break
                 case _:

@@ -36,7 +36,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 
 def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
     status_start_text = "Wait until mapping CSV is ready."
-    sp = get_green_bouncy_ball_spinner("Wait until mapping CSV is ready.")
+    sp = get_green_bouncy_ball_spinner(status_start_text)
     logger.debug(status_start_text)
 
     mapping_generator = bulk_ingest_client.retrieve_mapping_generator()

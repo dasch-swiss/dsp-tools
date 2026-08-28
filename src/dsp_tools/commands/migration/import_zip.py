@@ -1,8 +1,6 @@
 import time
 
 from loguru import logger
-from yaspin import yaspin
-from yaspin.spinners import Spinners
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.migration_clients import ExportImportStatus
@@ -17,6 +15,7 @@ from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
 
 STATUS_CHECK_SLEEP_TIME = 5
 
@@ -40,14 +39,11 @@ def execute_import(client: MigrationImportClient, config: MigrationConfig) -> tu
 
 
 def _upload_zip(client: MigrationImportClient, config: MigrationConfig) -> ImportId:
-    with yaspin(
-        Spinners.bouncingBall,
-        color="light_green",
-        on_color="on_black",
-        attrs=["bold", "blink"],
-    ) as sp:
-        sp.text = "Uploading project"
-        logger.debug("Uploading project ZIP")
+    start_text = "Uploading project"
+    sp = get_green_bouncy_ball_spinner(start_text)
+
+    with sp:
+        logger.debug(start_text)
         try:
             import_id = client.post_import(config.export_savepath)
         except Exception:
@@ -63,15 +59,11 @@ def _check_import_progress(
     import_id: ImportId,
     sleep_time: int = STATUS_CHECK_SLEEP_TIME,
 ) -> bool:
-    with yaspin(
-        Spinners.bouncingBall,
-        color="light_green",
-        on_color="on_black",
-        attrs=["bold", "blink"],
-    ) as sp:
-        status_start_msg = "Importing project"
+    status_start_msg = "Importing project"
+    sp = get_green_bouncy_ball_spinner(status_start_msg)
+
+    with sp:
         logger.debug(status_start_msg)
-        sp.text = status_start_msg
         while True:
             status_check = client.get_status(import_id)
             match status_check:

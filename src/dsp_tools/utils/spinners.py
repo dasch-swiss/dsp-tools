@@ -1,6 +1,17 @@
 from yaspin import yaspin
+from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 
 
-def get_default_spinner(text: str) -> Spinners:
+def get_default_spinner(text: str) -> Yaspin:
     return yaspin(Spinners.dots, text=text, timer=True)
+
+
+def get_green_bouncy_ball_spinner(text: str) -> Yaspin:
+    return yaspin(
+        Spinners.bouncingBall,
+        text=text,
+        color="light_green",
+        attrs=["bold", "blink"],
+        timer=True,
+    )

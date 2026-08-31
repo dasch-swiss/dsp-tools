@@ -34,7 +34,6 @@ def _execute_clean_up(info: MigrationInfo, reference_info: ReferenceInfo) -> boo
 
     with sp:
         logger.debug(start_msg)
-        sp.text = start_msg
         _handle_source_server_clean_up(info.source, reference_info)
         _handle_target_server_clean_up(info.target, reference_info)
         handle_local_clean_up(info.config)

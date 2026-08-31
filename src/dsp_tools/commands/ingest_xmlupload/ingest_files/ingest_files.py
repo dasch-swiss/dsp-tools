@@ -43,15 +43,14 @@ def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
     num_of_attempts = 0
     with sp:
         for result in mapping_generator:
+            num_of_attempts += 1
             match result:
                 case True:
                     logger.debug(f"Attempt {num_of_attempts}: in progress")
-                    num_of_attempts += 1
                 case False:
                     logger.warning(f"Attempt {num_of_attempts}: server error")
-                    num_of_attempts += 1
                 case str():
-                    logger.info("Ingest complete, retrieved CSV mapping.")
+                    logger.info(f"Attempt {num_of_attempts}: ingest complete, retrieved CSV mapping.")
                     sp.ok("✔")
                     break
                 case _:

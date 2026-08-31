@@ -107,7 +107,6 @@ def _execute_download(client: MigrationExportClient, export_id: ExportId, config
 
     with sp:
         logger.debug(status_start_msg)
-        sp.text = status_start_msg
         client.get_download(export_id, config.export_savepath)
         logger.info("Download completed.")
         sp.ok("✔")

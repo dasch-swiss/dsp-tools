@@ -24,7 +24,7 @@ def test_make_link_value_create_graph():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, value_uuid=str(uuid4()), value_order=None),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, value_uuid=str(uuid4()), value_order=0),
     )
     result = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     assert len(result) == 4
@@ -42,7 +42,7 @@ def test_make_region_preview_value_create_graph():
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
         value=ProcessedRegionPreview(
-            "target_region_id", ONTO.hasRegionPreview, None, None, value_uuid=str(uuid4()), value_order=None
+            "target_region_id", ONTO.hasRegionPreview, None, None, value_uuid=str(uuid4()), value_order=0
         ),
     )
     result = _make_link_value_create_graph(preview_stash, RES_IRI_STR, TARGET_IRI_STR)

@@ -139,41 +139,36 @@ class TestMakeOneValueGraphSuccess:
 
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedGeoname("5416656", absolute_iri("hasGeoname"), None, None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
-        val_bn = next(result.objects(res_bn, ONTO.hasGeoname))
+
+        assert (res_bn, ONTO.hasGeoname, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.GeonameValue),
+            (KNORA_API.geonameValueAsGeonameCode, Literal("5416656", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.GeonameValue
-        value = next(result.objects(val_bn, KNORA_API.geonameValueAsGeonameCode))
-        assert value == Literal("5416656", datatype=XSD.string)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_integer(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedInt(1, absolute_iri("hasInteger"), "comment", None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
+
+        assert (res_bn, ONTO.hasInteger, val_bn)
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.IntValue),
+            (KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)),
+            (KNORA_API.valueHasComment, Literal("comment", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)))
-        assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
-        assert next(result.subjects(ONTO.hasInteger, val)) == res_bn
-        comment = next(result.objects(val, KNORA_API.valueHasComment))
-        assert comment == Literal("comment", datatype=XSD.string)
-        val_order = next(result.objects(val, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_time(self, lookups: IRILookups) -> None:
         res_bn = BNode()

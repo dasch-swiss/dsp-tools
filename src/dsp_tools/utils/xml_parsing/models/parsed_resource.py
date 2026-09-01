@@ -35,6 +35,7 @@ class ParsedValue:
     permissions_id: str | None
     comment: str | None
     value_order: int | None
+    xml_value_order: int
 
 
 @dataclass

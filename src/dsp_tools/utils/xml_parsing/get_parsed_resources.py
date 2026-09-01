@@ -98,7 +98,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
         "hasDescription": 0,
         "hasComment": 0,
         "relatesTo": 0,
-        "hasTitle":0,
+        "hasTitle": 0,
         "hasKeyword": 0,
     }
     for val in segment.iterchildren():

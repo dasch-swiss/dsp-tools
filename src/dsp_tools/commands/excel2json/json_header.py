@@ -185,6 +185,19 @@ def _check_data_legal_settings(df: pd.DataFrame) -> ExcelSheetProblem | None:
     required_cols = {"data_license", "data_copyright_holder", "default_data_authorship"}
     if missing_cols := check_contains_required_columns(df, required_cols):
         return ExcelSheetProblem("data legal settings", [missing_cols])
+    problems: list[Problem] = []
+    for col in ["data_license", "data_copyright_holder"]:
+        for i, value in df[col][1:].items():
+            if not pd.isna(value):
+                problems.append(
+                    InvalidExcelContentProblem(
+                        expected_content="Only the first row may have a value",
+                        actual_content=str(value),
+                        excel_position=PositionInExcel(column=col, row=int(str(i)) + 2),
+                    )
+                )
+    if problems:
+        return ExcelSheetProblem("data legal settings", problems)
     return None
 
 

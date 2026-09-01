@@ -223,10 +223,12 @@ The sheets should be filled as follows:
     - The lang has to be one of: en, de, fr, it or rm
     - The role has to be projectadmin or projectmember.
 - **Data Legal Settings (Optional)**
-    - This sheet may be omitted or left empty. Every column is optional.
-    - The three columns are: data_license, data_copyright_holder, default_data_authorship.
+    - This sheet may be omitted or left empty.
+    - All three columns are mandatory: data_license, data_copyright_holder, default_data_authorship.
+      Their cells may be left blank.
     - [`data_license`](./json-project/overview.md#data_license) and
       [`data_copyright_holder`](./json-project/overview.md#data_copyright_holder) are read from the first row.
+      Leave them blank on subsequent rows.
     - [`default_data_authorship`](./json-project/overview.md#default_data_authorship) is a list:
       enter one author per row in that column.
 

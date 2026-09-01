@@ -374,6 +374,18 @@ class TestCheckDataLegalSettings:
         assert isinstance(problem, RequiredColumnMissingProblem)
         assert problem.columns == ["data_copyright_holder"]
 
+    def test_value_on_second_row(self, data_legal_settings_value_on_second_row: pd.DataFrame) -> None:
+        result = _check_data_legal_settings(data_legal_settings_value_on_second_row)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "data legal settings"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "Only the first row may have a value"
+        assert problem.actual_content == "http://rdfh.ch/licenses/public-domain"
+        assert problem.excel_position.column == "data_license"
+        assert problem.excel_position.row == 3
+
 
 class TestCheckUsers:
     def test_good(self, users_good: pd.DataFrame) -> None:

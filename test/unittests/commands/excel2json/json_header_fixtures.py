@@ -55,6 +55,17 @@ def data_legal_settings_missing_col() -> pd.DataFrame:
 
 
 @pytest.fixture
+def data_legal_settings_value_on_second_row() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "data_license": ["http://rdfh.ch/licenses/cc-by-4.0", "http://rdfh.ch/licenses/public-domain"],
+            "data_copyright_holder": ["DaSCH", pd.NA],
+            "default_data_authorship": ["Alice Liddell", "Lewis Carroll"],
+        }
+    )
+
+
+@pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
     return pd.DataFrame(
         {"shortcode": [11], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}

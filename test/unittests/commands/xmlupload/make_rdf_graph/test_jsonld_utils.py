@@ -71,7 +71,7 @@ def test_serialise_jsonld_for_value():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, 0, str(uuid4())),
     )
     graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     expected = {

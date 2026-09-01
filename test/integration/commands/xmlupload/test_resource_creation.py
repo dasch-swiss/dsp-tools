@@ -43,12 +43,12 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
     return {
         "foo_1_id": [
             LinkValueStashItem(
-                "foo_1_id", f"{ONTO}foo_1_type", ProcessedLink("foo_2_id", LINK_PROP, None, None, None, str(uuid4()))
+                "foo_1_id", f"{ONTO}foo_1_type", ProcessedLink("foo_2_id", LINK_PROP, None, None, 0, str(uuid4()))
             )
         ],
         "foo_2_id": [
             LinkValueStashItem(
-                "foo_2_id", f"{ONTO}foo_2_type", ProcessedLink("foo_1_id", LINK_PROP, None, None, None, str(uuid4()))
+                "foo_2_id", f"{ONTO}foo_2_type", ProcessedLink("foo_1_id", LINK_PROP, None, None, 0, str(uuid4()))
             )
         ],
     }
@@ -98,7 +98,7 @@ def test_one_resource_without_links(
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [ProcessedSimpleText("foo_1 text", TEXT_PROP, None, None, None)],
+            [ProcessedSimpleText("foo_1 text", TEXT_PROP, None, None, 0)],
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig())

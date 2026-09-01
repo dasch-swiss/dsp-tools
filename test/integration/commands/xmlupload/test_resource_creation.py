@@ -127,6 +127,10 @@ def test_one_resource_without_links(
                 "@type": "http://www.w3.org/2001/XMLSchema#string",
                 "@value": "foo_1 text",
             },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 0,
+            },
         },
     }
     assert resource_json[TEXT_PROP] == expected[TEXT_PROP]

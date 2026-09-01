@@ -7,6 +7,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.json_header import _check_all_users
+from dsp_tools.commands.excel2json.json_header import _check_data_legal_settings
 from dsp_tools.commands.excel2json.json_header import _check_descriptions
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
 from dsp_tools.commands.excel2json.json_header import _check_keywords
@@ -14,6 +15,7 @@ from dsp_tools.commands.excel2json.json_header import _check_one_user
 from dsp_tools.commands.excel2json.json_header import _check_prefixes
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_all_checks
+from dsp_tools.commands.excel2json.json_header import _extract_data_legal_settings
 from dsp_tools.commands.excel2json.json_header import _extract_descriptions
 from dsp_tools.commands.excel2json.json_header import _extract_keywords
 from dsp_tools.commands.excel2json.json_header import _extract_one_user
@@ -30,6 +32,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.json_header import DataLegalSettings
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
@@ -47,6 +50,7 @@ class TestCheckAll:
         description_good: pd.DataFrame,
         keywords_good: pd.DataFrame,
         licenses_good: pd.DataFrame,
+        data_legal_settings_good: pd.DataFrame,
         users_good: pd.DataFrame,
     ) -> None:
         test_dict = {
@@ -55,6 +59,7 @@ class TestCheckAll:
             "description": description_good,
             "keywords": keywords_good,
             "licenses": licenses_good,
+            "data legal settings": data_legal_settings_good,
             "users": users_good,
         }
         assert not _do_all_checks(test_dict)
@@ -356,6 +361,32 @@ class TestCheckKeywords:
         assert not location.row
 
 
+class TestCheckDataLegalSettings:
+    def test_good(self, data_legal_settings_good: pd.DataFrame) -> None:
+        assert not _check_data_legal_settings(data_legal_settings_good)
+
+    def test_missing_column(self, data_legal_settings_missing_col: pd.DataFrame) -> None:
+        result = _check_data_legal_settings(data_legal_settings_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "data legal settings"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["data_copyright_holder"]
+
+    def test_value_on_second_row(self, data_legal_settings_value_on_second_row: pd.DataFrame) -> None:
+        result = _check_data_legal_settings(data_legal_settings_value_on_second_row)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "data legal settings"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "Only the first row may have a value"
+        assert problem.actual_content == "http://rdfh.ch/licenses/public-domain"
+        assert problem.excel_position.column == "data_license"
+        assert problem.excel_position.row == 3
+
+
 class TestCheckUsers:
     def test_good(self, users_good: pd.DataFrame) -> None:
         assert not _check_all_users(users_good)
@@ -469,12 +500,14 @@ class TestExtractProject:
         keywords_good: pd.DataFrame,
         users_good: pd.DataFrame,
         licenses_good: pd.DataFrame,
+        data_legal_settings_good: pd.DataFrame,
     ) -> None:
         test_dict = {
             "project": project_good_missing_zero,
             "description": description_good,
             "keywords": keywords_good,
             "licenses": licenses_good,
+            "data legal settings": data_legal_settings_good,
             "users": users_good,
         }
         result = _extract_project(test_dict)
@@ -485,6 +518,9 @@ class TestExtractProject:
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
         assert len(result.licenses.licenses) == 2
+        assert result.data_legal_settings.data_license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert result.data_legal_settings.data_copyright_holder == "DaSCH"
+        assert result.data_legal_settings.default_data_authorship == ["Alice Liddell", "Lewis Carroll"]
         assert isinstance(result.users, Users)
 
     def test_no_users(
@@ -531,6 +567,9 @@ class TestExtractProject:
         assert isinstance(result.descriptions, Descriptions)
         assert isinstance(result.keywords, Keywords)
         assert len(result.licenses.licenses) == 0
+        assert result.data_legal_settings.data_license is None
+        assert result.data_legal_settings.data_copyright_holder is None
+        assert result.data_legal_settings.default_data_authorship == []
         assert not result.users
 
 
@@ -544,6 +583,22 @@ def test_extract_keywords(keywords_good: pd.DataFrame) -> None:
     result = _extract_keywords(keywords_good)
     assert isinstance(result, Keywords)
     assert set(result.keywords) == {"one", "three"}
+
+
+class TestExtractDataLegalSettings:
+    def test_good(self, data_legal_settings_good: pd.DataFrame) -> None:
+        result = _extract_data_legal_settings(data_legal_settings_good)
+        assert isinstance(result, DataLegalSettings)
+        assert result.data_license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert result.data_copyright_holder == "DaSCH"
+        assert result.default_data_authorship == ["Alice Liddell", "Lewis Carroll"]
+
+    def test_empty_sheet(self) -> None:
+        empty = pd.DataFrame({"data_license": [], "data_copyright_holder": [], "default_data_authorship": []})
+        result = _extract_data_legal_settings(empty)
+        assert result.data_license is None
+        assert result.data_copyright_holder is None
+        assert result.default_data_authorship == []
 
 
 class TestUsers:

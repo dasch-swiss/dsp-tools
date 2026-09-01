@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.excel2json.models.json_header import DataLegalSettings
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import Keywords
@@ -33,6 +34,16 @@ def licenses() -> Licenses:
 
 
 @pytest.fixture
+def data_legal_settings() -> DataLegalSettings:
+    return DataLegalSettings("http://rdfh.ch/licenses/cc-by-4.0", "DaSCH", ["Alice Liddell", "Lewis Carroll"])
+
+
+@pytest.fixture
+def data_legal_settings_empty() -> DataLegalSettings:
+    return DataLegalSettings(None, None, [])
+
+
+@pytest.fixture
 def user_member() -> User:
     return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", isProjectAdmin=False)
 
@@ -48,18 +59,61 @@ def users(user_member: User, user_admin: User) -> Users:
 
 
 @pytest.fixture
-def project_with_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses, users: Users) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, users, "public")
+def project_with_users(
+    descriptions: Descriptions,
+    keywords: Keywords,
+    licenses: Licenses,
+    data_legal_settings: DataLegalSettings,
+    users: Users,
+) -> Project:
+    return Project(
+        "0001",
+        "shortname",
+        "Longname of the project",
+        descriptions,
+        keywords,
+        licenses,
+        data_legal_settings,
+        users,
+        "public",
+    )
 
 
 @pytest.fixture
-def project_no_users(descriptions: Descriptions, keywords: Keywords, licenses: Licenses) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, licenses, None, "public")
+def project_no_users(
+    descriptions: Descriptions,
+    keywords: Keywords,
+    licenses: Licenses,
+    data_legal_settings_empty: DataLegalSettings,
+) -> Project:
+    return Project(
+        "0001",
+        "shortname",
+        "Longname of the project",
+        descriptions,
+        keywords,
+        licenses,
+        data_legal_settings_empty,
+        None,
+        "public",
+    )
 
 
 @pytest.fixture
-def project_no_licenses(descriptions: Descriptions, keywords: Keywords) -> Project:
-    return Project("0001", "shortname", "Longname of the project", descriptions, keywords, Licenses([]), None, "public")
+def project_no_licenses(
+    descriptions: Descriptions, keywords: Keywords, data_legal_settings_empty: DataLegalSettings
+) -> Project:
+    return Project(
+        "0001",
+        "shortname",
+        "Longname of the project",
+        descriptions,
+        keywords,
+        Licenses([]),
+        data_legal_settings_empty,
+        None,
+        "public",
+    )
 
 
 @pytest.fixture
@@ -84,6 +138,9 @@ def test_filled_json_header_with_users_without_prefix(
             "descriptions": {"de": "Beschreibungstext", "en": "description text"},
             "keywords": ["Keyword 1"],
             "enabled_licenses": ["http://rdfh.ch/licenses/cc-by-4.0"],
+            "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
+            "data_copyright_holder": "DaSCH",
+            "default_data_authorship": ["Alice Liddell", "Lewis Carroll"],
             "default_permissions": "public",
             "users": [
                 {
@@ -147,6 +204,23 @@ def test_filled_json_header_no_license(project_no_licenses: Project) -> None:
     }
     res = header.to_dict()
     assert res == expected
+
+
+class TestDataLegalSettings:
+    def test_all_fields(self, data_legal_settings: DataLegalSettings) -> None:
+        expected = {
+            "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
+            "data_copyright_holder": "DaSCH",
+            "default_data_authorship": ["Alice Liddell", "Lewis Carroll"],
+        }
+        assert data_legal_settings.to_dict() == expected
+
+    def test_partial(self) -> None:
+        settings = DataLegalSettings(None, "DaSCH", [])
+        assert settings.to_dict() == {"data_copyright_holder": "DaSCH"}
+
+    def test_empty(self, data_legal_settings_empty: DataLegalSettings) -> None:
+        assert data_legal_settings_empty.to_dict() == {}
 
 
 if __name__ == "__main__":

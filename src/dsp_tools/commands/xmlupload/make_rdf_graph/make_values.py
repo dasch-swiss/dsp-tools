@@ -105,7 +105,12 @@ def _make_one_value_graph(  # noqa: PLR0911 (too many return statements)
                 prop_type_info=literal_info,
             )
         case ProcessedList():
-            return _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
+            return _make_list_value_graph(
+                val=val,
+                val_node=val_node,
+                res_node=res_node,
+                prop_type_info=LIST_PROP_TYPE_INFO,
+            )
         case ProcessedLink():
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
             return make_link_value_graph(

@@ -160,7 +160,7 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
 
-        assert (res_bn, ONTO.hasInteger, val_bn)
+        assert (res_bn, ONTO.hasInteger, val_bn) in result
         value_triples = [
             (RDF.type, KNORA_API.IntValue),
             (KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)),
@@ -194,7 +194,6 @@ class TestMakeOneValueGraphSuccess:
         assert len(result) == 4
 
         assert (res_bn, ONTO.hasUri, val_bn) in result
-        val_bn = next(result.objects(res_bn, ONTO.hasUri))
         value_triples = [
             (RDF.type, KNORA_API.UriValue),
             (KNORA_API.uriValueAsUri, Literal("https://dasch.swiss", datatype=XSD.anyURI)),
@@ -210,7 +209,7 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
 
-        val_bn = next(result.objects(res_bn, ONTO.hasListItem))
+        assert (res_bn, ONTO.hasListItem, val_bn) in result
         value_triples = [
             (RDF.type, KNORA_API.ListValue),
             (KNORA_API.listValueAsListNode, URIRef("http://rdfh.ch/9999/node")),
@@ -243,7 +242,6 @@ class TestMakeOneValueGraphSuccess:
         assert len(result) == 4
 
         assert (res_bn, ONTO.hasRegionPreview, val_bn) in result
-        val_bn = next(result.objects(res_bn, ONTO.hasRegionPreview))
         value_triples = [
             (RDF.type, KNORA_API.RegionPreviewValue),
             (KNORA_API.isRegionPreviewOf, RES_ONE_URI),
@@ -260,7 +258,6 @@ class TestMakeOneValueGraphSuccess:
         assert len(result) == 4
 
         assert (res_bn, ONTO.hasSimpleText, val_bn) in result
-        val_bn = next(result.objects(res_bn, ONTO.hasSimpleText))
         value_triples = [
             (RDF.type, KNORA_API.TextValue),
             (KNORA_API.valueAsString, Literal("Text", datatype=XSD.string)),
@@ -358,28 +355,25 @@ class TestMakeOneValueGraphSuccess:
 
     def test_interval(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         interval = IntervalFloats(0.1, 0.234)
         prop = ProcessedInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
-        val_bn = next(result.objects(res_bn, KNORA_API.hasSegmentBounds))
+
+        assert (res_bn, KNORA_API.hasSegmentBounds, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.IntervalValue),
+            (KNORA_API.intervalValueHasStart, Literal("0.1", datatype=XSD.decimal)),
+            (KNORA_API.intervalValueHasEnd, Literal("0.234", datatype=XSD.decimal)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.IntervalValue
-        start = next(result.objects(val_bn, KNORA_API.intervalValueHasStart))
-        assert start == Literal("0.1", datatype=XSD.decimal)
-        end = next(result.objects(val_bn, KNORA_API.intervalValueHasEnd))
-        assert end == Literal("0.234", datatype=XSD.decimal)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_segment_of_video(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedLink(
             "res_one",
             "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf",
@@ -388,24 +382,21 @@ class TestMakeOneValueGraphSuccess:
             0,
             value_uuid=str(uuid4()),
         )
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
-        val_bn = next(result.objects(res_bn, KNORA_API.isVideoSegmentOfValue))
+
+        assert (res_bn, KNORA_API.isVideoSegmentOfValue, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.LinkValue),
+            (KNORA_API.linkValueHasTargetIri, RES_ONE_URI),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.LinkValue
-        value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
-        assert value == RES_ONE_URI
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_segment_of_audio(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedLink(
             "res_one",
             "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf",
@@ -414,25 +405,22 @@ class TestMakeOneValueGraphSuccess:
             0,
             value_uuid=str(uuid4()),
         )
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
-        val_bn = next(result.objects(res_bn, KNORA_API.isAudioSegmentOfValue))
+
+        assert (res_bn, KNORA_API.isAudioSegmentOfValue, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.LinkValue),
+            (KNORA_API.linkValueHasTargetIri, RES_ONE_URI),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.LinkValue
-        value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
-        assert value == RES_ONE_URI
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
 
 def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
+    val_bn = BNode()
     prop = ProcessedLink("non_existing", absolute_iri("hasResource"), None, None, 0, value_uuid=str(uuid4()))
     err_str = regex.escape(
         "Could not find the ID non_existing in the id2iri mapping. "
@@ -440,11 +428,12 @@ def test_link_target_not_found(lookups: IRILookups) -> None:
         "See warnings.log for more information."
     )
     with pytest.raises(Id2IriReplacementError, match=err_str):
-        _make_one_value_graph(prop, res_bn, lookups)
+        _make_one_value_graph(prop, val_bn, res_bn, lookups)
 
 
 def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
+    val_bn = BNode()
     text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
     prop = ProcessedRichtext(
         FormattedTextValue(text),
@@ -460,7 +449,7 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
         'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
     )
     with pytest.raises(Id2IriReplacementError, match=err_str):
-        _make_one_value_graph(prop, res_bn, lookups)
+        _make_one_value_graph(prop, val_bn, res_bn, lookups)
 
 
 class TestMakeOptionalTriples:

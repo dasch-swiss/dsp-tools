@@ -49,7 +49,7 @@ def iri_resolver() -> IriResolver:
 
 def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
     result = _make_richtext_update_graph(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
-    assert len(result) == 5
+    assert len(result) == 6
     assert next(result.objects(RES_IRI, RDF.type)) == RES_TYPE
     assert next(result.objects(RES_IRI, PROP_IRI)) == VAL_IRI
     value = next(result.objects(VAL_IRI, KNORA_API.textValueAsXml))
@@ -57,6 +57,8 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
     mapping = next(result.objects(VAL_IRI, KNORA_API.textValueHasMapping))
     assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
     assert next(result.objects(VAL_IRI, RDF.type)) == KNORA_API.TextValue
+    val_order = next(result.objects(VAL_IRI, KNORA_API.valueHasOrder))
+    assert val_order == Literal(0, datatype=XSD.integer)
 
 
 def test_serialise_richtext_for_update(standoff_stash_item, iri_resolver):
@@ -73,6 +75,10 @@ def test_serialise_richtext_for_update(standoff_stash_item, iri_resolver):
             },
             "http://api.knora.org/ontology/knora-api/v2#textValueHasMapping": {
                 "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 0,
             },
         },
     }

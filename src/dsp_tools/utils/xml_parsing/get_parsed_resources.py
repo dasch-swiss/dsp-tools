@@ -176,7 +176,7 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
 def _parse_generic_values(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[str(values.tag)]
     parsed_values = []
-    for val in values:
+    for i, val in enumerate(values):
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -185,6 +185,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values
@@ -193,7 +194,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
 def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     parsed_values = []
     list_name = values.attrib["list"]
-    for val in values:
+    for i, val in enumerate(values):
         list_node = val.text.strip() if val.text else None
         parsed_values.append(
             ParsedValue(
@@ -203,6 +204,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values
@@ -210,7 +212,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
 
 def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     parsed_values = []
-    for val in values:
+    for i, val in enumerate(values):
         if val.attrib["encoding"] == "xml":
             val_type = KnoraValueType.RICHTEXT_VALUE
             value = _get_richtext_as_string(val)
@@ -225,6 +227,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values

@@ -63,66 +63,79 @@ def lookups() -> IRILookups:
 class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedBoolean(True, absolute_iri("isTrueOrFalse"), None, DUMMY_PERMISSION, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
-        val_bn = next(result.objects(res_bn, ONTO.isTrueOrFalse))
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.BooleanValue
-        value = next(result.objects(val_bn, KNORA_API.booleanValueAsBoolean))
-        assert value == Literal(True, datatype=XSD.boolean)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+
+        assert (res_bn, ONTO.isTrueOrFalse, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.BooleanValue),
+            (KNORA_API.booleanValueAsBoolean, Literal(True, datatype=XSD.boolean)),
+            (KNORA_API.hasPermissions, PERMISSION_LITERAL),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_color(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedColor("#5d1f1e", absolute_iri("hasColor"), None, None, 1)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
-        val_bn = next(result.objects(res_bn, ONTO.hasColor))
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.ColorValue
-        value = next(result.objects(val_bn, KNORA_API.colorValueAsColor))
-        assert value == Literal("#5d1f1e", datatype=XSD.string)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(1, datatype=XSD.integer)
+
+        assert (res_bn, ONTO.hasColor, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.ColorValue),
+            (KNORA_API.colorValueAsColor, Literal("#5d1f1e", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(1, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_decimal(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedDecimal(2.718281828459, absolute_iri("hasDecimal"), "Eulersche Zahl", None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
-        val_bn = next(result.objects(res_bn, ONTO.hasDecimal))
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.DecimalValue
-        value = next(result.objects(val_bn, KNORA_API.decimalValueAsDecimal))
-        assert value == Literal("2.718281828459", datatype=XSD.decimal)
-        comment = next(result.objects(val_bn, KNORA_API.valueHasComment))
-        assert comment == Literal("Eulersche Zahl", datatype=XSD.string)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+
+        assert (res_bn, ONTO.hasDecimal, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.DecimalValue),
+            (KNORA_API.decimalValueAsDecimal, Literal("2.718281828459", datatype=XSD.decimal)),
+            (KNORA_API.valueHasComment, Literal("Eulersche Zahl", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_geometry(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = ProcessedGeometry(
+        val_bn = BNode()
+        geom_str = (
             '{"status": "active", "type": "polygon", "lineWidth": 5, '
-            '"points": [{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}',
+            '"points": [{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}'
+        )
+        prop = ProcessedGeometry(
+            geom_str,
             absolute_iri("hasGeometry"),
             None,
             None,
             0,
         )
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
-        val_bn = next(result.objects(res_bn, ONTO.hasGeometry))
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.GeomValue
-        value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
-        assert isinstance(value, Literal)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+
+        assert (res_bn, ONTO.hasGeometry, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.GeomValue),
+            (KNORA_API.geometryValueAsGeometry, Literal(geom_str, datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
@@ -130,6 +143,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasGeoname))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.GeonameValue
         value = next(result.objects(val_bn, KNORA_API.geonameValueAsGeonameCode))
@@ -142,6 +161,12 @@ class TestMakeOneValueGraphSuccess:
         prop = ProcessedInt(1, absolute_iri("hasInteger"), "comment", None, 0)
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.int)))
         assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
         assert next(result.subjects(ONTO.hasInteger, val)) == res_bn
@@ -156,6 +181,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasTime))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TimeValue
         value = next(result.objects(val_bn, KNORA_API.timeValueAsTimeStamp))
@@ -169,6 +200,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasUri))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.UriValue
         value = next(result.objects(val_bn, KNORA_API.uriValueAsUri))
@@ -182,6 +219,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasListItem))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.ListValue
         value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
@@ -195,6 +238,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasResourceValue))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
@@ -209,6 +258,12 @@ class TestMakeOneValueGraphSuccess:
         assert len(result) == 4
         # the property IRI is used verbatim (no `…Value` companion), unlike ProcessedLink
         val_bn = next(result.objects(res_bn, ONTO.hasRegionPreview))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.RegionPreviewValue
         value = next(result.objects(val_bn, KNORA_API.isRegionPreviewOf))
@@ -222,6 +277,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, ONTO.hasSimpleText))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.valueAsString))
@@ -243,6 +304,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 6
         val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
@@ -270,6 +337,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
         val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
@@ -295,6 +368,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 10
         val_bn = next(result.objects(res_bn, ONTO.hasDate))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.DateValue
         calendar = next(result.objects(val_bn, KNORA_API.dateValueHasCalendar))
@@ -321,6 +400,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
         val_bn = next(result.objects(res_bn, KNORA_API.hasSegmentBounds))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.IntervalValue
         start = next(result.objects(val_bn, KNORA_API.intervalValueHasStart))
@@ -343,6 +428,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, KNORA_API.isVideoSegmentOfValue))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
@@ -363,6 +454,12 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         val_bn = next(result.objects(res_bn, KNORA_API.isAudioSegmentOfValue))
+        value_triples = [
+            (),
+            (),
+            (),
+            (),
+        ]
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))

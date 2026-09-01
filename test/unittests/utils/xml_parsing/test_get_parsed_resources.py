@@ -174,7 +174,7 @@ class TestSegment:
         keyword_1 = next(x for x in resource.values if x.value == "Keyword 1")
         assert keyword_1.xml_value_order == 0
         keyword_2 = next(x for x in resource.values if x.value == "Keyword 2")
-        assert keyword_2.xml_value_order == 0
+        assert keyword_2.xml_value_order == 1
         assert not resource.file_value
         assert not resource.migration_metadata
         assert not resource.authorship_id
@@ -209,7 +209,7 @@ class TestSegment:
             (f"{KNORA_API_PREFIX}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt", 0),
             (f"{KNORA_API_PREFIX}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None, 0),
             (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None, 0),
-            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None, 0),
+            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None, 1),
             (f"{KNORA_API_PREFIX}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None, 0),
             (f"{KNORA_API_PREFIX}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None, 0),
         ]
@@ -281,8 +281,8 @@ class TestParseValues:
         assert val2.value_type == KnoraValueType.COLOR_VALUE
         assert not val2.permissions_id
         assert not val2.comment
-        assert val1.value_order == 0
-        assert val1.xml_value_order == 1
+        assert val2.value_order == 0
+        assert val2.xml_value_order == 1
 
     def test_date_value(self):
         xml_val = etree.fromstring("""

@@ -92,6 +92,8 @@ class TestParseResource:
         assert val.value_type == KnoraValueType.BOOLEAN_VALUE
         assert not val.permissions_id
         assert not val.comment
+        assert val.value_order is None
+        assert val.xml_value_order == 0
         assert not resource.file_value
         assert not resource.migration_metadata
 
@@ -169,6 +171,10 @@ class TestSegment:
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 8
+        keyword_1 = next(x for x in resource.values if x.value == "Keyword 1")
+        assert keyword_1.xml_value_order == 0
+        keyword_2 = next(x for x in resource.values if x.value == "Keyword 2")
+        assert keyword_2.xml_value_order == 1
         assert not resource.file_value
         assert not resource.migration_metadata
         assert not resource.authorship_id
@@ -198,21 +204,23 @@ class TestSegment:
     def test_parse_segment_values(self, resource_audio_segment):
         values = _parse_segment_values(resource_audio_segment, "Audio")
         expected = [
-            (f"{KNORA_API_PREFIX}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
-            (f"{KNORA_API_PREFIX}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None),
-            (f"{KNORA_API_PREFIX}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
-            (f"{KNORA_API_PREFIX}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
-            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
-            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None),
-            (f"{KNORA_API_PREFIX}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None),
-            (f"{KNORA_API_PREFIX}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None),
+            (f"{KNORA_API_PREFIX}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None, 0),
+            (f"{KNORA_API_PREFIX}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "public", None, 0),
+            (f"{KNORA_API_PREFIX}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt", 0),
+            (f"{KNORA_API_PREFIX}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None, 0),
+            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None, 0),
+            (f"{KNORA_API_PREFIX}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None, 1),
+            (f"{KNORA_API_PREFIX}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None, 0),
+            (f"{KNORA_API_PREFIX}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None, 0),
         ]
-        for result, (prop, value_type, content, perm, cmt) in zip(values, expected):
+        for result, (prop, value_type, content, perm, cmt, xml_order) in zip(values, expected):
             assert result.prop_name == prop
             assert result.value == content
             assert result.value_type == value_type
             assert result.permissions_id == perm
             assert result.comment == cmt
+            assert result.value_order is None
+            assert result.xml_value_order == xml_order
 
 
 class TestParseValues:
@@ -249,10 +257,12 @@ class TestParseValues:
         assert val.value_order is None
 
     def test_color_value_several(self):
+        # intentionally placed order 0 in second place to ensure value_order and xml_value_order
+        # are parsed correctly and independently
         xml_val = etree.fromstring("""
         <color-prop name=":hasProp">
-            <color>#00ff00</color>
-            <color>#00ff11</color>
+            <color order="1">#00ff00</color>
+            <color order="0">#00ff11</color>
         </color-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -263,13 +273,16 @@ class TestParseValues:
         assert val1.value_type == KnoraValueType.COLOR_VALUE
         assert not val1.permissions_id
         assert not val1.comment
+        assert val1.value_order == 1
+        assert val1.xml_value_order == 0
         val2 = result[1]
         assert val2.prop_name == HAS_PROP
         assert val2.value == "#00ff11"
         assert val2.value_type == KnoraValueType.COLOR_VALUE
         assert not val2.permissions_id
         assert not val2.comment
-        assert val2.value_order is None
+        assert val2.value_order == 0
+        assert val2.xml_value_order == 1
 
     def test_date_value(self):
         xml_val = etree.fromstring("""
@@ -286,6 +299,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_decimal_value(self):
         xml_val = etree.fromstring("""
@@ -302,6 +316,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_geometry_value(self):
         xml_val = etree.fromstring("""
@@ -318,6 +333,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_geoname_value(self):
         xml_val = etree.fromstring("""
@@ -334,6 +350,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_integer_value(self):
         xml_val = etree.fromstring("""
@@ -350,6 +367,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_list_value(self):
         xml_val = etree.fromstring("""
@@ -366,6 +384,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_list_value_none(self):
         xml_val = etree.fromstring("""
@@ -382,6 +401,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_list_value_iri(self):
         xml_val = etree.fromstring("""
@@ -398,6 +418,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_list_value_several(self):
         xml_val = etree.fromstring("""
@@ -415,6 +436,7 @@ class TestParseValues:
         assert not val1.permissions_id
         assert not val1.comment
         assert val1.value_order == 0
+        assert val1.xml_value_order == 0
         val2 = result[1]
         assert val2.prop_name == HAS_PROP
         assert val2.value == ("firstList", "n2")
@@ -422,6 +444,7 @@ class TestParseValues:
         assert not val2.permissions_id
         assert not val2.comment
         assert val2.value_order == 1
+        assert val2.xml_value_order == 1
 
     def test_resptr_value(self):
         xml_val = etree.fromstring("""
@@ -438,6 +461,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_resptr_value_none(self):
         xml_val = etree.fromstring("""
@@ -454,6 +478,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_region_preview_value(self):
         xml_val = etree.fromstring("""
@@ -470,6 +495,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_text_richtext_value(self):
         xml_val = etree.fromstring("""
@@ -486,6 +512,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_text_richtext_value_none(self):
         xml_val = etree.fromstring("""
@@ -502,6 +529,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_text_richtext_escaped_characters(self):
         xml_val = etree.fromstring("""
@@ -518,6 +546,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
@@ -534,6 +563,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order == 0
+        assert val.xml_value_order == 0
 
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""
@@ -550,6 +580,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_time_value(self):
         xml_val = etree.fromstring("""
@@ -566,6 +597,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
     def test_uri_value(self):
         xml_val = etree.fromstring("""
@@ -582,6 +614,7 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
+        assert val.xml_value_order == 0
 
 
 class TestParseFileValues:

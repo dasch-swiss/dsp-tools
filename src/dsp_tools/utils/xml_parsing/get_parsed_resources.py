@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 
 import regex
@@ -5,6 +6,7 @@ from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import PLACEHOLDER_TYPE_TO_FILE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.exceptions import MalformedPrefixedIriError
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
@@ -88,9 +90,23 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
 def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[ParsedValue]:
     values: list[ParsedValue] = []
     value: str | tuple[str, str] | None
+    # some of these allow multiple values, in that case we need to find out the correct order number
+    # in any case all values have orders even if there is only one
+    order_in_xml_lookup = {
+        "isSegmentOf": 0,
+        "hasSegmentBounds": 0,
+        "hasDescription": 0,
+        "hasComment": 0,
+        "relatesTo": 0,
+        "hasTitle": 0,
+        "hasKeyword": 0,
+    }
     for val in segment.iterchildren():
-        prop = f"{KNORA_API_PREFIX}{val.tag!s}"
-        match val.tag:
+        value_tag = str(val.tag)
+        current_order = deepcopy(order_in_xml_lookup[value_tag])
+        order_in_xml_lookup[value_tag] += 1
+        prop = f"{KNORA_API_PREFIX}{value_tag}"
+        match value_tag:
             case "isSegmentOf":
                 val_type = KnoraValueType.LINK_VALUE
                 prop = f"{KNORA_API_PREFIX}is{segment_type}SegmentOf"
@@ -104,9 +120,11 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case "relatesTo":
                 val_type = KnoraValueType.LINK_VALUE
                 value = val.text.strip() if val.text else None
-            case _:
+            case "hasTitle" | "hasKeyword":
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
                 value = _get_simpletext_as_string(val)
+            case _:
+                raise UnreachableCodeError()
         values.append(
             ParsedValue(
                 prop_name=prop,
@@ -115,6 +133,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=current_order,
             )
         )
     return values
@@ -176,7 +195,7 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
 def _parse_generic_values(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[str(values.tag)]
     parsed_values = []
-    for val in values:
+    for i, val in enumerate(values):
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -185,6 +204,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values
@@ -193,7 +213,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
 def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     parsed_values = []
     list_name = values.attrib["list"]
-    for val in values:
+    for i, val in enumerate(values):
         list_node = val.text.strip() if val.text else None
         parsed_values.append(
             ParsedValue(
@@ -203,6 +223,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values
@@ -210,7 +231,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
 
 def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     parsed_values = []
-    for val in values:
+    for i, val in enumerate(values):
         if val.attrib["encoding"] == "xml":
             val_type = KnoraValueType.RICHTEXT_VALUE
             value = _get_richtext_as_string(val)
@@ -225,6 +246,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values

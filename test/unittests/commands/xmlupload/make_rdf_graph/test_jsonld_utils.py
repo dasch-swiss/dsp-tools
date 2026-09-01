@@ -82,6 +82,10 @@ def test_serialise_jsonld_for_value():
             "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
                 "@id": "http://rdfh.ch/9999/target_resource"
             },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 0,
+            },
         },
     }
     result = serialise_jsonld_for_value(graph, RES_IRI_STR)

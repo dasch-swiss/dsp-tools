@@ -6,7 +6,7 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
 

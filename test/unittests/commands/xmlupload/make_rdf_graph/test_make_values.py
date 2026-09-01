@@ -11,7 +11,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.exceptions import Id2IriReplacementError
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _add_optional_triples
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _add_metadata_triples
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_value_graph
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -406,7 +406,7 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
 class TestMakeOptionalTriples:
     def test_all(self):
         val_bn = BNode()
-        result = _add_optional_triples(val_bn, DUMMY_PERMISSION, "comment", 0)
+        result = _add_metadata_triples(val_bn, DUMMY_PERMISSION, "comment", 0)
         assert len(result) == 3
         triples = [
             (val_bn, KNORA_API.hasPermissions, PERMISSION_LITERAL),
@@ -418,23 +418,19 @@ class TestMakeOptionalTriples:
 
     def test_permissions_comment(self):
         val_bn = BNode()
-        result = _add_optional_triples(val_bn, DUMMY_PERMISSION, "comment", None)
-        assert len(result) == 2
+        result = _add_metadata_triples(val_bn, DUMMY_PERMISSION, "comment", 1)
+        assert len(result) == 3
         triples = [
             (val_bn, KNORA_API.hasPermissions, PERMISSION_LITERAL),
             (val_bn, KNORA_API.valueHasComment, Literal("comment", datatype=XSD.string)),
+            (val_bn, KNORA_API.valueHasOrder, Literal(1, datatype=XSD.integer)),
         ]
         for t in triples:
             assert t in result
 
-    def test_value_order(self):
+    def test_no_optional_triples(self):
         val_bn = BNode()
-        result = _add_optional_triples(val_bn, None, None, 1)
+        result = _add_metadata_triples(val_bn, None, None, 1)
         assert len(result) == 1
         trip = (val_bn, KNORA_API.valueHasOrder, Literal(1, datatype=XSD.integer))
         assert trip in result
-
-    def test_none(self):
-        val_bn = BNode()
-        result = _add_optional_triples(val_bn, None, None, None)
-        assert len(result) == 0

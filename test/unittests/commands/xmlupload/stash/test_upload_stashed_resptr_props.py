@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 from rdflib import RDF
+from rdflib import XSD
+from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
@@ -24,10 +26,10 @@ def test_make_link_value_create_graph():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, value_uuid=str(uuid4()), value_order=None),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, value_uuid=str(uuid4()), value_order=0),
     )
     result = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
-    assert len(result) == 4
+    assert len(result) == 5
     res_type = next(result.objects(RES_IRI, RDF.type))
     assert res_type == RES_TYPE
     val_bn = next(result.objects(RES_IRI, ONTO.hasLinkValue))
@@ -35,6 +37,8 @@ def test_make_link_value_create_graph():
     assert val_type == KNORA_API.LinkValue
     target_iri = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
     assert target_iri == URIRef(TARGET_IRI_STR)
+    val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
+    assert val_order == Literal(0, datatype=XSD.integer)
 
 
 def test_make_region_preview_value_create_graph():
@@ -42,11 +46,11 @@ def test_make_region_preview_value_create_graph():
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
         value=ProcessedRegionPreview(
-            "target_region_id", ONTO.hasRegionPreview, None, None, value_uuid=str(uuid4()), value_order=None
+            "target_region_id", ONTO.hasRegionPreview, None, None, value_uuid=str(uuid4()), value_order=0
         ),
     )
     result = _make_link_value_create_graph(preview_stash, RES_IRI_STR, TARGET_IRI_STR)
-    assert len(result) == 4
+    assert len(result) == 5
     res_type = next(result.objects(RES_IRI, RDF.type))
     assert res_type == RES_TYPE
     # prop_iri is not rewritten to `…Value`, and the re-upload uses the RegionPreviewValue @type (R3)
@@ -55,3 +59,5 @@ def test_make_region_preview_value_create_graph():
     assert val_type == KNORA_API.RegionPreviewValue
     target_iri = next(result.objects(val_bn, KNORA_API.isRegionPreviewOf))
     assert target_iri == URIRef(TARGET_IRI_STR)
+    val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
+    assert val_order == Literal(0, datatype=XSD.integer)

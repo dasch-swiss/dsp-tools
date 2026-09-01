@@ -210,7 +210,6 @@ class TestMakeOneValueGraphSuccess:
         result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
 
-
         val_bn = next(result.objects(res_bn, ONTO.hasListItem))
         value_triples = [
             (RDF.type, KNORA_API.ListValue),
@@ -255,25 +254,24 @@ class TestMakeOneValueGraphSuccess:
 
     def test_simpletext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedSimpleText("Text", absolute_iri("hasSimpleText"), None, None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 4
+
+        assert (res_bn, ONTO.hasSimpleText, val_bn) in result
         val_bn = next(result.objects(res_bn, ONTO.hasSimpleText))
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.TextValue),
+            (KNORA_API.valueAsString, Literal("Text", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.TextValue
-        value = next(result.objects(val_bn, KNORA_API.valueAsString))
-        assert value == Literal("Text", datatype=XSD.string)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_richtext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         prop = ProcessedRichtext(
             FormattedTextValue("Text"),
             absolute_iri("hasRichtext"),
@@ -283,29 +281,26 @@ class TestMakeOneValueGraphSuccess:
             resource_references=set(),
             value_uuid=str(uuid4()),
         )
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 6
-        val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
+
+        assert (res_bn, ONTO.hasRichtext, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.TextValue),
+            (
+                KNORA_API.textValueAsXml,
+                Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>Text</text>', datatype=XSD.string),
+            ),
+            (KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")),
+            (KNORA_API.hasPermissions, PERMISSION_LITERAL),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.TextValue
-        value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
-        # FormattedTextValue adds a newline after the xml declaration
-        assert value == Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>Text</text>', datatype=XSD.string)
-        mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
-        assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_richtext_with_reference(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
         prop = ProcessedRichtext(
             FormattedTextValue(text),
@@ -316,28 +311,23 @@ class TestMakeOneValueGraphSuccess:
             resource_references=set("res_one"),
             value_uuid=str(uuid4()),
         )
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 5
-        val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
-        value_triples = [
-            (),
-            (),
-            (),
-            (),
-        ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.TextValue
-        value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
+
         expected_text = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'  # FormattedTextValue adds a newline after the xml declaration
             '<text>Comment with <a class="salsah-link" href="http://rdfh.ch/9999/res_one">'
             "link to res_one</text>"
         )
-        assert value == Literal(expected_text, datatype=XSD.string)
-        mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
-        assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
-        order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert order == Literal(1, datatype=XSD.integer)
+        assert (res_bn, ONTO.hasRichtext, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.TextValue),
+            (KNORA_API.textValueAsXml, Literal(expected_text, datatype=XSD.string)),
+            (KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")),
+            (KNORA_API.valueHasOrder, Literal(1, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_date(self, lookups: IRILookups) -> None:
         res_bn = BNode()

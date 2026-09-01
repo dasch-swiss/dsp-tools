@@ -38,12 +38,12 @@ def _get_specific_abstract_value(prop_type_info: RDFPropTypeInfo, metadata: File
 class TestIIIFURI:
     def test_make_iiif_uri_value_graph_with_permissions(self, metadata_with_permissions):
         res_bn = BNode()
+        val_bn = BNode()
         iiif_val = AbstractFileValue(
             "value", metadata_with_permissions, KNORA_API.stillImageFileValueHasExternalUrl, IIIF_URI_VALUE
         )
-        g = make_abstract_file_value_graph(iiif_val, res_bn)
+        g = make_abstract_file_value_graph(iiif_val, val_bn, res_bn)
         assert len(g) == 8
-        val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
         value = next(g.objects(val_bn, KNORA_API.stillImageFileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
@@ -52,10 +52,11 @@ class TestIIIFURI:
 
     def test_make_iiif_uri_value_graph_no_permissions(self, metadata_without_permissions):
         res_bn = BNode()
+        file_bn = BNode()
         iiif_val = AbstractFileValue(
             "value", metadata_without_permissions, KNORA_API.stillImageFileValueHasExternalUrl, IIIF_URI_VALUE
         )
-        g = make_abstract_file_value_graph(iiif_val, res_bn)
+        g = make_abstract_file_value_graph(iiif_val, file_bn, res_bn)
         assert len(g) == 7
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
@@ -66,11 +67,11 @@ class TestIIIFURI:
 class TestMakeBitstreamFileGraph:
     def test_make_file_value_graph_with_permissions(self, metadata_with_permissions):
         res_bn = BNode()
+        file_bn = BNode()
         bitstream_val = AbstractFileValue(
             "FileID.txt", metadata_with_permissions, KNORA_API.fileValueHasFilename, TEXT_FILE_VALUE
         )
-        g = make_abstract_file_value_graph(bitstream_val, res_bn)
-        file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
+        g = make_abstract_file_value_graph(bitstream_val, file_bn, res_bn)
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
         assert file_id == Literal("FileID.txt", datatype=XSD.string)
@@ -79,11 +80,11 @@ class TestMakeBitstreamFileGraph:
 
     def test_make_file_value_graph_no_permissions(self, metadata_without_permissions):
         res_bn = BNode()
+        file_bn = BNode()
         bitstream_val = AbstractFileValue(
             "FileID.txt", metadata_without_permissions, KNORA_API.fileValueHasFilename, TEXT_FILE_VALUE
         )
-        g = make_abstract_file_value_graph(bitstream_val, res_bn)
-        file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
+        g = make_abstract_file_value_graph(bitstream_val, file_bn, res_bn)
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
         assert file_id == Literal("FileID.txt", datatype=XSD.string)
@@ -104,10 +105,10 @@ class TestMakeFileValueGraph:
     )
     def test_with_permissions(self, type_info, metadata_with_permissions):
         res_bn = BNode()
+        val_bn = BNode()
         abstract_val = _get_specific_abstract_value(type_info, metadata_with_permissions)
-        g = make_abstract_file_value_graph(abstract_val, res_bn)
+        g = make_abstract_file_value_graph(abstract_val, val_bn, res_bn)
         assert len(g) == 8
-        val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
         filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
         assert filename == Literal("value", datatype=XSD.string)
@@ -128,10 +129,10 @@ class TestMakeFileValueGraph:
     )
     def test_no_permissions(self, metadata_without_permissions, type_info):
         res_bn = BNode()
+        val_bn = BNode()
         abstract_val = _get_specific_abstract_value(type_info, metadata_without_permissions)
-        g = make_abstract_file_value_graph(abstract_val, res_bn)
+        g = make_abstract_file_value_graph(abstract_val, val_bn, res_bn)
         assert len(g) == 7
-        val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
         filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
         assert filename == Literal("value", datatype=XSD.string)

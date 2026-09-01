@@ -216,7 +216,7 @@ def _get_generic_value(
         val.prop_name,
         val.comment,
         permission_val,
-        val.value_order,
+        _resolve_value_order(val.value_order, val.xml_value_order),
     )
 
 
@@ -228,7 +228,7 @@ def _get_link_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        value_order=val.value_order,
+        value_order=_resolve_value_order(val.value_order, val.xml_value_order),
         value_uuid=str(uuid4()),
     )
     return link_val
@@ -242,7 +242,7 @@ def _get_region_preview_value(val: ParsedValue, lookups: XmlReferenceLookups) ->
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        value_order=val.value_order,
+        value_order=_resolve_value_order(val.value_order, val.xml_value_order),
         value_uuid=str(uuid4()),
     )
     return preview_val
@@ -258,7 +258,7 @@ def _get_list_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Processed
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        value_order=val.value_order,
+        value_order=_resolve_value_order(val.value_order, val.xml_value_order),
     )
     return list_val
 
@@ -271,7 +271,7 @@ def _get_richtext_value(val: ParsedValue, lookups: XmlReferenceLookups) -> Proce
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        value_order=val.value_order,
+        value_order=_resolve_value_order(val.value_order, val.xml_value_order),
         resource_references=find_internal_ids(transformed_value.xmlstr),
         value_uuid=str(uuid4()),
     )
@@ -285,3 +285,9 @@ def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, P
             raise XmlUploadPermissionsNotFoundError(f"Could not find permissions for value: {permissions}")
         return per
     return None
+
+
+def _resolve_value_order(value_order: int | None, xml_value_order: int) -> int:
+    if value_order is None:
+        return xml_value_order
+    return value_order

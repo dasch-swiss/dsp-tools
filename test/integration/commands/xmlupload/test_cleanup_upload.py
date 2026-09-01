@@ -44,7 +44,7 @@ def _make_upload_state(save_location: Path, failed_uploads: list[str], stash: St
 
 def _non_empty_stash() -> Stash:
     stash_item = LinkValueStashItem(
-        "foo_id", f"{ONTO}foo_type", ProcessedLink("bar_id", LINK_PROP, None, None, None, str(uuid4()))
+        "foo_id", f"{ONTO}foo_type", ProcessedLink("bar_id", LINK_PROP, None, None, 0, str(uuid4()))
     )
     return Stash(standoff_stash=None, link_value_stash=LinkValueStash({"foo_id": [stash_item]}))
 

@@ -26,19 +26,27 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResou
     api_url = convert_api_url_for_correct_iri_namespace_construction(api_url)
     iri_lookup = _create_from_local_name_to_absolute_iri_lookup(root, api_url)
     all_res: list[ParsedResource] = []
-    for res in root.iterdescendants(tag="resource"):
-        res_type = iri_lookup[res.attrib["restype"]]
-        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
-    for res in root.iterdescendants(tag="region"):
-        res_type = f"{KNORA_API_PREFIX}Region"
-        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
-    for res in root.iterdescendants(tag="link"):
-        res_type = f"{KNORA_API_PREFIX}LinkObj"
-        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
-    for res in root.iterdescendants(tag="video-segment"):
-        all_res.append(_parse_segment(res, "Video"))
-    for res in root.iterdescendants(tag="audio-segment"):
-        all_res.append(_parse_segment(res, "Audio"))
+
+    for ele in root.iterchildren():
+        match ele.tag:
+            case "resource":
+                res_type = iri_lookup[ele.attrib["restype"]]
+                all_res.append(_parse_one_resource(ele, res_type, iri_lookup))
+            case "region":
+                res_type = f"{KNORA_API_PREFIX}Region"
+                all_res.append(_parse_one_resource(ele, res_type, iri_lookup))
+            case "video-segment":
+                all_res.append(_parse_segment(ele, "Video"))
+            case "audio-segment":
+                all_res.append(_parse_segment(ele, "Audio"))
+            case "link":
+                res_type = f"{KNORA_API_PREFIX}LinkObj"
+                all_res.append(_parse_one_resource(ele, res_type, iri_lookup))
+            case "authorship" | "permissions":
+                pass
+            case _:
+                raise UnreachableCodeError()
+
     return all_res
 
 

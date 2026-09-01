@@ -70,8 +70,10 @@ def _make_values_graph_from_resource(
 
     if file_found := resource.file_value:
         abstract_value = _get_abstract_file_value(file_found, bitstream_information)
+        file_bn = BNode()
         properties_graph += make_abstract_file_value_graph(
             file_value=abstract_value,
+            val_node=file_bn,
             res_node=res_node,
         )
     return properties_graph

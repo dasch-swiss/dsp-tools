@@ -69,12 +69,22 @@ def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups:
     """
     properties_graph = Graph()
     for val in values:
-        single_prop_graph = _make_one_value_graph(val=val, res_node=res_node, iri_lookups=lookups)
-        properties_graph += single_prop_graph
+        val_node = BNode()
+        properties_graph += _make_one_value_graph(
+            val=val,
+            val_node=val_node,
+            res_node=res_node,
+            iri_lookups=lookups,
+        )
     return properties_graph
 
 
-def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
+def _make_one_value_graph(  # noqa: PLR0911 (too many return statements)
+    val: ProcessedValue,
+    val_node: BNode,
+    res_node: BNode | URIRef,
+    iri_lookups: IRILookups,
+) -> Graph:
     match val:
         case (
             ProcessedBoolean()
@@ -88,49 +98,51 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
             | ProcessedSimpleText()
         ):
             literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val)]
-            properties_graph = _make_value_graph_with_literal_object(
+            return _make_value_graph_with_literal_object(
                 val=val,
+                val_node=val_node,
                 res_node=res_node,
                 prop_type_info=literal_info,
             )
         case ProcessedList():
-            properties_graph = _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
+            return _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
         case ProcessedLink():
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
-            properties_graph = make_link_value_graph(
+            return make_link_value_graph(
                 val=val,
-                val_node=BNode(),
+                val_node=val_node,
                 res_node=res_node,
                 target_iri=URIRef(target_iri),
             )
         case ProcessedRegionPreview():
             target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
-            properties_graph = make_region_preview_value_graph(
+            return make_region_preview_value_graph(
                 val=val,
-                val_node=BNode(),
+                val_node=val_node,
                 res_node=res_node,
                 target_iri=URIRef(target_iri),
             )
         case ProcessedRichtext():
-            properties_graph = make_richtext_value_graph(
+            return make_richtext_value_graph(
                 val=val,
-                val_node=BNode(),
+                val_node=val_node,
                 res_node=res_node,
                 iri_resolver=iri_lookups.id_to_iri,
             )
         case ProcessedDate():
-            properties_graph = _make_date_value_graph(
+            return _make_date_value_graph(
                 val=val,
+                val_node=val_node,
                 res_node=res_node,
             )
         case ProcessedInterval():
-            properties_graph = _make_interval_value_graph(
+            return _make_interval_value_graph(
                 val=val,
+                val_node=val_node,
                 res_node=res_node,
             )
         case _:
             raise UnreachableCodeError(f"Unknown value type: {type(val).__name__}")
-    return properties_graph
 
 
 def _make_base_value_graph(
@@ -146,39 +158,39 @@ def _make_base_value_graph(
 
 
 def _add_metadata_triples(
-    val_bn: BNode | URIRef,
+    val_node: BNode | URIRef,
     permissions: Permissions | None,
     comment: str | None,
     value_order: int,
 ) -> Graph:
     g = Graph()
     if permissions is not None:
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))
+        g.add((val_node, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))
     if comment is not None:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
-    g.add((val_bn, KNORA_API.valueHasOrder, Literal(value_order, datatype=XSD.integer)))
+        g.add((val_node, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
+    g.add((val_node, KNORA_API.valueHasOrder, Literal(value_order, datatype=XSD.integer)))
     return g
 
 
 def _make_value_graph_with_literal_object(
     val: LiteralValueTypesAlias,
+    val_node: BNode,
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
 ) -> Graph:
-    val_bn = BNode()
-    g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
-    g.add((val_bn, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
+    g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=prop_type_info, res_node=res_node)
+    g.add((val_node, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
     return g
 
 
 def _make_list_value_graph(
     val: ProcessedList,
+    val_node: BNode,
     res_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
-    val_bn = BNode()
-    g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
-    g.add((val_bn, prop_type_info.knora_prop, URIRef(val.value)))
+    g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=prop_type_info, res_node=res_node)
+    g.add((val_node, prop_type_info.knora_prop, URIRef(val.value)))
     return g
 
 
@@ -222,47 +234,47 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
 
 def _make_date_value_graph(
     val: ProcessedDate,
+    val_node: BNode,
     res_node: BNode | URIRef,
 ) -> Graph:
-    val_bn = BNode()
     date = val.value
-    g = _add_metadata_triples(val_bn, val.permissions, val.comment, val.value_order)
-    g.add((res_node, URIRef(val.prop_iri), val_bn))
-    g.add((val_bn, RDF.type, KNORA_API.DateValue))
+    g = _add_metadata_triples(val_node, val.permissions, val.comment, val.value_order)
+    g.add((res_node, URIRef(val.prop_iri), val_node))
+    g.add((val_node, RDF.type, KNORA_API.DateValue))
     if cal := date.calendar:
-        g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal.value, datatype=XSD.string)))
-    g += _make_single_date_graph(val_bn, date.start, StartEnd.START)
+        g.add((val_node, KNORA_API.dateValueHasCalendar, Literal(cal.value, datatype=XSD.string)))
+    g += _make_single_date_graph(val_node, date.start, StartEnd.START)
     if date.end:
-        g += _make_single_date_graph(val_bn, date.end, StartEnd.END)
+        g += _make_single_date_graph(val_node, date.end, StartEnd.END)
     return g
 
 
-def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd) -> Graph:
+def _make_single_date_graph(val_node: BNode, date: SingleDate, start_end: StartEnd) -> Graph:
     def get_prop(precision: DayMonthYearEra) -> URIRef:
         return KNORA_API[f"dateValueHas{start_end.value}{precision.value}"]
 
     g = Graph()
     if yr := date.year:
-        g.add((val_bn, get_prop(DayMonthYearEra.YEAR), Literal(yr, datatype=XSD.integer)))
+        g.add((val_node, get_prop(DayMonthYearEra.YEAR), Literal(yr, datatype=XSD.integer)))
     if mnt := date.month:
-        g.add((val_bn, get_prop(DayMonthYearEra.MONTH), Literal(mnt, datatype=XSD.integer)))
+        g.add((val_node, get_prop(DayMonthYearEra.MONTH), Literal(mnt, datatype=XSD.integer)))
     if day := date.day:
-        g.add((val_bn, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.integer)))
+        g.add((val_node, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.integer)))
     if era := date.era:
-        g.add((val_bn, get_prop(DayMonthYearEra.ERA), Literal(era.value, datatype=XSD.string)))
+        g.add((val_node, get_prop(DayMonthYearEra.ERA), Literal(era.value, datatype=XSD.string)))
     return g
 
 
 def _make_interval_value_graph(
     val: ProcessedInterval,
+    val_node: BNode,
     res_node: BNode | URIRef,
 ) -> Graph:
-    val_bn = BNode()
-    g = _add_metadata_triples(val_bn, val.permissions, val.comment, val.value_order)
-    g.add((res_node, URIRef(val.prop_iri), val_bn))
-    g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
-    g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.decimal)))
-    g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.decimal)))
+    g = _add_metadata_triples(val_node, val.permissions, val.comment, val.value_order)
+    g.add((res_node, URIRef(val.prop_iri), val_node))
+    g.add((val_node, RDF.type, KNORA_API.IntervalValue))
+    g.add((val_node, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.decimal)))
+    g.add((val_node, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.decimal)))
     return g
 
 

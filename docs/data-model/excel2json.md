@@ -222,6 +222,13 @@ The sheets should be filled as follows:
     - For each user, all columns are mandatory: username, email, givenName, familyName, password, lang, role.
     - The lang has to be one of: en, de, fr, it or rm
     - The role has to be projectadmin or projectmember.
+- **Data Legal Settings (Optional)**
+    - This sheet may be omitted or left empty. Every column is optional.
+    - The three columns are: data_license, data_copyright_holder, default_data_authorship.
+    - [`data_license`](./json-project/overview.md#data_license) and
+      [`data_copyright_holder`](./json-project/overview.md#data_copyright_holder) are read from the first row.
+    - [`default_data_authorship`](./json-project/overview.md#default_data_authorship) is a list:
+      enter one author per row in that column.
 
 
 ## The `resources` Section

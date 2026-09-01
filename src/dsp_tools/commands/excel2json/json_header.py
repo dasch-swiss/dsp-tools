@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.json_header import DataLegalSettings
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
@@ -79,6 +80,9 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
     if (user_df := df_dict.get("users")) is not None:
         if user_problems := _check_all_users(user_df):
             sheet_problems.append(user_problems)
+    if (legal_df := df_dict.get("data legal settings")) is not None:
+        if legal_problem := _check_data_legal_settings(legal_df):
+            sheet_problems.append(legal_problem)
     if sheet_problems:
         return ExcelFileProblem("json_header.xlsx", sheet_problems)
     return None
@@ -177,6 +181,13 @@ def _check_licenses(df: pd.DataFrame) -> ExcelSheetProblem | None:
     return None
 
 
+def _check_data_legal_settings(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    required_cols = {"data_license", "data_copyright_holder", "default_data_authorship"}
+    if missing_cols := check_contains_required_columns(df, required_cols):
+        return ExcelSheetProblem("data legal settings", [missing_cols])
+    return None
+
+
 def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if not len(df) > 0:
         return None
@@ -258,6 +269,10 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
         extracted_licenses = _extract_licenses(lic_df)
     else:
         extracted_licenses = Licenses([])
+    if (legal_df := df_dict.get("data legal settings")) is not None:
+        legal_settings = _extract_data_legal_settings(legal_df)
+    else:
+        legal_settings = DataLegalSettings(None, None, [])
     all_users = None
     if (user_df := df_dict.get("users")) is not None:
         if len(user_df) > 0:
@@ -271,6 +286,7 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
         descriptions=extracted_description,
         keywords=extracted_keywords,
         licenses=extracted_licenses,
+        data_legal_settings=legal_settings,
         users=all_users,
         default_permissions=default_permissions,
     )
@@ -296,6 +312,15 @@ def _extract_keywords(df: pd.DataFrame) -> Keywords:
 def _extract_licenses(df: pd.DataFrame) -> Licenses:
     licenses = list({x for x in df["enabled"] if not pd.isna(x)})
     return Licenses(licenses)
+
+
+def _extract_data_legal_settings(df: pd.DataFrame) -> DataLegalSettings:
+    if len(df) == 0:
+        return DataLegalSettings(None, None, [])
+    data_license = None if pd.isna(lic := df.loc[0, "data_license"]) else str(lic)
+    copyright_holder = None if pd.isna(holder := df.loc[0, "data_copyright_holder"]) else str(holder)
+    authorship = [str(x) for x in df["default_data_authorship"] if not pd.isna(x)]
+    return DataLegalSettings(data_license, copyright_holder, authorship)
 
 
 def _extract_users(df: pd.DataFrame) -> Users:

@@ -34,6 +34,27 @@ def licenses_good() -> pd.DataFrame:
 
 
 @pytest.fixture
+def data_legal_settings_good() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "data_license": ["http://rdfh.ch/licenses/cc-by-4.0", pd.NA],
+            "data_copyright_holder": ["DaSCH", pd.NA],
+            "default_data_authorship": ["Alice Liddell", "Lewis Carroll"],
+        }
+    )
+
+
+@pytest.fixture
+def data_legal_settings_missing_col() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "data_license": ["http://rdfh.ch/licenses/cc-by-4.0"],
+            "default_data_authorship": ["Alice Liddell"],
+        }
+    )
+
+
+@pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
     return pd.DataFrame(
         {"shortcode": [11], "shortname": ["name"], "longname": ["long"], "default_permissions": ["public"]}

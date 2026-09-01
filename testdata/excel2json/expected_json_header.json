@@ -33,6 +33,12 @@
       "http://rdfh.ch/licenses/cc-by-4.0",
       "http://rdfh.ch/licenses/public-domain"
     ],
+    "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
+    "data_copyright_holder": "DaSCH",
+    "default_data_authorship": [
+      "Alice Liddell",
+      "Lewis Carroll"
+    ],
     "default_permissions": "public",
     "users": [
       {

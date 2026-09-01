@@ -331,39 +331,30 @@ class TestMakeOneValueGraphSuccess:
 
     def test_date(self, lookups: IRILookups) -> None:
         res_bn = BNode()
+        val_bn = BNode()
         date = Date(
             calendar=Calendar.GREGORIAN,
             start=SingleDate(era=Era.AD, year=476, month=9, day=4),
             end=SingleDate(era=Era.AD, year=477, month=None, day=None),
         )
         prop = ProcessedDate(date, absolute_iri("hasDate"), None, None, 0)
-        result = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
         assert len(result) == 10
-        val_bn = next(result.objects(res_bn, ONTO.hasDate))
+
+        assert (res_bn, ONTO.hasDate, val_bn) in result
         value_triples = [
-            (),
-            (),
-            (),
-            (),
+            (RDF.type, KNORA_API.DateValue),
+            (KNORA_API.dateValueHasCalendar, Literal("GREGORIAN", datatype=XSD.string)),
+            (KNORA_API.dateValueHasStartDay, Literal("4", datatype=XSD.integer)),
+            (KNORA_API.dateValueHasStartMonth, Literal("9", datatype=XSD.integer)),
+            (KNORA_API.dateValueHasStartYear, Literal("476", datatype=XSD.integer)),
+            (KNORA_API.dateValueHasStartEra, Literal("AD", datatype=XSD.string)),
+            (KNORA_API.dateValueHasEndYear, Literal("477", datatype=XSD.integer)),
+            (KNORA_API.dateValueHasEndEra, Literal("AD", datatype=XSD.string)),
+            (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
         ]
-        rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API.DateValue
-        calendar = next(result.objects(val_bn, KNORA_API.dateValueHasCalendar))
-        assert calendar == Literal("GREGORIAN", datatype=XSD.string)
-        start_day = next(result.objects(val_bn, KNORA_API.dateValueHasStartDay))
-        assert start_day == Literal("4", datatype=XSD.integer)
-        start_month = next(result.objects(val_bn, KNORA_API.dateValueHasStartMonth))
-        assert start_month == Literal("9", datatype=XSD.integer)
-        start_year = next(result.objects(val_bn, KNORA_API.dateValueHasStartYear))
-        assert start_year == Literal("476", datatype=XSD.integer)
-        start_era = next(result.objects(val_bn, KNORA_API.dateValueHasStartEra))
-        assert start_era == Literal("AD", datatype=XSD.string)
-        end_year = next(result.objects(val_bn, KNORA_API.dateValueHasEndYear))
-        assert end_year == Literal("477", datatype=XSD.integer)
-        start_era = next(result.objects(val_bn, KNORA_API.dateValueHasEndEra))
-        assert start_era == Literal("AD", datatype=XSD.string)
-        val_order = next(result.objects(val_bn, KNORA_API.valueHasOrder))
-        assert val_order == Literal(0, datatype=XSD.integer)
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
 
     def test_interval(self, lookups: IRILookups) -> None:
         res_bn = BNode()

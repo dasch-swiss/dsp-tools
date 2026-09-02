@@ -1,5 +1,29 @@
 # Changelog
 
+## [19.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.2...v19.1.0) (2026-09-02)
+
+
+### Enhancements
+
+* add resource-side legal metadata to json_header.xlsx (DEV-7000) ([#2419](https://github.com/dasch-swiss/dsp-tools/issues/2419)) ([33f2dcc](https://github.com/dasch-swiss/dsp-tools/commit/33f2dcc00e155aec0da0d645eb140de55ef6e0a0))
+
+
+### Bug Fixes
+
+* **xmlupload:** distinguish expected from failed interruptions (DEV-6183) ([#2405](https://github.com/dasch-swiss/dsp-tools/issues/2405)) ([880c9fa](https://github.com/dasch-swiss/dsp-tools/commit/880c9fab38aa5d00e65c5313c5a73a3edad8bd41))
+
+
+### Maintenance
+
+* always include value order in the xmlupload data ([#2418](https://github.com/dasch-swiss/dsp-tools/issues/2418)) ([de23566](https://github.com/dasch-swiss/dsp-tools/commit/de23566b65f2b93808cbe103d55f6551b5fe0d62))
+* enable the dsp-api admin SPARQL passthrough in start-stack (DEV-6734) ([#2412](https://github.com/dasch-swiss/dsp-tools/issues/2412)) ([a4b9cd9](https://github.com/dasch-swiss/dsp-tools/commit/a4b9cd9a9129b4c63c1d481537736a33e18ae0b5))
+* extract spinner into util and integrate into ingest ([#2413](https://github.com/dasch-swiss/dsp-tools/issues/2413)) ([38d43ed](https://github.com/dasch-swiss/dsp-tools/commit/38d43edbd2c53e609a017e03d057ab53140df54a))
+* improve xml parsing speed ([#2417](https://github.com/dasch-swiss/dsp-tools/issues/2417)) ([b178c7e](https://github.com/dasch-swiss/dsp-tools/commit/b178c7e13aa09afe08166f16c1b17064abae24e0))
+* include xml value order ([#2415](https://github.com/dasch-swiss/dsp-tools/issues/2415)) ([ec84cba](https://github.com/dasch-swiss/dsp-tools/commit/ec84cba2032784a1459a98f95d52cde7954cfbbb))
+* move ingest client to clients directory ([#2414](https://github.com/dasch-swiss/dsp-tools/issues/2414)) ([d3ea47a](https://github.com/dasch-swiss/dsp-tools/commit/d3ea47a90dddc717622615d93fc01fb950633ea4))
+* **start-stack:** bump versions to 2026.08.05 ([#2421](https://github.com/dasch-swiss/dsp-tools/issues/2421)) ([6978223](https://github.com/dasch-swiss/dsp-tools/commit/697822359edff89d4af7a14ca33e50ed8c0a9e4c))
+* **xmlupload:** mint the value blank-nodes in the outer most function ([#2420](https://github.com/dasch-swiss/dsp-tools/issues/2420)) ([e29a197](https://github.com/dasch-swiss/dsp-tools/commit/e29a197ceb1af6fbf8db22badc85c5114b6936f2))
+
 ## [19.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.1...v19.0.2) (2026-08-26)
 
 

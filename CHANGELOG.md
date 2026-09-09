@@ -1,5 +1,13 @@
 # Changelog
 
+## [19.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.0...v19.1.1) (2026-09-09)
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 5 updates ([#2416](https://github.com/dasch-swiss/dsp-tools/issues/2416)) ([ccd0b21](https://github.com/dasch-swiss/dsp-tools/commit/ccd0b218cb70fc0e936085ace8fd14b83b1179b7))
+* **start-stack:** bump versions to 2026.09.01 ([#2424](https://github.com/dasch-swiss/dsp-tools/issues/2424)) ([ee2d049](https://github.com/dasch-swiss/dsp-tools/commit/ee2d0490e4dd59b3cf3e4c0ad759300e91c639e8))
+
 ## [19.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.2...v19.1.0) (2026-09-02)
 
 

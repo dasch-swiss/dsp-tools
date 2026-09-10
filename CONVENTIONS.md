@@ -157,7 +157,8 @@ threading — are detailed in the sections above and under "Testing Conventions"
     - invalid-project shortcodes start with `F`.
 - **`validate-data` test data covers all paths — happy *and* error.** For a validation feature, add both a
   conforming case and a violating case (see the `*_correct.xml` / `*_violation.xml` pairs under
-  `testdata/validate-data/core_validation/`).
+  `testdata/validate-data/core_validation/`). The mandatory test-data conventions for a new SHACL shape
+  are in `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions").
 
 ### E2E wiring
 

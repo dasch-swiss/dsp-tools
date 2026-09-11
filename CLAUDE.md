@@ -196,7 +196,6 @@ The system follows this general flow for XML processing:
   Perhaps there is an important aspect that I forgot, or perhaps I have misunderstood the problem.
 - When I ask you to do something, you should always think critically about it.
   If you think it doesn't make sense, then you should push back, but you should also cite evidence.
-- Ask me one question after another, and provide a structured form where I can submit my answers.
 
 ### Writing code
 
@@ -217,7 +216,6 @@ The system follows this general flow for XML processing:
 
 ### Getting help
 
-- ALWAYS ask for clarification rather than making assumptions.
 - If you're having trouble with something, it's ok to stop and ask for help.
 
 ### TDD (Test-Driven Development) Implementation Process
@@ -229,12 +227,3 @@ The system follows this general flow for XML processing:
 - Refactor code to improve design while keeping tests green
 - Repeat the cycle for each new feature or bugfix
 - If you want to adjust a test for any reason, ask for confirmation, even if you suspect the test to contain the error.
-
-### Learning-Focused Error Response
-
-When encountering tool failures (ruff, pytest, etc.):
-
-- Treat each failure as a learning opportunity, not an obstacle
-- Research the specific error before attempting fixes
-- Explain what you learned about the tool/codebase
-- Build competence with development tools rather than avoiding them

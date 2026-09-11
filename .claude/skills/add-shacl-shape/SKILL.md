@@ -13,12 +13,14 @@ description: >-
 # SHACL Shape Playbook
 
 This is a playbook for **adding a new validation ("SHACL shape")** to the `validate-data` command.
-Everything you need is here or linked. The ordered steps below are not a rigid procedure — they are the
+Everything you need is here or linked. This workflow is an optional process: the ordered steps are the
 **most efficient, fool-proof path** to the goal, sequenced so the cheapest feedback comes first. Deviate
-if you have a good reason, but the ordering is what keeps you from building a lot on a wrong assumption.
+from the *ordering* if you have a good reason.
 
-This skill is the *how do I add a new check* companion to the module's code guide,
-`src/dsp_tools/commands/validate_data/CLAUDE.md`, which describes how the existing code is structured.
+The **test-data conventions are not optional.** They are enforced by the tests and defined in the
+module's code guide, `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions"),
+which also describes how the existing code is structured. This skill references those conventions; it
+does not restate them. Change a convention in that file, not in this skill.
 
 > **Base directory for paths.** Unless a path starts with `src/`, `test/`, or `testdata/` (relative to the
 > repository root), every file path in this skill is relative to `src/dsp_tools/commands/validate_data/`.
@@ -102,22 +104,13 @@ project ontology ──► SHACL shapes ──────┘        (3 runs)
 
 ## 2. Step 1 — Write the test data first (one fail, one pass)
 
-Test data lives in `testdata/validate-data/`. The main set is `core_validation/` (project shortcode
-`9999`). A suffix convention marks intent: `*_correct.xml` must **pass**, `*_violation.xml` must
-**fail**. Most themes have both, but not every file is paired (e.g. `value_type_violation.xml` and
-`unique_value_violation.xml` have no `_correct` partner).
+Write the test data before the shape. At least one resource must fail and one must pass. This gives
+cheap, objective feedback before you build anything.
 
-Hard rules (they are enforced by the tests, so follow them):
-
-- Add **one violating resource** to the relevant `*_violation.xml` and **one correct resource** to the
-  matching `*_correct.xml`. Reuse an existing file if your check fits its theme (cardinality, content,
-  value types, file values, dsp-inbuilt).
-  If it is extensive with a lot of test data or does not fit into a file, create a new one.
-- **One resource must produce exactly one user-facing violation.** Do not stack two unrelated errors
-  on one resource — the e2e tests assert an exact count, so a resource with two problems breaks the
-  1-to-1 mapping the whole suite relies on.
-- The violating resource's `id` is a **descriptive slug** naming the violation, with an XML comment
-  explaining it. Tests assert on that `id` (as `res_id`) and on the focus node `http://data/<id>`.
+Follow the **"Test-data conventions" in `src/dsp_tools/commands/validate_data/CLAUDE.md`** for where
+each file goes and what each contains. In short: add one violating resource to a `*_violation.xml` and
+one correct resource to the matching `*_correct.xml`, one violation per resource, with a descriptive
+`id` and an explaining XML comment.
 
 Example (violating), from `core_validation/cardinality_violation.xml`:
 
@@ -130,18 +123,8 @@ Example (violating), from `core_validation/cardinality_violation.xml`:
 </resource>
 ```
 
-If your check needs a new property or class, add it to the ontology in
-`core_validation/core-validation-project-9999.json` (the catch-all class is
-`ClassWithEverything`, which always has 0-1 or 0-n cardinality).
-Try to re-use properties and classes if possible.
-For edge cases there are dedicated projects: `special_characters/`, `inheritance/`,
-`erroneous_ontology/` (ontology-level checks).
-
-There is also `core_validation/every_violation_combination_once.xml`, an aggregate file exercising
-every report shape once.
-This is only if you create a new shape that also creates a new ConstraintComponentViolation,
-otherwise you can leave this alone. **If you add a resource there, you must update two lists** in
-`test/e2e/commands/validate_data/test_core_violations.py` (see Step 6).
+A check may also need a new property or class in the project JSON, or an entry in the aggregate file
+`every_violation_combination_once.xml` — the "Test-data conventions" cover both.
 
 ---
 
@@ -361,9 +344,8 @@ none of the existing `ProblemType`s fit.
    `PROBLEM_TYPES_IGNORE_STR_ENUM_INFO` to show the shape's `sh:message` instead of the enum label; add
    a case in `_get_expected_prefix` for an "Expected …" prefix; special-case `_shorten_input` if the
    input value must not be truncated.
-7. **Unit tests** — under `test/unittests/commands/validate_data/`, add a `report_<x>` + `extracted_<x>`
-   fixture pair in `fixtures/validation_result.py`, a dispatch test in `test_query_validation_result.py`,
-   and a reformat test in `test_reformat_validation_results.py`.
+7. **Unit tests** — a new component needs unit tests. See the "Test-data conventions" in the module
+   `CLAUDE.md` for the fixture pair and the two test files to update.
 8. **Add to table above** to prevent outdated information you must also update this document.
 
 **Minimum change set** if `GENERIC` is acceptable: steps 1, 7 and 8 only.
@@ -373,23 +355,15 @@ none of the existing `ProblemType`s fit.
 
 ## 7. Step 6 — Update and run the tests
 
-- **E2E expectations are inline `expected_*` lists** in `test/e2e/commands/validate_data/`. Append a
-  `(res_id, ProblemType, ...)` tuple to the list in the matching test; violations are sorted by
-  `res_id`, and there is an exact-count assertion, so a missing tuple fails loudly. Files by scenario:
-    - `test_core_correct.py` — the "must pass" tests (add nothing unless your correct resource is new).
-    - `test_core_violations.py` — cardinality / content / value-type / file / unique-value / dsp-inbuilt.
-    - `test_core_warning_and_info.py` — warnings and info.
-    - `test_edge_cases.py` — special characters, inheritance, erroneous ontology.
-    - If you touched `every_violation_combination_once.xml`, update **both** lists in
-      `test_core_violations.py` (`test_extract_identifiers_of_resource_results` **and**
-      `test_reformat_every_constraint_once`).
-- **Unit expectations**: the fixtures/tests from Step 5.7.
-- **Commands**:
-    - `just unittests test/unittests/commands/validate_data/` — fast, no Docker; covers the whole
-      report-processing chain.
-    - `just e2e-test-validate-data` — **requires Docker**; spins up a real DSP stack (testcontainers),
-      creates the project, and validates the data end-to-end.
-    - `just lint` — before committing.
+Update the e2e `expected_*` lists and the unit expectations per the "Test-data conventions" in
+`src/dsp_tools/commands/validate_data/CLAUDE.md` (which file per scenario, the tuple format, and the
+aggregate-file two-list rule). Then run:
+
+- `just unittests test/unittests/commands/validate_data/` — fast, no Docker; covers the whole
+  report-processing chain.
+- `just e2e-test-validate-data` — **requires Docker**; spins up a real DSP stack (testcontainers),
+  creates the project, and validates the data end-to-end.
+- `just lint` — before committing.
 
 ---
 
@@ -404,10 +378,9 @@ The review must consider, but is not limited to:
   slow. A new component must **reuse** existing helpers (`_query_general_violation_info`, the `GENERIC`
   path) wherever it can, and must **not** grow the validation-result query when an existing path works.
 - **Simplicity.** No new `ViolationType` / `ProblemType` unless an existing one genuinely does not fit.
-- **Completeness.** The plumbing is covered: the project JSON and XML test data are updated, the value is
-  actually parsed (a `knora-api` value may need a parser change before it appears in the data graph), and
-  — if `every_violation_combination_once.xml` was touched — both lists in `test_core_violations.py` were
-  updated.
+- **Completeness.** The plumbing is covered: the value is actually parsed (a `knora-api` value may need a
+  parser change before it appears in the data graph), and the test data follows the module `CLAUDE.md`
+  "Test-data conventions" (including the aggregate-file two-list rule).
 - **This document.** If a new component was wired through, the Step 4 table and the checklist below were
   updated to match.
 
@@ -418,8 +391,8 @@ The review must consider, but is not limited to:
 **Before you start:** confirm **severity** with the developer (it routes test placement) and the check's
 **purpose** if it is not clear from the code. Then:
 
-1. [ ] Add one violating + one correct resource to `testdata/validate-data/…` (one error per resource,
-   descriptive `id`, XML comment). Add any new property/class to the project JSON.
+1. [ ] Add test data per the module `CLAUDE.md` "Test-data conventions" (one violating + one correct
+   resource, one error per resource, descriptive `id`, XML comment; new property/class in the project JSON).
 2. [ ] Decide static (`src/dsp_tools/resources/validate_data/*.ttl`, preferred) vs. dynamic (`sparql/*.py`)
    or combination. Write a clear `sh:message`.
 3. [ ] If a new static file or a new generator: wire it into `prepare_data/prepare_data.py`
@@ -427,7 +400,7 @@ The review must consider, but is not limited to:
 4. [ ] Find the firing `sh:sourceConstraintComponent` (unit fixture, or `--save-graphs` + Docker).
 5. [ ] Look it up in the Step 4 table. Already handled → skip to 6. New → do Step 5 (dispatch →
    ViolationType → reformat → ProblemType → mapper → message → unit tests → update this document).
-6. [ ] Add e2e `(res_id, ProblemType)` tuples in `test/e2e/commands/validate_data/`.
+6. [ ] Add the e2e `(res_id, ProblemType)` tuples per those conventions.
 7. [ ] `just unittests test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`
    (needs Docker), then `just lint`.
 8. [ ] Spawn a review subagent (Step 7) to check reuse, simplicity, and the plumbing/completeness traps

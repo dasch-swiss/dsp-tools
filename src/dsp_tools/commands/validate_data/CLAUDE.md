@@ -11,6 +11,8 @@ to ensure data conforms to ontological constraints before upload.
 To **add a new validation (SHACL shape)**, use the `add-shacl-shape` skill (Claude Code auto-detects it);
 its step-by-step playbook is at
 [`.claude/skills/add-shacl-shape/SKILL.md`](../../../../.claude/skills/add-shacl-shape/SKILL.md).
+The skill workflow is an optional process. The "Test-data conventions" below are mandatory and apply
+whether or not the skill is used.
 
 ## Key Components
 
@@ -157,6 +159,37 @@ Validation results are categorized into:
 - **Unit tests**: Test individual validation components
 - **Integration tests**: Test API client interactions
 - **E2E tests**: Test complete validation workflows with testcontainers
+
+### Test-data conventions (mandatory)
+
+The tests enforce these rules. A new SHACL shape follows all of them, whether or not the
+`add-shacl-shape` skill is used. Change a rule here, not in the skill.
+
+1. Test data lives in `testdata/validate-data/core_validation/` (project shortcode `9999`). The suffix
+   marks intent: `*_correct.xml` must pass, `*_violation.xml` must fail.
+2. Add one violating resource to the matching `*_violation.xml` and one correct resource to the matching
+   `*_correct.xml`. Reuse a file that fits the theme (cardinality, content, value types, file values,
+   dsp-inbuilt). Create a file only when the data does not fit an existing one.
+3. One resource produces exactly one user-facing violation. The e2e suite asserts an exact count, so a
+   resource with two problems breaks the 1-to-1 mapping.
+4. The violating resource `id` is a descriptive slug that names the violation, with an XML comment that
+   explains it. Tests assert on that `id` (as `res_id`) and on the focus node `http://data/<id>`.
+5. A new property or class goes into `core-validation-project-9999.json` (catch-all class
+   `ClassWithEverything`, always 0-1 or 0-n cardinality). Reuse existing properties and classes where
+   possible. Edge-case projects: `special_characters/`, `inheritance/`, `erroneous_ontology/`.
+6. E2E expectations are inline `expected_*` lists in `test/e2e/commands/validate_data/`. Append a
+   `(res_id, ProblemType, ...)` tuple to the file that matches the scenario. Violations are sorted by
+   `res_id`, and an exact-count assertion fails on a missing tuple. Files by scenario:
+    - `test_core_correct.py` — the "must pass" tests. Add a tuple only for a new correct resource.
+    - `test_core_violations.py` — cardinality, content, value type, file, unique value, dsp-inbuilt.
+    - `test_core_warning_and_info.py` — warnings and info.
+    - `test_edge_cases.py` — special characters, inheritance, erroneous ontology.
+7. Touch `core_validation/every_violation_combination_once.xml` only when the shape creates a new
+   constraint-component violation. If touched, update both lists in `test_core_violations.py`
+   (`test_extract_identifiers_of_resource_results` and `test_reformat_every_constraint_once`).
+8. A newly wired constraint component adds a `report_<x>` + `extracted_<x>` fixture pair in
+   `fixtures/validation_result.py`, a dispatch test in `test_query_validation_result.py`, and a reformat
+   test in `test_reformat_validation_results.py`.
 
 ## Important Notes
 

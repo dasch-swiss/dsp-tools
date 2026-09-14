@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
 from typing import cast
 from unittest.mock import patch
@@ -39,7 +40,7 @@ def test_find_duplicate_col_names_raises() -> None:
 
 
 def test_read_and_clean_all_sheets_invalid_sheet_name_logs_and_raises(
-    tmp_path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     excel_path = tmp_path / "test.xlsx"
     excel_path.touch()

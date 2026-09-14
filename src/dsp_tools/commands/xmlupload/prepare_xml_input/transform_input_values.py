@@ -94,8 +94,9 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
     try:
         return IntervalFloats(float(val[0]), float(val[1]))
     except ValueError:
-        logger.exception(f"Could not parse interval: {val}")
-        raise XmlInputConversionError(f"Could not parse interval: {val}") from None
+        msg = f"Could not parse interval: {val}"
+        logger.exception(msg)
+        raise XmlInputConversionError(msg) from None
 
 
 def transform_geometry(value: InputTypes) -> str:
@@ -104,8 +105,9 @@ def transform_geometry(value: InputTypes) -> str:
     try:
         return json.dumps(json.loads(str_val))
     except JSONDecodeError:
-        logger.exception(f"Could not parse json value: {value}")
-        raise XmlInputConversionError(f"Could not parse json value: {value}") from None
+        msg = f"Could not parse json value: {value}"
+        logger.exception(msg)
+        raise XmlInputConversionError(msg) from None
 
 
 def transform_simpletext(value: InputTypes) -> str:

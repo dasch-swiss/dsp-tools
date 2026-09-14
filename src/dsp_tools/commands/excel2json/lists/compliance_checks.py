@@ -7,7 +7,6 @@ from typing import cast
 
 import pandas as pd
 import regex
-from loguru import logger
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileContentError
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
@@ -72,7 +71,6 @@ def _check_duplicates_all_excels(sheet_list: list[ExcelSheet]) -> None:
         problems.append(id_problem)
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
-        logger.error(msg)
         raise InvalidListSectionError(msg)
 
 
@@ -99,7 +97,6 @@ def _check_for_unique_list_names(sheet_list: list[ExcelSheet]) -> None:
         all_problems.append(DuplicatesListNameProblem(duplicate_list_names))
     if all_problems:
         msg = ListCreationProblem(all_problems).execute_error_protocol()
-        logger.error(msg)
         raise InvalidFileContentError(msg)
 
 
@@ -146,7 +143,6 @@ def _make_shape_compliance_all_excels(sheet_list: list[ExcelSheet]) -> None:
     ]
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
-        logger.error(msg)
         raise InvalidFileFormatError(msg)
 
 
@@ -199,7 +195,6 @@ def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> 
     ]
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
-        logger.error(msg)
         raise InvalidFileFormatError(msg)
 
 
@@ -240,7 +235,6 @@ def _check_for_erroneous_entries_all_excels(sheet_list: list[ExcelSheet]) -> Non
     ]
     if problems:
         msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
-        logger.error(msg)
         raise InvalidFileContentError(msg)
 
 

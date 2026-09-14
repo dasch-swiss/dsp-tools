@@ -12,6 +12,7 @@ from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_DATA_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
@@ -47,6 +48,11 @@ def validate_ontology(
     try:
         result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_path)
         return result
+    except ShaclValidationCliError:
+        # the Docker command layer already logged this once - do not re-log, but still
+        # preserve the validation graphs for debugging, same as the Exception branch below
+        save_graph_dir = tmp_path.parent / "validation-graphs"
+        raise
     except Exception as e:  # noqa: BLE001
         logger.exception(e)
         save_graph_dir = tmp_path.parent / "validation-graphs"

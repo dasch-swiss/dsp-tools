@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.constants import CARDINALITY_SHACL_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_DATA_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import CONTENT_SHACL_TTL
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -30,6 +31,11 @@ def get_validation_report(
     try:
         result = _call_shacl_cli(rdf_graphs, shacl_validator, tmp_path)
         return result
+    except ShaclValidationCliError:
+        # the Docker command layer already logged this once - do not re-log, but still
+        # preserve the validation graphs for debugging, same as the Exception branch below
+        dir_to_save_graphs = tmp_path.parent / "validation-graphs"
+        raise
     except Exception as e:  # noqa: BLE001
         logger.exception(e)
         dir_to_save_graphs = tmp_path.parent / "validation-graphs"

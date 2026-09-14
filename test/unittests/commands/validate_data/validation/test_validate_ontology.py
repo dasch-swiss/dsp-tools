@@ -1,10 +1,9 @@
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest.mock import Mock
 
 import pytest
-from loguru import logger
 from rdflib import Graph
 
 from dsp_tools.cli.args import ValidateDataConfig
@@ -14,6 +13,8 @@ from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validation.validate_ontology import _reformat_ontology_validation_result
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
+
+_GET_TEMP_DIRECTORY_TARGET = "dsp_tools.commands.validate_data.validation.validate_ontology.get_temp_directory"
 
 
 def _make_config() -> ValidateDataConfig:
@@ -28,27 +29,14 @@ def _make_config() -> ValidateDataConfig:
     )
 
 
-def _raise_already_logged_docker_failure(*_args: object, **_kwargs: object) -> None:
-    # simulates ShaclCliValidator.validate() itself: logs once at the origin, then raises
-    logger.exception("Docker command failed with 1: stdout='stdout', stderr='stderr'")
-    raise ShaclValidationCliError(1, "stdout", "stderr")
-
-
-def _patch_temp_directory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    # narrowly scoped to this module's imported name, instead of monkeypatching the
-    # global pathlib.Path.home() that get_temp_directory() would otherwise call
-    monkeypatch.setattr(
-        "dsp_tools.commands.validate_data.validation.validate_ontology.get_temp_directory",
-        lambda: TemporaryDirectory(dir=tmp_path),
-    )
-
-
 def test_already_logged_docker_failure_is_not_logged_again(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    patch_temp_directory: Callable[[str], None],
+    raise_already_logged_docker_failure: Callable[..., None],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
-    shacl_validator.validate.side_effect = _raise_already_logged_docker_failure
+    shacl_validator.validate.side_effect = raise_already_logged_docker_failure
     with caplog.at_level(logging.ERROR):
         with pytest.raises(ShaclValidationCliError):
             validate_ontology(Graph(), shacl_validator, _make_config())
@@ -57,9 +45,9 @@ def test_already_logged_docker_failure_is_not_logged_again(
 
 
 def test_already_logged_docker_failure_still_preserves_validation_graphs(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, patch_temp_directory: Callable[[str], None]
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationCliError(1, "stdout", "stderr")
     with pytest.raises(ShaclValidationCliError):
@@ -68,9 +56,9 @@ def test_already_logged_docker_failure_still_preserves_validation_graphs(
 
 
 def test_fresh_failure_is_logged_once(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    patch_temp_directory: Callable[[str], None], caplog: pytest.LogCaptureFixture
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationError("SHACL file not found: shacl.ttl")
     with caplog.at_level(logging.ERROR):

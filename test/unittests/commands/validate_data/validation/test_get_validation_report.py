@@ -1,12 +1,11 @@
 import io
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest.mock import Mock
 
 import pyoxigraph as ox
 import pytest
-from loguru import logger
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -21,6 +20,8 @@ from dsp_tools.commands.validate_data.validation.get_validation_report import ge
 
 EX = "http://example.org/"
 
+_GET_TEMP_DIRECTORY_TARGET = "dsp_tools.commands.validate_data.validation.get_validation_report.get_temp_directory"
+
 
 def _make_rdf_graphs() -> RDFGraphs:
     return RDFGraphs(
@@ -33,27 +34,14 @@ def _make_rdf_graphs() -> RDFGraphs:
     )
 
 
-def _raise_already_logged_docker_failure(*_args: object, **_kwargs: object) -> None:
-    # simulates ShaclCliValidator.validate() itself: logs once at the origin, then raises
-    logger.exception("Docker command failed with 1: stdout='stdout', stderr='stderr'")
-    raise ShaclValidationCliError(1, "stdout", "stderr")
-
-
-def _patch_temp_directory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    # narrowly scoped to this module's imported name, instead of monkeypatching the
-    # global pathlib.Path.home() that get_temp_directory() would otherwise call
-    monkeypatch.setattr(
-        "dsp_tools.commands.validate_data.validation.get_validation_report.get_temp_directory",
-        lambda: TemporaryDirectory(dir=tmp_path),
-    )
-
-
 def test_already_logged_docker_failure_is_not_logged_again(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    patch_temp_directory: Callable[[str], None],
+    raise_already_logged_docker_failure: Callable[..., None],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
-    shacl_validator.validate.side_effect = _raise_already_logged_docker_failure
+    shacl_validator.validate.side_effect = raise_already_logged_docker_failure
     with caplog.at_level(logging.ERROR):
         with pytest.raises(ShaclValidationCliError):
             get_validation_report(_make_rdf_graphs(), shacl_validator)
@@ -62,9 +50,9 @@ def test_already_logged_docker_failure_is_not_logged_again(
 
 
 def test_already_logged_docker_failure_still_preserves_validation_graphs(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, patch_temp_directory: Callable[[str], None]
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationCliError(1, "stdout", "stderr")
     with pytest.raises(ShaclValidationCliError):
@@ -73,9 +61,9 @@ def test_already_logged_docker_failure_still_preserves_validation_graphs(
 
 
 def test_fresh_failure_is_logged_once(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    patch_temp_directory: Callable[[str], None], caplog: pytest.LogCaptureFixture
 ) -> None:
-    _patch_temp_directory(monkeypatch, tmp_path)
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationError("SHACL file not found: shacl.ttl")
     with caplog.at_level(logging.ERROR):

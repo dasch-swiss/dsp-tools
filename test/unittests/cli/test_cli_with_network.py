@@ -15,7 +15,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
 
-# ruff: noqa: ARG002 Unused function argument
+# ruff: noqa: ARG001, ARG002 Unused function argument
 
 
 PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
@@ -701,7 +701,7 @@ class TestIngestUploads:
 
 
 class TestStartStack:
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_default(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -718,7 +718,7 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_max_file_size(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -735,7 +735,7 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -752,7 +752,7 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_no_prune(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -769,7 +769,7 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_latest(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -786,7 +786,7 @@ class TestStartStack:
         )
         start_stack.assert_called_once()
 
-    @patch("dsp_tools.cli.utils.check_docker_health")
+    @patch("dsp_tools.cli.call_action_with_network.check_docker_health")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.start_stack")
     @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.__init__", return_value=None)
     def test_start_stack_with_test_data(self, mock_init: Mock, start_stack: Mock, check_docker: Mock) -> None:
@@ -804,8 +804,9 @@ class TestStartStack:
         start_stack.assert_called_once()
 
 
+@patch("dsp_tools.cli.call_action_with_network.check_docker_health")
 @patch("dsp_tools.commands.start_stack.start_stack.StackHandler.stop_stack")
-def test_stop_stack(stop_stack: Mock) -> None:
+def test_stop_stack(stop_stack: Mock, check_docker: Mock) -> None:
     args = "stop-stack".split()
     entry_point.run(args)
     stop_stack.assert_called_once_with()

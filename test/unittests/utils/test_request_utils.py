@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any
 from unittest.mock import create_autospec
 from unittest.mock import patch
@@ -8,6 +9,7 @@ from requests import Response
 
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import _is_retriable_status_code
+from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import parse_api_v3_error
 from dsp_tools.utils.request_utils import should_retry_request
@@ -23,6 +25,15 @@ def _make_response(status_code: int, headers: dict[str, Any], text: str):
     except json.JSONDecodeError as e:
         mock.json.side_effect = e
     return mock
+
+
+def test_log_and_raise_timeouts_no_redundant_log(caplog: pytest.LogCaptureFixture) -> None:
+    error = TimeoutError("Request timed out")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(TimeoutError) as exc_info:
+            log_and_raise_timeouts(error)
+    assert not caplog.records
+    assert exc_info.value is error
 
 
 def test_log_response_debug() -> None:

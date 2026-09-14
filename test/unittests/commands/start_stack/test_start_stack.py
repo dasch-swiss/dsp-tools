@@ -70,10 +70,12 @@ class TestGetFusekiImageForLatest:
             with pytest.raises(PermanentConnectionError):
                 latest_handler._get_fuseki_image_for_latest()
 
-    def test_request_exception(self, latest_handler: StackHandler) -> None:
+    def test_request_exception(self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture) -> None:
         with patch("requests.get", side_effect=RequestException("connection failed")):
-            with pytest.raises(PermanentConnectionError):
-                latest_handler._get_fuseki_image_for_latest()
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler._get_fuseki_image_for_latest()
+        assert len(caplog.records) == 1
 
 
 class TestWriteOverrideFile:

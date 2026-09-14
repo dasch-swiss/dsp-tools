@@ -4,6 +4,7 @@ from typing import Any
 from typing import cast
 
 import regex
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
@@ -89,6 +90,7 @@ def _get_resource_ids_and_iri_strings(text: str, res_id: str) -> set[str]:
             try:
                 all_elements.append(wrap_and_get_etree(f_content))
             except etree.XMLSyntaxError:
+                logger.exception(f"Could not parse footnote content of resource '{res_id}': {f_content}")
                 raise FootnoteNotParsableError(res_id, f_content) from None
 
     all_hrefs = set()

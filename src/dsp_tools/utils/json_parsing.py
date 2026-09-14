@@ -17,6 +17,6 @@ def parse_json_file(filepath: Path) -> dict[str, Any]:
             loaded = json.load(f)
             return cast(dict[str, Any], loaded)
         except json.JSONDecodeError as e:
-            logger.error(e)
+            logger.exception(e)
             msg = f"The input file '{filepath}' cannot be parsed to a JSON object."
             raise JSONFileParsingError(msg) from None

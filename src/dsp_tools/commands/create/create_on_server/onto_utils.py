@@ -33,7 +33,7 @@ def sort_for_upload(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[st
         node_sorting_order = rx.topological_sort(graph)
         return [node_to_iri[x] for x in reversed(node_sorting_order)]
     except rx.DAGHasCycle as e:
-        logger.error(e)
+        logger.exception(e)
         raise CircularOntologyDependency("super-properties") from None
 
 

@@ -46,7 +46,8 @@ def _execute_list_creation(
     project_info = ProjectClientLive(creds.server, auth)
     try:
         project_iri = project_info.get_project_iri(project_metadata.shortcode)
-    except ProjectNotFoundError:
+    except ProjectNotFoundError as err:
+        logger.exception(err)
         # we want a more precise error message
         raise ProjectNotFoundError(
             f"This commands adds lists to an existing project. "

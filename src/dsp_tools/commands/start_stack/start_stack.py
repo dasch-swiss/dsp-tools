@@ -191,6 +191,7 @@ class StackHandler:
         try:
             response = requests.get(url, timeout=30)
         except RequestException:
+            logger.exception(f"Failed to connect to dsp-api at {url}")
             raise PermanentConnectionError(
                 f"Could not retrieve the Fuseki image from dsp-api. The request to {url} failed."
             ) from None

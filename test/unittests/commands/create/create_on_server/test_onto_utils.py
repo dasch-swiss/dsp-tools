@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -25,15 +26,17 @@ class TestSortUploadOrder:
         result = sort_for_upload(graph, node_to_iri)
         assert result == ["nodeA"]
 
-    def test_circular_reference_raises(self):
+    def test_circular_reference_raises(self, caplog: pytest.LogCaptureFixture):
         graph = rx.PyDiGraph()
         node_idxa = graph.add_node("nodeA")
         node_idxb = graph.add_node("nodeB")
         graph.add_edge(node_idxa, node_idxb, None)
         graph.add_edge(node_idxb, node_idxa, None)
         node_to_iri = {node_idxa: "nodeA", node_idxb: "nodeB"}
-        with pytest.raises(CircularOntologyDependency):
-            sort_for_upload(graph, node_to_iri)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(CircularOntologyDependency):
+                sort_for_upload(graph, node_to_iri)
+        assert len(caplog.records) == 1
 
     def test_sorts_diamond_pattern_correctly(self):
         # Diamond: A has edges to B and C, B and C have edges to D

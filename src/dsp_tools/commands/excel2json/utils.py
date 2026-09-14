@@ -7,6 +7,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem
@@ -54,7 +55,8 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
     _find_duplicate_col_names(str(excelfile), list(df_dict))
     try:
         return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
-    except AttributeError:
+    except AttributeError as err:
+        logger.exception(err)
         msg = InvalidSheetNameProblem(str(excelfile), list(df_dict.keys())).execute_error_protocol()
         raise InvalidFileFormatError(msg) from None
 

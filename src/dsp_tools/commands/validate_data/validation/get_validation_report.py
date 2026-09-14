@@ -28,17 +28,18 @@ def get_validation_report(
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
     dir_to_save_graphs = graph_save_dir
+    error_save_graph_dir = tmp_path.parent / "validation-graphs"
     try:
         result = _call_shacl_cli(rdf_graphs, shacl_validator, tmp_path)
         return result
     except ShaclValidationCliError:
         # the Docker command layer already logged this once - do not re-log, but still
         # preserve the validation graphs for debugging, same as the Exception branch below
-        dir_to_save_graphs = tmp_path.parent / "validation-graphs"
+        dir_to_save_graphs = error_save_graph_dir
         raise
     except Exception as e:  # noqa: BLE001
         logger.exception(e)
-        dir_to_save_graphs = tmp_path.parent / "validation-graphs"
+        dir_to_save_graphs = error_save_graph_dir
         msg = (
             f"An error occurred during the data validation. "
             f"Please contact the dsp-tools development team (at support@dasch.swiss) "

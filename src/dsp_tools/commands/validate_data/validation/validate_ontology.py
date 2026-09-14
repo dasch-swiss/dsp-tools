@@ -45,17 +45,18 @@ def validate_ontology(
     tmp_dir = get_temp_directory()
     tmp_path = Path(tmp_dir.name)
     save_graph_dir = config.save_graph_dir
+    error_save_graph_dir = tmp_path.parent / "validation-graphs"
     try:
         result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_path)
         return result
     except ShaclValidationCliError:
         # the Docker command layer already logged this once - do not re-log, but still
         # preserve the validation graphs for debugging, same as the Exception branch below
-        save_graph_dir = tmp_path.parent / "validation-graphs"
+        save_graph_dir = error_save_graph_dir
         raise
     except Exception as e:  # noqa: BLE001
         logger.exception(e)
-        save_graph_dir = tmp_path.parent / "validation-graphs"
+        save_graph_dir = error_save_graph_dir
         msg = (
             f"An error occurred during the ontology validation. "
             f"Please contact the dsp-tools development team (at support@dasch.swiss) "

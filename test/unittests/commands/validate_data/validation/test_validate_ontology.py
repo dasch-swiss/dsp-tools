@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import Mock
 
 import pytest
@@ -33,10 +34,19 @@ def _raise_already_logged_docker_failure(*_args: object, **_kwargs: object) -> N
     raise ShaclValidationCliError(1, "stdout", "stderr")
 
 
+def _patch_temp_directory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # narrowly scoped to this module's imported name, instead of monkeypatching the
+    # global pathlib.Path.home() that get_temp_directory() would otherwise call
+    monkeypatch.setattr(
+        "dsp_tools.commands.validate_data.validation.validate_ontology.get_temp_directory",
+        lambda: TemporaryDirectory(dir=tmp_path),
+    )
+
+
 def test_already_logged_docker_failure_is_not_logged_again(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    _patch_temp_directory(monkeypatch, tmp_path)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = _raise_already_logged_docker_failure
     with caplog.at_level(logging.ERROR):
@@ -49,18 +59,18 @@ def test_already_logged_docker_failure_is_not_logged_again(
 def test_already_logged_docker_failure_still_preserves_validation_graphs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    _patch_temp_directory(monkeypatch, tmp_path)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationCliError(1, "stdout", "stderr")
     with pytest.raises(ShaclValidationCliError):
         validate_ontology(Graph(), shacl_validator, _make_config())
-    assert (tmp_path / ".dsp-tools" / "validate-data" / "validation-graphs").is_dir()
+    assert (tmp_path / "validation-graphs").is_dir()
 
 
 def test_fresh_failure_is_logged_once(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    _patch_temp_directory(monkeypatch, tmp_path)
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationError("SHACL file not found: shacl.ttl")
     with caplog.at_level(logging.ERROR):

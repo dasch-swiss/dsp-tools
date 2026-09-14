@@ -27,10 +27,8 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
   `<bitstream>` with xpath. Extract file paths from `ParsedResource` and filter by type
   (`ParsedFileBitstream`). Placeholder and `<iiif-uri>` values are then excluded by type.
   A duplicated xpath parser caused the placeholder crash in DEV-7255.
-- Two-level design: `upload_files` takes the XML and runs standalone. `_get_validated_paths` takes
-  `list[ParsedResource]`. The planned bulk-import builds `ParsedResource` once and reuses level 2 —
-  make it public then. If the bulk-import is a separate command package, move it to utils first,
-  because commands must not import from other commands.
+- Two-level design: `upload_files` takes the XML file and runs standalone. `_get_validated_paths`
+  takes a `list[ParsedResource]` and returns the real bitstream file paths.
 - Two distinct error types: `FileProblems` for local problems before upload (missing or unsupported
   files). `UploadFailures` for files the ingest server rejects. Both expose `execute_error_protocol()`,
   which prints the list or writes a CSV past `maximum_prints`.
@@ -40,4 +38,3 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 ## Tests
 
 Unit: `test/unittests/commands/ingest_xmlupload/`. E2e: `test/e2e/commands/ingest_xmlupload/`.
-Keep a placeholder bitstream in the covered cases — it guards the DEV-7255 regression.

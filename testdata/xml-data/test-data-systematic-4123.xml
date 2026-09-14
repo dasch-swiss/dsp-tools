@@ -546,6 +546,7 @@
         </text-prop>
     </resource>
 
+    <!-- Placeholder bitstream. Guards the DEV-7255 upload-files regression. Keep it. -->
     <resource label="Imagething-with placeholder"
               restype=":ImageThing"
               id="image_thing_placeholder">

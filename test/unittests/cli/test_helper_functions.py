@@ -1,6 +1,7 @@
 """unit tests for the command line interface"""
 
 import argparse
+import logging
 
 import pytest
 
@@ -137,13 +138,15 @@ def test_supported_urls(api_url_orig: str, api_url_expected: str, dsp_ingest_url
     "unsupported_url",
     ["https://0.0.0.0:1234", "https://api.unkown-host.ch"],
 )
-def test_unsupported_cases(unsupported_url: str) -> None:
-    with pytest.raises(CliUserError, match=r"Invalid DSP server URL"):
-        _ = get_canonical_server_and_dsp_ingest_url(
-            server=unsupported_url,
-            default_dsp_api_url=DEFAULT_DSP_API_URL,
-            default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
-        )
+def test_unsupported_cases(unsupported_url: str, caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(CliUserError, match=r"Invalid DSP server URL"):
+            _ = get_canonical_server_and_dsp_ingest_url(
+                server=unsupported_url,
+                default_dsp_api_url=DEFAULT_DSP_API_URL,
+                default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
+            )
+    assert not caplog.records
 
 
 if __name__ == "__main__":

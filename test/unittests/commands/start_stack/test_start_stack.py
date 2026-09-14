@@ -139,7 +139,7 @@ class TestStartUpFuseki:
                 with pytest.raises(FusekiStartUpError) as exc_info:
                     latest_handler._start_up_fuseki()
         assert not caplog.records
-        assert "'returncode': 1" in str(exc_info.value)
+        assert "Return code: 1" in str(exc_info.value)
 
 
 class TestLoadDataIntoRepo:
@@ -153,7 +153,7 @@ class TestLoadDataIntoRepo:
                 with pytest.raises(FusekiStartUpError) as exc_info:
                     latest_handler._load_data_into_repo()
         assert not caplog.records
-        assert "'status_code': 503" in str(exc_info.value)
+        assert "Status: 503" in str(exc_info.value)
 
     def test_graph_post_failure_logs_once_with_diagnostics_folded_into_message(
         self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
@@ -169,7 +169,7 @@ class TestLoadDataIntoRepo:
                     with pytest.raises(FusekiStartUpError) as exc_info:
                         latest_handler._load_data_into_repo()
         assert not caplog.records
-        assert "'status_code': 500" in str(exc_info.value)
+        assert "Status: 500" in str(exc_info.value)
 
 
 class TestCreateAdminUser:
@@ -183,7 +183,7 @@ class TestCreateAdminUser:
                 with pytest.raises(FusekiStartUpError) as exc_info:
                     latest_handler._create_admin_user()
         assert not caplog.records
-        assert "'status_code': 500" in str(exc_info.value)
+        assert "Status: 500" in str(exc_info.value)
 
 
 class TestExecuteDockerSystemPrune:

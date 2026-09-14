@@ -254,8 +254,7 @@ class StackHandler:
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up -d db'"
-            logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
-            raise FusekiStartUpError(msg)
+            raise FusekiStartUpError(f"{msg}. Return code: {completed_process.returncode}")
 
     def _wait_for_fuseki(self) -> None:
         """
@@ -314,8 +313,7 @@ class StackHandler:
             ttl_response = requests.get(self.__url_prefix + ttl_file, timeout=30)
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
-                logger.error(f"{msg}'. response = {vars(ttl_response)}")
-                raise FusekiStartUpError(msg)
+                raise FusekiStartUpError(f"{msg}. Status: {ttl_response.status_code}. Response: {ttl_response.text}")
             ttl_text = ttl_response.text
             response = requests.post(
                 graph_prefix + graph,
@@ -324,8 +322,10 @@ class StackHandler:
                 timeout=30,
             )
             if not response.ok:
-                logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
-                raise FusekiStartUpError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
+                raise FusekiStartUpError(
+                    f"Cannot start DSP-API: Error when creating graph '{graph}'. "
+                    f"Status: {response.status_code}. Response: {response.text}"
+                )
 
     def _create_admin_user(self) -> None:
         """
@@ -362,8 +362,10 @@ class StackHandler:
             timeout=30,
         )
         if not response.ok:
-            logger.error(f"Cannot start DSP-API: Error when creating the admin user. response = {vars(response)}")
-            raise FusekiStartUpError("Cannot start DSP-API: Error when creating the admin user.")
+            raise FusekiStartUpError(
+                f"Cannot start DSP-API: Error when creating the admin user. "
+                f"Status: {response.status_code}. Response: {response.text}"
+            )
 
     def _initialize_fuseki(self) -> None:
         """

@@ -1,14 +1,76 @@
 import io
+import logging
+from collections.abc import Callable
+from pathlib import Path
+from unittest.mock import Mock
 
 import pyoxigraph as ox
+import pytest
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validation.get_validation_report import _merge_into_ox_store
+from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 
 EX = "http://example.org/"
+
+_GET_TEMP_DIRECTORY_TARGET = "dsp_tools.commands.validate_data.validation.get_validation_report.get_temp_directory"
+
+
+def _make_rdf_graphs() -> RDFGraphs:
+    return RDFGraphs(
+        data=Graph(store="Oxigraph"),
+        ontos=Graph(store="Oxigraph"),
+        cardinality_shapes=Graph(store="Oxigraph"),
+        content_shapes=Graph(store="Oxigraph"),
+        knora_api=Graph(store="Oxigraph"),
+        resources_in_db_graph=Graph(store="Oxigraph"),
+    )
+
+
+def test_already_logged_docker_failure_is_not_logged_again(
+    patch_temp_directory: Callable[[str], None],
+    raise_already_logged_docker_failure: Callable[..., None],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
+    shacl_validator = Mock(spec=ShaclCliValidator)
+    shacl_validator.validate.side_effect = raise_already_logged_docker_failure
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(ShaclValidationCliError):
+            get_validation_report(_make_rdf_graphs(), shacl_validator)
+    assert len(caplog.records) == 1
+    assert "Docker command failed" in caplog.text
+
+
+def test_already_logged_docker_failure_still_preserves_validation_graphs(
+    tmp_path: Path, patch_temp_directory: Callable[[str], None]
+) -> None:
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
+    shacl_validator = Mock(spec=ShaclCliValidator)
+    shacl_validator.validate.side_effect = ShaclValidationCliError(1, "stdout", "stderr")
+    with pytest.raises(ShaclValidationCliError):
+        get_validation_report(_make_rdf_graphs(), shacl_validator)
+    assert (tmp_path / "validation-graphs").is_dir()
+
+
+def test_fresh_failure_is_logged_once(
+    patch_temp_directory: Callable[[str], None], caplog: pytest.LogCaptureFixture
+) -> None:
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
+    shacl_validator = Mock(spec=ShaclCliValidator)
+    shacl_validator.validate.side_effect = ShaclValidationError("SHACL file not found: shacl.ttl")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(ShaclValidationError, match="data validation"):
+            get_validation_report(_make_rdf_graphs(), shacl_validator)
+    assert len(caplog.records) == 1
+    assert "SHACL file not found" in caplog.text
 
 
 def _count_store_triples(store: ox.Store) -> int:

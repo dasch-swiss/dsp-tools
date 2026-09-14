@@ -204,10 +204,9 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
     time.sleep(sleep_time)
 
 
-def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
+def print_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
-    logger.error(msg)
     raise error
 
 

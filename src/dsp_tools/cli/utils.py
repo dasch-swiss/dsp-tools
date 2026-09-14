@@ -91,13 +91,11 @@ def _check_api_health(api_url: str) -> None:
         raise DspApiNotReachableError(is_localhost=api_url == LOCALHOST_API) from None
 
     if not response.ok:
-        error = DspApiNotReachableError(
+        raise DspApiNotReachableError(
             is_localhost=bool(api_url == LOCALHOST_API),
             status_code=response.status_code,
             response_text=response.text,
         )
-        logger.error(str(error))
-        raise error
 
     logger.debug(f"DSP API health check passed: {health_url}")
 
@@ -112,13 +110,11 @@ def _check_ingest_health(ingest_url: str) -> None:
         raise IngestNotReachableError(is_localhost=ingest_url == LOCALHOST_INGEST) from None
 
     if not response.ok:
-        error = IngestNotReachableError(
+        raise IngestNotReachableError(
             is_localhost=bool(ingest_url == LOCALHOST_INGEST),
             status_code=response.status_code,
             response_text=response.text,
         )
-        logger.error(str(error))
-        raise error
 
     logger.debug(f"DSP Ingest health check passed: {health_url}")
 
@@ -163,7 +159,6 @@ def get_canonical_server_and_dsp_ingest_url(
         server = f"https://api.{remote_url_match.group(1)}.swiss"
         dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
-        logger.error(f"Invalid DSP server URL '{server}'")
         raise CliUserError(f"Invalid DSP server URL '{server}'")
 
     logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")

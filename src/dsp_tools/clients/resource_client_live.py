@@ -17,9 +17,9 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import print_and_raise_timeouts
 
 TIMEOUT_1800 = 1800
 TIMEOUT_30 = 30
@@ -53,7 +53,7 @@ class ResourceClientLive(ResourceClient):
                 timeout=params.timeout,
             )
         except (TimeoutError, ReadTimeout) as err:
-            log_and_raise_timeouts(err)
+            print_and_raise_timeouts(err)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response, status_code=response.status_code)

@@ -13,14 +13,6 @@ DEFAULT_DSP_API_URL = "http://0.0.0.0:3333"
 DEFAULT_DSP_INGEST_URL = "http://0.0.0.0:3340"
 
 
-@pytest.fixture
-def unsupported_urls() -> list[str]:
-    return [
-        "https://0.0.0.0:1234",
-        "https://api.unkown-host.ch",
-    ]
-
-
 def test_derive_dsp_ingest_url_without_server() -> None:
     """
     If the argparse.Namespace does not contain a server,

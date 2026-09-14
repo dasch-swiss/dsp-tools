@@ -9,9 +9,9 @@ from requests import Response
 
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.request_utils import _is_retriable_status_code
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import parse_api_v3_error
+from dsp_tools.utils.request_utils import print_and_raise_timeouts
 from dsp_tools.utils.request_utils import should_retry_request
 
 
@@ -27,11 +27,11 @@ def _make_response(status_code: int, headers: dict[str, Any], text: str):
     return mock
 
 
-def test_log_and_raise_timeouts_no_redundant_log(caplog: pytest.LogCaptureFixture) -> None:
+def test_print_and_raise_timeouts_no_redundant_log(caplog: pytest.LogCaptureFixture) -> None:
     error = TimeoutError("Request timed out")
     with caplog.at_level(logging.ERROR):
         with pytest.raises(TimeoutError) as exc_info:
-            log_and_raise_timeouts(error)
+            print_and_raise_timeouts(error)
     assert not caplog.records
     assert exc_info.value is error
 

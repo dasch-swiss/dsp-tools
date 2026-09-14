@@ -20,10 +20,10 @@ from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import print_and_raise_timeouts
 from dsp_tools.utils.request_utils import should_retry_request
 
 HTTP_OK = 200
@@ -172,7 +172,7 @@ class ConnectionLive(Connection):
                 log_request(params, dict(self.session.headers))
                 response = action()
             except (TimeoutError, ReadTimeout) as err:
-                log_and_raise_timeouts(err)
+                print_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
                 log_request_failure_and_sleep(

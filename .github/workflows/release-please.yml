@@ -95,14 +95,12 @@ jobs:
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
           git push
 
-  # Release-train leg: merging `chore(start-stack): bump versions to <DSP>` is the
-  # last step before dsp-tools is released, so the release PR it produces is
-  # merged automatically. Any other push to main leaves the release PR open, as
-  # before — releases outside the train stay a deliberate human merge.
+  # Release-train leg: merging `chore(start-stack): bump versions to <DSP>` is the last step before
+  # a dsp-tools release, so the release PR it produces is merged automatically. Any other push to
+  # main leaves the release PR open.
   #
-  # The workflow_dispatch arm is the resume path. Without it a stranded release
-  # PR can only be finished by hand: a manual re-run carries no head_commit, and
-  # release-please reports no PR number when it has nothing left to change, so
+  # The workflow_dispatch arm is the resume path for a stranded release PR: a manual re-run carries
+  # no head_commit, and release-please reports no PR number when it has nothing left to change, so
   # both halves of the push condition are false on a second attempt.
   auto-merge-release-pr:
     name: Auto-merge release PR (release train only)

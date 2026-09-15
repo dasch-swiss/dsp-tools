@@ -1,15 +1,10 @@
 ---
 
-# The external links in ./docs reach ~40 third-party hosts, so this check must
-# never be able to block a merge: it is deliberately kept OUT of the
-# required-status-check list on main. A dead link surfaces as a red ✗ on the pull
-# request — visible to the author, who is the person best placed to fix a link
-# they just added — but the merge stays available, so an outage at one host
-# cannot stall every open PR in the repo.
-#
-# Internal links and `#heading` anchors are NOT checked here: `mkdocs build
-# --strict` owns those (see the `validation:` block in mkdocs.yml), and it is a
-# required check precisely because it depends on nothing outside this repository.
+# Deliberately NOT a required status check on main: it reaches ~40 third-party hosts, so as a merge
+# gate it fails for reasons unrelated to the pull request under test. A dead link still shows as a
+# red ✗ to the author. Internal links and `#heading` anchors belong to `mkdocs build --strict` (the
+# `validation:` block in mkdocs.yml), which is required precisely because it depends on nothing
+# outside this repository.
 name: Check External Links
 
 on:

@@ -21,20 +21,20 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # `main` requires 13 status checks + 1 review, is strict (branch must be up
-    # to date), and has enforce_admins on. GitHub's native auto-merge is
-    # unusable here: it ignores bypass allowances and waits for a real approval
-    # that never comes for a bot-authored PR. The App is a bypass actor for the
-    # *review* only — required status checks have no per-actor bypass under
-    # branch protection. So a direct `--admin` merge is rejected by the server
-    # until every required check passes, then the review bypass lets it through.
-    # Retrying the merge therefore both waits for the checks AND can never merge
-    # before they are green. (`--admin` only skips gh's client-side mergeability
-    # refusal; the server still enforces the checks.)
+    # `main` is strict (branch must be up to date), requires a review, and has
+    # enforce_admins on; its required-check list lives in the branch-protection
+    # settings, not here. GitHub's native auto-merge is unusable: it ignores bypass
+    # allowances and waits for a real approval that never comes for a bot-authored
+    # PR. The App is a bypass actor for the *review* only — required status checks
+    # have no per-actor bypass under branch protection. So a direct `--admin` merge
+    # is rejected by the server until every required check passes, then the review
+    # bypass lets it through. Retrying the merge therefore both waits for the checks
+    # AND can never merge before they are green. (`--admin` only skips gh's
+    # client-side mergeability refusal; the server still enforces the checks.)
     #
-    # Note that the server's rejection message always names the missing review,
-    # even for this App. That clause is noise — the bypass is applied once the
-    # checks pass — so it is not a signal to act on.
+    # The server's rejection message always names the missing review, even for this
+    # App. That clause is noise — the bypass is applied once the checks pass — so it
+    # is not a signal to act on.
     - name: Merge once required checks pass
       shell: bash
       env:

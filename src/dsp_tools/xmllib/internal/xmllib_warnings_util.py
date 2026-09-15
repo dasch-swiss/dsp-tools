@@ -6,6 +6,7 @@ from typing import Any
 from typing import Never
 
 import regex
+from loguru import logger
 
 from dsp_tools.setup.ansi_colors import BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -41,6 +42,7 @@ def initialise_warning_file() -> None:
                 writer = csv.writer(file)
                 writer.writerow(new_row)
         except FileNotFoundError:
+            logger.exception(f"The filepath '{file_path}' does not exist.")
             raise XmllibFileNotFoundError(
                 f"The filepath '{file_path}' you entered in your .env file does not exist. "
                 f"Please ensure that the folder you named exists."

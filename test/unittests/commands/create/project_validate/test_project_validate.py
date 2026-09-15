@@ -1,10 +1,22 @@
+import logging
+
 import pytest
 
+from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
 from dsp_tools.commands.create.models.parsed_project import ParsedList
 from dsp_tools.commands.create.models.parsed_project import ParsedListNode
 from dsp_tools.commands.create.models.parsed_project import ParsedNodeInfo
 from dsp_tools.commands.create.project_validate import _check_for_duplicates_in_list_section
 from dsp_tools.commands.create.project_validate import _flatten_all_lists
+from dsp_tools.commands.create.project_validate import _validate_with_json_schema
+
+
+class TestValidateWithJsonSchema:
+    def test_invalid_project_logs_and_raises(self, caplog: pytest.LogCaptureFixture) -> None:
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(ProjectJsonSchemaValidationError):
+                _validate_with_json_schema({})
+        assert len(caplog.records) == 1
 
 
 @pytest.fixture

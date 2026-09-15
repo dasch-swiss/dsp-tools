@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 from typing import cast
 
@@ -361,6 +362,14 @@ def test_extract_default_permissions_overrule() -> None:
     result = e2j._extract_default_permissions_overrule(test_df)
     assert result.private == ["property1", "property3", "property4"]
     assert result.limited_view == []
+
+
+def test_validate_properties_section_in_json_logs_and_raises(caplog: pytest.LogCaptureFixture) -> None:
+    properties_list = [{"name": "prop1"}]  # missing required "super", "object", "labels", "gui_element"
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(InvalidFileFormatError):
+            e2j._validate_properties_section_in_json(properties_list)
+    assert len(caplog.records) == 1
 
 
 if __name__ == "__main__":

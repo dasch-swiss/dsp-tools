@@ -11,6 +11,7 @@ import jsonpath_ng.ext
 import jsonschema
 import pandas as pd
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -271,6 +272,7 @@ def _validate_resources(resources_list: list[dict[str, Any]]) -> None:
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
+        logger.exception(err)
         validation_problem = _find_validation_problem(
             validation_error=err,
             resources_list=resources_list,

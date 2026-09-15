@@ -12,6 +12,7 @@ import jsonschema
 import numpy as np
 import pandas as pd
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.exceptions import InvalidGuiAttributeError
@@ -320,6 +321,7 @@ def _validate_properties_section_in_json(
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
+        logger.exception(err)
         validation_problem = _find_validation_problem(properties_list=properties_list, validation_error=err)
         msg = ExcelFileProblem("properties.xlsx", [validation_problem]).execute_error_protocol()
         raise InvalidFileFormatError(msg) from None

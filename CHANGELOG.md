@@ -1,5 +1,26 @@
 # Changelog
 
+## [19.1.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.1...v19.1.2) (2026-09-15)
+
+
+### Bug Fixes
+
+* **cli:** patch check_docker_health at its call site, not its definition ([#2430](https://github.com/dasch-swiss/dsp-tools/issues/2430)) ([254178f](https://github.com/dasch-swiss/dsp-tools/commit/254178f74400bf6f1eff259f79bacc68e0792ab6))
+* remove duplicate error logging from intermediate exception handlers (DEV-6167) ([#2429](https://github.com/dasch-swiss/dsp-tools/issues/2429)) ([fe0159b](https://github.com/dasch-swiss/dsp-tools/commit/fe0159b99b41839e7d7002d26c8995ab2078007e))
+* **upload-files:** handle placeholder bitstreams via ParsedResource ([#2428](https://github.com/dasch-swiss/dsp-tools/issues/2428)) ([ae2d539](https://github.com/dasch-swiss/dsp-tools/commit/ae2d53965f481f902ca588f8988911cdab4df49c))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 7 updates ([#2423](https://github.com/dasch-swiss/dsp-tools/issues/2423)) ([fe1759a](https://github.com/dasch-swiss/dsp-tools/commit/fe1759a5e1126644a46791716b4366937efd8c49))
+* **deps:** bump the all-dependencies group with 10 updates ([#2432](https://github.com/dasch-swiss/dsp-tools/issues/2432)) ([c393afe](https://github.com/dasch-swiss/dsp-tools/commit/c393afe5fa78f4649e7d7bb405d08e8c5522614b))
+* remove pre-Claude-5 ceremony from CLAUDE.md ([#2427](https://github.com/dasch-swiss/dsp-tools/issues/2427)) ([759a58a](https://github.com/dasch-swiss/dsp-tools/commit/759a58a9461a3a5b577780877cbaa1458cd905d7))
+
+
+### Documentation
+
+* **add-shacl-shape:** move mandatory test conventions to module guide ([#2425](https://github.com/dasch-swiss/dsp-tools/issues/2425)) ([a022b01](https://github.com/dasch-swiss/dsp-tools/commit/a022b01c497b39d8b06ee456eccb4f9e09bd9c38))
+
 ## [19.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.0...v19.1.1) (2026-09-09)
 
 

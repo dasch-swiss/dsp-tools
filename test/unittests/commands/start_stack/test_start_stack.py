@@ -78,6 +78,17 @@ class TestGetFusekiImageForLatest:
         assert len(caplog.records) == 1
 
 
+class TestStartStack:
+    def test_sipi_config_connection_error_logs_and_converts(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with patch.object(StackHandler, "_get_sipi_docker_config_lua", side_effect=requests.ConnectionError("boom")):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler.start_stack()
+        assert len(caplog.records) == 1
+
+
 class TestWriteOverrideFile:
     def _write_initial_override(self, tmp_path: Path) -> None:
         override = {

@@ -493,10 +493,11 @@ class StackHandler:
         try:
             self._get_sipi_docker_config_lua()
         except (requests.ConnectionError, requests.ReadTimeout):
+            logger.exception("Failed to retrieve sipi.docker-config.lua")
             raise PermanentConnectionError(
                 "This command requires an internet connection. "
                 "Please ensure that your computer is connected and try again."
-            )
+            ) from None
         if self.__stack_configuration.latest_dev_version:
             fuseki_image = self._get_fuseki_image_for_latest()
             self._patch_fuseki_version_in_override_file(fuseki_image)

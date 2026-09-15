@@ -1,14 +1,9 @@
-# Configuration for `just check-links` (see .github/workflows/check-external-links.yml).
+# Configuration for `just check-links`. Why this is deliberately not a required status check is in
+# .github/workflows/check-external-links.yml.
 #
-# This checks that the links in ./docs still resolve. It is deliberately NOT a
-# required status check: it depends on ~40 third-party hosts staying up and not
-# rate-limiting GitHub runner IPs, so as a merge gate it fails for reasons that
-# have nothing to do with the pull request under test.
-#
-# Internal links and `#heading` anchors are NOT validated here — `mkdocs build
-# --strict` owns those (see the `validation:` block in mkdocs.yml), and it uses
-# the site's real slug algorithm. Leaving `include_fragments` off keeps this
-# file from second-guessing it with a different one.
+# Internal links and `#heading` anchors are not validated here: `mkdocs build --strict` owns those
+# and uses the site's real slug algorithm, so leaving `include_fragments` off keeps this file from
+# second-guessing it with a different one.
 
 no_progress = true
 

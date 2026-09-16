@@ -1,3 +1,4 @@
+import logging
 import warnings
 from typing import cast
 
@@ -7,6 +8,7 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import resources as e2j
+from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMissingProblem
@@ -247,6 +249,14 @@ def test_failing_validate_excel_file() -> None:
     assert isinstance(missing, MandatorySheetsMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
     assert missing.mandatory_sheet == ["classes"]
+
+
+def test_validate_resources_logs_and_raises(caplog: pytest.LogCaptureFixture) -> None:
+    resources_list = [{"name": "Resource1"}]  # missing required "super" and "labels"
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(InvalidFileFormatError):
+            e2j._validate_resources(resources_list)
+    assert len(caplog.records) == 1
 
 
 def test_extract_default_permissions_overrule() -> None:

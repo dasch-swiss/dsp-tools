@@ -1,8 +1,11 @@
+import logging
+
 import pandas as pd
 import pytest
 import regex
 
 from dsp_tools.xmllib.internal import xmllib_warnings_util
+from dsp_tools.xmllib.internal.exceptions import XmllibFileNotFoundError
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import UserMessageSeverity
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
@@ -68,6 +71,14 @@ class TestInitialiseWarningFile:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert len(csv_path.read_text().splitlines()) == 2
+
+    def test_nonexistent_folder_logs_and_raises(self, tmp_path, monkeypatch, caplog: pytest.LogCaptureFixture):
+        csv_path = tmp_path / "nonexistent-folder" / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(XmllibFileNotFoundError):
+                initialise_warning_file()
+        assert len(caplog.records) == 1
 
 
 class TestWriteMessageToCsv:

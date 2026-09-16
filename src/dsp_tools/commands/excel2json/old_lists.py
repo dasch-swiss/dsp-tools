@@ -9,6 +9,7 @@ from typing import cast
 
 import jsonschema
 import regex
+from loguru import logger
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
@@ -297,6 +298,7 @@ def validate_lists_section_with_schema(lists_section: list[dict[str, Any]]) -> b
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
+        logger.exception(err)
         raise InvalidListSectionError(
             f"'lists' section did not pass validation. The error message is: {err.message}\n"
             f"The error occurred at {err.json_path}"

@@ -70,10 +70,23 @@ class TestGetFusekiImageForLatest:
             with pytest.raises(PermanentConnectionError):
                 latest_handler._get_fuseki_image_for_latest()
 
-    def test_request_exception(self, latest_handler: StackHandler) -> None:
+    def test_request_exception(self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture) -> None:
         with patch("requests.get", side_effect=RequestException("connection failed")):
-            with pytest.raises(PermanentConnectionError):
-                latest_handler._get_fuseki_image_for_latest()
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler._get_fuseki_image_for_latest()
+        assert len(caplog.records) == 1
+
+
+class TestStartStack:
+    def test_sipi_config_connection_error_logs_and_converts(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with patch.object(StackHandler, "_get_sipi_docker_config_lua", side_effect=requests.ConnectionError("boom")):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler.start_stack()
+        assert len(caplog.records) == 1
 
 
 class TestWriteOverrideFile:

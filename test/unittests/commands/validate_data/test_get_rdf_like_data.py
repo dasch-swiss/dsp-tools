@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
@@ -599,13 +601,15 @@ class TestRichtextStandoff:
         expected = {link, res_link, footnote_link}
         assert result == expected
 
-    def test_get_resource_ids_and_iri_strings_malformed_footnote(self):
+    def test_get_resource_ids_and_iri_strings_malformed_footnote(self, caplog: pytest.LogCaptureFixture):
         txt = (
             'This is a text with a footnote.<footnote content="oh no! &lt;a class=&quot;salsah-link&quot; '
             'href=&quot;IRI:inexistent_id_in_footnote:IRI&quot;&gt;link to inexistent_id"/>'
         )
-        with pytest.raises(FootnoteNotParsableError):
-            _get_resource_ids_and_iri_strings(txt, RES_ID)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(FootnoteNotParsableError):
+                _get_resource_ids_and_iri_strings(txt, RES_ID)
+        assert len(caplog.records) == 1
 
     def test_get_link_string_and_triple_object_type_internal_link(self):
         link = "IRI:link:IRI"

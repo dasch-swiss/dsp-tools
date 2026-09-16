@@ -49,7 +49,7 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
     try:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
-        logger.error(e)
+        logger.exception(e)
         raise InvalidMappingConfigFileError(f"Failed to parse YAML file '{filepath}'") from None
     if not isinstance(data, dict):
         raise InvalidMappingConfigFileError(

@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import regex
 
@@ -10,6 +12,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.utils.data_formats.date_util import Calendar
@@ -121,10 +124,26 @@ def test_transform_geometry_good():
     assert transform_geometry(geom_str) == expected
 
 
-def test_transform_geometry_raises():
+def test_transform_geometry_raises(caplog: pytest.LogCaptureFixture):
     msg = regex.escape(r"Could not parse json value: not valid")
-    with pytest.raises(XmlInputConversionError, match=msg):
-        transform_geometry("not valid")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(XmlInputConversionError, match=msg):
+            transform_geometry("not valid")
+    assert len(caplog.records) == 1
+
+
+def test_transform_interval_good():
+    result = transform_interval(("1.5", "2.5"))
+    assert result.start == 1.5
+    assert result.end == 2.5
+
+
+def test_transform_interval_raises(caplog: pytest.LogCaptureFixture):
+    msg = regex.escape(r"Could not parse interval: ('abc', '2')")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(XmlInputConversionError, match=msg):
+            transform_interval(("abc", "2"))
+    assert len(caplog.records) == 1
 
 
 def test_transform_simpletext_good():

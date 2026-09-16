@@ -92,7 +92,6 @@ class Project(Model):
     _data_copyright_holder: Optional[str]
     _default_data_authorship: list[str]
     _selfjoin: bool
-    _status: bool
     _logo: Optional[str]
 
     def __init__(
@@ -110,7 +109,6 @@ class Project(Model):
         data_copyright_holder: Optional[str] = None,
         default_data_authorship: Optional[list[str]] = None,
         selfjoin: Optional[bool] = None,
-        status: Optional[bool] = None,
         logo: Optional[str] = None,
     ):
         """
@@ -129,7 +127,6 @@ class Project(Model):
         :param data_copyright_holder: Project-wide data copyright holder [optional]
         :param default_data_authorship: Project-wide data authorship [optional]
         :param selfjoin: Allow selfjoin [required for CREATE]
-        :param status: Status of project (active if True) [required for CREATE]
         :param logo: Path to logo image file [optional] NOT YET USED
         """
         super().__init__(con)
@@ -147,7 +144,6 @@ class Project(Model):
         self._data_copyright_holder = data_copyright_holder
         self._default_data_authorship = default_data_authorship or []
         self._selfjoin = selfjoin
-        self._status = status
         self._logo = logo
 
     def __str__(self) -> str:
@@ -224,16 +220,6 @@ class Project(Model):
             self._selfjoin = value
 
     @property
-    def status(self) -> bool:
-        return self._status
-
-    @status.setter
-    def status(self, value: bool) -> None:
-        if self._status != value:
-            self._status = value
-            self._changed.add("status")
-
-    @property
     def logo(self) -> str:
         return self._logo
 
@@ -280,9 +266,6 @@ class Project(Model):
         selfjoin = json_obj.get("selfjoin")
         if selfjoin is None:
             raise BaseError("Selfjoin is missing")
-        status = json_obj.get("status")
-        if status is None:
-            raise BaseError("Status is missing")
         logo = json_obj.get("logo")
         return cls(
             con=con,
@@ -298,7 +281,6 @@ class Project(Model):
             data_copyright_holder=data_copyright_holder,
             default_data_authorship=default_data_authorship,
             selfjoin=selfjoin,
-            status=status,
             logo=logo,
         )
 
@@ -350,9 +332,6 @@ class Project(Model):
         if self._selfjoin is None:
             raise BaseError("selfjoin must be defined (True or False!")
         tmp["selfjoin"] = self._selfjoin
-        if self._status is None:
-            raise BaseError("status must be defined (True or False!")
-        tmp["status"] = self._status
         return tmp
 
     def read(self) -> Project:

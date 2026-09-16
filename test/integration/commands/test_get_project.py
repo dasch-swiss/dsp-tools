@@ -17,7 +17,6 @@ def project() -> Project:
         description=LangString({Languages.EN: "This is a test project", Languages.DE: "Das ist ein Testprojekt"}),
         keywords=set(),
         selfjoin=False,
-        status=True,
         logo="logo.gif",
     )
 
@@ -30,7 +29,6 @@ def test_return_values(project: Project) -> None:
     assert project.description["en"] == "This is a test project"
     assert project.description["de"] == "Das ist ein Testprojekt"
     assert project.selfjoin is False
-    assert project.status is True
     assert project.keywords == set()
 
 
@@ -45,7 +43,6 @@ def test_toJsonObj_create(project: Project) -> None:
             {"language": "de", "value": "Das ist ein Testprojekt"},
         ],
         "selfjoin": False,
-        "status": True,
     }
     assert res_json == expected
 

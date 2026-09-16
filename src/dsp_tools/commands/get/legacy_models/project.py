@@ -1,9 +1,5 @@
 """
-This module implements the handling (CRUD) of DSP projects.
-
-CREATE:
-    * Instantiate a new object of the class Project with all required parameters
-    * Call the ``create``-method on the instance
+This module implements reading of DSP projects.
 
 READ:
     * Instantiate a new object with ``iri`` given
@@ -16,7 +12,6 @@ from __future__ import annotations
 
 from typing import Any
 from typing import Optional
-from typing import Union
 from urllib.parse import quote_plus
 
 from dsp_tools.clients.connection import Connection
@@ -42,10 +37,10 @@ class Project(Model):
         DSP project shortcode [readonly, cannot be modified after creation of instance]
 
     shortname : str
-        DSP project shortname [read/write]
+        DSP project shortname
 
     longname : str
-        DSP project longname [read/write]
+        DSP project longname
 
     description : LangString
         DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
@@ -62,9 +57,6 @@ class Project(Model):
 
     Methods
     -------
-
-    create : DSP project information object
-        Creates a new project and returns the information from the project as it is in DSP
 
     read : DSP project information object
         Read project data from an existing project
@@ -115,18 +107,18 @@ class Project(Model):
         Constructor for Project
 
         :param con: Connection instance
-        :param iri: IRI of the project [required for CREATE, READ]
-        :param shortcode: Shortcode of the project. Four-digit hexadecimal number. [required for CREATE]
-        :param shortname: Shortname of the project [required for CREATE]
-        :param longname: Longname of the project [required for CREATE]
-        :param description: LangString instance containing the description [required for CREATE]
-        :param keywords: Set of keywords [required for CREATE]
+        :param iri: IRI of the project [required for READ]
+        :param shortcode: Shortcode of the project. Four-digit hexadecimal number.
+        :param shortname: Shortname of the project
+        :param longname: Longname of the project
+        :param description: LangString instance containing the description
+        :param keywords: Set of keywords
         :param ontologies: Set of ontologies that belong to this project [optional]
         :param enabled_licenses: Set of enabled licenses [optional]
         :param data_license: Project-wide data license IRI [optional]
         :param data_copyright_holder: Project-wide data copyright holder [optional]
         :param default_data_authorship: Project-wide data authorship [optional]
-        :param selfjoin: Allow selfjoin [required for CREATE]
+        :param selfjoin: Allow selfjoin
         :param logo: Path to logo image file [optional] NOT YET USED
         """
         super().__init__(con)
@@ -165,45 +157,17 @@ class Project(Model):
     def shortname(self) -> Optional[str]:
         return self._shortname
 
-    @shortname.setter
-    def shortname(self, value: str) -> None:
-        if self._shortname != str(value):
-            self._shortname = str(value)
-            self._changed.add("shortname")
-
     @property
     def longname(self) -> Optional[str]:
         return self._longname
-
-    @longname.setter
-    def longname(self, value: str) -> None:
-        if self._longname != str(value):
-            self._longname = str(value)
-            self._changed.add("longname")
 
     @property
     def description(self) -> LangString:
         return self._description or LangString({})
 
-    @description.setter
-    def description(self, value: Optional[LangString]) -> None:
-        self._description = LangString(value)
-        self._changed.add("description")
-
     @property
     def keywords(self) -> set[str]:
         return self._keywords
-
-    @keywords.setter
-    def keywords(self, value: Union[list[str], set[str]]) -> None:
-        if isinstance(value, set):
-            self._keywords = value
-            self._changed.add("keywords")
-        elif isinstance(value, list):
-            self._keywords = set(value)
-            self._changed.add("keywords")
-        else:
-            raise BaseError("Must be a set of strings!")
 
     @property
     def ontologies(self) -> set[str]:
@@ -213,21 +177,9 @@ class Project(Model):
     def selfjoin(self) -> Optional[bool]:
         return self._selfjoin
 
-    @selfjoin.setter
-    def selfjoin(self, value: bool) -> None:
-        if self._selfjoin != value:
-            self._changed.add("selfjoin")
-            self._selfjoin = value
-
     @property
     def logo(self) -> str:
         return self._logo
-
-    @logo.setter
-    def logo(self, value: str) -> None:
-        if self._logo != value:
-            self._logo = value
-            self._changed.add("logo")
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> Project:
@@ -300,39 +252,6 @@ class Project(Model):
         if self._default_data_authorship:
             proj["default_data_authorship"] = self._default_data_authorship
         return proj
-
-    def create(self) -> Project:
-        """
-        Create a new project in DSP
-
-        :return: JSON-object from DSP
-        """
-        jsonobj = self._toJsonObj_create()
-        result = self._con.post(Project.ROUTE, jsonobj)
-        return Project.fromJsonObj(self._con, result["project"])
-
-    def _toJsonObj_create(self) -> dict[str, str]:
-        tmp = {}
-        if self._shortcode is None:
-            raise BaseError("There must be a valid project shortcode!")
-        tmp["shortcode"] = self._shortcode
-        if self._shortname is None:
-            raise BaseError("There must be a valid project shortname!")
-        tmp["shortname"] = self._shortname
-        if self._longname is None:
-            raise BaseError("There must be a valid project longname!")
-        tmp["longname"] = self._longname
-        if self._description.isEmpty():
-            raise BaseError("There must be a valid project description!")
-        tmp["description"] = self._description.toJsonObj()
-        if self._keywords is not None and len(self._keywords) > 0:
-            tmp["keywords"] = self._keywords
-        if self._enabled_licenses:
-            tmp["enabledLicenses"] = list(self._enabled_licenses)
-        if self._selfjoin is None:
-            raise BaseError("selfjoin must be defined (True or False!")
-        tmp["selfjoin"] = self._selfjoin
-        return tmp
 
     def read(self) -> Project:
         """

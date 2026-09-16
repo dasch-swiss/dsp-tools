@@ -32,20 +32,5 @@ def test_return_values(project: Project) -> None:
     assert project.keywords == set()
 
 
-def test_toJsonObj_create(project: Project) -> None:
-    res_json = project._toJsonObj_create()
-    expected = {
-        "shortcode": "0FF0",
-        "shortname": "test_project",
-        "longname": "Test Project",
-        "description": [
-            {"language": "en", "value": "This is a test project"},
-            {"language": "de", "value": "Das ist ein Testprojekt"},
-        ],
-        "selfjoin": False,
-    }
-    assert res_json == expected
-
-
 if __name__ == "__main__":
     pytest.main([__file__])

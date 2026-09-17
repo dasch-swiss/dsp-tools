@@ -10,9 +10,9 @@ on:
 env:
   DSP_TOOLS_TESTING: true
 
-# Skipped on release-please PRs: no source changes, so there is nothing to
-# integrate against a backend. The nightly schedule is unaffected — `head_ref` is
-# empty on a schedule event, so the guard below is true there.
+# Skipped on release-please PRs: no source changes to integrate against a
+# backend. `head_ref` is empty on a schedule event, so the nightly run still
+# passes the guard below.
 jobs:
   latest-backend-components:
     runs-on: ubuntu-latest

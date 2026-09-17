@@ -13,19 +13,12 @@ permissions:
 env:
   DSP_TOOLS_TESTING: true
 
-# A release-please PR bumps CHANGELOG.md, pyproject.toml, the release-please
-# manifest and uv.lock — no source, and `uv lock` without `--upgrade` cannot move
-# a dependency, so these jobs would run against a tree they already passed on the
-# feature PRs behind it. They are skipped for those PRs; a skipped job counts as
-# passing in branch protection.
+# A release-please PR changes no source, so these jobs skip it.
 #
-# `distribution` is skipped too. It only checks that the package installs and runs
-# for an end user — never business logic — and the packaging configuration is not
-# what a release PR changes. The failure modes it does catch (an unshipped
-# dependency or resource file) arrive with a source change, and are caught on the
-# pull request that introduces them, where this job still runs. The artifact
-# itself is checked at publish time instead, in publish-release-to-pypi.yml.
-# `upload-coverage` needs unittests and integration, so it skips on its own.
+# `distribution` skips too: the failure modes it catches (an unshipped
+# dependency or resource file) arrive with a source change and are caught on the
+# PR that introduces them. The published artifact is checked at publish time
+# instead, in publish-release-to-pypi.yml.
 jobs:
   unittests:
     runs-on: ubuntu-latest

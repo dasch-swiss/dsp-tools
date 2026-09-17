@@ -115,8 +115,7 @@ class TestResolveParsedMappings:
         assert isinstance(problems[0], PrefixResolutionProblem)
 
     def test_entity_without_any_mapping_is_reported(self):
-        # A mapping cell containing only ';' parses to an empty list. Without this problem the entity would be
-        # wiped by the delete phase and then get no replacement.
+        # Without this problem the entity would be wiped by the delete phase and get no replacement.
         parsed = ParsedMappings(
             classes=[ParsedClassMapping("Book", [])],
             properties=[ParsedPropertyMapping("hasTitle", [])],

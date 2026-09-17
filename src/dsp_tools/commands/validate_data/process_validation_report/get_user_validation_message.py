@@ -18,7 +18,7 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
-# For these ProblemTypes the user message from the SHACL validation report is used and not the string from the enum
+# For these ProblemTypes the SHACL report's message is used instead of the enum string.
 PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {
     ProblemType.GENERIC,
     ProblemType.FILE_VALUE_MISSING,
@@ -176,14 +176,13 @@ def _filter_out_duplicate_wrong_file_type_problems(problems: list[InputProblem])
 
 
 def _drop_placeholder_noise(problems: list[InputProblem]) -> list[InputProblem]:
-    # FILE_VALUE_PLACEHOLDER_TYPE_WRONG already covers both of these; remove the redundant noise.
+    # FILE_VALUE_PLACEHOLDER_TYPE_WRONG already covers both of these.
     noise = {ProblemType.FILE_VALUE_MISSING, ProblemType.FILE_VALUE_PLACEHOLDER}
     return [p for p in problems if p.problem_type not in noise]
 
 
 def _merge_missing_and_prohibited(problems: list[InputProblem]) -> list[InputProblem]:
     # FILE_VALUE_PROHIBITED carries the actual input value; FILE_VALUE_MISSING has the better message.
-    # Merge them into one problem that has both.
     missing = next((p for p in problems if p.problem_type == ProblemType.FILE_VALUE_MISSING), None)
     prohibited = next((p for p in problems if p.problem_type == ProblemType.FILE_VALUE_PROHIBITED), None)
     if missing is None or prohibited is None:

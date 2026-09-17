@@ -133,9 +133,8 @@ def test_update_mapping_missing_prefix(creds: ServerCredentials):
 
 @pytest.mark.usefixtures("create_minimal_project")
 def test_replace_mapping_with_different_excel(creds: ServerCredentials):
-    # This test establishes its own pre-state instead of inheriting it from the tests above. The Excel files of
-    # the earlier tests do not list `otherResource` and `hasOtherText`, so under replace semantics those two are
-    # already stripped by the time this test runs, and the assertions of the next test would prove nothing.
+    # This test establishes its own pre-state: the earlier tests' Excel files do not list `otherResource` and
+    # `hasOtherText`, so under replace semantics those two are already stripped by the time it runs.
     good_config = parse_mapping_config(Path("testdata/mapping/4124-testonto-mapping-good.yaml"))
     assert mapping_update(_adjust_api_url_to_test_container(good_config, creds))
 
@@ -147,8 +146,7 @@ def test_replace_mapping_with_different_excel(creds: ServerCredentials):
 def test_check_replaced_mapping_result(ontology_namespace):
     onto_g = _get_ontology_graph(ontology_namespace)
 
-    # `bibo:Book` is listed in both Excel files and must survive, `cidoc:E22` and `schema:Book` must be gone,
-    # and the knora-api super-class must never be touched.
+    # The knora-api super-class must never be touched.
     expected_sub_cls = {
         URIRef("http://iflastandards.info/ns/fr/frbr/frbroo/F1_Work"),
         URIRef("http://purl.org/ontology/bibo/Book"),
@@ -162,8 +160,7 @@ def test_check_replaced_mapping_result(ontology_namespace):
     }
     assert _get_super_entities(onto_g, f"{ontology_namespace}hasText", RDFS.subPropertyOf) == expected_sub_props
 
-    # `otherResource` and `hasOtherText` are absent from the replace Excel, so their external mappings are gone
-    # although the Excel never mentions them. This is what proves the wipe covers the whole ontology.
+    # This is what proves the wipe covers the whole ontology, not only the entities the Excel names.
     assert _get_super_entities(onto_g, f"{ontology_namespace}otherResource", RDFS.subClassOf) == {
         URIRef(KNORA_RESOURCE)
     }

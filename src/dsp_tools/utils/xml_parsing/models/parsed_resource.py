@@ -61,8 +61,6 @@ class ParsedFileIiifUri(ParsedFileValueValue):
 
 
 class ParsedFilePlaceholder(ParsedFileValueValue):
-    """Placeholder type"""
-
     def __init__(self) -> None:
         self.value = URN_DASCH_PLACEHOLDER
 

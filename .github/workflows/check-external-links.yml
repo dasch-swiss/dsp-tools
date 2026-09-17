@@ -1,15 +1,7 @@
 ---
 
-# The external links in ./docs reach ~40 third-party hosts, so this check must
-# never be able to block a merge: it is deliberately kept OUT of the
-# required-status-check list on main. A dead link surfaces as a red ✗ on the pull
-# request — visible to the author, who is the person best placed to fix a link
-# they just added — but the merge stays available, so an outage at one host
-# cannot stall every open PR in the repo.
-#
-# Internal links and `#heading` anchors are NOT checked here: `mkdocs build
-# --strict` owns those (see the `validation:` block in mkdocs.yml), and it is a
-# required check precisely because it depends on nothing outside this repository.
+# This check reaches third-party hosts, so it must never be able to block a
+# merge: an outage at one host would otherwise stall every open PR in the repo.
 name: Check External Links
 
 on:
@@ -21,11 +13,8 @@ permissions:
 
 jobs:
   check-external-links:
-    # Neither bot-authored release PR changes documentation — release-please
-    # bumps CHANGELOG/version/uv.lock, and the start-stack bump touches only
-    # versions.env (see scripts/bump_stack_versions.py) — so there is nothing
-    # here for them to check, and no reason to hang a red ✗ on a PR that merges
-    # unattended.
+    # Neither bot-authored release PR changes documentation, so there is nothing
+    # here for them to check.
     if: >-
       ${{ !startsWith(github.head_ref, 'release-please--')
       && !startsWith(github.head_ref, 'chore/bump-version-') }}

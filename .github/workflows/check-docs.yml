@@ -1,9 +1,7 @@
 ---
 
 # Every step here is hermetic, which is what makes this job safe as a required
-# status check on main. External links are checked by check-external-links.yml
-# instead: they depend on third-party hosts, so a merge gate built on them
-# fails for reasons unrelated to the pull request under test.
+# status check. External links are checked by check-external-links.yml instead.
 name: Check Docs
 
 on:

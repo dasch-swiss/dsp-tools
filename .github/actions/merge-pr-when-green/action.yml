@@ -21,20 +21,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # `main` requires 13 status checks + 1 review, is strict (branch must be up
-    # to date), and has enforce_admins on. GitHub's native auto-merge is
-    # unusable here: it ignores bypass allowances and waits for a real approval
-    # that never comes for a bot-authored PR. The App is a bypass actor for the
-    # *review* only — required status checks have no per-actor bypass under
-    # branch protection. So a direct `--admin` merge is rejected by the server
-    # until every required check passes, then the review bypass lets it through.
-    # Retrying the merge therefore both waits for the checks AND can never merge
-    # before they are green. (`--admin` only skips gh's client-side mergeability
-    # refusal; the server still enforces the checks.)
-    #
-    # Note that the server's rejection message always names the missing review,
-    # even for this App. That clause is noise — the bypass is applied once the
-    # checks pass — so it is not a signal to act on.
+    # The App bypasses the *review* only: required status checks have no
+    # per-actor bypass under branch protection, so the server rejects an
+    # `--admin` merge until every check passes and the retry loop can never
+    # merge early. The rejection message always names the missing review even
+    # for this App, which is noise rather than something to act on.
     - name: Merge once required checks pass
       shell: bash
       env:
@@ -59,10 +50,8 @@ runs:
           fi
 
           # A required check in a terminal `fail` state never turns green on its
-          # own, so polling it to the deadline burns the entire timeout budget
-          # and only delays the alert. Re-run such a check once, since flakes
-          # dominate these failures, and give up as soon as the re-run has
-          # itself completed and failed.
+          # own, so polling it to the deadline only delays the alert. Re-run it
+          # once, then give up as soon as the re-run has failed too.
           while read -r run_id; do
             [[ -n "$run_id" ]] || continue
             read -r attempt status < <(gh run view "$run_id" --json attempt,status --jq '"\(.attempt) \(.status)"')
@@ -84,9 +73,9 @@ runs:
             [.[] | select(.bucket == "fail") | .link | capture("/actions/runs/(?<id>[0-9]+)").id]
             | unique | .[]' || true)
 
-          # main is strict, so a branch behind base can never merge. Refresh only
-          # when the merge output says so; doing it unconditionally would
-          # re-trigger the checks every loop and never converge.
+          # A branch behind base can never merge. Refresh only when the merge
+          # output says so: doing it unconditionally re-triggers the checks
+          # every loop and never converges.
           if grep -qiE "not up to date|out of date|base branch was modified|behind" <<<"$merge_out"; then
             echo "::notice::branch behind base; updating"
             gh pr update-branch "$PR_URL" >/dev/null 2>&1 || true

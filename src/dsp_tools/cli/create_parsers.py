@@ -536,7 +536,6 @@ def _add_mapping(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     config_parser.add_argument("-P", "--project-shortcode", help="4-digit hexadecimal shortcode of the project")
     config_parser.add_argument("--ontology", help="name of the ontology to add mappings to")
 
-    # update
     update_parser = mapping_subparsers.add_parser(
         name="update",
         help="Replace the external ontology mappings of a DSP project with the ones from an Excel file",

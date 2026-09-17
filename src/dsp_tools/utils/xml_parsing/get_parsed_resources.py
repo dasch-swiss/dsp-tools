@@ -98,8 +98,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
 def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[ParsedValue]:
     values: list[ParsedValue] = []
     value: str | tuple[str, str] | None
-    # some of these allow multiple values, in that case we need to find out the correct order number
-    # in any case all values have orders even if there is only one
+    # Every value carries an order number, even where the property allows only one.
     order_in_xml_lookup = {
         "isSegmentOf": 0,
         "hasSegmentBounds": 0,

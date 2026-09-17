@@ -1,6 +1,4 @@
 """
-This module implements reading of DSP projects.
-
 READ:
     * Instantiate a new object with ``iri`` given
     * Call the ``read``-method on the instance
@@ -22,8 +20,6 @@ from dsp_tools.legacy_models.langstring import LangString
 
 class Project(Model):
     """
-    This class represents a project in DSP.
-
     Attributes
     ----------
 
@@ -53,20 +49,6 @@ class Project(Model):
 
     selfjoin : bool
         Boolean if the project allows selfjoin
-
-
-    Methods
-    -------
-
-    read : DSP project information object
-        Read project data from an existing project
-
-    getAllprojects [static]: List of all projects
-        Returns a list of all projects available
-
-    print : None
-        Prints the project information to stdout
-
     """
 
     ROUTE: str = "/admin/projects"

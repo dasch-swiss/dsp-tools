@@ -42,7 +42,5 @@ class ProcessedFileIIIFUri(ProcessedFileValueValue):
 
 @dataclass
 class ProcessedFilePlaceholder(ProcessedFileValueValue):
-    """Placeholder type"""
-
     def __init__(self) -> None:
         self.value = URN_DASCH_PLACEHOLDER

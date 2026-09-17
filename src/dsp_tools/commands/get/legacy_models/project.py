@@ -85,24 +85,6 @@ class Project(Model):
         selfjoin: Optional[bool] = None,
         logo: Optional[str] = None,
     ):
-        """
-        Constructor for Project
-
-        :param con: Connection instance
-        :param iri: IRI of the project [required for READ]
-        :param shortcode: Shortcode of the project. Four-digit hexadecimal number.
-        :param shortname: Shortname of the project
-        :param longname: Longname of the project
-        :param description: LangString instance containing the description
-        :param keywords: Set of keywords
-        :param ontologies: Set of ontologies that belong to this project [optional]
-        :param enabled_licenses: Set of enabled licenses [optional]
-        :param data_license: Project-wide data license IRI [optional]
-        :param data_copyright_holder: Project-wide data copyright holder [optional]
-        :param default_data_authorship: Project-wide data authorship [optional]
-        :param selfjoin: Allow selfjoin
-        :param logo: Path to logo image file [optional] NOT YET USED
-        """
         super().__init__(con)
         self._iri = iri
         self._shortcode = shortcode

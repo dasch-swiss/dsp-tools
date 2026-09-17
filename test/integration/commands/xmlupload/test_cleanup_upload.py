@@ -77,10 +77,8 @@ def test_stash_present_saves_pickle(
     out = capsys.readouterr().out
     assert success is False
     assert save_location.exists()
-    # console: count only, no per-item details
     assert "Could not reapply 1 stashed values" in out
     assert "hasCustomLink" not in out
-    # log: resource / property combinations
     assert "resource / property" in caplog.text
     assert f"foo_id / {LINK_PROP}Value" in caplog.text
     assert "Saved the current upload state" in out

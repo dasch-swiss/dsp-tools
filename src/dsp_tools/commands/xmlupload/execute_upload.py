@@ -130,7 +130,6 @@ def _upload_all_resources(clients: UploadClients, upload_state: UploadState) -> 
         if upload_state.pending_stash:
             _upload_stash(upload_state, resource_client)
     except (XmlUploadInterruptedError, BadCredentialsError, KeyboardInterrupt):
-        # the upload cannot continue, but it can be resumed later, so the state must be saved.
         # The error itself is reported and logged by entry_point.py.
         persist_state_for_resume(upload_state)
         raise
@@ -271,8 +270,7 @@ def _report_incomplete_upload(upload_state: UploadState, *, has_failures: bool, 
         logger.warning(failed_msg)
         print(f"\n{datetime.now()}: WARNING: {failed_msg}\n")
     if has_stash and upload_state.pending_stash:
-        # The console only gets the count; the resource/property combinations go to the log file,
-        # which can hold the full (potentially long) list without cluttering the terminal.
+        # The full list goes to the log file; the console gets the count only.
         stash_items = upload_state.pending_stash.all_items()
         combinations = [f"{item.res_id} / {item.value.prop_iri}" for item in stash_items]
         logger.warning(f"Could not reapply the following stashed values (resource / property): {combinations}")

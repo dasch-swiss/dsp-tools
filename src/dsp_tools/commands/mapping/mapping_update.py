@@ -90,7 +90,7 @@ def _mapping_update(
     client = MappingClientLive(server=auth.server, encoded_ontology_iri=encoded_ontology_iri, auth=auth)
 
     # The add phase runs even if some deletions failed: aborting in between would leave entities
-    # with fewer mappings and no replacements. All failures are collected into one report.
+    # with fewer mappings and no replacements.
     failures = _delete_class_mappings(client, deletions.classes)
     failures.extend(_delete_property_mappings(client, deletions.properties))
     failures.extend(_add_classes_mappings(client, resolved_mappings.classes))
@@ -120,12 +120,10 @@ def _check_project_and_get_ontology_ttl(
 ) -> str:
     logger.debug("Check if the project and ontology exists on the server.")
     project_client = ProjectClientLive(auth.server, auth)
-    # If the project does not exist this will raise an error which we will let escalate,
-    # this is for a more nuanced error message.
+    # Called for its error message: a missing project must fail here, not cryptically later.
     project_client.get_project_iri(mapping_config.shortcode)
 
     onto_client = OntologyGetClientLive(api_url=auth.server, shortcode=mapping_config.shortcode)
-    # If no ontologies are found this will raise an error which we let escalate.
     ontologies, ontology_iris = onto_client.get_ontologies()
     for one_ontology, one_iri in zip(ontologies, ontology_iris, strict=True):
         if one_iri == ontology_iri:
@@ -210,10 +208,8 @@ def _send_one_request_with_retry(
     action: MappingAction,
 ) -> list[MappingUploadFailure]:
     response = send()
-    # happy path
     if response is None:
         return []
-    # retry if it is a retriable status code
     if should_retry_request(response):
         logger.warning(f"Retrying to {action} mapping for '{entity_iri}' in {RETRY_SLEEP_SECONDS} seconds.")
         time.sleep(RETRY_SLEEP_SECONDS)
@@ -221,7 +217,6 @@ def _send_one_request_with_retry(
         if response is None:
             return []
         logger.error(f"Unable to {action} mapping for '{entity_iri}' after retrying.")
-    # non retriable error
     else:
         logger.error(f"Unable to {action} mapping for '{entity_iri}'.")
     return _get_correct_user_message_for_non_ok_response(entity_iri, response, action, mapping_iri)

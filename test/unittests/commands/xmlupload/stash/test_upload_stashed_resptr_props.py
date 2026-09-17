@@ -53,7 +53,7 @@ def test_make_region_preview_value_create_graph():
     assert len(result) == 5
     res_type = next(result.objects(RES_IRI, RDF.type))
     assert res_type == RES_TYPE
-    # prop_iri is not rewritten to `…Value`, and the re-upload uses the RegionPreviewValue @type (R3)
+    # prop_iri is not rewritten to `…Value`, and the re-upload uses the RegionPreviewValue @type
     val_bn = next(result.objects(RES_IRI, ONTO.hasRegionPreview))
     val_type = next(result.objects(val_bn, RDF.type))
     assert val_type == KNORA_API.RegionPreviewValue

@@ -335,6 +335,36 @@ class TestParseValues:
         assert val.value_order is None
         assert val.xml_value_order == 0
 
+    def test_geolocation_value(self):
+        xml_val = etree.fromstring("""
+        <geolocation-prop name=":hasProp">
+            <geolocation>POINT(8.550 47.37) </geolocation>
+        </geolocation-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        # the crs is carried alongside the geometry, since it lives in an attribute
+        assert val.value == (None, "POINT(8.550 47.37)")
+        assert val.value_type == KnoraValueType.GEOLOCATION_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+        assert val.value_order is None
+
+    def test_geolocation_value_with_crs(self):
+        xml_val = etree.fromstring("""
+        <geolocation-prop name=":hasProp">
+            <geolocation crs="LV95" comment="a comment">POINT(2600000 1200000)</geolocation>
+        </geolocation-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.value == ("LV95", "POINT(2600000 1200000)")
+        assert val.value_type == KnoraValueType.GEOLOCATION_VALUE
+        assert val.comment == "a comment"
+
     def test_geoname_value(self):
         xml_val = etree.fromstring("""
         <geoname-prop name=":hasProp">

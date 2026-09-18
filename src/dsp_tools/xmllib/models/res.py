@@ -23,6 +23,7 @@ from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -621,6 +622,158 @@ class Resource:
         """
         if is_nonempty_value(value):
             self.add_decimal(prop_name, value, permissions, comment)
+        return self
+
+    #######################
+    # GeolocationValue
+    #######################
+
+    def add_geolocation(
+        self,
+        prop_name: str,
+        value: str,
+        crs: str | None = None,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        order: int | None = None,
+    ) -> Resource:
+        """
+        Add a geographic location to the resource.
+        The location must be given as a WKT `POINT`, with the coordinates as X then Y,
+        i.e. longitude then latitude for `CRS84`, and easting then northing for `LV95` and `LV03`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            value: the location as a WKT `POINT`
+            crs: coordinate reference system, one of `CRS84`, `LV95` or `LV03`. Defaults to `CRS84`.
+            permissions: optional permissions of this value
+            comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation(
+                prop_name=":propName",
+                value="POINT(8.55 47.37)",
+            )
+            ```
+
+            ```python
+            resource = resource.add_geolocation(
+                prop_name=":propName",
+                value="POINT(2600000 1200000)",
+                crs="LV95",
+            )
+            ```
+        """
+        self.values.append(
+            GeolocationValue.new(
+                value=value,
+                prop_name=prop_name,
+                crs=crs,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
+            )
+        )
+        return self
+
+    def add_geolocation_multiple(
+        self,
+        prop_name: str,
+        values: Collection[str],
+        crs: str | None = None,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        include_value_order: bool = False,
+    ) -> Resource:
+        """
+        Add several geographic locations to the resource.
+        The locations must be given as WKT `POINT`s, and all of them are in the same
+        coordinate reference system.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            crs: coordinate reference system, one of `CRS84`, `LV95` or `LV03`. Defaults to `CRS84`.
+            permissions: optional permissions of this value
+            comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_multiple(
+                prop_name=":propName",
+                values=["POINT(8.55 47.37)", "POINT(7.45 46.95)"],
+            )
+            ```
+        """
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geolocation", self.res_id)
+            val_order: list[int | None] = list(range(len(values)))
+        else:
+            val_order = [None] * len(values)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        for v, o in zip(vals, val_order):
+            self.add_geolocation(prop_name, v, crs, permissions, comment, o)
+        return self
+
+    def add_geolocation_optional(
+        self,
+        prop_name: str,
+        value: Any,
+        crs: str | None = None,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        The location must be given as a WKT `POINT`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            value: value to add or empty value
+            crs: coordinate reference system, one of `CRS84`, `LV95` or `LV03`. Defaults to `CRS84`.
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_optional(
+                prop_name=":propName",
+                value="POINT(8.55 47.37)",
+            )
+            ```
+
+            ```python
+            resource = resource.add_geolocation_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+        """
+        if is_nonempty_value(value):
+            self.add_geolocation(prop_name, value, crs, permissions, comment)
         return self
 
     #######################

@@ -344,6 +344,21 @@ api-shapes:DecimalValue_ClassShape
                     sh:message  "A DecimalValue requires exactly one valid decimal"
                  ] .
 
+api-shapes:GeolocationValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the properties used with this targetClass" ;
+  sh:targetClass knora-api:GeolocationValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:geolocationValueAsGeolocation ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "^<[^<>\\s]+>\\s+POINT\\s*\\(\\s*\\S+\\s+\\S+\\s*\\)$" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The value must be a WKT POINT with a coordinate reference system, e.g. POINT(8.55 47.37)"
+                 ] .
+
 api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;

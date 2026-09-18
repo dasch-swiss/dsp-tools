@@ -14,6 +14,7 @@ from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -33,6 +34,7 @@ PROP_TYPE_LOOKUP = {
     ColorValue: "color",
     DateValue: "date",
     DecimalValue: "decimal",
+    GeolocationValue: "geolocation",
     GeonameValue: "geoname",
     IntValue: "integer",
     LinkValue: "resptr",
@@ -62,6 +64,10 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
         match prop_type:
             case "list":
                 serialised.append(_serialise_complete_list_prop(cast(list[ListValue], prop_values), prop_name))
+            case "geolocation":
+                serialised.append(
+                    _serialise_complete_geolocation_prop(cast(list[GeolocationValue], prop_values), prop_name)
+                )
             case "simpletext":
                 serialised.append(_serialise_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
             case "richtext":
@@ -122,6 +128,16 @@ def _serialise_complete_list_prop(values: list[ListValue], prop_name: str) -> et
     prop = etree.Element(f"{DASCH_SCHEMA}list-prop", name=prop_name, list=list_name, nsmap=XML_NAMESPACE_MAP)
     for val in values:
         prop.append(_serialise_generic_element(val, "list"))
+    return prop
+
+
+def _serialise_complete_geolocation_prop(values: list[GeolocationValue], prop_name: str) -> etree._Element:
+    prop = _serialise_generic_prop(prop_name, "geolocation")
+    for val in values:
+        val_ele = _serialise_generic_element(val, "geolocation")
+        if val.crs is not None:
+            val_ele.attrib["crs"] = val.crs
+        prop.append(val_ele)
     return prop
 
 

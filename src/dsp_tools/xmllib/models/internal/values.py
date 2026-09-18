@@ -19,6 +19,7 @@ from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_geolocation
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
@@ -156,6 +157,42 @@ class DecimalValue(Value):
         return cls(
             value=str(value),
             prop_name=prop_name,
+            permissions=permissions,
+            comment=fixed_comment,
+            order=fixed_order,
+        )
+
+
+@dataclass
+class GeolocationValue(Value):
+    value: str
+    prop_name: str
+    crs: str | None = None
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    comment: str | None = None
+    order: int | None = None
+
+    @classmethod
+    def new(
+        cls,
+        value: Any,
+        prop_name: str,
+        crs: str | None,
+        permissions: Permissions,
+        comment: str | None,
+        order: int | None,
+        resource_id: str | None,
+    ) -> GeolocationValue:
+        if not is_geolocation(value, crs):
+            emit_xmllib_input_type_mismatch_warning(
+                expected_type="geolocation", value=value, res_id=resource_id, prop_name=prop_name
+            )
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        return cls(
+            value=str(value),
+            prop_name=prop_name,
+            crs=crs,
             permissions=permissions,
             comment=fixed_comment,
             order=fixed_order,

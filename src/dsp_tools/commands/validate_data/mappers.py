@@ -17,6 +17,7 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEOLOCATION_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEOMETRY_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
@@ -59,6 +60,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "date-prop": KnoraValueType.DATE_VALUE,
     "decimal-prop": KnoraValueType.DECIMAL_VALUE,
     "geometry-prop": KnoraValueType.GEOM_VALUE,
+    "geolocation-prop": KnoraValueType.GEOLOCATION_VALUE,
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
     "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,
@@ -91,6 +93,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.COLOR_VALUE: COLOR_PROP_TYPE_INFO,
     KnoraValueType.DATE_VALUE: RDFPropTypeInfo(KNORA_API.DateValue, KNORA_API.valueAsString, XSD.string),
     KnoraValueType.DECIMAL_VALUE: DECIMAL_PROP_TYPE_INFO,
+    KnoraValueType.GEOLOCATION_VALUE: GEOLOCATION_PROP_TYPE_INFO,
     KnoraValueType.GEONAME_VALUE: GEONAME_PROP_TYPE_INFO,
     KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
     KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode, XSD.string),

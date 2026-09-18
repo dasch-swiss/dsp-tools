@@ -16,6 +16,7 @@ from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -184,6 +185,45 @@ class TestAddValues:
         res = res.add_decimal_optional(":prop", "0.1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
+
+    def test_add_geolocation(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation(":prop", "POINT(8.55 47.37)")
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], GeolocationValue)
+        assert res.values[0].crs is None
+
+    def test_add_geolocation_with_crs(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation(
+            ":prop", "POINT(2600000 1200000)", crs="LV95"
+        )
+        assert isinstance(res.values[0], GeolocationValue)
+        assert res.values[0].crs == "LV95"
+
+    def test_add_geolocation_warns_when_out_of_range_for_its_crs(self) -> None:
+        # valid CRS84 coordinates, but nowhere near Switzerland
+        with pytest.warns(XmllibInputWarning):
+            res = Resource.create_new("res_id", "restype", "label").add_geolocation(
+                ":prop", "POINT(8.55 47.37)", crs="LV95"
+            )
+        assert res.values[0].value == "POINT(8.55 47.37)"
+
+    def test_add_geolocation_warns_on_a_non_point(self) -> None:
+        with pytest.warns(XmllibInputWarning):
+            Resource.create_new("res_id", "restype", "label").add_geolocation(":prop", "LINESTRING(0 0, 1 1)")
+
+    def test_add_geolocation_multiple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_multiple(
+            ":prop", ["POINT(8.55 47.37)", "POINT(7.45 46.95)"]
+        )
+        assert len(res.values) == 2
+        assert all(isinstance(x, GeolocationValue) for x in res.values)
+
+    def test_add_geolocation_optional(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional("", pd.NA)
+        assert not res.values
+        res = res.add_geolocation_optional(":prop", "POINT(8.55 47.37)")
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], GeolocationValue)
 
     def test_add_geoname(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_geoname(":prop", "123456")

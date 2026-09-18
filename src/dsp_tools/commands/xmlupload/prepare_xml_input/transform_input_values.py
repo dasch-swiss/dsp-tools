@@ -17,6 +17,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
 
 type InputTypes = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
 
@@ -97,6 +98,18 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
         msg = f"Could not parse interval: {val}"
         logger.exception(msg)
         raise XmlInputConversionError(msg) from None
+
+
+def transform_geolocation(input_value: InputTypes) -> str:
+    """Compose a geolocation literal from a CRS code and a WKT geometry."""
+    # Not assert_is_tuple: an absent crs is a legitimate None in the first position, which that
+    # helper rejects.
+    if not isinstance(input_value, tuple) or len(input_value) != 2:
+        raise XmlInputConversionError(f"Expected a crs and a geometry, but got {input_value}")
+    crs_code, wkt = input_value
+    if not isinstance(wkt, str):
+        raise XmlInputConversionError(f"Could not parse geolocation: {input_value}")
+    return compose_geolocation_literal(crs_code, wkt)
 
 
 def transform_geometry(value: InputTypes) -> str:

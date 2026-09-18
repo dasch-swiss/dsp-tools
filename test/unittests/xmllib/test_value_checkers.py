@@ -14,6 +14,7 @@ from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
+from dsp_tools.xmllib.value_checkers import is_geolocation
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
@@ -150,6 +151,49 @@ def test_is_geoname_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [122.2, "asdf"])
 def test_is_geoname_wrong(val: Any) -> None:
     assert not is_geoname(val)
+
+
+@pytest.mark.parametrize(
+    ("val", "crs"),
+    [
+        ("POINT(8.55 47.37)", None),
+        ("POINT(8.55 47.37)", "CRS84"),
+        ("POINT(8.550 47.370)", "CRS84"),
+        ("POINT(-180 -90)", "CRS84"),  # both bounds are inclusive
+        ("POINT(180 90)", "CRS84"),
+        ("POINT(0 0)", "CRS84"),
+        ("POINT(-0.0 0)", "CRS84"),  # Decimal has no signed zero
+        ("POINT(2600000 1200000)", "LV95"),
+        ("POINT(2484273.3 1073150.16)", "LV95"),
+        ("POINT(600000 200000)", "LV03"),
+        ("point(8.55 47.37)", None),  # WKT keywords are case-insensitive
+        ("POINT (8.55 47.37)", None),
+    ],
+)
+def test_is_geolocation_correct(val: Any, crs: str | None) -> None:
+    assert is_geolocation(val, crs)
+
+
+@pytest.mark.parametrize(
+    ("val", "crs"),
+    [
+        ("POINT(200 47.37)", None),  # longitude out of range
+        ("POINT(8.55 91)", None),  # latitude out of range
+        ("POINT(8.55 47.37)", "LV95"),  # valid CRS84 coordinates, wrong CRS
+        ("POINT(8.55 47.37)", "NAD83"),  # CRS outside the allowlist
+        ("POINT(8.55, 47.37)", None),  # comma-separated
+        ("POINT(8.55 47.37 500)", None),  # elevation is not yet supported
+        ("POINT(8.55)", None),
+        ("POINT(abc 47.37)", None),
+        ("LINESTRING(0 0, 1 1)", None),  # lines are not yet supported
+        ("8.55 47.37", None),  # not WKT at all
+        ("", None),
+        (122.2, None),  # not a string
+        (None, None),
+    ],
+)
+def test_is_geolocation_wrong(val: Any, crs: str | None) -> None:
+    assert not is_geolocation(val, crs)
 
 
 @pytest.mark.parametrize("val", [1.2, "1.432", 1, "1", -1.1, "1e-1", "1e2"])

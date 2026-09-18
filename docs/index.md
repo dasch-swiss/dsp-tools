@@ -80,7 +80,7 @@ The following CLI Commands are available, listed here in alphabetical order.
 | **`resume-xmlupload`**   | Resume a previously interrupted xmlupload<br>`dsp-tools resume-xmlupload`                                        | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
 | **`start-stack`**        | Start a local DSP stack<br>`dsp-tools start-stack`                                                               | [→](./local-stack.md#start-stack)                                 |
 | **`stop-stack`**         | Stop the local DSP stack<br>`dsp-tools stop-stack`                                                               | [→](./local-stack.md#stop-stack)                                  |
-| **`update-legal`**       | Update legal metadata in XML files to the new format<br>`dsp-tools update-legal [mandatory options] data.xml`    | [→](./special-workflows/update-legal.md)                          |
+| **`update-legal`**       | Move legal metadata onto `<bitstream>` attributes<br>`dsp-tools update-legal [mandatory options] data.xml`       | [→](./special-workflows/update-legal.md)                          |
 | **`upload-files`**       | Upload multimedia files referenced in an XML file<br>`dsp-tools upload-files data.xml`                           | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
 | **`validate-data`**      | Validate XML data against a data model on a server<br>`dsp-tools validate-data data.xml`                         | [→](./data-file/data-file-commands.md#validate-data)              |
 | **`xmlupload`**          | Create resources from an XML file on a server<br>`dsp-tools xmlupload data.xml`                                  | [→](./data-file/data-file-commands.md#xmlupload)                  |

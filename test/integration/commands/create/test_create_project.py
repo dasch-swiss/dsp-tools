@@ -45,8 +45,7 @@ def test_json_schema_validation_error():
 
 
 def test_json_schema_validation_accepts_region_preview() -> None:
-    # A project property using the region-preview GUI element (super hasRegionPreview, object Region,
-    # gui_element RegionPreview) must be accepted by the create pipeline's JSON-schema validation.
+    # A region-preview property must be accepted by the create pipeline's JSON-schema validation.
     with open("testdata/validate-data/core_validation/core-validation-project-9999.json", encoding="utf-8") as f:
         project = json.load(f)
     _validate_with_json_schema(project)

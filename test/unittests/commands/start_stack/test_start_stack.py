@@ -1,11 +1,15 @@
+import logging
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+import requests
 import yaml
 from requests import RequestException
 
+from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
@@ -66,10 +70,23 @@ class TestGetFusekiImageForLatest:
             with pytest.raises(PermanentConnectionError):
                 latest_handler._get_fuseki_image_for_latest()
 
-    def test_request_exception(self, latest_handler: StackHandler) -> None:
+    def test_request_exception(self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture) -> None:
         with patch("requests.get", side_effect=RequestException("connection failed")):
-            with pytest.raises(PermanentConnectionError):
-                latest_handler._get_fuseki_image_for_latest()
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler._get_fuseki_image_for_latest()
+        assert len(caplog.records) == 1
+
+
+class TestStartStack:
+    def test_sipi_config_connection_error_logs_and_converts(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with patch.object(StackHandler, "_get_sipi_docker_config_lua", side_effect=requests.ConnectionError("boom")):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(PermanentConnectionError):
+                    latest_handler.start_stack()
+        assert len(caplog.records) == 1
 
 
 class TestWriteOverrideFile:
@@ -121,6 +138,65 @@ class TestReadEnvVar:
     def test_raises_when_content_empty(self) -> None:
         with pytest.raises(StartStackInputError):
             _read_env_var("", "API")
+
+
+class TestStartUpFuseki:
+    def test_failure_logs_once_with_diagnostics_folded_into_message(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        completed_process: subprocess.CompletedProcess[bytes] = subprocess.CompletedProcess(
+            args=["docker", "compose"], returncode=1
+        )
+        with patch("dsp_tools.commands.start_stack.start_stack.subprocess.run", return_value=completed_process):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(FusekiStartUpError) as exc_info:
+                    latest_handler._start_up_fuseki()
+        assert not caplog.records
+        assert "Return code: 1" in str(exc_info.value)
+
+
+class TestLoadDataIntoRepo:
+    def test_ttl_fetch_failure_logs_once_with_diagnostics_folded_into_message(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        ttl_response = requests.Response()
+        ttl_response.status_code = 503
+        with patch("requests.get", return_value=ttl_response):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(FusekiStartUpError) as exc_info:
+                    latest_handler._load_data_into_repo()
+        assert not caplog.records
+        assert "Status: 503" in str(exc_info.value)
+
+    def test_graph_post_failure_logs_once_with_diagnostics_folded_into_message(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        ttl_response = requests.Response()
+        ttl_response.status_code = 200
+        ttl_response._content = b"@prefix : <http://example.org/> ."
+        post_response = requests.Response()
+        post_response.status_code = 500
+        with patch("requests.get", return_value=ttl_response):
+            with patch("requests.post", return_value=post_response):
+                with caplog.at_level(logging.ERROR):
+                    with pytest.raises(FusekiStartUpError) as exc_info:
+                        latest_handler._load_data_into_repo()
+        assert not caplog.records
+        assert "Status: 500" in str(exc_info.value)
+
+
+class TestCreateAdminUser:
+    def test_failure_logs_once_with_diagnostics_folded_into_message(
+        self, latest_handler: StackHandler, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        post_response = requests.Response()
+        post_response.status_code = 500
+        with patch("requests.post", return_value=post_response):
+            with caplog.at_level(logging.ERROR):
+                with pytest.raises(FusekiStartUpError) as exc_info:
+                    latest_handler._create_admin_user()
+        assert not caplog.records
+        assert "Status: 500" in str(exc_info.value)
 
 
 class TestExecuteDockerSystemPrune:

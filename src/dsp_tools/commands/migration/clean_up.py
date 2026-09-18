@@ -1,8 +1,6 @@
 from pathlib import Path
 
 from loguru import logger
-from yaspin import yaspin
-from yaspin.spinners import Spinners
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.clients.exceptions import ProjectNotFoundError
@@ -17,6 +15,7 @@ from dsp_tools.commands.migration.models import ReferenceInfo
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
 
 
 def clean_up(info: MigrationInfo) -> bool:
@@ -30,15 +29,11 @@ def clean_up(info: MigrationInfo) -> bool:
 
 
 def _execute_clean_up(info: MigrationInfo, reference_info: ReferenceInfo) -> bool:
-    with yaspin(
-        Spinners.bouncingBall,
-        color="light_green",
-        on_color="on_black",
-        attrs=["bold", "blink"],
-    ) as sp:
-        start_msg = "Cleaning Up"
+    start_msg = "Cleaning Up"
+    sp = get_green_bouncy_ball_spinner(start_msg)
+
+    with sp:
         logger.debug(start_msg)
-        sp.text = start_msg
         _handle_source_server_clean_up(info.source, reference_info)
         _handle_target_server_clean_up(info.target, reference_info)
         handle_local_clean_up(info.config)

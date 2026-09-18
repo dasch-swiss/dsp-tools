@@ -13,14 +13,12 @@ from dsp_tools.commands.mapping.models import ResolvedMapping
 from dsp_tools.commands.mapping.models import ResolvedMappings
 from dsp_tools.utils.data_formats.iri_util import is_dsp_project_iri
 
-# An IRI on one of these hosts is never a user mapping: it is knora-api, knora-base, a DSP shared ontology or a
-# production project ontology. The DSP-API rejects these as mapping targets, so they can only be super-entities
-# that the ontology needs. Always keep them.
+# The DSP-API rejects these hosts as mapping targets, so an IRI on one of them is never a user mapping: it is
+# knora-api, knora-base, a DSP shared ontology or a production project ontology.
 MAPPING_HOST_SUBSTRINGS_TO_KEEP = ("knora.org", "dasch.swiss")
 
-# Technical RDF vocabularies. A super-entity in one of these is structural, so it is kept. Note that only the RDF
-# Schema *namespace* is listed: a mapping to a document URL such as https://www.w3.org/TR/rdf-schema/Book is a
-# legitimate user mapping and stays deletable.
+# Only the RDF Schema *namespace* is listed: a mapping to a document URL such as
+# https://www.w3.org/TR/rdf-schema/Book is a legitimate user mapping and stays deletable.
 MAPPING_NAMESPACES_TO_KEEP = (
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "http://www.w3.org/2000/01/rdf-schema#",

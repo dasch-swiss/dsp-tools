@@ -71,7 +71,7 @@ def test_serialise_jsonld_for_value():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, None, str(uuid4())),
+        value=ProcessedLink("target_resource_id", ONTO.hasLink, None, None, 0, str(uuid4())),
     )
     graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     expected = {
@@ -81,6 +81,10 @@ def test_serialise_jsonld_for_value():
             "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
             "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
                 "@id": "http://rdfh.ch/9999/target_resource"
+            },
+            "http://api.knora.org/ontology/knora-api/v2#valueHasOrder": {
+                "@type": "http://www.w3.org/2001/XMLSchema#integer",
+                "@value": 0,
             },
         },
     }

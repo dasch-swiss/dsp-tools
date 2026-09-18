@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import Any
 from typing import cast
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -34,6 +37,19 @@ def test_find_duplicate_col_names_raises() -> None:
 
     with pytest.raises(InvalidFileFormatError, match=expected):
         utl._find_duplicate_col_names("excelfile", ["a", "A", "b", "b  ", "c"])
+
+
+def test_read_and_clean_all_sheets_invalid_sheet_name_logs_and_raises(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    excel_path = tmp_path / "test.xlsx"
+    excel_path.touch()
+    df_dict = {123: pd.DataFrame({"a": [1]})}  # non-string sheet name triggers the AttributeError path
+    with patch("pandas.read_excel", return_value=df_dict):
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidFileFormatError):
+                utl.read_and_clean_all_sheets(excel_path)
+    assert len(caplog.records) == 1
 
 
 def test_clean_data_frame() -> None:

@@ -21,9 +21,9 @@ PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 @pytest.fixture
 def resource_1() -> ProcessedResource:
-    link_value_to_resource_no_links = ProcessedLink("res_no_links", "prop", None, None, None, str(uuid4()))
-    link_value_with_permissions_to_res_2 = ProcessedLink("res_2", "prop", None, PERMISSION, None, "link_to_res_2_uuid")
-    simple_text_value = ProcessedSimpleText("Text", "prop", None, None, None)
+    link_value_to_resource_no_links = ProcessedLink("res_no_links", "prop", None, None, 0, str(uuid4()))
+    link_value_with_permissions_to_res_2 = ProcessedLink("res_2", "prop", None, PERMISSION, 1, "link_to_res_2_uuid")
+    simple_text_value = ProcessedSimpleText("Text", "prop", None, None, 0)
     return ProcessedResource(
         res_id="res_1",
         type_iri="type",
@@ -42,7 +42,7 @@ def resource_2() -> ProcessedResource:
         permissions=None,
         resource_references=set("res_3"),
         value_uuid="standoff_link_to_res_3_uuid",
-        value_order=None,
+        value_order=1,
     )
     return ProcessedResource(
         res_id="res_2",
@@ -55,7 +55,7 @@ def resource_2() -> ProcessedResource:
 
 @pytest.fixture
 def resource_3() -> ProcessedResource:
-    link_value_to_res_1 = ProcessedLink("res_1", "prop", None, None, value_uuid="link_to_res_1_uuid", value_order=None)
+    link_value_to_res_1 = ProcessedLink("res_1", "prop", None, None, value_uuid="link_to_res_1_uuid", value_order=1)
     return ProcessedResource(
         res_id="res_3",
         type_iri="type",
@@ -113,7 +113,7 @@ def test_stash_circular_references_remove_link_value(
 
 def test_stash_circular_references_remove_region_preview_value() -> None:
     preview_value = ProcessedRegionPreview(
-        "res_target", "prop", None, None, value_uuid="preview_to_res_target_uuid", value_order=None
+        "res_target", "prop", None, None, value_uuid="preview_to_res_target_uuid", value_order=0
     )
     resource = ProcessedResource(
         res_id="res_preview",

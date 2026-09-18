@@ -35,6 +35,7 @@ class ParsedValue:
     permissions_id: str | None
     comment: str | None
     value_order: int | None
+    xml_value_order: int
 
 
 @dataclass
@@ -60,8 +61,6 @@ class ParsedFileIiifUri(ParsedFileValueValue):
 
 
 class ParsedFilePlaceholder(ParsedFileValueValue):
-    """Placeholder type"""
-
     def __init__(self) -> None:
         self.value = URN_DASCH_PLACEHOLDER
 

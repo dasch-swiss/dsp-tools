@@ -22,7 +22,7 @@ class ShaclCliValidator:
             stdout = e.stdout or ""
             stderr = e.stderr or ""
             logger.exception(f"Docker command failed with {e.returncode}: stdout={stdout!r}, stderr={stderr!r}")
-            raise ShaclValidationCliError(e.returncode, stdout, stderr)
+            raise ShaclValidationCliError(e.returncode, stdout, stderr) from None
         return self._parse_validation_result(file_paths.directory / file_paths.report_file)
 
     def _run_validate_cli(self, file_paths: ValidationFilePaths) -> None:

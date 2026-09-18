@@ -12,10 +12,10 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 @pytest.fixture
 def processed_resources() -> list[ProcessedResource]:
     one = ProcessedResource(
-        "foo_1_id", "onto:foo_1_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None, None)]
+        "foo_1_id", "onto:foo_1_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None, 0)]
     )
     two = ProcessedResource(
-        "foo_2_id", "onto:foo_2_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None, None)]
+        "foo_2_id", "onto:foo_2_type", "lbl", None, [ProcessedSimpleText("val", "prp", None, None, 0)]
     )
     return [one, two]
 

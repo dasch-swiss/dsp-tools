@@ -47,10 +47,9 @@ def _resolve_one_mapping(
     resolved: list[str] = []
     problems: list[PrefixResolutionProblem] = []
     if not parsed_mapping.prefixed_mapping_iris:
-        # The mapping cell of this Excel row resolves to no IRI at all, e.g. a cell containing only ";".
-        # That is a hazard under replace semantics: the delete phase would strip every external mapping the
-        # entity currently has on the server, while the add phase could only send an empty list, which the
-        # DSP-API rejects. The entity would end up with no external mappings at all, so fail before any write.
+        # A mapping cell resolving to no IRI at all, e.g. one containing only ";", must fail before any
+        # write: under replace semantics the delete phase strips every external mapping the entity has on
+        # the server, and the add phase can only send an empty list, which the DSP-API rejects.
         problems.append(
             PrefixResolutionProblem(
                 entity_name=parsed_mapping.name,

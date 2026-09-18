@@ -1,3 +1,4 @@
+import logging
 import warnings
 
 import pandas as pd
@@ -104,7 +105,11 @@ class TestFormalExcelCompliance:
         _make_shape_compliance_all_excels(all_sheets)
 
     def test_problem(
-        self, f1_s1_no_list_columns: ExcelSheet, f2_s2_missing_lang_column: ExcelSheet, f2_s3_one_row: ExcelSheet
+        self,
+        f1_s1_no_list_columns: ExcelSheet,
+        f2_s2_missing_lang_column: ExcelSheet,
+        f2_s3_one_row: ExcelSheet,
+        caplog: pytest.LogCaptureFixture,
     ) -> None:
         all_sheets = [f1_s1_no_list_columns, f2_s2_missing_lang_column, f2_s3_one_row]
         expected = regex.escape(
@@ -124,8 +129,10 @@ class TestFormalExcelCompliance:
             "one for the list name and one row for a minimum of one node."
         )
 
-        with pytest.raises(InvalidFileFormatError, match=expected):
-            _make_shape_compliance_all_excels(all_sheets)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidFileFormatError, match=expected):
+                _make_shape_compliance_all_excels(all_sheets)
+        assert not caplog.records
 
 
 class TestCheckExcelsForDuplicates:
@@ -133,7 +140,7 @@ class TestCheckExcelsForDuplicates:
         all_sheets = [f1_s1_good_en, f2_s2_good_en_de]
         _check_duplicates_all_excels(all_sheets)
 
-    def test_problem(self, f1_s1_identical_row: ExcelSheet) -> None:
+    def test_problem(self, f1_s1_identical_row: ExcelSheet, caplog: pytest.LogCaptureFixture) -> None:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "The Excel file 'file1' contains the following problems:\n\n"
@@ -142,8 +149,10 @@ class TestCheckExcelsForDuplicates:
             "    - 3\n"
             "    - 4"
         )
-        with pytest.raises(InvalidListSectionError, match=expected):
-            _check_duplicates_all_excels([f1_s1_identical_row])
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidListSectionError, match=expected):
+                _check_duplicates_all_excels([f1_s1_identical_row])
+        assert not caplog.records
 
     def test_problem_duplicate_id(self, sheets_duplicate_id: list[ExcelSheet]) -> None:
         expected = regex.escape(
@@ -172,7 +181,7 @@ class TestCheckForDuplicateListNames:
         ]
         _check_for_unique_list_names(all_sheets)
 
-    def test_problem(self, cols_en_list_only: Columns) -> None:
+    def test_problem(self, cols_en_list_only: Columns, caplog: pytest.LogCaptureFixture) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list2"]})
         df_2 = pd.DataFrame({"en_list": ["list2", "list2"]})
         df_3 = pd.DataFrame({"en_list": ["list2", "list2"]})
@@ -193,8 +202,10 @@ class TestCheckForDuplicateListNames:
             "    - Excel file: 'file1', Sheet: 'sheet2', List: 'list2'\n"
             "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
         )
-        with pytest.raises(InvalidFileContentError, match=expected):
-            _check_for_unique_list_names(all_sheets)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidFileContentError, match=expected):
+                _check_for_unique_list_names(all_sheets)
+        assert not caplog.records
 
 
 class TestCheckForDuplicates:
@@ -345,7 +356,9 @@ class TestCheckAllExcelsMissingTranslations:
         all_sheets = [f1_s1_good_en, f2_s2_good_en_de]
         _check_for_missing_translations_all_excels(all_sheets)
 
-    def test_problem(self, f1_s1_good_en: ExcelSheet, f2_s2_missing_translations: ExcelSheet) -> None:
+    def test_problem(
+        self, f1_s1_good_en: ExcelSheet, f2_s2_missing_translations: ExcelSheet, caplog: pytest.LogCaptureFixture
+    ) -> None:
         all_sheets = [f1_s1_good_en, f2_s2_missing_translations]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -358,8 +371,10 @@ class TestCheckAllExcelsMissingTranslations:
             "    - Row Number: 5 | Column(s): de_comments\n"
             "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
-        with pytest.raises(InvalidFileFormatError, match=expected):
-            _check_for_missing_translations_all_excels(all_sheets)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidFileFormatError, match=expected):
+                _check_for_missing_translations_all_excels(all_sheets)
+        assert not caplog.records
 
 
 class TestAllNodesTranslatedIntoAllLanguages:
@@ -420,7 +435,7 @@ class TestCheckAllExcelForRowProblems:
         all_sheets = [f1_s1_good_en, f2_s2_good_en_de]
         _check_for_erroneous_entries_all_excels(all_sheets)
 
-    def test_all_problem(self, cols_en_1: Columns, cols_en_1_2: Columns) -> None:
+    def test_all_problem(self, cols_en_1: Columns, cols_en_1_2: Columns, caplog: pytest.LogCaptureFixture) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
         df_2 = pd.DataFrame(
             {
@@ -443,8 +458,10 @@ class TestCheckAllExcelForRowProblems:
             "The Excel sheet 'sheet2' has the following problem(s):\n"
             "    - Row Number: 6, Column(s) that must be empty: en_2"
         )
-        with pytest.raises(InvalidFileContentError, match=expected):
-            _check_for_erroneous_entries_all_excels(all_sheets)
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(InvalidFileContentError, match=expected):
+                _check_for_erroneous_entries_all_excels(all_sheets)
+        assert not caplog.records
 
 
 class TestOneSheetErrors:

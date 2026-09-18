@@ -1,15 +1,13 @@
 """
-Script to automate bumping the Docker image versions of DSP components.
-This script is meant to be run in the GitHub Actions CI. See `.github/workflows/bump-stack-versions.yml`.
+Bumps the Docker image versions of DSP components. Meant to run in CI, not locally.
 
 Reads the release version and component versions from environment variables,
 writes src/dsp_tools/resources/start-stack/versions.env, creates a branch,
 commits, pushes, and opens a pull request. The docker-compose.yml interpolates
 the version values at `docker compose up` time via `--env-file versions.env`.
 
-The URL of the created PR is written to $GITHUB_OUTPUT as `pr_url`, so the
-workflow can merge exactly that PR instead of searching for it afterwards.
-No output means no PR was opened (versions.env was already up to date).
+The URL of the created PR is written to $GITHUB_OUTPUT as `pr_url`. No output
+means no PR was opened (versions.env was already up to date).
 
 Prerequisites:
 - RELEASE, API, APP, DB env vars must be set

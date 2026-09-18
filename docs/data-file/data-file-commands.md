@@ -71,6 +71,7 @@ The most frequently used options are:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
+- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 
 To see all possible options, type `dsp-tools xmlupload --help`.
 
@@ -105,6 +106,11 @@ the current state of the upload is saved in a pickle file,
 which is stored in `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl`. 
 If the upload should be resumed later,
 this file must remain in place.
+
+An upload that stops because the number of resources given with `--interrupt-after` is reached 
+exits with code `0`, because this is the expected outcome. 
+`Ctrl + C` exits with code `130`, 
+and an upload that stops because of a failure (e.g. the server became unreachable) exits with code `1`.
 
 
 ## `resume-xmlupload`

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-The `update-legal` command converts legal metadata in XML files from the old format (text properties)
-to the new format (bitstream attributes). This migration is necessary because:
+The `update-legal` command converts legal metadata in XML files from text properties to `<bitstream>`
+attributes. The two forms are:
 
-- **Old format**: Legal metadata (authorship, copyright, license) stored as `<text-prop>` elements within resources
-- **New format**: Legal metadata stored as attributes directly on `<bitstream>` or `<iiif-uri>` elements
+- **Text properties**: Legal metadata (authorship, copyright, license) stored as `<text-prop>` elements within resources
+- **Attributes**: Legal metadata stored as attributes directly on `<bitstream>` or `<iiif-uri>` elements
 
 This command automates the migration while handling validation, error correction, and authorship deduplication.
 

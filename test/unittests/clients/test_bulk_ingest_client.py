@@ -7,7 +7,7 @@ import pytest
 from requests import RequestException
 from requests_mock import Mocker
 
-from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestFailure
 from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFound
 from dsp_tools.error.exceptions import BadCredentialsError

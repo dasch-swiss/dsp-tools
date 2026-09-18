@@ -15,7 +15,6 @@ def _base_json_obj() -> dict[str, object]:
         "keywords": ["test"],
         "ontologies": ["http://rdfh.ch/ontologies/test"],
         "selfjoin": False,
-        "status": True,
     }
 
 

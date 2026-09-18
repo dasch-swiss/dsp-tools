@@ -44,7 +44,7 @@ def _make_upload_state(save_location: Path, failed_uploads: list[str], stash: St
 
 def _non_empty_stash() -> Stash:
     stash_item = LinkValueStashItem(
-        "foo_id", f"{ONTO}foo_type", ProcessedLink("bar_id", LINK_PROP, None, None, None, str(uuid4()))
+        "foo_id", f"{ONTO}foo_type", ProcessedLink("bar_id", LINK_PROP, None, None, 0, str(uuid4()))
     )
     return Stash(standoff_stash=None, link_value_stash=LinkValueStash({"foo_id": [stash_item]}))
 
@@ -77,10 +77,8 @@ def test_stash_present_saves_pickle(
     out = capsys.readouterr().out
     assert success is False
     assert save_location.exists()
-    # console: count only, no per-item details
     assert "Could not reapply 1 stashed values" in out
     assert "hasCustomLink" not in out
-    # log: resource / property combinations
     assert "resource / property" in caplog.text
     assert f"foo_id / {LINK_PROP}Value" in caplog.text
     assert "Saved the current upload state" in out

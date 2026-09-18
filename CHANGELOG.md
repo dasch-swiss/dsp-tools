@@ -1,5 +1,81 @@
 # Changelog
 
+## [19.1.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.1...v19.1.2) (2026-09-16)
+
+
+### Bug Fixes
+
+* **cli:** patch check_docker_health at its call site, not its definition ([#2430](https://github.com/dasch-swiss/dsp-tools/issues/2430)) ([254178f](https://github.com/dasch-swiss/dsp-tools/commit/254178f74400bf6f1eff259f79bacc68e0792ab6))
+* log original traceback before converting exceptions with raise-from-None (DEV-6166) ([#2431](https://github.com/dasch-swiss/dsp-tools/issues/2431)) ([3a50cd7](https://github.com/dasch-swiss/dsp-tools/commit/3a50cd73c0c175ff08224ecfdb5a3424afb7a8a8))
+* remove duplicate error logging from intermediate exception handlers (DEV-6167) ([#2429](https://github.com/dasch-swiss/dsp-tools/issues/2429)) ([fe0159b](https://github.com/dasch-swiss/dsp-tools/commit/fe0159b99b41839e7d7002d26c8995ab2078007e))
+* **upload-files:** handle placeholder bitstreams via ParsedResource ([#2428](https://github.com/dasch-swiss/dsp-tools/issues/2428)) ([ae2d539](https://github.com/dasch-swiss/dsp-tools/commit/ae2d53965f481f902ca588f8988911cdab4df49c))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 7 updates ([#2423](https://github.com/dasch-swiss/dsp-tools/issues/2423)) ([fe1759a](https://github.com/dasch-swiss/dsp-tools/commit/fe1759a5e1126644a46791716b4366937efd8c49))
+* **deps:** bump the all-dependencies group with 10 updates ([#2432](https://github.com/dasch-swiss/dsp-tools/issues/2432)) ([c393afe](https://github.com/dasch-swiss/dsp-tools/commit/c393afe5fa78f4649e7d7bb405d08e8c5522614b))
+* remove pre-Claude-5 ceremony from CLAUDE.md ([#2427](https://github.com/dasch-swiss/dsp-tools/issues/2427)) ([759a58a](https://github.com/dasch-swiss/dsp-tools/commit/759a58a9461a3a5b577780877cbaa1458cd905d7))
+* **start-stack:** bump versions to 2026.09.02 ([#2435](https://github.com/dasch-swiss/dsp-tools/issues/2435)) ([28f14d2](https://github.com/dasch-swiss/dsp-tools/commit/28f14d25b767e28957eaf40cf9edd066a938e7f9))
+
+
+### Documentation
+
+* **add-shacl-shape:** move mandatory test conventions to module guide ([#2425](https://github.com/dasch-swiss/dsp-tools/issues/2425)) ([a022b01](https://github.com/dasch-swiss/dsp-tools/commit/a022b01c497b39d8b06ee456eccb4f9e09bd9c38))
+
+## [19.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.0...v19.1.1) (2026-09-09)
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 5 updates ([#2416](https://github.com/dasch-swiss/dsp-tools/issues/2416)) ([ccd0b21](https://github.com/dasch-swiss/dsp-tools/commit/ccd0b218cb70fc0e936085ace8fd14b83b1179b7))
+* **start-stack:** bump versions to 2026.09.01 ([#2424](https://github.com/dasch-swiss/dsp-tools/issues/2424)) ([ee2d049](https://github.com/dasch-swiss/dsp-tools/commit/ee2d0490e4dd59b3cf3e4c0ad759300e91c639e8))
+
+## [19.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.2...v19.1.0) (2026-09-02)
+
+
+### Enhancements
+
+* add resource-side legal metadata to json_header.xlsx (DEV-7000) ([#2419](https://github.com/dasch-swiss/dsp-tools/issues/2419)) ([33f2dcc](https://github.com/dasch-swiss/dsp-tools/commit/33f2dcc00e155aec0da0d645eb140de55ef6e0a0))
+
+
+### Bug Fixes
+
+* **xmlupload:** distinguish expected from failed interruptions (DEV-6183) ([#2405](https://github.com/dasch-swiss/dsp-tools/issues/2405)) ([880c9fa](https://github.com/dasch-swiss/dsp-tools/commit/880c9fab38aa5d00e65c5313c5a73a3edad8bd41))
+
+
+### Maintenance
+
+* always include value order in the xmlupload data ([#2418](https://github.com/dasch-swiss/dsp-tools/issues/2418)) ([de23566](https://github.com/dasch-swiss/dsp-tools/commit/de23566b65f2b93808cbe103d55f6551b5fe0d62))
+* enable the dsp-api admin SPARQL passthrough in start-stack (DEV-6734) ([#2412](https://github.com/dasch-swiss/dsp-tools/issues/2412)) ([a4b9cd9](https://github.com/dasch-swiss/dsp-tools/commit/a4b9cd9a9129b4c63c1d481537736a33e18ae0b5))
+* extract spinner into util and integrate into ingest ([#2413](https://github.com/dasch-swiss/dsp-tools/issues/2413)) ([38d43ed](https://github.com/dasch-swiss/dsp-tools/commit/38d43edbd2c53e609a017e03d057ab53140df54a))
+* improve xml parsing speed ([#2417](https://github.com/dasch-swiss/dsp-tools/issues/2417)) ([b178c7e](https://github.com/dasch-swiss/dsp-tools/commit/b178c7e13aa09afe08166f16c1b17064abae24e0))
+* include xml value order ([#2415](https://github.com/dasch-swiss/dsp-tools/issues/2415)) ([ec84cba](https://github.com/dasch-swiss/dsp-tools/commit/ec84cba2032784a1459a98f95d52cde7954cfbbb))
+* move ingest client to clients directory ([#2414](https://github.com/dasch-swiss/dsp-tools/issues/2414)) ([d3ea47a](https://github.com/dasch-swiss/dsp-tools/commit/d3ea47a90dddc717622615d93fc01fb950633ea4))
+* **start-stack:** bump versions to 2026.08.05 ([#2421](https://github.com/dasch-swiss/dsp-tools/issues/2421)) ([6978223](https://github.com/dasch-swiss/dsp-tools/commit/697822359edff89d4af7a14ca33e50ed8c0a9e4c))
+* **xmlupload:** mint the value blank-nodes in the outer most function ([#2420](https://github.com/dasch-swiss/dsp-tools/issues/2420)) ([e29a197](https://github.com/dasch-swiss/dsp-tools/commit/e29a197ceb1af6fbf8db22badc85c5114b6936f2))
+
+## [19.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.1...v19.0.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* **xmllib:** scope the loguru disable in XMLRoot.write_file ([#2406](https://github.com/dasch-swiss/dsp-tools/issues/2406)) ([9fcff5e](https://github.com/dasch-swiss/dsp-tools/commit/9fcff5e39c2e57689c923dc98471625c6682dbff))
+
+
+### Maintenance
+
+* **ci:** skip the e2e suite on release-please PRs ([#2404](https://github.com/dasch-swiss/dsp-tools/issues/2404)) ([6514ca2](https://github.com/dasch-swiss/dsp-tools/commit/6514ca25ebd528cfbef3c4a68a0d82c2d2f5f632))
+* **ci:** take external link checking off the release-train critical path ([#2403](https://github.com/dasch-swiss/dsp-tools/issues/2403)) ([9fafb3e](https://github.com/dasch-swiss/dsp-tools/commit/9fafb3e61291aad49d40f484c7ff6f18bb8284ed))
+* **deps:** bump the all-dependencies group with 5 updates ([#2409](https://github.com/dasch-swiss/dsp-tools/issues/2409)) ([fd23dfd](https://github.com/dasch-swiss/dsp-tools/commit/fd23dfd4571f20cf4c0cfe30cc66ec76cbfb2187))
+* **skills:** add skill to identify blast-radius of feature work ([#2400](https://github.com/dasch-swiss/dsp-tools/issues/2400)) ([a6eee4f](https://github.com/dasch-swiss/dsp-tools/commit/a6eee4f945eb8a514b13b48301abb1d888cccfe7))
+* **start-stack:** bump versions to 2026.08.04 ([#2410](https://github.com/dasch-swiss/dsp-tools/issues/2410)) ([659b3fb](https://github.com/dasch-swiss/dsp-tools/commit/659b3fb8ab69fff352575c90d306749f9a75ce3a))
+
+
+### Documentation
+
+* make comments checkable against the code they annotate ([#2408](https://github.com/dasch-swiss/dsp-tools/issues/2408)) ([fe2289b](https://github.com/dasch-swiss/dsp-tools/commit/fe2289bba8c17a12b6a318236dd88795796c864f))
+
 ## [19.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.0.0...v19.0.1) (2026-08-20)
 
 

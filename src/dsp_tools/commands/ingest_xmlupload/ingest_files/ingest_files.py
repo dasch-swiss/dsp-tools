@@ -3,11 +3,14 @@ from time import sleep
 from typing import cast
 
 from loguru import logger
-from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
+from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
+
+MAPPING_RETRIEVAL_SLEEP = 60
 
 
 def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
@@ -32,24 +35,28 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 
 
 def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
-    sleeping_time = 60
-    desc = f"Wait until mapping CSV is ready. Ask server every {sleeping_time} seconds "
-    progress_bar = tqdm(
-        bulk_ingest_client.retrieve_mapping_generator(), desc=desc, bar_format="{desc}{elapsed}", dynamic_ncols=True
-    )
+    status_start_text = "Processing files on the server"
+    sp = get_green_bouncy_ball_spinner(status_start_text)
+    logger.debug(status_start_text)
+
+    mapping_generator = bulk_ingest_client.retrieve_mapping_generator()
     num_of_attempts = 0
-    num_of_server_errors = 0
-    for result in progress_bar:
-        if result is False:
+    with sp:
+        for result in mapping_generator:
             num_of_attempts += 1
-            num_of_server_errors += 1
-        elif result is True:
-            num_of_attempts += 1
-        elif isinstance(result, str):
-            break
-        progress_bar.set_description(f"{desc}(attempts: {num_of_attempts}, server errors: {num_of_server_errors})")
-        sleep(sleeping_time)
-    return cast(str, result)
+            match result:
+                case True:
+                    logger.debug(f"Attempt {num_of_attempts}: in progress")
+                case False:
+                    logger.warning(f"Attempt {num_of_attempts}: server error")
+                case str():
+                    logger.info(f"Attempt {num_of_attempts}: ingest complete, retrieved CSV mapping.")
+                    sp.ok("✔")
+                    break
+                case _:
+                    raise UnreachableCodeError()
+            sleep(MAPPING_RETRIEVAL_SLEEP)
+        return cast(str, result)
 
 
 def _save_mapping(mapping: str, shortcode: str) -> None:

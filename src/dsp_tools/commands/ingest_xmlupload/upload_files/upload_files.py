@@ -1,16 +1,18 @@
 from pathlib import Path
 
 from loguru import logger
-from lxml import etree
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.exceptions import InvalidIngestInputFilesError
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
 
 
@@ -33,7 +35,8 @@ def upload_files(
     """
     root = parse_and_clean_xml_file(xml_file)
     shortcode = root.attrib["shortcode"]
-    paths = _get_validated_paths(root)
+    resources = get_parsed_resources(root, creds.server)
+    paths = _get_validated_paths(resources)
     print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
@@ -59,8 +62,12 @@ def upload_files(
         return True
 
 
-def _get_validated_paths(root: etree._Element) -> set[Path]:
-    paths = {Path(x.text.strip()) for x in root.xpath("//bitstream")}
+def _get_validated_paths(resources: list[ParsedResource]) -> set[Path]:
+    paths = {
+        Path(res.file_value.value.value)
+        for res in resources
+        if res.file_value and isinstance(res.file_value.value, ParsedFileBitstream) and res.file_value.value.value
+    }
     if problems := check_files(paths):
         msg = problems.execute_error_protocol()
         raise InvalidIngestInputFilesError(msg)

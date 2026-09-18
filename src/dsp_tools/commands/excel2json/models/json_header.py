@@ -59,6 +59,7 @@ class Project:
     descriptions: Descriptions
     keywords: Keywords
     licenses: Licenses
+    data_legal_settings: DataLegalSettings
     users: Users | None
     default_permissions: str
 
@@ -70,8 +71,9 @@ class Project:
             "descriptions": self.descriptions.to_dict(),
             "keywords": self.keywords.to_dict(),
             "enabled_licenses": self.licenses.to_dict(),
-            "default_permissions": self.default_permissions,
         }
+        proj_dict.update(self.data_legal_settings.to_dict())
+        proj_dict["default_permissions"] = self.default_permissions
         if self.users:
             proj_dict["users"] = self.users.to_dict()
         return proj_dict
@@ -103,6 +105,23 @@ class Licenses:
 
     def to_dict(self) -> list[str]:
         return sorted(self.licenses)
+
+
+@dataclass
+class DataLegalSettings:
+    data_license: str | None
+    data_copyright_holder: str | None
+    default_data_authorship: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.data_license:
+            result["data_license"] = self.data_license
+        if self.data_copyright_holder:
+            result["data_copyright_holder"] = self.data_copyright_holder
+        if self.default_data_authorship:
+            result["default_data_authorship"] = self.default_data_authorship
+        return result
 
 
 @dataclass

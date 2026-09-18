@@ -13,7 +13,7 @@ in this format:
 ```
 
 Older XML files may contain legal metadata as text properties. 
-This document guides you through the process of updating them to the new format.
+This document guides you through the process of moving it onto `<bitstream>` attributes.
 
 
 ## Step 1: Find Out The Property Names And Run The Command

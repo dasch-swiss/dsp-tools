@@ -8,6 +8,8 @@ from typing import Union
 from typing import assert_never
 from typing import cast
 
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.exceptions import XmlInputConversionError
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.processed.values import IntervalFloats
@@ -93,7 +95,9 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
     try:
         return IntervalFloats(float(val[0]), float(val[1]))
     except ValueError:
-        raise XmlInputConversionError(f"Could not parse interval: {val}") from None
+        msg = f"Could not parse interval: {val}"
+        logger.exception(msg)
+        raise XmlInputConversionError(msg) from None
 
 
 def transform_geolocation(input_value: InputTypes) -> str:
@@ -114,7 +118,9 @@ def transform_geometry(value: InputTypes) -> str:
     try:
         return json.dumps(json.loads(str_val))
     except JSONDecodeError:
-        raise XmlInputConversionError(f"Could not parse json value: {value}") from None
+        msg = f"Could not parse json value: {value}"
+        logger.exception(msg)
+        raise XmlInputConversionError(msg) from None
 
 
 def transform_simpletext(value: InputTypes) -> str:

@@ -11,7 +11,7 @@ Please note that the entire workflow may take several hours for large projects.
 
 ## Limitations
 
-At the moment only projects smaller than 200 GB are supported.
+Only projects smaller than 200 GB are supported.
 If your project is larger, then the export will fail and you will get notified.
 If that is the case, please contact the DaSCH Infrastructure and/or Engineering teams to find another solution.
 

@@ -595,7 +595,7 @@ class TestValues:
         assert result.value_order == 0
 
     def test_geolocation_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None)
+        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeolocation)
         # an absent crs becomes CRS84, and the ordinates keep the precision they were given
@@ -603,11 +603,11 @@ class TestValues:
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
-        assert result.value_order is None
+        assert result.value_order == 0
 
     def test_geolocation_value_with_crs(self, lookups: XmlReferenceLookups):
         val = ParsedValue(
-            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None
+            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0
         )
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeolocation)

@@ -222,7 +222,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
 def _parse_geolocation_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     # The CRS lives in an attribute, so the generic path, which reads only the element text, would drop it.
     parsed_values = []
-    for val in values:
+    for i, val in enumerate(values):
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -231,6 +231,7 @@ def _parse_geolocation_value(values: etree._Element, prop_name: str) -> list[Par
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),
+                xml_value_order=i,
             )
         )
     return parsed_values

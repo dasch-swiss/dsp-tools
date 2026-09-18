@@ -350,7 +350,7 @@ class TestValues:
         assert not res.value_metadata
 
     def test_geolocation_corr(self):
-        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None)
+        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         # validate-data sees the same composed literal that xmlupload would send
@@ -360,7 +360,7 @@ class TestValues:
 
     def test_geolocation_with_crs_corr(self):
         val = ParsedValue(
-            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None
+            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0
         )
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_value == "<http://www.opengis.net/def/crs/EPSG/0/2056> POINT(2600000 1200000)"

@@ -349,17 +349,6 @@
                         "gui_element": "Geonames"
                     },
                     {
-                        "name": "hasGeolocation",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "GeolocationValue",
-                        "labels": {
-                            "en": "Geolocation"
-                        },
-                        "gui_element": "Geolocation"
-                    },
-                    {
                         "name": "hasColor",
                         "super": [
                             "hasColor"
@@ -544,11 +533,6 @@
                             },
                             {
                                 "propname": ":hasGeoname",
-                                "cardinality": "0-n",
-                                "gui_order": 9
-                            },
-                            {
-                                "propname": ":hasGeolocation",
                                 "cardinality": "0-n",
                                 "gui_order": 9
                             },

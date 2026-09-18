@@ -9,6 +9,7 @@ from .general_functions import create_standoff_link_to_resource as create_stando
 from .general_functions import create_standoff_link_to_uri as create_standoff_link_to_uri
 from .general_functions import escape_reserved_xml_characters as escape_reserved_xml_characters
 from .general_functions import find_license_in_string as find_license_in_string
+from .general_functions import geolocation_from_lat_long as geolocation_from_lat_long
 from .general_functions import get_list_nodes_from_string_via_list_name as get_list_nodes_from_string_via_list_name
 from .general_functions import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .general_functions import make_xsd_compatible_id as make_xsd_compatible_id
@@ -35,6 +36,7 @@ from .value_checkers import is_date as is_date
 from .value_checkers import is_decimal as is_decimal
 from .value_checkers import is_dsp_ark as is_dsp_ark
 from .value_checkers import is_dsp_iri as is_dsp_iri
+from .value_checkers import is_geolocation as is_geolocation
 from .value_checkers import is_geoname as is_geoname
 from .value_checkers import is_integer as is_integer
 from .value_checkers import is_nonempty_value as is_nonempty_value

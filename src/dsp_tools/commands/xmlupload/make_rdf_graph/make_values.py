@@ -20,6 +20,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolea
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -46,6 +47,7 @@ type LiteralValueTypesAlias = Union[
     ProcessedBoolean,
     ProcessedColor,
     ProcessedDecimal,
+    ProcessedGeolocation,
     ProcessedGeoname,
     ProcessedGeometry,
     ProcessedInt,
@@ -81,6 +83,7 @@ def _make_one_value_graph(val: ProcessedValue, res_node: BNode | URIRef, iri_loo
             | ProcessedColor()
             | ProcessedDecimal()
             | ProcessedGeometry()
+            | ProcessedGeolocation()
             | ProcessedGeoname()
             | ProcessedInt()
             | ProcessedTime()

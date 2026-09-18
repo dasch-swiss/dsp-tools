@@ -16,6 +16,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolea
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -592,6 +593,25 @@ class TestValues:
         assert not result.permissions
         assert not result.comment
         assert result.value_order is None
+
+    def test_geolocation_value(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None)
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedGeolocation)
+        # an absent crs becomes CRS84, and the ordinates keep the precision they were given
+        assert result.value == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.550 47.37)"
+        assert result.prop_iri == HAS_PROP
+        assert not result.permissions
+        assert not result.comment
+        assert result.value_order is None
+
+    def test_geolocation_value_with_crs(self, lookups: XmlReferenceLookups):
+        val = ParsedValue(
+            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None
+        )
+        result = _get_one_processed_value(val, lookups)
+        assert isinstance(result, ProcessedGeolocation)
+        assert result.value == "<http://www.opengis.net/def/crs/EPSG/0/2056> POINT(2600000 1200000)"
 
     def test_geoname_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None, None)

@@ -83,6 +83,7 @@ class KnoraValueType(Enum):
     COLOR_VALUE = auto()
     DATE_VALUE = auto()
     DECIMAL_VALUE = auto()
+    GEOLOCATION_VALUE = auto()
     GEONAME_VALUE = auto()
     GEOM_VALUE = auto()
     INT_VALUE = auto()

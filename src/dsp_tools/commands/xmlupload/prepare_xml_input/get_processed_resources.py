@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolea
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -40,6 +41,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geolocation
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
@@ -65,6 +67,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.DECIMAL_VALUE: TypeTransformerMapper(ProcessedDecimal, transform_decimal),
     KnoraValueType.DATE_VALUE: TypeTransformerMapper(ProcessedDate, transform_date),
     KnoraValueType.GEOM_VALUE: TypeTransformerMapper(ProcessedGeometry, transform_geometry),
+    KnoraValueType.GEOLOCATION_VALUE: TypeTransformerMapper(ProcessedGeolocation, transform_geolocation),
     KnoraValueType.GEONAME_VALUE: TypeTransformerMapper(ProcessedGeoname, assert_is_string),
     KnoraValueType.INT_VALUE: TypeTransformerMapper(ProcessedInt, transform_integer),
     KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(ProcessedInterval, transform_interval),

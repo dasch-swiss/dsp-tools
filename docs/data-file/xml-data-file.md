@@ -290,6 +290,7 @@ The following property elements exist:
 - `<date-prop>`: contains date values
 - `<decimal-prop>`: contains decimal values
 - `<geometry-prop>`: contains JSON geometry definitions for a region
+- `<geolocation-prop>`: contains geographic coordinates
 - `<geoname-prop>`: contains [geonames.org](https://www.geonames.org/) location codes
 - `<list-prop>`: contains list element labels
 - `<integer-prop>`: contains integer values
@@ -703,6 +704,69 @@ that were defined above:
 ![grid-for-geometry-prop](../assets/images/img-xml-grid-for-geometry-prop.png)
 
 
+
+
+### `<geolocation-prop>`
+
+The `<geolocation-prop>` element is used for values that contain a geographic location, i.e. a point on Earth.
+It must contain at least one `<geolocation>` element.
+
+This is distinct from `<geoname-prop>`, which references a _named place_ in the geonames.org authority file,
+and from `<geometry-prop>`, which describes a region on an _image_.
+A resource may legitimately carry both a geoname and a geolocation.
+
+Attributes:
+
+- `name`: name of the property as defined in the ontology (required)
+
+
+#### `<geolocation>`
+
+Contains a location as a WKT `POINT`, e.g. `POINT(8.55 47.37)`.
+
+The coordinates are given as **X first, then Y**.
+Depending on the coordinate reference system, that means longitude before latitude,
+or easting before northing. This is the reverse of how coordinates are usually spoken,
+and getting it the wrong way round is the most common mistake with this value type.
+
+Attributes:
+
+- `crs`: the coordinate reference system (optional, defaults to `CRS84`)
+- `permissions`: Permission ID (optional)
+- `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
+
+The supported coordinate reference systems are:
+
+| `crs` | System | First ordinate | Second ordinate |
+| ----- | ------ | -------------- | --------------- |
+| `CRS84` | WGS84, i.e. ordinary GPS coordinates | longitude, -180 to 180 | latitude, -90 to 90 |
+| `LV95` | Swiss LV95 | easting, 2484273.3 to 2837939.88 | northing, 1073150.16 to 1299970.97 |
+| `LV03` | Swiss LV03 | easting, 484273.3 to 837939.88 | northing, 73150.16 to 299970.97 |
+
+Coordinates outside the range of their system are reported before the upload starts.
+`EPSG:4326` is not supported: it declares latitude before longitude, and admitting it would
+put two different axis orders into the same field. Use `CRS84` instead, which is the same
+datum with longitude first.
+
+Only points are supported. Lines, areas and elevations are not yet accepted.
+
+Example of a property with a location in Zurich and one in Bern:
+
+```xml
+<geolocation-prop name=":hasLocation">
+    <geolocation>POINT(8.55 47.37)</geolocation>
+    <geolocation>POINT(7.45 46.95)</geolocation>
+</geolocation-prop>
+```
+
+Example using Swiss coordinates:
+
+```xml
+<geolocation-prop name=":hasFindspot">
+    <geolocation crs="LV95">POINT(2600000 1200000)</geolocation>
+</geolocation-prop>
+```
 
 
 ### `<geoname-prop>`

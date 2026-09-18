@@ -155,6 +155,10 @@
         <geoname-prop name=":hasGeoname">
             <geoname permissions="public" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
+        <geolocation-prop name=":hasGeolocation">
+            <geolocation permissions="public" comment="The main station">POINT(8.540 47.378)</geolocation>
+            <geolocation permissions="public" crs="LV95">POINT(2683163 1247966)</geolocation>
+        </geolocation-prop>
         <color-prop name=":hasColor">
             <color permissions="public">#00ff00</color>
         </color-prop>
@@ -283,6 +287,9 @@
         <geoname-prop name=":hasGeoname">
             <geoname comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
+        <geolocation-prop name=":hasGeolocation">
+            <geolocation>POINT(8.540 47.378)</geolocation>
+        </geolocation-prop>
         <color-prop name=":hasColor">
             <color>#00ff00</color>
         </color-prop>

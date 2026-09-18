@@ -22,6 +22,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolea
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -115,6 +116,19 @@ class TestMakeOneValueGraphSuccess:
         assert rdf_type == KNORA_API.GeomValue
         value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
         assert isinstance(value, Literal)
+
+    def test_geolocation(self, lookups: IRILookups) -> None:
+        res_bn = BNode()
+        literal = "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.550 47.37)"
+        prop = ProcessedGeolocation(literal, absolute_iri("hasGeolocation"), None, None, None)
+        result = _make_one_value_graph(prop, res_bn, lookups)
+        assert len(result) == 3
+        val_bn = next(result.objects(res_bn, ONTO.hasGeolocation))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API.GeolocationValue
+        value = next(result.objects(val_bn, KNORA_API.geolocationValueAsGeolocation))
+        # xsd:string, not geo:wktLiteral - the ontology constrains it to a plain string
+        assert value == Literal(literal, datatype=XSD.string)
 
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()

@@ -875,3 +875,30 @@ def _get_already_parsed_license(string: str) -> License | None:
         if regex.search(rgx, string):
             return lic
     return None
+
+
+def geolocation_from_lat_long(lat: float | int | str, long: float | int | str) -> str:
+    """
+    Compose a WKT `POINT` from a latitude/longitude pair.
+
+    WKT gives the ordinates as X then Y, i.e. longitude before latitude,
+    which is the reverse of how coordinates are usually spoken and written.
+    This function takes them in the familiar order and emits them in the order WKT requires.
+
+    Pass the coordinates as strings to preserve their decimal precision:
+    a float drops trailing zeroes, so `8.550` would be stored as `8.55`.
+
+    Args:
+        lat: latitude, i.e. the north-south coordinate
+        long: longitude, i.e. the east-west coordinate
+
+    Returns:
+        the WKT geometry, with longitude first
+
+    Examples:
+        ```python
+        result = xmllib.geolocation_from_lat_long("47.37", "8.550")
+        # result == "POINT(8.550 47.37)"
+        ```
+    """
+    return f"POINT({long} {lat})"

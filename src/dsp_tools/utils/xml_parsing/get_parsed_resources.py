@@ -169,6 +169,8 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
             return _parse_list_value(values, prop_name)
         case "text-prop":
             return _parse_text_value(values, prop_name)
+        case "geolocation-prop":
+            return _parse_geolocation_value(values, prop_name)
         case _:
             return _parse_generic_values(values, prop_name)
 
@@ -182,6 +184,23 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
                 prop_name=prop_name,
                 value=val.text.strip() if val.text else None,
                 value_type=value_type,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+                value_order=_get_value_order(val.attrib),
+            )
+        )
+    return parsed_values
+
+
+def _parse_geolocation_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
+    # The CRS lives in an attribute, so the generic path, which reads only the element text, would drop it.
+    parsed_values = []
+    for val in values:
+        parsed_values.append(
+            ParsedValue(
+                prop_name=prop_name,
+                value=(val.attrib.get("crs"), val.text.strip() if val.text else None),
+                value_type=KnoraValueType.GEOLOCATION_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
                 value_order=_get_value_order(val.attrib),

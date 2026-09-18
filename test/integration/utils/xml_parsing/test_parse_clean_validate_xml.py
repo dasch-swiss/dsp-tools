@@ -300,3 +300,42 @@ class TestBitstreamPlaceholderFile:
 
 if __name__ == "__main__":
     pytest.main([__file__])
+
+
+def _make_root_with_geolocation(geolocation_xml: str) -> etree._Element:
+    return etree.fromstring(
+        f'<knora xmlns="{_NS}" shortcode="9999" default-ontology="test">'
+        f'<resource label="r" restype=":Obj" id="r1">'
+        f'<geolocation-prop name=":hasLoc">{geolocation_xml}</geolocation-prop>'
+        f"</resource></knora>"
+    )
+
+
+class TestGeolocationSchema:
+    @pytest.mark.parametrize(
+        "geolocation_xml",
+        [
+            "<geolocation>POINT(8.55 47.37)</geolocation>",
+            '<geolocation crs="CRS84">POINT(8.55 47.37)</geolocation>',
+            '<geolocation crs="LV95">POINT(2600000 1200000)</geolocation>',
+            '<geolocation crs="LV03">POINT(600000 200000)</geolocation>',
+            '<geolocation crs="LV95" comment="a comment">POINT(2600000 1200000)</geolocation>',
+            "<geolocation>POINT(8.55 47.37)</geolocation><geolocation>POINT(7.45 46.95)</geolocation>",
+        ],
+    )
+    def test_accepts_allowlisted_crs(self, geolocation_xml: str) -> None:
+        root = _make_root_with_geolocation(geolocation_xml)
+        assert not _validate_root_get_validation_messages(root)
+
+    @pytest.mark.parametrize(
+        "crs",
+        ["EPSG:4326", "4326", "http://www.opengis.net/def/crs/EPSG/0/4326", "WGS84", ""],
+    )
+    def test_rejects_crs_outside_the_allowlist(self, crs: str) -> None:
+        # REQ-2.4: this must fail locally, before any upload begins
+        root = _make_root_with_geolocation(f'<geolocation crs="{crs}">POINT(8.55 47.37)</geolocation>')
+        assert _validate_root_get_validation_messages(root)
+
+    def test_rejects_an_empty_geolocation(self) -> None:
+        root = _make_root_with_geolocation("<geolocation></geolocation>")
+        assert _validate_root_get_validation_messages(root)

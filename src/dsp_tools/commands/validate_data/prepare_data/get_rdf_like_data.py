@@ -25,6 +25,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
 
 
 def get_rdf_like_data(
@@ -132,6 +133,8 @@ def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeV
             user_value = _get_list_value_str(user_value, list_node_lookup)
         case KnoraValueType.GEOM_VALUE:
             user_value = _get_geometry_value_str(user_value)
+        case KnoraValueType.GEOLOCATION_VALUE:
+            user_value = _get_geolocation_value_str(user_value)
         case _:
             pass
     typed_val: str | None = user_value if isinstance(user_value, str) else None
@@ -231,6 +234,15 @@ def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, 
     if found := list_node_lookup.lists.get(in_tuple):
         return found
     return " / ".join(x for x in in_tuple if x is not None)
+
+
+def _get_geolocation_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+    if not isinstance(user_value, tuple):
+        return None
+    crs_code, wkt = user_value
+    if wkt is None:
+        return None
+    return compose_geolocation_literal(crs_code, wkt)
 
 
 def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:

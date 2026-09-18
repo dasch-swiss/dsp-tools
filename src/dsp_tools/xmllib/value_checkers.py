@@ -4,6 +4,9 @@ import pandas as pd
 import regex
 
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
+from dsp_tools.xmllib.internal.geolocation import CRS_BY_CODE
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
+from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 
@@ -186,6 +189,44 @@ def is_geoname(value: Any) -> bool:
         ```
     """
     return is_integer(value)
+
+
+def is_geolocation(value: Any, crs: str | None = None) -> bool:
+    """
+    Checks if a value is a valid geographic location:
+    a WKT `POINT` whose coordinates are within the range of their coordinate reference system.
+
+    The coordinates are given as X then Y,
+    i.e. longitude then latitude for `CRS84`, and easting then northing for `LV95` and `LV03`.
+
+    Args:
+        value: value to check
+        crs: coordinate reference system, one of `CRS84`, `LV95` or `LV03`. Defaults to `CRS84`.
+
+    Returns:
+        True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_geolocation("POINT(8.55 47.37)")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation("POINT(2600000 1200000)", crs="LV95")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation("POINT(500 47.37)")
+        # result == False
+        ```
+    """
+    if not isinstance(value, str):
+        return False
+    if crs is not None and crs not in CRS_BY_CODE:
+        return False
+    return get_geolocation_problem(compose_geolocation_literal(crs, value)) is None
 
 
 def is_decimal(value: Any) -> bool:

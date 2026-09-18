@@ -109,6 +109,25 @@ class TestParseProperties:
         assert result.node_name is None
         assert result.onto_iri == ONTO_IRI_STR
 
+    def test_good_geolocation(self, prefixes):
+        p_lbl = {"en": "testHasGeolocation"}
+        prop = {
+            "name": "testHasGeolocation",
+            "super": ["hasValue"],
+            "object": "GeolocationValue",
+            "labels": p_lbl,
+            "gui_element": "Geolocation",
+        }
+        result = _parse_one_property(prop, ONTO_NAMESPACE_STR, prefixes)
+        assert isinstance(result, ParsedProperty)
+        assert result.name == f"{ONTO_NAMESPACE_STR}testHasGeolocation"
+        assert result.labels == p_lbl
+        assert result.comments is None
+        assert set(result.supers) == {f"{KNORA_API_PREFIX}hasValue"}
+        assert result.object == KnoraObjectType.GEOLOCATION
+        assert result.subject is None
+        assert result.gui_element == GuiElement.GEOLOCATION
+
     def test_good_region_preview(self, prefixes):
         p_lbl = {"en": "testHasRegionPreview"}
         prop = {

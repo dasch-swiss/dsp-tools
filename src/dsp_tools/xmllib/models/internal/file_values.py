@@ -40,6 +40,8 @@ class Metadata:
     authorship: tuple[str, ...] | None
     permissions: Permissions
 
+    # Metadata (license/copyright/authorship) is not a per-value-cell concern, so it does not
+    # accept provenance, unlike FileValue.new / IIIFUri.new below.
     @classmethod
     def new(
         cls,

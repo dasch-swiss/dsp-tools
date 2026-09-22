@@ -99,6 +99,8 @@ class RegionResource:
             authorship=authors,
         )
 
+    # Geometry methods build a shape object directly, with no value-factory check to attach
+    # provenance to — unlike the value add_... methods below.
     def add_rectangle(
         self,
         point1: tuple[float, float],

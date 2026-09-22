@@ -116,7 +116,14 @@ class TestWriteMessageToCsv:
         provenance = SourceProvenance(source_file="data.xlsx", sheet="Sheet1", row=5, cell="C")
         Resource.create_new("res_id", "restype", "label").add_integer("prop", "not-a-number", provenance=provenance)
         lines = csv_path.read_text().splitlines()
-        assert lines[1].endswith(",data.xlsx,Sheet1,5,C")
+        assert len(lines) == 2
+        # The File column carries the calling test's line number, which is not fixed, so only that
+        # segment is a pattern; the rest of the row is matched literally.
+        expected_tail = regex.escape(
+            ",WARNING,\"The input should be a valid integer, your input 'not-a-number' does not match the type.\","
+            "res_id,prop,,data.xlsx,Sheet1,5,C"
+        )
+        assert regex.fullmatch(rf"test_xmllib_warnings_util\.py:\d+{expected_tail}", lines[1])
 
 
 class TestGetMessageString:

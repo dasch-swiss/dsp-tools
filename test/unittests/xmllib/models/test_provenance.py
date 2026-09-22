@@ -1,3 +1,7 @@
+import dataclasses
+
+import pytest
+
 from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
@@ -15,3 +19,8 @@ class TestSourceProvenance:
         assert prov.sheet == "Sheet1"
         assert prov.row == 5
         assert prov.cell == "C"
+
+    def test_is_frozen(self) -> None:
+        prov = SourceProvenance(source_file="data.xlsx")
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            prov.row = 6  # type: ignore[misc]

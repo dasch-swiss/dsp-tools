@@ -113,6 +113,7 @@ class FileValue(AbstractFileValue):
                         message=f"Your input '{value}' is empty. Please enter a valid file path.",
                         resource_id=resource_id,
                         field="bitstream",
+                        provenance=provenance,
                     )
                     emit_xmllib_input_warning(msg_info)
                     value = ""
@@ -135,6 +136,7 @@ class FileValue(AbstractFileValue):
                 value=comment,
                 res_id=resource_id,
                 field="comment on bitstream",
+                provenance=provenance,
             )
         else:
             fixed_comment = None
@@ -170,6 +172,7 @@ class IIIFUri(AbstractFileValue):
                 value=comment,
                 res_id=resource_id,
                 field="comment on iiif-uri",
+                provenance=provenance,
             )
         else:
             fixed_comment = None

@@ -320,11 +320,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "color", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "color", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_color(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -463,11 +465,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "date", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "date", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_date(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -604,11 +608,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "decimal", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "decimal", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_decimal(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -749,11 +755,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geoname", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "geoname", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_geoname(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -892,11 +900,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "integer", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "integer", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_integer(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -1035,11 +1045,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "link", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "link", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_link(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -1180,11 +1192,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "region-preview", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "region-preview", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_region_preview(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -1332,11 +1346,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "list", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "list", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_list(prop_name, list_name, v, permissions, comment, o, provenance)
         return self
@@ -1475,11 +1491,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "simpletext", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "simpletext", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_simpletext(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -1765,11 +1783,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "richtext", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "richtext", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         self.values.extend(
             [
                 Richtext.new(
@@ -1931,11 +1951,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "time", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "time", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_time(prop_name, v, permissions, comment, o, provenance)
         return self
@@ -2070,11 +2092,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "uri", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "uri", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
             self.add_uri(prop_name, v, permissions, comment, o, provenance)
         return self

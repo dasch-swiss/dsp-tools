@@ -324,7 +324,7 @@ class RegionResource:
             region = region.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         comnts = [
             Richtext.new(
                 value=x,
@@ -508,7 +508,7 @@ class LinkResource:
             link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
             self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
@@ -782,7 +782,7 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
             self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
@@ -887,7 +887,7 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id, provenance=provenance)
         for v in vals:
             self.add_description(v, permissions, comment, newline_replacement, provenance)
         return self
@@ -987,7 +987,7 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id, provenance=provenance)
         for v in vals:
             self.add_keyword(v, permissions, comment, provenance)
         return self
@@ -1085,7 +1085,7 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id, provenance=provenance)
         for v in vals:
             self.add_relates_to(v, permissions, comment, provenance)
         return self
@@ -1322,7 +1322,7 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
             self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
@@ -1427,7 +1427,7 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id, provenance=provenance)
         for v in vals:
             self.add_description(v, permissions, comment, newline_replacement, provenance)
         return self
@@ -1527,7 +1527,7 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id, provenance=provenance)
         for v in vals:
             self.add_keyword(v, permissions, comment, provenance)
         return self
@@ -1625,7 +1625,7 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id, provenance=provenance)
         for v in vals:
             self.add_relates_to(v, permissions, comment, provenance)
         return self

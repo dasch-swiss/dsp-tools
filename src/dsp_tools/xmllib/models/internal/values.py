@@ -61,7 +61,7 @@ class BooleanValue(Value):
                 expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
             val = str(value)
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
         return cls(value=val, prop_name=prop_name, permissions=permissions, comment=fixed_comment)
 
 
@@ -88,8 +88,8 @@ class ColorValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="color", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -122,8 +122,8 @@ class DateValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="date", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -156,8 +156,8 @@ class DecimalValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -190,8 +190,8 @@ class GeonameValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -224,8 +224,8 @@ class IntValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -262,8 +262,8 @@ class LinkValue(Value):
                 prop_name=prop_name,
                 provenance=provenance,
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -300,8 +300,8 @@ class RegionPreviewValue(Value):
                 prop_name=prop_name,
                 provenance=provenance,
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -352,8 +352,8 @@ class ListValue(Value):
                     prop_name=prop_name,
                     provenance=provenance,
                 )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             list_name=str(list_str),
@@ -386,9 +386,11 @@ class SimpleText(Value):
         converted_val = check_and_fix_is_non_empty_string(
             value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
         )
-        check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        check_and_inform_about_angular_brackets(
+            value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
+        )
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=converted_val,
             prop_name=prop_name,
@@ -425,8 +427,8 @@ class Richtext(Value):
         result = parse_richtext_as_xml(converted_val, provenance=provenance)
         if isinstance(result, MessageInfo):
             raise_xmllib_input_error(result)
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=converted_val,
             prop_name=prop_name,
@@ -459,8 +461,8 @@ class TimeValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=str(value),
             prop_name=prop_name,
@@ -494,8 +496,8 @@ class UriValue(Value):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             value=v,
             prop_name=prop_name,

@@ -16,6 +16,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_typ
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
@@ -51,12 +52,13 @@ class BooleanValue(Value):
         permissions: Permissions,
         comment: str | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> BooleanValue:
         try:
             val = str(convert_to_bool_string(value)).lower()
         except XmllibInputError:
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="bool", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
             val = str(value)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
@@ -80,10 +82,11 @@ class ColorValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> ColorValue:
         if not is_color(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="color", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="color", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -113,10 +116,11 @@ class DateValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> DateValue:
         if not is_date(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="date", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="date", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -146,10 +150,11 @@ class DecimalValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> DecimalValue:
         if not is_decimal(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="decimal", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -179,10 +184,11 @@ class GeonameValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> GeonameValue:
         if not is_geoname(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="geoname", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -212,10 +218,11 @@ class IntValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> IntValue:
         if not is_integer(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="integer", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -245,10 +252,15 @@ class LinkValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> LinkValue:
         if not is_link_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="xsd:ID or DSP resource IRI",
+                value=value,
+                res_id=resource_id,
+                prop_name=prop_name,
+                provenance=provenance,
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -278,10 +290,15 @@ class RegionPreviewValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> RegionPreviewValue:
         if not is_link_value(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="xsd:ID or DSP resource IRI", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="xsd:ID or DSP resource IRI",
+                value=value,
+                res_id=resource_id,
+                prop_name=prop_name,
+                provenance=provenance,
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -313,6 +330,7 @@ class ListValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> ListValue:
         if str(value).startswith("http://rdfh.ch/lists/"):
             list_str = ""
@@ -320,11 +338,19 @@ class ListValue(Value):
             list_str = str(list_name)
             if not is_nonempty_value(list_name):
                 emit_xmllib_input_type_mismatch_warning(
-                    expected_type="list name", value=list_name, res_id=resource_id, prop_name=prop_name
+                    expected_type="list name",
+                    value=list_name,
+                    res_id=resource_id,
+                    prop_name=prop_name,
+                    provenance=provenance,
                 )
             if not is_nonempty_value(value):
                 emit_xmllib_input_type_mismatch_warning(
-                    expected_type="list node", value=value, res_id=resource_id, prop_name=prop_name
+                    expected_type="list node",
+                    value=value,
+                    res_id=resource_id,
+                    prop_name=prop_name,
+                    provenance=provenance,
                 )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -355,8 +381,11 @@ class SimpleText(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> SimpleText:
-        converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
+        converted_val = check_and_fix_is_non_empty_string(
+            value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
+        )
         check_and_inform_about_angular_brackets(value=value, res_id=resource_id, prop_name=prop_name)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -387,10 +416,13 @@ class Richtext(Value):
         order: int | None,
         resource_id: str | None,
         newline_replacement: NewlineReplacement = NewlineReplacement.NONE,
+        provenance: SourceProvenance | None = None,
     ) -> Richtext:
-        converted_val = check_and_fix_is_non_empty_string(value=value, res_id=resource_id, prop_name=prop_name)
+        converted_val = check_and_fix_is_non_empty_string(
+            value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
+        )
         converted_val = replace_newlines_with_tags(converted_val, newline_replacement)
-        result = parse_richtext_as_xml(converted_val)
+        result = parse_richtext_as_xml(converted_val, provenance=provenance)
         if isinstance(result, MessageInfo):
             raise_xmllib_input_error(result)
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
@@ -421,10 +453,11 @@ class TimeValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> TimeValue:
         if not is_timestamp(value):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="timestamp", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
@@ -454,11 +487,12 @@ class UriValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> UriValue:
         v = str(value)
         if not is_uri(v):
             emit_xmllib_input_type_mismatch_warning(
-                expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name
+                expected_type="uri", value=value, res_id=resource_id, prop_name=prop_name, provenance=provenance
             )
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)

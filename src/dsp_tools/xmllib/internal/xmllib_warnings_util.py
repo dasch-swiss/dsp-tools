@@ -17,6 +17,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import UserMessageSeverity
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 read_dotenv_if_exists()
 
@@ -182,6 +183,7 @@ def emit_xmllib_input_type_mismatch_warning(
     res_id: str | None,
     value_field: str | None = None,
     prop_name: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """These are to be used if the error is caused by user input."""
     msg_info = MessageInfo(
@@ -189,5 +191,6 @@ def emit_xmllib_input_type_mismatch_warning(
         resource_id=res_id,
         prop_name=prop_name,
         field=value_field,
+        provenance=provenance,
     )
     emit_xmllib_input_warning(msg_info)

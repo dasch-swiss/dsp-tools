@@ -9,6 +9,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 def is_nonempty_value_internal(value: Any) -> bool:
@@ -73,7 +74,13 @@ def is_date_internal(value: Any) -> bool:
 
 
 def check_and_warn_potentially_empty_string(
-    *, value: Any, res_id: str | None, expected: str, prop_name: str | None = None, field: str | None = None
+    *,
+    value: Any,
+    res_id: str | None,
+    expected: str,
+    prop_name: str | None = None,
+    field: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
@@ -87,6 +94,7 @@ def check_and_warn_potentially_empty_string(
         expected: the type of value that is expected
         prop_name: property name if used to check a property
         field: if used to check a non-property field, for example a comment on a value
+        provenance: where the value came from in the source data
 
     Warnings:
         XmllibInputWarning: if it is an empty value or a string only with whitespaces
@@ -99,6 +107,7 @@ def check_and_warn_potentially_empty_string(
             resource_id=res_id,
             prop_name=prop_name,
             field=field,
+            provenance=provenance,
         )
         emit_xmllib_input_warning(msg_info)
     else:

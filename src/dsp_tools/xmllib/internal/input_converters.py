@@ -13,6 +13,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_inf
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name: str | None) -> str | None:
@@ -34,6 +35,7 @@ def check_and_fix_is_non_empty_string(
     prop_name: str | None = None,
     value_field: str | None = None,
     expected: str = "non empty string",
+    provenance: SourceProvenance | None = None,
 ) -> str:
     """
     Emits warnings if the string is or looks empty.
@@ -46,6 +48,7 @@ def check_and_fix_is_non_empty_string(
         prop_name: property name
         value_field: field if it is not a property
         expected: expected type
+        provenance: where the value came from in the source data
 
     Returns:
         The value as string, if it is empty an empty string.
@@ -65,6 +68,7 @@ def check_and_fix_is_non_empty_string(
             res_id=res_id,
             prop_name=prop_name,
             value_field=value_field,
+            provenance=provenance,
         )
         return ""
 

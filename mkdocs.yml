@@ -39,6 +39,7 @@ nav:
               - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
               - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
           - Permissions: xmllib-docs/permissions.md
+          - Source Provenance: xmllib-docs/provenance.md
           - Licenses:
               - Recommended: xmllib-docs/licenses/recommended.md
               - Other: xmllib-docs/licenses/other.md

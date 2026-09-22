@@ -20,6 +20,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import get_user_message_stri
 from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
 from dsp_tools.xmllib.internal.xmllib_warnings_util import write_message_to_csv
 from dsp_tools.xmllib.models.provenance import SourceProvenance
+from dsp_tools.xmllib.models.res import Resource
 
 
 @pytest.fixture
@@ -108,6 +109,14 @@ class TestWriteMessageToCsv:
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
         lines = csv_path.read_text().splitlines()
         assert lines[1] == ",WARNING,msg,id,,,data.xlsx,Sheet1,5,C"
+
+    def test_add_integer_with_provenance_writes_csv_row(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file="data.xlsx", sheet="Sheet1", row=5, cell="C")
+        Resource.create_new("res_id", "restype", "label").add_integer("prop", "not-a-number", provenance=provenance)
+        lines = csv_path.read_text().splitlines()
+        assert lines[1].endswith(",data.xlsx,Sheet1,5,C")
 
 
 class TestGetMessageString:

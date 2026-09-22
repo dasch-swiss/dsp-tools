@@ -19,6 +19,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_war
 from dsp_tools.xmllib.internal.xmllib_warnings_util import get_user_message_string
 from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
 from dsp_tools.xmllib.internal.xmllib_warnings_util import write_message_to_csv
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 @pytest.fixture
@@ -59,7 +60,9 @@ class TestInitialiseWarningFile:
         csv_path = tmp_path / "warnings.csv"
         monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
         initialise_warning_file()
-        assert csv_path.read_text().splitlines() == ["File,Severity,Message,Resource ID,Property,Field"]
+        assert csv_path.read_text().splitlines() == [
+            "File,Severity,Message,Resource ID,Property,Field,Source File,Sheet,Row,Cell"
+        ]
 
     def test_second_call_is_a_no_op(self, tmp_path, monkeypatch, capsys):
         csv_path = tmp_path / "warnings.csv"
@@ -87,8 +90,8 @@ class TestWriteMessageToCsv:
         monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
         lines = csv_path.read_text().splitlines()
-        assert lines[0] == "File,Severity,Message,Resource ID,Property,Field"
-        assert lines[1] == ",WARNING,msg,id,,"
+        assert lines[0] == "File,Severity,Message,Resource ID,Property,Field,Source File,Sheet,Row,Cell"
+        assert lines[1] == ",WARNING,msg,id,,,,,,"
 
     def test_does_not_reinitialise_on_second_call(self, tmp_path, monkeypatch, message_info):
         csv_path = tmp_path / "warnings.csv"
@@ -96,6 +99,15 @@ class TestWriteMessageToCsv:
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.INFO)
         assert len(csv_path.read_text().splitlines()) == 3
+
+    def test_writes_provenance_into_trailing_columns(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file="data.xlsx", sheet="Sheet1", row=5, cell="C")
+        message_info = MessageInfo("msg", "id", provenance=provenance)
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        lines = csv_path.read_text().splitlines()
+        assert lines[1] == ",WARNING,msg,id,,,data.xlsx,Sheet1,5,C"
 
 
 class TestGetMessageString:

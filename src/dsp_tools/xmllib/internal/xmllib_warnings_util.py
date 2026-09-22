@@ -31,7 +31,18 @@ def initialise_warning_file() -> None:
         return
     if file_path := os.getenv("XMLLIB_WARNINGS_CSV_SAVEPATH"):
         try:
-            new_row = ["File", "Severity", "Message", "Resource ID", "Property", "Field"]
+            new_row = [
+                "File",
+                "Severity",
+                "Message",
+                "Resource ID",
+                "Property",
+                "Field",
+                "Source File",
+                "Sheet",
+                "Row",
+                "Cell",
+            ]
             with open(file_path, "w", newline="") as file:
                 print(
                     BOLD_YELLOW,
@@ -55,6 +66,7 @@ def write_message_to_csv(
 ) -> None:
     """Write the message to the csv."""
     initialise_warning_file()
+    provenance = msg.provenance
     new_row = [
         function_trace if function_trace else "",
         str(severity),
@@ -62,6 +74,10 @@ def write_message_to_csv(
         msg.resource_id if msg.resource_id else "",
         msg.prop_name if msg.prop_name else "",
         msg.field if msg.field else "",
+        provenance.source_file if provenance and provenance.source_file else "",
+        provenance.sheet if provenance and provenance.sheet else "",
+        str(provenance.row) if provenance and provenance.row is not None else "",
+        provenance.cell if provenance and provenance.cell else "",
     ]
     with open(file_path, "a", newline="") as file:
         writer = csv.writer(file)
@@ -77,6 +93,15 @@ def get_user_message_string(msg: MessageInfo, function_trace: str | None) -> str
         str_list.append(f"Property '{msg.prop_name}'")
     if msg.field:
         str_list.append(f"Field '{msg.field}'")
+    if provenance := msg.provenance:
+        if provenance.source_file:
+            str_list.append(f"Source File '{provenance.source_file}'")
+        if provenance.sheet:
+            str_list.append(f"Sheet '{provenance.sheet}'")
+        if provenance.row is not None:
+            str_list.append(f"Row '{provenance.row}'")
+        if provenance.cell:
+            str_list.append(f"Cell '{provenance.cell}'")
     str_list.append(msg.message)
     return " | ".join(str_list)
 

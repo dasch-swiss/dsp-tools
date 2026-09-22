@@ -149,3 +149,5 @@ than stopping at the first error, because it runs locally against user-owned fil
 - "ARK" risked being reduced to "dsp-tools' legacy migration conversion" — resolved: ARK is DSP's general,
   citable, stable external identifier; dsp-tools' only role is the one-way conversion of a pre-existing
   legacy salsah.org ARK into an IRI during migration, never minting a new one.
+- `mapping` and `migration` are not classified as **Group A** or **Group B** commands — unresolved,
+  inherited from `docs/developers/architecture/error-handling.md`, which doesn't classify them either.

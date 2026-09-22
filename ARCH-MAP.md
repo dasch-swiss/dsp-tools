@@ -15,7 +15,7 @@ arguments and dispatches each subcommand to its own module under `commands/`; co
 (`clients/`), stateless helpers (`utils/`), static schema/shape assets (`resources/`), and a common
 exception hierarchy (`error/`). The two largest workflows are `create`/`get` (JSON project file ↔ server)
 and `xmlupload`/`ingest-xmlupload` (XML data file → server, either in one pass or via a resumable,
-ingest-first pipeline). See `CONTEXT.md` for vocabulary once it exists. Several CLAUDE.md files state that
+ingest-first pipeline). See `CONTEXT.md` for vocabulary. Several CLAUDE.md files state that
 commands must not import each other and that `utils`/`clients`/`xmllib` must not import from `commands` —
 this map found confirmed violations of both rules; see Conventions and each component's Boundary rules.
 
@@ -86,8 +86,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `project_validate.py`, `parsing/parse_project.py`, `create_on_server/classes.py`
 - **Depends on**: `clients` (Ontology/Group/User/Permissions/List/Project/LegalInfo), `resources`
   (schema/project.json), `utils`, `error`, `setup`
-- **Used by**: `validate-data` (imports `create.models.create_problems.CardinalitiesThatMayCreateAProblematicCircle`
-  directly — a reach-in)
+- **Used by**: `cli` (calls `create.create()`); `validate-data` (imports
+  `create.models.create_problems.CardinalitiesThatMayCreateAProblematicCircle` directly — a reach-in)
 - **Boundary rules**:
     - `validate-data` imports `create`'s internal `models/create_problems.py` directly, bypassing `create.py`'s
     public interface. (enforcement: docs-only; one instance of the repo-wide pattern in Conventions)
@@ -112,8 +112,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `legacy_models/project.py`, `models/permissions_models.py`
 - **Depends on**: `clients` (Connection, Authentication, Permissions), `error`, top-level `legacy_models`
   (LangString, DateTimeStamp), `utils` (iri_util, request_utils), `cli.args`
-- **Used by**: none externally; but this component's own `legacy_models/` subfolder is reached into from
-  outside (see Boundary rules)
+- **Used by**: `cli` (calls `get.get_project()`); `utils/request_utils.py` and top-level
+  `legacy_models/projectContext.py` reach into this component's `legacy_models/` subfolder (see Boundary
+  rules)
 - **Boundary rules**:
     - Two confirmed reach-ins into this component's internal `legacy_models/` subfolder, bypassing `get.py`:
     top-level `legacy_models/projectContext.py` imports `Group`/`Project` directly; `utils/request_utils.py`
@@ -146,7 +147,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
     stated in `utils/CLAUDE.md` and `CONVENTIONS.md`. (enforcement: docs-only)
     - New top-level JSON field: `_sort_project_dict()` in `project.py` raises `UnreachableCodeError` on any key
     absent from its `ordered_keys` list — a new field must be added there or the run errors at runtime (the
-    trap that caused `data_license` to be missed once). (enforcement: static-analysis, at runtime)
+    trap that caused `data_license` to be missed once). Nothing lints or tests `ordered_keys` against the
+    schema today, so this only catches a miss when the code path actually runs. (enforcement: review)
     - New section (lists/resources/properties): its own module producing a `(section_list,
     permissions_overrules, success)` tuple, wired by hand into `_create_project_json()` and `ordered_keys`.
 - **Durable state**: reads `.xlsx` files from a user folder; writes one JSON project file via `json.dump`
@@ -165,7 +167,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `shacl_cli_validator.py`, `sparql/cardinality_shacl.py`
 - **Depends on**: `clients` (Ontology/List/Metadata/LegalInfo/Authentication), `create.models.create_problems`
   (reach-in), `resources/validate_data` (SHACL shapes), `utils`, `error`, `setup`
-- **Used by**: `xmlupload`, `ingest-xmlupload` (both call `validate_parsed_resources`)
+- **Used by**: `cli` (calls `validate_data.validate_data()`); `xmlupload`, `ingest-xmlupload` (both call
+  `validate_parsed_resources`); `utils/xml_parsing/get_parsed_resources.py` reaches into `mappers.py` (see
+  Boundary rules)
 - **Boundary rules**:
     - Imports `create.models.create_problems.CardinalitiesThatMayCreateAProblematicCircle` and
     `create.communicate_problems` directly from `create` — a reach-in in the opposite direction from
@@ -195,8 +199,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `prepare_xml_input/prepare_xml_input.py`, `make_rdf_graph/make_values.py`, `models/processed/values.py`
 - **Depends on**: `clients`, `utils`, `error`, `setup`, top-level `legacy_models`, `validate-data`
   (`validate_parsed_resources`)
-- **Used by**: `ingest-xmlupload` and `resume-xmlupload` (heavy reach-in, see Boundary rules); `validate-data`
-  (two-way, see that entry)
+- **Used by**: `cli` (calls `xmlupload.xmlupload()`); `clients` (`ingest.py`/`bulk_ingest_client.py` import
+  from this component — a reach-in, see `clients`' Boundary rules); `utils` (`replace_id_with_iri.py`,
+  `xml_parsing/get_lookups.py` reach into this component's internals — see Boundary rules);
+  `ingest-xmlupload` and `resume-xmlupload` (heavy reach-in, see Boundary rules); `validate-data` (two-way,
+  see that entry)
 - **Boundary rules**:
     - `resume_xmlupload` and `ingest_xmlupload` bypass the `xmlupload()` entry point entirely and call
     `execute_upload()` and internal `models/`/`prepare_xml_input/` modules directly — the two components are
@@ -223,7 +230,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `ingest_files/ingest_files.py`, `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`
 - **Depends on**: `clients` (BulkIngestClient, DspIngestClientLive), `xmlupload` (execute_upload, models,
   prepare_xml_input, upload_config — heavy reuse), `validate-data`, `utils`, `error`
-- **Used by**: none externally
+- **Used by**: `cli` (calls each CLI subcommand's function); `clients` (`bulk_ingest_client.py` reaches into
+  this component's internals — see Boundary rules)
 - **Boundary rules**:
     - `clients/bulk_ingest_client.py` imports exception types from this component's `exceptions.py` and
     `upload_files/upload_failures.py` — an inversion mirroring the one noted under `clients`.
@@ -251,9 +259,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
   one main module per command — treated as six small kits rather than one shared budget, since the six share
   no code with each other.
 - **Depends on**: `utils`, `error`, `xmllib` (update_legal, excel2xml), `clients` (mapping, migration,
-  start_stack), Docker/subprocess (start_stack)
-- **Used by**: `src/dsp_tools/__init__.py` imports `excel2xml` unconditionally at package init;
-  `utils/data_formats/shared.py` imports `excel2xml.propertyelement.PropertyElement` (reach-in)
+  start_stack), `resources` (start_stack Compose/template files), `excel2json` (`mapping/parse_excel.py`
+  reach-in, see Boundary rules), Docker/subprocess (start_stack)
+- **Used by**: `cli` (each of the five CLI-wired commands); `src/dsp_tools/__init__.py` imports `excel2xml`
+  unconditionally at package init; `utils/data_formats/shared.py` imports
+  `excel2xml.propertyelement.PropertyElement` (reach-in)
 - **Boundary rules**:
     - `mapping/parse_excel.py` imports from `excel2json` (see that entry) — the one cross-import among these
     six.
@@ -352,6 +362,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Paths**: `docs/**`, `mkdocs.yml`
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
+  `docs/adr/` is the one exception inside `docs/**`: it is excluded from the published site (`not_in_nav`
+  in `mkdocs.yml`) because ADRs are a lightweight, git-native decision log, not a site page.
 - **Key entities**: mkdocs nav sections — Overview, User Guides, Running a Local Stack, Data Modelling, Data
   for Mass-Upload, Advanced Workflows, Information for developers, Changelog
 - **Public interface**: the rendered site's nav tree, defined in `mkdocs.yml`.
@@ -361,10 +373,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Used by**: developers and agents reading it; whether/where to update it on a given change is gated by the
   `update-docs` skill
 - **Boundary rules**:
-    - A new page must be added to `mkdocs.yml`'s `nav:` tree by hand — `validation.omitted_files` only warns,
-    it doesn't fail, so an unregistered page silently never appears on the site. (enforcement: docs-only)
-    - Internal links and nav completeness are enforced by `mkdocs build --strict` (the required `check-docs`
-    CI check); external links are checked weekly, non-blocking, via `lychee.toml`.
+    - A new page must be added to `mkdocs.yml`'s `nav:` tree by hand — `validation.omitted_files: warn`
+    becomes a build-failing error under the `--strict` flag the required `check-docs` CI check runs (see
+    `mkdocs.yml`'s own comment above its `validation:` block), so an unregistered page fails CI, it does not
+    silently disappear. (enforcement: static-analysis)
+    - `docs/adr/**` is carved out of this rule via `not_in_nav` in `mkdocs.yml`, since ADRs are never meant
+    to get a nav entry. External links are checked weekly, non-blocking, via `lychee.toml`.
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
 
@@ -398,7 +412,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `.pre-commit-config.yaml`, `.editorconfig`, `.gitignore`, `.markdownlint.yml`, `.yamllint.yml`,
   `.yamlfmt.yml`, `.kodus-readiness.yml`, `codecov.yml`, `lychee.toml`, `CHANGELOG.md`, `LICENSE`,
   `README.md`, `.vulture_whitelist.py`, `CLAUDE.md`, `CONVENTIONS.md`, `REVIEW.md`, `ARCH-MAP.md`,
-  `src/dsp_tools/__init__.py`, `src/dsp_tools/py.typed`, `src/dsp_tools/commands/__init__.py`, `.claude/**`
+  `CONTEXT.md`, `eng.yaml`, `src/dsp_tools/__init__.py`, `src/dsp_tools/py.typed`,
+  `src/dsp_tools/commands/__init__.py`, `.claude/**`
 - **Purpose**: Repo-level build, lint, and CI tooling — everything a developer or CI runs that isn't
   application code, docs, or tests.
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,

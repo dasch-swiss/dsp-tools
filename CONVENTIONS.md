@@ -204,6 +204,10 @@ workflow — check recent `git log` for the prevailing style. Common prefixes in
 - **"dsp-tools subsystem inventory (blast-radius reference)"** (this file) — the cross-suite touch-point
   map; walk it with the `change-blast-radius` skill on any feature work.
 - `CLAUDE.md` — repository overview, commands, architecture, working agreements.
+- `ARCH-MAP.md` — component-level dependency graph and boundary rules; load on demand for import-level
+  blast-radius and boundary questions (a different concern from the subsystem inventory above).
+- `CONTEXT.md` — the project's domain vocabulary.
+- `docs/adr/` — architectural decision records.
 - `src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
 - `src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.
 - `src/dsp_tools/xmllib/CLAUDE.md` — xmllib public-API layering.

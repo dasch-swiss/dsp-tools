@@ -57,6 +57,20 @@ overrides:
       - skill: update-docs
     reviewers: [eng:review:dune-reviewer]
 
+  # Route the dune artifacts themselves to dune-reviewer, so a change touching only these
+  # never skips the one reviewer that audits them.
+  - when: "ARCH-MAP.md"
+    reviewers: [eng:review:dune-reviewer]
+
+  - when: "CONTEXT.md"
+    reviewers: [eng:review:dune-reviewer]
+
+  - when: "docs/adr/**"
+    reviewers: [eng:review:dune-reviewer]
+
+  - when: "eng.yaml"
+    reviewers: [eng:review:dune-reviewer]
+
   - when: ".github/**"
     reviewers: [eng:review:devops-reviewer]
 

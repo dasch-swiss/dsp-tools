@@ -10,7 +10,7 @@ conceptually independent of the rest of dsp-tools. This is an architectural boun
 requirement for external use: `xmllib` ships as part of the same dsp-tools PyPI package, so anyone using it
 already has dsp-tools installed — no separate, dsp-tools-free installation of `xmllib` exists or is needed.
 
-Currently violated in 8 files (see `ARCH-MAP.md`'s xmllib entry) — recorded here so the drift is visible
-rather than assumed away.
+Currently violated (see `ARCH-MAP.md`'s xmllib entry for the current file count) — recorded here so the
+drift is visible rather than assumed away.
 
 Enforced by: none (docs-only)

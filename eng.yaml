@@ -8,7 +8,7 @@ defaults:
     lint: just lint
     gate: just lint && just unittests
     test_targeted: uv run pytest -- {files}
-  reviewers: [eng:review:python-reviewer, eng:review:consistency-reviewer]
+  reviewers: ['eng:review:python-reviewer', 'eng:review:consistency-reviewer']
 
 overrides:
   - when: "src/dsp_tools/cli/**"
@@ -16,7 +16,7 @@ overrides:
 
   - when: "src/dsp_tools/clients/**"
     conventions: [src/dsp_tools/clients/CLAUDE.md]
-    reviewers: [eng:review:security-reviewer]
+    reviewers: ['eng:review:security-reviewer']
 
   - when: "src/dsp_tools/commands/create/**"
     conventions: [src/dsp_tools/commands/create/CLAUDE.md]
@@ -47,7 +47,7 @@ overrides:
     conventions: [src/dsp_tools/xmllib/CLAUDE.md]
 
   - when: "src/dsp_tools/setup/**"
-    reviewers: [eng:review:security-reviewer]
+    reviewers: ['eng:review:security-reviewer']
 
   # Repo-wide, on top of every narrower override above: catches missed subsystems and
   # undocumented user-facing changes, and flags new boundary violations against ARCH-MAP.md.
@@ -55,27 +55,27 @@ overrides:
     verify:
       - skill: change-blast-radius
       - skill: update-docs
-    reviewers: [eng:review:dune-reviewer]
+    reviewers: ['eng:review:dune-reviewer']
 
   # Route the dune artifacts themselves to dune-reviewer, so a change touching only these
   # never skips the one reviewer that audits them.
   - when: "ARCH-MAP.md"
-    reviewers: [eng:review:dune-reviewer]
+    reviewers: ['eng:review:dune-reviewer']
 
   - when: "CONTEXT.md"
-    reviewers: [eng:review:dune-reviewer]
+    reviewers: ['eng:review:dune-reviewer']
 
   - when: "docs/adr/**"
-    reviewers: [eng:review:dune-reviewer]
+    reviewers: ['eng:review:dune-reviewer']
 
   - when: "eng.yaml"
-    reviewers: [eng:review:dune-reviewer]
+    reviewers: ['eng:review:dune-reviewer']
 
   - when: ".github/**"
-    reviewers: [eng:review:devops-reviewer]
+    reviewers: ['eng:review:devops-reviewer']
 
   - when: "justfile"
-    reviewers: [eng:review:devops-reviewer]
+    reviewers: ['eng:review:devops-reviewer']
 
   - when: "test/integration/**"
     commands:

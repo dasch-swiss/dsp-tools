@@ -24,7 +24,7 @@ _Avoid_: "resource" alone when the class/instance distinction matters.
 **Resource instance**:
 A concrete `<resource>` element in an XML data file, with real values, that DSP creates as one object on the
 server.
-_Avoid_: "resource" alone when the class/instance distinction matters; the code name is `ProcessedResource`.
+_Avoid_: "resource" alone when the class/instance distinction matters.
 
 **Property**:
 A data field declared on a resource class in the ontology, with a data type and a cardinality.
@@ -77,10 +77,14 @@ A project's unique, human-readable slug (`xsd:NCNAME` form).
 DSP's actual, internal resource identifier (`http://rdfh.ch/...`).
 
 **ARK**:
-A legacy, version-0 identifier format from salsah.org, algorithmically converted to an IRI (via a
-deterministic UUIDv5 derivation) only when migrating a pre-existing resource.
-_Avoid_: treating ARK and IRI as synonyms, or assuming ARK "resolves to" an IRI at runtime — see Flagged
-ambiguities.
+DSP's citable, stable external identifier for a resource — DaSCH promises an ARK stays resolvable long
+term, a promise an IRI does not carry. A resource's ARK is minted by the server once dsp-tools has created
+it; dsp-tools' own code never mints one. The one ARK-related mechanism inside dsp-tools is migration: the
+XML `ark` attribute on `<resource>` carries a pre-existing legacy (version-0) salsah.org ARK, converted
+once, one-way, into the resource's IRI (`ark2iri.py`) so a migrated resource keeps its old citable URL
+alive.
+_Avoid_: assuming dsp-tools generates ARKs, or that ARK "resolves to" an IRI at runtime — it only ever
+converts a pre-existing legacy one, for migration.
 
 ### Permissions & legal metadata
 
@@ -117,13 +121,14 @@ than stopping at the first error, because it runs locally against user-owned fil
 
 - A **Project** has one or more **Ontologies**, and optionally **Lists**, groups, and users.
 - An **Ontology** defines **Resource classes**, each with **Properties** and their **Cardinalities**.
-- A **Resource instance** is created from a **Resource class** and holds one **Value** per property
-  occurrence.
+- A **Resource instance** is created from a **Resource class** and holds the **Values** its **Properties**'
+  **Cardinalities** require — zero, one, or many per property.
 - A **Resource instance** may reference a **Bitstream**, which carries its own License/Copyright/Authorship,
   separate from the resource's own.
 - A **DOAP** supplies the default **Permission** for a resource or value unless the XML gives one explicitly.
-- **Upload** must happen before **Ingest**, which must happen before `ingest-xmlupload` creates resources
-  from the mapping it produced.
+- A resource is created by exactly one of two independent workflows: the single `xmlupload` command
+  (**Upload**, **Ingest**, and resource creation together), or the split `upload-files` → `ingest-files` →
+  `ingest-xmlupload` sequence (the same three steps, run and resumable independently).
 - A **Stash** exists only for the duration of an `xmlupload` run, holding values whose target
   **Resource instance** does not exist yet.
 
@@ -141,5 +146,6 @@ than stopping at the first error, because it runs locally against user-owned fil
   collective prose.
 - "Standoff" has no local definition in dsp-tools — resolved: it is DSP-API's concept, referenced here only
   through **Richtext**, and not redefined in this repo.
-- "ARK" was a candidate for meaning "resolves to an IRI" — resolved: it is a one-way, legacy-migration
-  conversion into an IRI, not a live resolver hop.
+- "ARK" risked being reduced to "dsp-tools' legacy migration conversion" — resolved: ARK is DSP's general,
+  citable, stable external identifier; dsp-tools' only role is the one-way conversion of a pre-existing
+  legacy salsah.org ARK into an IRI during migration, never minting a new one.

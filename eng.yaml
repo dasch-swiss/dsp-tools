@@ -1,0 +1,99 @@
+---
+version: 1
+
+defaults:
+  conventions: [CLAUDE.md, CONVENTIONS.md]
+  commands:
+    test: just unittests
+    lint: just lint
+    gate: just lint && just unittests
+    test_targeted: uv run pytest -- {files}
+  reviewers: [eng:review:python-reviewer, eng:review:consistency-reviewer]
+
+overrides:
+  - when: "src/dsp_tools/cli/**"
+    conventions: [src/dsp_tools/cli/CLAUDE.md]
+
+  - when: "src/dsp_tools/clients/**"
+    conventions: [src/dsp_tools/clients/CLAUDE.md]
+    reviewers: [eng:review:security-reviewer]
+
+  - when: "src/dsp_tools/commands/create/**"
+    conventions: [src/dsp_tools/commands/create/CLAUDE.md]
+
+  - when: "src/dsp_tools/commands/excel2json/**"
+    conventions: [src/dsp_tools/commands/excel2json/CLAUDE.md]
+
+  - when: "src/dsp_tools/commands/ingest_xmlupload/upload_files/**"
+    conventions: [src/dsp_tools/commands/ingest_xmlupload/upload_files/CLAUDE.md]
+
+  - when: "src/dsp_tools/commands/update_legal/**"
+    conventions: [src/dsp_tools/commands/update_legal/CLAUDE.md]
+
+  - when: "src/dsp_tools/commands/validate_data/**"
+    conventions: [src/dsp_tools/commands/validate_data/CLAUDE.md]
+    patterns: [add-shacl-shape]
+
+  - when: "src/dsp_tools/resources/validate_data/**"
+    patterns: [add-shacl-shape]
+
+  - when: "src/dsp_tools/commands/xmlupload/**"
+    conventions: [src/dsp_tools/commands/xmlupload/CLAUDE.md]
+
+  - when: "src/dsp_tools/utils/**"
+    conventions: [src/dsp_tools/utils/CLAUDE.md]
+
+  - when: "src/dsp_tools/xmllib/**"
+    conventions: [src/dsp_tools/xmllib/CLAUDE.md]
+
+  - when: "src/dsp_tools/setup/**"
+    reviewers: [eng:review:security-reviewer]
+
+  # Repo-wide, on top of every narrower override above: catches missed subsystems and
+  # undocumented user-facing changes, and flags new boundary violations against ARCH-MAP.md.
+  - when: "src/dsp_tools/**"
+    verify:
+      - skill: change-blast-radius
+      - skill: update-docs
+    reviewers: [eng:review:dune-reviewer]
+
+  - when: ".github/**"
+    reviewers: [eng:review:devops-reviewer]
+
+  - when: "justfile"
+    reviewers: [eng:review:devops-reviewer]
+
+  - when: "test/integration/**"
+    commands:
+      test: just integration-tests
+
+  # General e2e default; the five overrides below narrow it to their own just recipe,
+  # per the "E2E three-place wiring" convention in CONVENTIONS.md.
+  - when: "test/e2e/**"
+    commands:
+      test: just e2e-tests
+
+  - when: "test/e2e/commands/ingest_xmlupload/**"
+    commands:
+      test: just e2e-test-ingest-xmlupload
+
+  - when: "test/e2e/commands/validate_data/**"
+    commands:
+      test: just e2e-test-validate-data
+
+  - when: "test/e2e/commands/xmlupload/**"
+    commands:
+      test: just e2e-test-xmlupload
+
+  - when: "test/e2e/commands/project/**"
+    commands:
+      test: just e2e-test-project
+
+  - when: "test/e2e/commands/mapping/**"
+    commands:
+      test: just e2e-test-mapping
+
+  # Needs a running local DSP stack; not run automatically in CI.
+  - when: "test/legacy_e2e/**"
+    commands:
+      test: just legacy-e2e-tests

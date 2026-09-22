@@ -61,7 +61,6 @@ nav:
   - Information for developers:
       - Developers documentation: developers/index.md
       - Running DSP locally: developers/start-stack.md
-      - Architectural Decision Records: developers/decision-log.md
       - Architectural Design:
           - XML Parsing and Processing: developers/architecture/xml-parsing-processing.md
           - Create Command: developers/architecture/create-command.md

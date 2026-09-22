@@ -138,8 +138,8 @@ Directories:
       `hasValue | object | gui_element` table, and a `#### <ValueType>` section per value type.
     - `json-project/caveats.md` — Caveats about DSP base resources/properties (Region, LinkObj, …).
 - `developers/` — Contributor/maintainer docs. **Exception to the editorial rule: these DO explain
-  mechanism.** architecture/, code-quality-tools/, decision-log.md, index.md, mkdocs.md, packaging.md,
-  start-stack.md, user-data.md.
+  mechanism.** architecture/, code-quality-tools/, index.md, mkdocs.md, packaging.md, start-stack.md,
+  user-data.md. Architectural decisions live in `docs/adr/`, not here.
 - `special-workflows/` — Multi-step workflow guides: `workflow-xmlupload.md`
   (`upload-files` / `ingest-files` / `ingest-xmlupload`), `migration.md`, `update-legal.md`, `env-set-up.md`.
 - `xmllib-docs/` — The `xmllib` Python API reference. **Almost every page is mkdocstrings-generated**

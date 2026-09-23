@@ -6,7 +6,9 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
-HAS_LOCATION = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasLocation"
+ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
+HAS_LOCATION = f"{ONTO}hasLocation"
+CLASS = f"{ONTO}Class"
 
 
 def _resource(res_id: str, *geolocations: ParsedGeolocation) -> ParsedResource:
@@ -14,7 +16,7 @@ def _resource(res_id: str, *geolocations: ParsedGeolocation) -> ParsedResource:
         ParsedValue(HAS_LOCATION, geo, KnoraValueType.GEOLOCATION_VALUE, None, None, None, i)
         for i, geo in enumerate(geolocations)
     ]
-    return ParsedResource(res_id, "onto:Class", "label", None, values, None, None)
+    return ParsedResource(res_id, CLASS, "label", None, values, None, None)
 
 
 def test_valid_values_have_no_problems() -> None:
@@ -23,7 +25,7 @@ def test_valid_values_have_no_problems() -> None:
         _resource("lv95", ParsedGeolocation("LV95", {"easting": "2600000", "northing": "1200000"})),
         ParsedResource(
             "other",
-            "onto:Class",
+            CLASS,
             "label",
             None,
             [ParsedValue(HAS_LOCATION, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None, None, 0)],
@@ -43,7 +45,7 @@ def test_out_of_range_names_the_attribute_its_range_and_its_crs() -> None:
     assert problem.severity == Severity.VIOLATION
     assert problem.res_id == "res"
     assert problem.res_type == "onto:Class"
-    assert problem.prop_name == HAS_LOCATION
+    assert problem.prop_name == "onto:hasLocation"
     assert problem.message == (
         "The easting '2600000' is outside the valid range for Swiss LV03: 484273.3 to 837939.88 inclusive."
     )

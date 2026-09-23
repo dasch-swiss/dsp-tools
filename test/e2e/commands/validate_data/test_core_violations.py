@@ -304,6 +304,19 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
+        (
+            "geolocation_out_of_range",
+            "onto:testGeolocation",
+            "The latitude '91' is outside the valid range for WGS84 (CRS84): -90 to 90 inclusive.",
+        ),
+        (
+            "geolocation_wrong_pair",
+            "onto:testGeolocation",
+            (
+                "Given crs=\"LV95\", expected the attributes 'easting' and 'northing'. "
+                "Found 'longitude' and 'latitude', which belong to a geographic CRS."
+            ),
+        ),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
         (
             "int_too_large",

@@ -48,6 +48,15 @@
         </decimal-prop>
     </resource>
 
+    <resource label="Geolocation" restype=":ClassWithEverything" id="id_geolocation">
+        <geolocation-prop name=":testGeolocation">
+            <geolocation crs="CRS84" longitude="8.550" latitude="47.37"/>
+            <geolocation crs="CRS84" longitude="-180" latitude="90"/>
+            <geolocation crs="LV95" easting="2600000" northing="1200000"/>
+            <geolocation crs="LV03" easting="600000" northing="200000"/>
+        </geolocation-prop>
+    </resource>
+
     <resource label="Geoname" restype=":ClassWithEverything" id="id_geoname">
         <geoname-prop name=":testGeoname">
             <geoname>1111111</geoname>

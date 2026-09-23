@@ -12,6 +12,20 @@
     <!-- label may not contain newlines -->
     <resource label="Start&#10;After Newline" restype=":ClassWithEverything" id="label_with_newline"/>
 
+    <!-- the latitude must be within -90 and 90 in CRS84 -->
+    <resource label="Geolocation out of range" restype=":ClassWithEverything" id="geolocation_out_of_range">
+        <geolocation-prop name=":testGeolocation">
+            <geolocation crs="CRS84" longitude="8.55" latitude="91"/>
+        </geolocation-prop>
+    </resource>
+
+    <!-- LV95 takes easting and northing, not longitude and latitude -->
+    <resource label="Geolocation with the wrong pair" restype=":ClassWithEverything" id="geolocation_wrong_pair">
+        <geolocation-prop name=":testGeolocation">
+            <geolocation crs="LV95" longitude="8.55" latitude="47.37"/>
+        </geolocation-prop>
+    </resource>
+
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
         <geoname-prop name=":testGeoname">

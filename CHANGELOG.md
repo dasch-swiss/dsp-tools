@@ -1,5 +1,18 @@
 # Changelog
 
+## [19.1.3](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.2...v19.1.3) (2026-09-23)
+
+
+### Maintenance
+
+* remove dead code from legacy get project model ([#2436](https://github.com/dasch-swiss/dsp-tools/issues/2436)) ([17ae077](https://github.com/dasch-swiss/dsp-tools/commit/17ae077962d23b5950b08442cfad8797f6ea9cd8))
+* **start-stack:** bump versions to 2026.09.03 ([#2442](https://github.com/dasch-swiss/dsp-tools/issues/2442)) ([e239667](https://github.com/dasch-swiss/dsp-tools/commit/e239667abdd660afad0d2bab3df5714b2b767d75))
+
+
+### Documentation
+
+* adopt the shared comment convention and apply it (DEV-7123) ([#2433](https://github.com/dasch-swiss/dsp-tools/issues/2433)) ([96157d8](https://github.com/dasch-swiss/dsp-tools/commit/96157d8f97d9f54e50c94f098f77c645fbb483d4))
+
 ## [19.1.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.1...v19.1.2) (2026-09-16)
 
 

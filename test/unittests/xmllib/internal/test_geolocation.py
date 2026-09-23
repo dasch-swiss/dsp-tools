@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 
 from dsp_tools.xmllib.internal.geolocation import CRS84
@@ -79,7 +81,9 @@ class TestBounds:
     def test_negative_zero_is_zero(self) -> None:
         assert get_geolocation_problem("CRS84", {"longitude": "-0.0", "latitude": "0"}) is None
 
-    @pytest.mark.parametrize("ordinate", ["abc", "8,55", "1e5", "", "NaN", "Infinity"])
+    @pytest.mark.parametrize(
+        "ordinate", ["abc", "8,55", "1e5", "", "NaN", "Infinity", "\u0668.\u0665\u0665", "\uff18.\uff15\uff15"]
+    )
     def test_a_non_decimal_ordinate_is_rejected(self, ordinate: str) -> None:
         problem = get_geolocation_problem("CRS84", {"longitude": ordinate, "latitude": "47.37"})
         assert problem is not None
@@ -131,7 +135,10 @@ class TestOrdinateToStr:
             (2600000, "2600000"),
             (0.00001, "0.00001"),
             (2600000.0, "2600000.0"),
+            (Decimal("0.0000001"), "0.0000001"),
         ],
     )
-    def test_converts_without_exponent_and_keeps_strings(self, value: str | float | int, expected: str) -> None:
+    def test_converts_without_exponent_and_keeps_strings(
+        self, value: str | float | int | Decimal, expected: str
+    ) -> None:
         assert ordinate_to_str(value) == expected

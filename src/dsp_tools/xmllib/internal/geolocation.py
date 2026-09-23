@@ -19,7 +19,7 @@ from typing import Any
 import regex
 
 # The same form the XML schema admits: a plain decimal, no exponent, no thousands separator.
-_DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?\d+(\.\d+)?$")
+_DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?[0-9]+(\.[0-9]+)?$")
 
 
 class CrsKind(StrEnum):
@@ -96,6 +96,8 @@ def ordinate_to_str(value: Any) -> str:
     """
     if isinstance(value, float):
         return format(Decimal(repr(value)), "f")
+    if isinstance(value, Decimal):
+        return format(value, "f")
     return str(value).strip()
 
 

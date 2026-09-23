@@ -518,6 +518,9 @@ class TestDmsToDecimalDegrees:
         decimals = len(seconds.partition(".")[2])
         assert round(remainder * 60, decimals) == float(seconds)
 
+    def test_many_decimals_in_the_seconds(self) -> None:
+        assert dms_to_decimal_degrees(47, 22, "13.2" + "0" * 30, "N") == "47.37033333333333333333333333333333333"
+
     @pytest.mark.parametrize(
         ("dms", "reason"),
         [
@@ -527,6 +530,7 @@ class TestDmsToDecimalDegrees:
             ((47.5, 0, 0, "N"), "whole numbers"),
             ((-47, 0, 0, "N"), "whole numbers"),
             ((47, 0, "abc", "N"), "seconds must be a decimal number"),
+            (("\u0664\u0667", 0, 0, "N"), "whole numbers"),  # Arabic-Indic digits
             ((90, 0, 1, "N"), "must not exceed 90°"),
             ((180, 0, 1, "E"), "must not exceed 180°"),
         ],

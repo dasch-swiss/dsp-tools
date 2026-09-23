@@ -344,7 +344,7 @@ class TestGeolocationSchema:
         root = _make_root_with_geolocation(f'<geolocation crs="{crs}" longitude="8.55" latitude="47.37"/>')
         assert _validate_root_get_validation_messages(root)
 
-    @pytest.mark.parametrize("ordinate", ["8,55", "1e5", "abc", "", " 8.55", "8."])
+    @pytest.mark.parametrize("ordinate", ["8,55", "1e5", "abc", "", " 8.55", "8.", "\u0668.\u0665\u0665"])
     def test_rejects_a_malformed_ordinate(self, ordinate: str) -> None:
         root = _make_root_with_geolocation(f'<geolocation crs="CRS84" longitude="{ordinate}" latitude="47.37"/>')
         assert _validate_root_get_validation_messages(root)

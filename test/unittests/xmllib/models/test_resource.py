@@ -261,6 +261,15 @@ class TestAddValues:
         with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCoordinates")):
             res.add_geolocation_geographic_multiple(":prop", "CRS84", [(8.55, 47.37)])  # type: ignore[list-item]
 
+    def test_add_geolocation_multiple_accepts_a_single_coordinates_object(self) -> None:
+        # like the other _multiple methods, a single value is treated as a collection of one
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_geographic_multiple(
+            ":prop",
+            "CRS84",
+            GeographicCoordinates(longitude="8.55", latitude="47.37"),  # type: ignore[arg-type]
+        )
+        assert len(res.values) == 1
+
     def test_add_geolocation_multiple_rejects_the_other_kind_of_coordinates(self) -> None:
         res = Resource.create_new("res_id", "restype", "label")
         with pytest.raises(XmllibInputError, match=regex.escape("xmllib.ProjectedCoordinates")):

@@ -735,8 +735,9 @@ class Resource:
             )
             ```
         """
-        val_order = self._get_geolocation_value_order(values, prop_name, include_value_order)
-        for v, o in zip(check_and_fix_collection_input(values, prop_name, self.res_id), val_order):
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        val_order = self._get_geolocation_value_order(vals, prop_name, include_value_order)
+        for v, o in zip(vals, val_order):
             if not isinstance(v, GeographicCoordinates):
                 self._raise_wrong_coordinates_type(v, prop_name, "xmllib.GeographicCoordinates")
             self.add_geolocation_geographic(
@@ -824,6 +825,7 @@ class Resource:
         For `CRS84` (WGS84), use `add_geolocation_geographic()`.
 
         The coordinates must be named, so that easting and northing cannot be swapped by accident.
+        Pass them as strings to preserve their decimal precision: a float drops trailing zeroes.
 
         [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
 
@@ -907,8 +909,9 @@ class Resource:
             )
             ```
         """
-        val_order = self._get_geolocation_value_order(values, prop_name, include_value_order)
-        for v, o in zip(check_and_fix_collection_input(values, prop_name, self.res_id), val_order):
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        val_order = self._get_geolocation_value_order(vals, prop_name, include_value_order)
+        for v, o in zip(vals, val_order):
             if not isinstance(v, ProjectedCoordinates):
                 self._raise_wrong_coordinates_type(v, prop_name, "xmllib.ProjectedCoordinates")
             self.add_geolocation_projected(

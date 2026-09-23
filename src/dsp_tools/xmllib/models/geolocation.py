@@ -31,6 +31,7 @@ class ProjectedCoordinates:
     A pair of coordinates in a projected coordinate reference system, such as `LV95` or `LV03`.
 
     The arguments must be named, so that easting and northing cannot be swapped by accident.
+    Pass them as strings to preserve their decimal precision: a float drops trailing zeroes.
 
     Args:
         easting: the east-west coordinate

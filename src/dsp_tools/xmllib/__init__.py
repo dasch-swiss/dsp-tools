@@ -43,6 +43,7 @@ from .value_checkers import is_integer as is_integer
 from .value_checkers import is_nonempty_value as is_nonempty_value
 from .value_checkers import is_timestamp as is_timestamp
 from .value_converters import convert_to_bool_string as convert_to_bool_string
+from .value_converters import dms_to_decimal_degrees as dms_to_decimal_degrees
 from .value_converters import find_dates_in_string as find_dates_in_string
 from .value_converters import reformat_date as reformat_date
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags

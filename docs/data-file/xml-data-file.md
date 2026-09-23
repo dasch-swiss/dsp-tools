@@ -744,7 +744,7 @@ Each `crs` takes exactly one pair of coordinates, and both of them are required:
 The coordinates are decimal numbers, e.g. `8.55` or `-0.1275`, written with a dot and without an exponent.
 They are stored exactly as written, so `8.550` stays `8.550`.
 If your coordinates are in degrees, minutes and seconds,
-convert them with [`xmllib.value_converters.dms_to_decimal_degrees()`](../xmllib-docs/value-converters.md).
+convert them with [`xmllib.dms_to_decimal_degrees()`](../xmllib-docs/value-converters.md).
 
 A missing `crs`, an unsupported `crs`, the wrong pair of coordinates for the `crs`,
 and coordinates outside its range are all reported before the upload starts.

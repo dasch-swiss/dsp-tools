@@ -38,7 +38,7 @@ class ParsedValue:
     xml_value_order: int
 
 
-@dataclass(frozen=True)
+@dataclass
 class ParsedGeolocation:
     """A geolocation as written in the XML: a CRS code, and the ordinates keyed by their attribute names."""
 

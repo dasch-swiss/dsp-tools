@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 from decimal import Decimal
+from decimal import localcontext
 from typing import Any
 from typing import Never
 
@@ -84,17 +85,17 @@ def dms_to_decimal_degrees(degrees: int | str, minutes: int | str, seconds: floa
 
     Examples:
         ```python
-        result = xmllib.value_converters.dms_to_decimal_degrees(47, 22, 13.2, "N")
+        result = xmllib.dms_to_decimal_degrees(47, 22, 13.2, "N")
         # result == "47.37033"
         ```
 
         ```python
-        result = xmllib.value_converters.dms_to_decimal_degrees(8, 32, 24, "E")
+        result = xmllib.dms_to_decimal_degrees(8, 32, 24, "E")
         # result == "8.5400"
         ```
 
         ```python
-        result = xmllib.value_converters.dms_to_decimal_degrees("33", "52", "4.36", "S")
+        result = xmllib.dms_to_decimal_degrees("33", "52", "4.36", "S")
         # result == "-33.867878"
         ```
     """
@@ -105,23 +106,26 @@ def dms_to_decimal_degrees(degrees: int | str, minutes: int | str, seconds: floa
         _raise_dms_error(input_str, "The direction must be one of N, S, E or W.")
     deg_str, min_str = str(degrees).strip(), str(minutes).strip()
     sec_str = format(Decimal(repr(seconds)), "f") if isinstance(seconds, float) else str(seconds).strip()
-    if not regex.fullmatch(r"\d+", deg_str) or not regex.fullmatch(r"\d+", min_str):
+    if not regex.fullmatch(r"[0-9]+", deg_str) or not regex.fullmatch(r"[0-9]+", min_str):
         _raise_dms_error(input_str, "The degrees and minutes must be whole numbers.")
-    if not regex.fullmatch(r"\d+(\.\d+)?", sec_str):
+    if not regex.fullmatch(r"[0-9]+(\.[0-9]+)?", sec_str):
         _raise_dms_error(input_str, "The seconds must be a decimal number.")
-    deg, mins, secs = Decimal(deg_str), Decimal(min_str), Decimal(sec_str)
-    if mins >= 60 or secs >= 60:
-        _raise_dms_error(input_str, "The minutes and seconds must be less than 60.")
-    value = deg + mins / 60 + secs / 3600
-    if value > maximum_by_direction[direction_upper]:
-        _raise_dms_error(
-            input_str,
-            f"A coordinate towards {direction_upper} must not exceed {maximum_by_direction[direction_upper]}°.",
-        )
-    seconds_places = len(sec_str.partition(".")[2])
-    rounded = value.quantize(Decimal(1).scaleb(-(seconds_places + 4)))
-    if direction_upper in ("S", "W") and rounded != 0:
-        rounded = -rounded
+    # Enough precision for the quantization below, however many decimals the seconds have.
+    with localcontext() as ctx:
+        ctx.prec = len(deg_str) + len(sec_str) + 10
+        deg, mins, secs = Decimal(deg_str), Decimal(min_str), Decimal(sec_str)
+        if mins >= 60 or secs >= 60:
+            _raise_dms_error(input_str, "The minutes and seconds must be less than 60.")
+        value = deg + mins / 60 + secs / 3600
+        if value > maximum_by_direction[direction_upper]:
+            _raise_dms_error(
+                input_str,
+                f"A coordinate towards {direction_upper} must not exceed {maximum_by_direction[direction_upper]}°.",
+            )
+        seconds_places = len(sec_str.partition(".")[2])
+        rounded = value.quantize(Decimal(1).scaleb(-(seconds_places + 4)))
+        if direction_upper in ("S", "W") and rounded != 0:
+            rounded = -rounded
     return format(rounded, "f")
 
 

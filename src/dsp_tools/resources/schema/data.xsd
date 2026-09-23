@@ -194,7 +194,7 @@
     <!-- one ordinate of a geolocation, as a decimal number; a pattern rather than xs:decimal preserves its written form -->
     <xs:simpleType name="decimal_ordinate">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[+\-]?\d+(\.\d+)?"/>
+            <xs:pattern value="[+\-]?[0-9]+(\.[0-9]+)?"/>
         </xs:restriction>
     </xs:simpleType>
 

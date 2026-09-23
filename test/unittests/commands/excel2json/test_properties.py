@@ -174,8 +174,8 @@ def test_get_gui_attribute() -> None:
 def test_check_compliance_gui_attributes_all_good() -> None:
     original_df = pd.DataFrame(
         {
-            "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
-            "gui_attributes": [pd.NA, "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Geolocation", "Richtext", "TimeStamp"],
+            "gui_attributes": [pd.NA, "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     assert not e2j._check_compliance_gui_attributes(df=original_df)
@@ -184,15 +184,46 @@ def test_check_compliance_gui_attributes_all_good() -> None:
 def test_check_compliance_gui_attributes() -> None:
     original_df = pd.DataFrame(
         {
-            "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
-            "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
+            "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geolocation", "Richtext", "TimeStamp"],
+            "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, "Geolocation_attr", pd.NA, "TimeStamp_attr"],
         }
     )
-    expected_dict = {"gui_attributes": [True, True, False, False, False, False, True]}
+    expected_dict = {"gui_attributes": [True, True, False, False, True, False, True]}
     returned_dict = e2j._check_compliance_gui_attributes(df=original_df)
     assert returned_dict
     casted_dict = {"gui_attributes": list(returned_dict["gui_attributes"])}
     assert expected_dict == casted_dict
+
+
+def test_row2prop_geolocation_produces_valid_json() -> None:
+    df = pd.DataFrame(
+        {
+            "name": ["hasFindspot"],
+            "label_en": ["Findspot"],
+            "label_de": [pd.NA],
+            "label_fr": [pd.NA],
+            "label_it": [pd.NA],
+            "label_rm": [pd.NA],
+            "comment_en": [pd.NA],
+            "comment_de": [pd.NA],
+            "comment_fr": [pd.NA],
+            "comment_it": [pd.NA],
+            "comment_rm": [pd.NA],
+            "super": ["hasValue"],
+            "subject": [pd.NA],
+            "object": ["GeolocationValue"],
+            "gui_element": ["Geolocation"],
+            "gui_attributes": [pd.NA],
+        }
+    )
+    assert not e2j._check_compliance_gui_attributes(df=df)
+    returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", df.loc[0, :]), row_num=0)
+    assert isinstance(returned_prop, OntoProperty)
+    serialised = returned_prop.serialise()
+    assert serialised["object"] == "GeolocationValue"
+    assert serialised["gui_element"] == "Geolocation"
+    assert "gui_attributes" not in serialised
+    e2j._validate_properties_section_in_json([serialised])
 
 
 def test_get_final_series_two_series() -> None:

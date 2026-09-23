@@ -223,6 +223,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         "Colorpicker",
         "Date",
         "Spinbox",
+        "Geolocation",
         "Geonames",
         "SimpleText",
         "Textarea",

@@ -119,7 +119,7 @@ def _get_ingest(
         .with_env("STORAGE_TEMP_DIR", "/opt/tmp")
         # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("JWT_ISSUER", f"http://{names.api}:{ports.api}")
-        .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
+        .with_env("JWT_SECRET", "dev-only-insecure-jwt-secret-change-me")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")

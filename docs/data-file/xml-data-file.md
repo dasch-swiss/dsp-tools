@@ -722,32 +722,33 @@ Attributes:
 
 #### `<geolocation>`
 
-Contains a location as a WKT `POINT`, e.g. `POINT(8.55 47.37)`.
-
-The coordinates are given as **X first, then Y**.
-Depending on the coordinate reference system, that means longitude before latitude,
-or easting before northing. This is the reverse of how coordinates are usually spoken,
-and getting it the wrong way round is the most common mistake with this value type.
+An empty element whose attributes give a location as a coordinate reference system and a pair of coordinates.
 
 Attributes:
 
-- `crs`: the coordinate reference system (optional, defaults to `CRS84`)
+- `crs`: the coordinate reference system (required, see the table below)
+- `longitude` and `latitude`: the coordinates, if `crs` is a geographic coordinate reference system
+- `easting` and `northing`: the coordinates, if `crs` is a projected coordinate reference system
 - `permissions`: Permission ID (optional)
 - `comment`: a comment for this specific value (optional)
 - `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
 
-The supported coordinate reference systems are:
+Each `crs` takes exactly one pair of coordinates, and both of them are required:
 
-| `crs` | System | First ordinate | Second ordinate |
-| ----- | ------ | -------------- | --------------- |
-| `CRS84` | WGS84, i.e. ordinary GPS coordinates | longitude, -180 to 180 | latitude, -90 to 90 |
-| `LV95` | Swiss LV95 | easting, 2484273.3 to 2837939.88 | northing, 1073150.16 to 1299970.97 |
-| `LV03` | Swiss LV03 | easting, 484273.3 to 837939.88 | northing, 73150.16 to 299970.97 |
+| `crs`   | System                               | Coordinates                                                            |
+| ------- | ------------------------------------ | ---------------------------------------------------------------------- |
+| `CRS84` | WGS84, i.e. ordinary GPS coordinates | `longitude` -180 to 180, `latitude` -90 to 90                          |
+| `LV95`  | Swiss LV95                           | `easting` 2484273.3 to 2837939.88, `northing` 1073150.16 to 1299970.97 |
+| `LV03`  | Swiss LV03                           | `easting` 484273.3 to 837939.88, `northing` 73150.16 to 299970.97      |
 
-Coordinates outside the range of their system are reported before the upload starts.
-`EPSG:4326` is not supported: it declares latitude before longitude, and admitting it would
-put two different axis orders into the same field. Use `CRS84` instead, which is the same
-datum with longitude first.
+The coordinates are decimal numbers, e.g. `8.55` or `-0.1275`, written with a dot and without an exponent.
+They are stored exactly as written, so `8.550` stays `8.550`.
+If your coordinates are in degrees, minutes and seconds,
+convert them with [`xmllib.value_converters.dms_to_decimal_degrees()`](../xmllib-docs/value-converters.md).
+
+A missing `crs`, an unsupported `crs`, the wrong pair of coordinates for the `crs`,
+and coordinates outside its range are all reported before the upload starts.
+`EPSG:4326` is not supported: use `CRS84` instead, which is the same datum.
 
 Only points are supported. Lines, areas and elevations are not yet accepted.
 
@@ -755,8 +756,8 @@ Example of a property with a location in Zurich and one in Bern:
 
 ```xml
 <geolocation-prop name=":hasLocation">
-    <geolocation>POINT(8.55 47.37)</geolocation>
-    <geolocation>POINT(7.45 46.95)</geolocation>
+    <geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>
+    <geolocation crs="CRS84" longitude="7.45" latitude="46.95"/>
 </geolocation-prop>
 ```
 
@@ -764,7 +765,7 @@ Example using Swiss coordinates:
 
 ```xml
 <geolocation-prop name=":hasFindspot">
-    <geolocation crs="LV95">POINT(2600000 1200000)</geolocation>
+    <geolocation crs="LV95" easting="2600000" northing="1200000"/>
 </geolocation-prop>
 ```
 

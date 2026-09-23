@@ -275,7 +275,7 @@ def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) ->
     # In order to combine more than two arrays, we need to reduce the arrays, which takes a tuple
     result_arrays = tuple(df[col].isnull() for col in required_columns)
     # If all are True logical_and returns True otherwise False
-    combined_array = np.logical_and.reduce(result_arrays)
+    combined_array = np.logical_and.reduce(result_arrays).astype(bool)
     # if any of the values are True, it is turned into a pd.Series
     return pd.Series(combined_array) if any(combined_array) else None
 

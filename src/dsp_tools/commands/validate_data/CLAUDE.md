@@ -43,7 +43,7 @@ whether or not the skill is used.
 - **get_validation_report.py**: Main validation orchestrator that coordinates SHACL validation
 - **check_for_unknown_classes.py**: Validates that all classes used in data are defined in the ontology
 - **validate_ontology.py**: Validates the ontology itself before data validation
-- **python_checks.py**: Python-based validation checks including duplicate file detection and circular cardinality warnings
+- **python_checks.py**: Python-based validation checks: duplicate file detection, circular cardinality warnings, and geolocation checks (coordinate pair and bounds per CRS)
 
 ### Validation Report Processing (`process_validation_report/`)
 
@@ -116,7 +116,10 @@ The validation process follows a strict sequential pipeline:
 3. **Python-based Checks** (`validation/python_checks.py`):
    - Checks for duplicate file references in the data
    - Warns against potential circular references in data with mandatory properties
-   - Generates warnings which will be added to potential warnings from the SHACL validation
+   - Checks each geolocation against its CRS (the right pair of coordinates, within bounds), because
+     SHACL cannot make the admissible attributes depend on the CRS
+   - Duplicate files and circular references produce warnings; invalid geolocations produce violations,
+     which are merged into the SHACL violations and block the upload
 4. **SHACL Validation** (`validation/get_validation_report.py`):
    - Performs comprehensive SHACL validation using Docker CLI
    - Validates both cardinality constraints and content validation

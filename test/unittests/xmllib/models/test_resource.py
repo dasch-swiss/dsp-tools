@@ -270,6 +270,24 @@ class TestAddValues:
         )
         assert len(res.values) == 1
 
+    def test_add_geolocation_from_a_dataframe(self) -> None:
+        df = pd.DataFrame({"lon": [8.55], "lat": [47.37]})
+        row = df.iloc[0]
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_geographic(
+            ":prop", "CRS84", longitude=row["lon"], latitude=row["lat"]
+        )
+        assert res.values[0].ordinates == {"longitude": "8.55", "latitude": "47.37"}  # type: ignore[attr-defined]
+
+    def test_add_geolocation_multiple_with_value_order_rejects_a_set(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("add_geolocation_projected_multiple()")):
+            res.add_geolocation_projected_multiple(
+                ":prop",
+                "LV95",
+                {ProjectedCoordinates(easting="2600000", northing="1200000")},
+                include_value_order=True,
+            )
+
     def test_add_geolocation_multiple_rejects_the_other_kind_of_coordinates(self) -> None:
         res = Resource.create_new("res_id", "restype", "label")
         with pytest.raises(XmllibInputError, match=regex.escape("xmllib.ProjectedCoordinates")):

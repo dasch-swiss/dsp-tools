@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+import numpy as np
 import pytest
 
 from dsp_tools.xmllib.internal.geolocation import CRS84
@@ -136,9 +137,11 @@ class TestOrdinateToStr:
             (0.00001, "0.00001"),
             (2600000.0, "2600000.0"),
             (Decimal("0.0000001"), "0.0000001"),
+            (np.float64(8.55), "8.55"),
+            (np.float64(0.00001), "0.00001"),
         ],
     )
     def test_converts_without_exponent_and_keeps_strings(
-        self, value: str | float | int | Decimal, expected: str
+        self, value: str | float | int | Decimal | np.float64, expected: str
     ) -> None:
         assert ordinate_to_str(value) == expected

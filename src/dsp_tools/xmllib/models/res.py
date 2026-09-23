@@ -735,8 +735,9 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        val_order = self._get_geolocation_value_order(vals, prop_name, include_value_order)
+        vals, val_order = self._get_geolocation_values_and_order(
+            values, prop_name, "geolocation_geographic", include_value_order
+        )
         for v, o in zip(vals, val_order):
             if not isinstance(v, GeographicCoordinates):
                 self._raise_wrong_coordinates_type(v, prop_name, "xmllib.GeographicCoordinates")
@@ -909,8 +910,9 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        val_order = self._get_geolocation_value_order(vals, prop_name, include_value_order)
+        vals, val_order = self._get_geolocation_values_and_order(
+            values, prop_name, "geolocation_projected", include_value_order
+        )
         for v, o in zip(vals, val_order):
             if not isinstance(v, ProjectedCoordinates):
                 self._raise_wrong_coordinates_type(v, prop_name, "xmllib.ProjectedCoordinates")
@@ -982,13 +984,15 @@ class Resource:
             )
         return self
 
-    def _get_geolocation_value_order(
-        self, values: Collection[Any], prop_name: str, include_value_order: bool
-    ) -> list[int | None]:
+    def _get_geolocation_values_and_order(
+        self, values: Any, prop_name: str, method_type: str, include_value_order: bool
+    ) -> tuple[list[Any], list[int | None]]:
+        # The order is checked on the raw input: once converted to a list, an unordered set is no longer detectable.
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geolocation", self.res_id)
-            return list(range(len(values)))
-        return [None] * len(values)
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, method_type, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        val_order: list[int | None] = list(range(len(vals))) if include_value_order else [None] * len(vals)
+        return vals, val_order
 
     def _raise_wrong_coordinates_type(self, value: Any, prop_name: str, expected: str) -> Never:
         msg_info = MessageInfo(

@@ -105,7 +105,7 @@ def dms_to_decimal_degrees(degrees: int | str, minutes: int | str, seconds: floa
     if direction_upper not in maximum_by_direction:
         _raise_dms_error(input_str, "The direction must be one of N, S, E or W.")
     deg_str, min_str = str(degrees).strip(), str(minutes).strip()
-    sec_str = format(Decimal(repr(seconds)), "f") if isinstance(seconds, float) else str(seconds).strip()
+    sec_str = format(Decimal(repr(float(seconds))), "f") if isinstance(seconds, float) else str(seconds).strip()
     if not regex.fullmatch(r"[0-9]+", deg_str) or not regex.fullmatch(r"[0-9]+", min_str):
         _raise_dms_error(input_str, "The degrees and minutes must be whole numbers.")
     if not regex.fullmatch(r"[0-9]+(\.[0-9]+)?", sec_str):

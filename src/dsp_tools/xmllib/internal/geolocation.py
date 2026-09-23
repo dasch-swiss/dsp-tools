@@ -95,7 +95,8 @@ def ordinate_to_str(value: Any) -> str:
     Strings are kept as they are, so that trailing zeroes survive.
     """
     if isinstance(value, float):
-        return format(Decimal(repr(value)), "f")
+        # float() first: a numpy float is a float subclass whose repr is e.g. "np.float64(8.55)"
+        return format(Decimal(repr(float(value))), "f")
     if isinstance(value, Decimal):
         return format(value, "f")
     return str(value).strip()

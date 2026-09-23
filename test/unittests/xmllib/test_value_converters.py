@@ -2,6 +2,7 @@ import datetime
 import warnings
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 import regex
@@ -501,6 +502,7 @@ class TestDmsToDecimalDegrees:
             ((47, 22, 13.2, "N"), "47.37033"),
             ((47, 22, 13.2, "S"), "-47.37033"),
             ((8, 32, 24, "E"), "8.5400"),
+            ((47, 22, np.float64(13.2), "N"), "47.37033"),
             ((8, 32, 24, "W"), "-8.5400"),
             (("33", "52", "4.36", "s"), "-33.867878"),
             ((90, 0, 0, "N"), "90.0000"),

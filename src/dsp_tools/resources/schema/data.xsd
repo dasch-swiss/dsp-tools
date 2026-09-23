@@ -191,16 +191,25 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- one ordinate of a geolocation, as a decimal number; a pattern rather than xs:decimal preserves its written form -->
+    <xs:simpleType name="decimal_ordinate">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[+\-]?\d+(\.\d+)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- geolocation value type -->
+    <!-- which pair of ordinates is required depends on the value of crs; this cannot be expressed in XSD 1.0 and is checked in Python -->
     <xs:complexType name="geolocation_type">
-        <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
-                <xs:attribute name="crs" type="crs_code" use="optional"/>
-                <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
-                <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence />
+        <xs:attribute name="crs" type="crs_code" use="required"/>
+        <xs:attribute name="longitude" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="latitude" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="easting" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="northing" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
     </xs:complexType>
 
     <!-- geoname value type -->

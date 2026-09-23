@@ -30,12 +30,20 @@ class ParsedMigrationMetadata:
 @dataclass
 class ParsedValue:
     prop_name: str
-    value: str | tuple[str | None, str | None] | None
+    value: str | tuple[str | None, str | None] | ParsedGeolocation | None
     value_type: KnoraValueType
     permissions_id: str | None
     comment: str | None
     value_order: int | None
     xml_value_order: int
+
+
+@dataclass(frozen=True)
+class ParsedGeolocation:
+    """A geolocation as written in the XML: a CRS code, and the ordinates keyed by their attribute names."""
+
+    crs: str
+    ordinates: dict[str, str]
 
 
 @dataclass

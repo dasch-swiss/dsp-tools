@@ -17,9 +17,11 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
+from dsp_tools.xmllib.internal.geolocation import ORDINATE_NAMES
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
@@ -220,13 +222,14 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
 
 
 def _parse_geolocation_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
-    # The CRS lives in an attribute, so the generic path, which reads only the element text, would drop it.
+    # The value lives entirely in attributes, so the generic path, which reads the element text, would drop it.
     parsed_values = []
     for i, val in enumerate(values):
+        ordinates = {name: val.attrib[name] for name in ORDINATE_NAMES if name in val.attrib}
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=(val.attrib.get("crs"), val.text.strip() if val.text else None),
+                value=ParsedGeolocation(crs=val.attrib["crs"], ordinates=ordinates),
                 value_type=KnoraValueType.GEOLOCATION_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),

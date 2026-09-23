@@ -1,33 +1,40 @@
 """
-The coordinate reference systems a geolocation value may be tagged with, and the composition and
-bounds-checking of geolocation literals.
+The coordinate reference systems a geolocation value may be given in, and the composition and checking
+of geolocation values.
 
-This module is the single source for the CRS table. `validate-data` and `xmlupload` both import from
-here so that a coordinate rejected locally and a coordinate rejected before upload are rejected by the
-same numbers. dsp-api's `Geolocation.scala` is the authoritative table; this one mirrors it and is a
-courtesy that fails fast, before any request is sent.
+This module is the single source for the CRS table. `xmllib`, `validate-data` and `xmlupload` all import
+from here so that a coordinate is accepted or rejected by the same numbers everywhere. dsp-api's
+`Geolocation.scala` is the authoritative table; this one mirrors it and is a courtesy that fails fast,
+before any request is sent.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from decimal import InvalidOperation
+from enum import StrEnum
+from typing import Any
 
 import regex
 
-# An optional CRS definition IRI in angle brackets, whitespace, then a WKT geometry.
-_CRS_PREFIX_PATTERN = regex.compile(r"^<([^<>\s]*)>\s+(.*)$", regex.DOTALL)
-_POINT_PATTERN = regex.compile(r"^POINT\s*\((.*)\)$", regex.IGNORECASE | regex.DOTALL)
+# The same form the XML schema admits: a plain decimal, no exponent, no thousands separator.
+_DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?\d+(\.\d+)?$")
+
+
+class CrsKind(StrEnum):
+    GEOGRAPHIC = "geographic"
+    PROJECTED = "projected"
 
 
 @dataclass(frozen=True)
 class Crs:
-    """One coordinate reference system, with the bounds its ordinates must fall within."""
+    """One coordinate reference system, with the names and bounds of its ordinates."""
 
     code: str
     iri: str
     label: str
+    kind: CrsKind
     x_name: str
     y_name: str
     x_min: Decimal
@@ -36,12 +43,13 @@ class Crs:
     y_max: Decimal
 
 
-# Bounds are inclusive. The first ordinate is always X (longitude for geographic systems, easting for
-# projected ones), the second always Y (latitude or northing).
+# Bounds are inclusive. X is longitude for geographic systems and easting for projected ones,
+# Y is latitude or northing. The names are also the XML attribute names of the ordinates.
 CRS84 = Crs(
     code="CRS84",
     iri="http://www.opengis.net/def/crs/OGC/1.3/CRS84",
     label="WGS84 (CRS84)",
+    kind=CrsKind.GEOGRAPHIC,
     x_name="longitude",
     y_name="latitude",
     x_min=Decimal("-180"),
@@ -53,6 +61,7 @@ LV95 = Crs(
     code="LV95",
     iri="http://www.opengis.net/def/crs/EPSG/0/2056",
     label="Swiss LV95",
+    kind=CrsKind.PROJECTED,
     x_name="easting",
     y_name="northing",
     x_min=Decimal("2484273.3"),
@@ -64,6 +73,7 @@ LV03 = Crs(
     code="LV03",
     iri="http://www.opengis.net/def/crs/EPSG/0/21781",
     label="Swiss LV03",
+    kind=CrsKind.PROJECTED,
     x_name="easting",
     y_name="northing",
     x_min=Decimal("484273.3"),
@@ -74,135 +84,104 @@ LV03 = Crs(
 
 ALL_CRS: tuple[Crs, ...] = (CRS84, LV95, LV03)
 CRS_BY_CODE: dict[str, Crs] = {crs.code: crs for crs in ALL_CRS}
-CRS_BY_IRI: dict[str, Crs] = {crs.iri: crs for crs in ALL_CRS}
-
-# The CRS an untagged literal is understood to be in, per GeoSPARQL 1.1 §10.8.
-DEFAULT_CRS = CRS84
-
-# WGS84 with latitude-first axis order. dsp-api rejects it in favour of CRS84, and the XML schema does
-# not admit it, so it is named here only to explain itself when it turns up.
-REJECTED_EPSG_4326 = "http://www.opengis.net/def/crs/EPSG/0/4326"
+ORDINATE_NAMES: tuple[str, ...] = tuple(dict.fromkeys(name for crs in ALL_CRS for name in (crs.x_name, crs.y_name)))
 
 
-def compose_geolocation_literal(crs_code: str | None, wkt: str) -> str:
+def ordinate_to_str(value: Any) -> str:
     """
-    Compose the stored literal from a CRS code and a WKT geometry.
+    Convert an ordinate to the string that is written to the XML.
 
-    The literal is always CRS-tagged, so that no stored value is ambiguous. An absent code means
-    CRS84.
+    Floats are written without an exponent, because the XML schema admits plain decimals only.
+    Strings are kept as they are, so that trailing zeroes survive.
+    """
+    if isinstance(value, float):
+        return format(Decimal(repr(value)), "f")
+    return str(value).strip()
+
+
+def compose_geolocation_literal(crs_code: str, x: str, y: str) -> str:
+    """
+    Compose the stored literal from a CRS code and its two ordinates.
+
+    This is the only place that knows the literal's form: the CRS IRI, then a WKT point with X first.
+    The ordinates are inserted verbatim, so that their precision is preserved.
 
     Args:
-        crs_code: one of the codes in `CRS_BY_CODE`, or None for the default
-        wkt: the WKT geometry, e.g. `POINT(8.55 47.37)`
+        crs_code: one of the codes in `CRS_BY_CODE`
+        x: longitude or easting
+        y: latitude or northing
 
     Returns:
-        the CRS-prefixed literal
+        the CRS-prefixed literal, e.g. `<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.55 47.37)`
     """
-    crs = CRS_BY_CODE.get(crs_code, DEFAULT_CRS) if crs_code else DEFAULT_CRS
-    return f"<{crs.iri}> {wkt.strip()}"
+    return f"<{CRS_BY_CODE[crs_code].iri}> POINT({x.strip()} {y.strip()})"
 
 
-def get_geolocation_problem(literal: str) -> str | None:
+def compose_geolocation_literal_from_ordinates(crs_code: str, ordinates: Mapping[str, str]) -> str | None:
     """
-    Check a composed geolocation literal, and describe the first problem found.
-
-    Returns a message rather than a bool because a coordinate can be wrong in ways the author needs
-    told apart: an unsupported CRS, a geometry that is not yet accepted, or an out-of-range ordinate
-    that is really a swapped axis.
+    Compose the stored literal from a CRS code and named ordinates.
 
     Args:
-        literal: the CRS-prefixed literal, as `compose_geolocation_literal` produces it
+        crs_code: the CRS code
+        ordinates: the ordinates, keyed by their names, e.g. `{"longitude": "8.55", "latitude": "47.37"}`
 
     Returns:
-        a message naming the problem, or None if the literal is valid
+        the literal, or None if the CRS is unknown or its pair of ordinates is incomplete
     """
-    crs, geometry, unsupported_iri = _split_crs(literal.strip())
-    if crs is None:
-        return _unsupported_crs_message(unsupported_iri)
-    point_match = _POINT_PATTERN.match(geometry)
-    if not point_match:
-        return (
-            f"Unsupported geometry '{geometry}': only a two-dimensional POINT is accepted. "
-            f"Lines, areas and elevations are not yet supported."
-        )
-    return _check_ordinates(crs, point_match.group(1).strip())
-
-
-def _split_crs(literal: str) -> tuple[Crs | None, str, str]:
-    """Split a literal into its CRS and geometry. An unrecognised CRS yields a None CRS and its IRI."""
-    if match := _CRS_PREFIX_PATTERN.match(literal):
-        iri, geometry = match.group(1), match.group(2).strip()
-        return CRS_BY_IRI.get(iri), geometry, iri
-    # An untagged literal is CRS84 by GeoSPARQL's default.
-    return DEFAULT_CRS, literal, ""
-
-
-def _unsupported_crs_message(iri: str) -> str:
-    if iri == REJECTED_EPSG_4326:
-        return (
-            f"Unsupported coordinate reference system <{iri}>: it declares latitude before longitude. "
-            f"Use <{CRS84.iri}> (CRS84) instead, which is WGS84 with longitude first, and give the "
-            f"coordinates as longitude then latitude."
-        )
-    supported = ", ".join(f"<{crs.iri}>" for crs in ALL_CRS)
-    return f"Unsupported coordinate reference system <{iri}>. Supported are: {supported}."
-
-
-def _check_ordinates(crs: Crs, body: str) -> str | None:
-    if "," in body:
-        return "Malformed geolocation: a POINT carries a single coordinate pair, separated by whitespace."
-    ordinates = body.split()
-    if len(ordinates) != 2:
-        return (
-            f"Unsupported geometry: POINT carries {len(ordinates)} ordinates. Only a two-dimensional "
-            f"POINT is accepted; an elevation is not yet supported."
-        )
-    x_str, y_str = ordinates
-    x, y = _as_decimal(x_str), _as_decimal(y_str)
+    if not (crs := CRS_BY_CODE.get(crs_code)):
+        return None
+    x, y = ordinates.get(crs.x_name), ordinates.get(crs.y_name)
     if x is None or y is None:
-        position, ordinate = ("first", x_str) if x is None else ("second", y_str)
-        return f"Malformed geolocation: the {position} ordinate '{ordinate}' is not a number."
-    return _check_bounds(crs, x_str, y_str, x, y)
+        return None
+    return compose_geolocation_literal(crs_code, x, y)
 
 
-def _check_bounds(crs: Crs, x_str: str, y_str: str, x: Decimal, y: Decimal) -> str | None:
-    if not crs.x_min <= x <= crs.x_max:
-        return _out_of_range_message(crs, "first", x_str, crs.x_name, crs.x_min, crs.x_max, x, y)
-    if not crs.y_min <= y <= crs.y_max:
-        return _out_of_range_message(crs, "second", y_str, crs.y_name, crs.y_min, crs.y_max, x, y)
+def get_geolocation_problem(crs_code: str, ordinates: Mapping[str, str]) -> str | None:
+    """
+    Check a CRS code and its named ordinates, and describe the first problem found.
+
+    Returns a message rather than a bool because an author needs to know which of several things is wrong:
+    an unsupported CRS, ordinates that do not belong to the CRS, a missing ordinate, or one out of range.
+
+    Args:
+        crs_code: the CRS code
+        ordinates: the ordinates, keyed by their names, e.g. `{"easting": "2600000", "northing": "1200000"}`
+
+    Returns:
+        a message naming the problem, or None if the value is valid
+    """
+    if not (crs := CRS_BY_CODE.get(crs_code)):
+        supported = ", ".join(f"'{x.code}'" for x in ALL_CRS)
+        return f"Unsupported coordinate reference system '{crs_code}'. Supported are: {supported}."
+    if pair_problem := _get_pair_problem(crs, ordinates):
+        return pair_problem
+    if x_problem := _get_ordinate_problem(crs, crs.x_name, ordinates[crs.x_name], crs.x_min, crs.x_max):
+        return x_problem
+    return _get_ordinate_problem(crs, crs.y_name, ordinates[crs.y_name], crs.y_min, crs.y_max)
+
+
+def _get_pair_problem(crs: Crs, ordinates: Mapping[str, str]) -> str | None:
+    expected = (crs.x_name, crs.y_name)
+    if foreign := [name for name in ordinates if name not in expected]:
+        found = " and ".join(f"'{name}'" for name in foreign)
+        msg = f"Given crs=\"{crs.code}\", expected the attributes '{crs.x_name}' and '{crs.y_name}'. Found {found}"
+        if foreign_kinds := {x.kind for x in ALL_CRS if set(foreign) <= {x.x_name, x.y_name}} - {crs.kind}:
+            belong = "belongs" if len(foreign) == 1 else "belong"
+            msg += f", which {belong} to a {foreign_kinds.pop()} CRS"
+        return msg + "."
+    if missing := [name for name in expected if name not in ordinates]:
+        missing_str = "both are missing" if len(missing) == 2 else f"'{missing[0]}' is missing"
+        return (
+            f"Given crs=\"{crs.code}\", expected both '{crs.x_name}' and '{crs.y_name}'. "
+            f"{missing_str[0].upper()}{missing_str[1:]}."
+        )
     return None
 
 
-def _out_of_range_message(
-    crs: Crs,
-    position: str,
-    ordinate: str,
-    axis_name: str,
-    minimum: Decimal,
-    maximum: Decimal,
-    x: Decimal,
-    y: Decimal,
-) -> str:
-    message = (
-        f"The {position} ordinate '{ordinate}' is outside the valid {axis_name} range of "
-        f"{crs.label} ({minimum}…{maximum})."
-    )
-    if _would_be_valid_transposed(crs, x, y):
-        message += (
-            f" The coordinates would be valid if transposed — {crs.label} takes {crs.x_name} first, then {crs.y_name}."
-        )
-    return message
-
-
-def _would_be_valid_transposed(crs: Crs, x: Decimal, y: Decimal) -> bool:
-    return crs.x_min <= y <= crs.x_max and crs.y_min <= x <= crs.y_max
-
-
-def _as_decimal(value: str) -> Decimal | None:
-    # The numeric parse, not a regex, is the authority on what is a number, so that a malformed
-    # ordinate is a rejection rather than an escaping exception.
-    try:
-        parsed = Decimal(value)
-    except (InvalidOperation, ValueError):
-        return None
-    return None if parsed.is_nan() or parsed.is_infinite() else parsed
+def _get_ordinate_problem(crs: Crs, name: str, ordinate: str, minimum: Decimal, maximum: Decimal) -> str | None:
+    if not _DECIMAL_ORDINATE_PATTERN.match(ordinate.strip()):
+        return f"The {name} '{ordinate}' is not a decimal number, e.g. '8.55'."
+    value = Decimal(ordinate.strip())
+    if not minimum <= value <= maximum:
+        return f"The {name} '{ordinate}' is outside the valid range for {crs.label}: {minimum} to {maximum} inclusive."
+    return None

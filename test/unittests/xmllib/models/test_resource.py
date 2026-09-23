@@ -10,6 +10,8 @@ from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.geolocation import GeographicCoordinates
+from dsp_tools.xmllib.models.geolocation import ProjectedCoordinates
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
 from dsp_tools.xmllib.models.internal.values import BooleanValue
@@ -186,42 +188,103 @@ class TestAddValues:
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
 
-    def test_add_geolocation(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_geolocation(":prop", "POINT(8.55 47.37)")
-        assert len(res.values) == 1
-        assert isinstance(res.values[0], GeolocationValue)
-        assert res.values[0].crs is None
-
-    def test_add_geolocation_with_crs(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_geolocation(
-            ":prop", "POINT(2600000 1200000)", crs="LV95"
+    def test_add_geolocation_geographic(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_geographic(
+            ":prop", "CRS84", longitude="8.550", latitude=47.37
         )
-        assert isinstance(res.values[0], GeolocationValue)
-        assert res.values[0].crs == "LV95"
+        assert len(res.values) == 1
+        val = res.values[0]
+        assert isinstance(val, GeolocationValue)
+        assert val.crs == "CRS84"
+        assert val.ordinates == {"longitude": "8.550", "latitude": "47.37"}
 
-    def test_add_geolocation_warns_when_out_of_range_for_its_crs(self) -> None:
-        # valid CRS84 coordinates, but nowhere near Switzerland
-        with pytest.warns(XmllibInputWarning):
-            res = Resource.create_new("res_id", "restype", "label").add_geolocation(
-                ":prop", "POINT(8.55 47.37)", crs="LV95"
+    def test_add_geolocation_projected(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_projected(
+            ":prop", "LV95", easting=2600000, northing="1200000"
+        )
+        val = res.values[0]
+        assert isinstance(val, GeolocationValue)
+        assert val.crs == "LV95"
+        assert val.ordinates == {"easting": "2600000", "northing": "1200000"}
+
+    def test_add_geolocation_warns_when_out_of_range(self) -> None:
+        with pytest.warns(XmllibInputWarning, match=regex.escape("The latitude '91' is outside the valid range")):
+            Resource.create_new("res_id", "restype", "label").add_geolocation_geographic(
+                ":prop", "CRS84", longitude=8.55, latitude=91
             )
-        assert res.values[0].value == "POINT(8.55 47.37)"
 
-    def test_add_geolocation_warns_on_a_non_point(self) -> None:
-        with pytest.warns(XmllibInputWarning):
-            Resource.create_new("res_id", "restype", "label").add_geolocation(":prop", "LINESTRING(0 0, 1 1)")
+    def test_add_geolocation_warns_on_an_unknown_crs(self) -> None:
+        with pytest.warns(XmllibInputWarning, match="Unsupported coordinate reference system 'EPSG:4326'"):
+            Resource.create_new("res_id", "restype", "label").add_geolocation_geographic(
+                ":prop",
+                "EPSG:4326",  # type: ignore[arg-type]
+                longitude=8.55,
+                latitude=47.37,
+            )
 
-    def test_add_geolocation_multiple(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_geolocation_multiple(
-            ":prop", ["POINT(8.55 47.37)", "POINT(7.45 46.95)"]
+    def test_add_geolocation_rejects_positional_ordinates(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(TypeError):
+            res.add_geolocation_geographic(":prop", "CRS84", 47.37, 8.55)  # type: ignore[call-arg]
+        with pytest.raises(TypeError):
+            res.add_geolocation_projected(":prop", "LV95", 1200000, 2600000)  # type: ignore[call-arg]
+
+    def test_add_geolocation_geographic_multiple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_geographic_multiple(
+            ":prop",
+            "CRS84",
+            [
+                GeographicCoordinates(longitude="8.55", latitude="47.37"),
+                GeographicCoordinates(longitude="7.45", latitude="46.95"),
+            ],
+            include_value_order=True,
         )
         assert len(res.values) == 2
         assert all(isinstance(x, GeolocationValue) for x in res.values)
+        assert [x.order for x in res.values] == [0, 1]
 
-    def test_add_geolocation_optional(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional("", pd.NA)
+    def test_add_geolocation_projected_multiple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_projected_multiple(
+            ":prop", "LV03", [ProjectedCoordinates(easting="600000", northing="200000")]
+        )
+        assert len(res.values) == 1
+        assert res.values[0].ordinates == {"easting": "600000", "northing": "200000"}  # type: ignore[attr-defined]
+
+    def test_the_coordinate_classes_reject_positional_arguments(self) -> None:
+        with pytest.raises(TypeError):
+            GeographicCoordinates(47.37, 8.55)  # type: ignore[call-arg]
+        with pytest.raises(TypeError):
+            ProjectedCoordinates(1200000, 2600000)  # type: ignore[call-arg]
+
+    def test_add_geolocation_multiple_rejects_a_tuple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCoordinates")):
+            res.add_geolocation_geographic_multiple(":prop", "CRS84", [(8.55, 47.37)])  # type: ignore[list-item]
+
+    def test_add_geolocation_multiple_rejects_the_other_kind_of_coordinates(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.ProjectedCoordinates")):
+            res.add_geolocation_projected_multiple(
+                ":prop",
+                "LV95",
+                [GeographicCoordinates(longitude="8.55", latitude="47.37")],  # type: ignore[list-item]
+            )
+
+    def test_add_geolocation_optional_both_empty(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_geographic_optional(
+            ":prop", "CRS84", longitude=pd.NA, latitude=""
+        )
         assert not res.values
-        res = res.add_geolocation_optional(":prop", "POINT(8.55 47.37)")
+
+    def test_add_geolocation_optional_one_empty(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("The northing is empty, but 'easting' is not")):
+            res.add_geolocation_projected_optional(":prop", "LV95", easting="2600000", northing=None)
+
+    def test_add_geolocation_optional_both_present(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_projected_optional(
+            ":prop", "LV95", easting="2600000", northing="1200000"
+        )
         assert len(res.values) == 1
         assert isinstance(res.values[0], GeolocationValue)
 

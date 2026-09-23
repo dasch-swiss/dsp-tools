@@ -12,7 +12,6 @@ from dsp_tools.xmllib.general_functions import create_standoff_link_to_resource
 from dsp_tools.xmllib.general_functions import create_standoff_link_to_uri
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
 from dsp_tools.xmllib.general_functions import find_license_in_string
-from dsp_tools.xmllib.general_functions import geolocation_from_lat_long
 from dsp_tools.xmllib.general_functions import make_xsd_compatible_id_with_uuid
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
@@ -20,7 +19,6 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
-from dsp_tools.xmllib.value_checkers import is_geolocation
 
 NBSP = "\u00a0"
 
@@ -470,19 +468,3 @@ def test_make_xsd_compatible_id() -> None:
 
     with pytest.raises(XmllibInputError):
         make_xsd_compatible_id_with_uuid(" ")
-
-
-class TestGeolocationFromLatLong:
-    def test_emits_longitude_before_latitude(self) -> None:
-        # WKT is X-then-Y, i.e. the reverse of how coordinates are spoken; that inversion is the
-        # entire reason this helper exists
-        assert geolocation_from_lat_long("47.37", "8.55") == "POINT(8.55 47.37)"
-
-    def test_strings_keep_their_decimal_precision(self) -> None:
-        assert geolocation_from_lat_long("47.370", "8.550") == "POINT(8.550 47.370)"
-
-    def test_accepts_numbers(self) -> None:
-        assert geolocation_from_lat_long(47.37, 8.55) == "POINT(8.55 47.37)"
-
-    def test_the_result_is_a_valid_geolocation(self) -> None:
-        assert is_geolocation(geolocation_from_lat_long("47.37", "8.55"))

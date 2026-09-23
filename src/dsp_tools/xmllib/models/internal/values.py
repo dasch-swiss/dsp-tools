@@ -8,18 +8,20 @@ from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
+from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
+from dsp_tools.xmllib.internal.geolocation import ordinate_to_str
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_value_order
 from dsp_tools.xmllib.internal.input_converters import check_and_get_corrected_comment
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
+from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
-from dsp_tools.xmllib.value_checkers import is_geolocation
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
@@ -167,7 +169,8 @@ class DecimalValue(Value):
 class GeolocationValue(Value):
     value: str
     prop_name: str
-    crs: str | None = None
+    crs: str
+    ordinates: dict[str, str]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     order: int | None = None
@@ -175,24 +178,24 @@ class GeolocationValue(Value):
     @classmethod
     def new(
         cls,
-        value: Any,
+        crs: str,
+        ordinates: dict[str, Any],
         prop_name: str,
-        crs: str | None,
         permissions: Permissions,
         comment: str | None,
         order: int | None,
         resource_id: str | None,
     ) -> GeolocationValue:
-        if not is_geolocation(value, crs):
-            emit_xmllib_input_type_mismatch_warning(
-                expected_type="geolocation", value=value, res_id=resource_id, prop_name=prop_name
-            )
+        fixed_ordinates = {name: ordinate_to_str(val) for name, val in ordinates.items()}
+        if problem := get_geolocation_problem(str(crs), fixed_ordinates):
+            emit_xmllib_input_warning(MessageInfo(message=problem, resource_id=resource_id, prop_name=prop_name))
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
         return cls(
-            value=str(value),
+            value=" ".join([str(crs), *fixed_ordinates.values()]),
             prop_name=prop_name,
-            crs=crs,
+            crs=str(crs),
+            ordinates=fixed_ordinates,
             permissions=permissions,
             comment=fixed_comment,
             order=fixed_order,

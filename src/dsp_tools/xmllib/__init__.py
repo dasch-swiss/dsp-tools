@@ -9,7 +9,6 @@ from .general_functions import create_standoff_link_to_resource as create_stando
 from .general_functions import create_standoff_link_to_uri as create_standoff_link_to_uri
 from .general_functions import escape_reserved_xml_characters as escape_reserved_xml_characters
 from .general_functions import find_license_in_string as find_license_in_string
-from .general_functions import geolocation_from_lat_long as geolocation_from_lat_long
 from .general_functions import get_list_nodes_from_string_via_list_name as get_list_nodes_from_string_via_list_name
 from .general_functions import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .general_functions import make_xsd_compatible_id as make_xsd_compatible_id
@@ -23,6 +22,8 @@ from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResou
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
+from .models.geolocation import GeographicCoordinates as GeographicCoordinates
+from .models.geolocation import ProjectedCoordinates as ProjectedCoordinates
 from .models.licenses.other import LicenseOther as LicenseOther
 from .models.licenses.recommended import LicenseRecommended as LicenseRecommended
 from .models.permissions import Permissions as Permissions

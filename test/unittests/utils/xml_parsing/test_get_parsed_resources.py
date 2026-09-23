@@ -21,6 +21,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 
 HTTPS_API_URL = "https://api.stage.dasch.swiss"
@@ -338,32 +339,41 @@ class TestParseValues:
     def test_geolocation_value(self):
         xml_val = etree.fromstring("""
         <geolocation-prop name=":hasProp">
-            <geolocation>POINT(8.550 47.37) </geolocation>
+            <geolocation crs="CRS84" longitude="8.550" latitude="47.37"/>
         </geolocation-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
         assert len(result) == 1
         val = result.pop(0)
         assert val.prop_name == HAS_PROP
-        # the crs is carried alongside the geometry, since it lives in an attribute
-        assert val.value == (None, "POINT(8.550 47.37)")
+        assert val.value == ParsedGeolocation("CRS84", {"longitude": "8.550", "latitude": "47.37"})
         assert val.value_type == KnoraValueType.GEOLOCATION_VALUE
         assert not val.permissions_id
         assert not val.comment
         assert val.value_order is None
 
-    def test_geolocation_value_with_crs(self):
+    def test_geolocation_value_projected(self):
         xml_val = etree.fromstring("""
         <geolocation-prop name=":hasProp">
-            <geolocation crs="LV95" comment="a comment">POINT(2600000 1200000)</geolocation>
+            <geolocation crs="LV95" easting="2600000" northing="1200000" comment="a comment" order="1"/>
         </geolocation-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
         assert len(result) == 1
         val = result.pop(0)
-        assert val.value == ("LV95", "POINT(2600000 1200000)")
-        assert val.value_type == KnoraValueType.GEOLOCATION_VALUE
+        assert val.value == ParsedGeolocation("LV95", {"easting": "2600000", "northing": "1200000"})
         assert val.comment == "a comment"
+        assert val.value_order == 1
+
+    def test_geolocation_value_keeps_every_ordinate_it_is_given(self):
+        # the pair is checked later, so that the message can say which attributes were found
+        xml_val = etree.fromstring("""
+        <geolocation-prop name=":hasProp">
+            <geolocation crs="LV95" longitude="8.55"/>
+        </geolocation-prop>
+        """)
+        val = _parse_one_value(xml_val, IRI_LOOKUP).pop(0)
+        assert val.value == ParsedGeolocation("LV95", {"longitude": "8.55"})
 
     def test_geoname_value(self):
         xml_val = etree.fromstring("""

@@ -28,6 +28,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -350,7 +351,8 @@ class TestValues:
         assert not res.value_metadata
 
     def test_geolocation_corr(self):
-        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        geolocation = ParsedGeolocation("CRS84", {"longitude": "8.550", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
         # validate-data sees the same composed literal that xmlupload would send
@@ -358,12 +360,18 @@ class TestValues:
         assert res.knora_type == KnoraValueType.GEOLOCATION_VALUE
         assert not res.value_metadata
 
-    def test_geolocation_with_crs_corr(self):
-        val = ParsedValue(
-            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0
-        )
+    def test_geolocation_projected_corr(self):
+        geolocation = ParsedGeolocation("LV95", {"northing": "1200000", "easting": "2600000"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_value == "<http://www.opengis.net/def/crs/EPSG/0/2056> POINT(2600000 1200000)"
+
+    def test_geolocation_wrong_pair(self):
+        # no literal: the geolocation check reports the problem, naming the expected attributes
+        geolocation = ParsedGeolocation("LV95", {"longitude": "8.55", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_value is None
 
     def test_geoname_corr(self):
         val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None, None, 0)

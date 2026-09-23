@@ -17,9 +17,11 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
-from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal_from_ordinates
+from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
 
-type InputTypes = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
+type InputTypes = Union[str, FormattedTextValue, tuple[str | None, str | None], ParsedGeolocation | None]
 
 
 @dataclass
@@ -37,6 +39,8 @@ def assert_is_string(value: InputTypes) -> str:
             raise XmlInputConversionError(f"Expected string value, but got XML value: {xml.xmlstr}")
         case tuple():
             raise XmlInputConversionError(f"Expected string value, but got tuple value: {value}")
+        case ParsedGeolocation():
+            raise XmlInputConversionError(f"Expected string value, but got geolocation value: {value}")
         case None:
             raise XmlInputConversionError("Expected string value, but got None")
         case _:
@@ -54,6 +58,8 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
             raise XmlInputConversionError(f"Expected tuple value, but got XML value: {xml.xmlstr}")
         case str():
             raise XmlInputConversionError(f"Expected tuple value, but got string value: {value}")
+        case ParsedGeolocation():
+            raise XmlInputConversionError(f"Expected tuple value, but got geolocation value: {value}")
         case None:
             raise XmlInputConversionError("Expected tuple value, but got None")
         case _:
@@ -101,15 +107,17 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
 
 
 def transform_geolocation(input_value: InputTypes) -> str:
-    """Compose a geolocation literal from a CRS code and a WKT geometry."""
-    # Not assert_is_tuple: an absent crs is a legitimate None in the first position, which that
-    # helper rejects.
-    if not isinstance(input_value, tuple) or len(input_value) != 2:
-        raise XmlInputConversionError(f"Expected a crs and a geometry, but got {input_value}")
-    crs_code, wkt = input_value
-    if not isinstance(wkt, str):
-        raise XmlInputConversionError(f"Could not parse geolocation: {input_value}")
-    return compose_geolocation_literal(crs_code, wkt)
+    """Check a geolocation against its CRS and compose its literal."""
+    # The check also runs in validate-data, but repeating it here means that
+    # an invalid coordinate is rejected even when the upload skips validation.
+    if not isinstance(input_value, ParsedGeolocation):
+        raise XmlInputConversionError(f"Expected a geolocation value, but got {input_value}")
+    if problem := get_geolocation_problem(input_value.crs, input_value.ordinates):
+        raise XmlInputConversionError(problem)
+    literal = compose_geolocation_literal_from_ordinates(input_value.crs, input_value.ordinates)
+    if literal is None:
+        raise XmlInputConversionError(f"Could not compose geolocation: {input_value}")
+    return literal
 
 
 def transform_geometry(value: InputTypes) -> str:

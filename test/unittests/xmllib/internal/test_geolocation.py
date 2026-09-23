@@ -4,7 +4,9 @@ from dsp_tools.xmllib.internal.geolocation import CRS84
 from dsp_tools.xmllib.internal.geolocation import LV03
 from dsp_tools.xmllib.internal.geolocation import LV95
 from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal_from_ordinates
 from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
+from dsp_tools.xmllib.internal.geolocation import ordinate_to_str
 
 
 class TestComposeLiteral:
@@ -13,98 +15,123 @@ class TestComposeLiteral:
         [("CRS84", CRS84.iri), ("LV95", LV95.iri), ("LV03", LV03.iri)],
     )
     def test_tags_the_given_crs(self, crs_code: str, expected_iri: str) -> None:
-        assert compose_geolocation_literal(crs_code, "POINT(0 0)") == f"<{expected_iri}> POINT(0 0)"
-
-    def test_an_absent_crs_becomes_crs84(self) -> None:
-        assert compose_geolocation_literal(None, "POINT(8.55 47.37)") == f"<{CRS84.iri}> POINT(8.55 47.37)"
+        assert compose_geolocation_literal(crs_code, "1", "2") == f"<{expected_iri}> POINT(1 2)"
 
     def test_keeps_the_submitted_decimal_precision(self) -> None:
         # 8.550 must not come back as 8.55: the ordinates are never re-serialised through a number
-        literal = compose_geolocation_literal("CRS84", "POINT(8.550 47.370)")
-        assert literal.endswith("POINT(8.550 47.370)")
+        assert compose_geolocation_literal("CRS84", "8.550", "47.370").endswith("POINT(8.550 47.370)")
+
+    def test_from_ordinates_puts_x_first(self) -> None:
+        literal = compose_geolocation_literal_from_ordinates("CRS84", {"latitude": "47.37", "longitude": "8.55"})
+        assert literal == f"<{CRS84.iri}> POINT(8.55 47.37)"
+
+    def test_from_ordinates_puts_easting_first(self) -> None:
+        literal = compose_geolocation_literal_from_ordinates("LV95", {"northing": "1200000", "easting": "2600000"})
+        assert literal == f"<{LV95.iri}> POINT(2600000 1200000)"
+
+    def test_from_ordinates_with_an_incomplete_pair_is_none(self) -> None:
+        assert compose_geolocation_literal_from_ordinates("CRS84", {"longitude": "8.55"}) is None
+
+    def test_from_ordinates_with_the_wrong_pair_is_none(self) -> None:
+        assert compose_geolocation_literal_from_ordinates("LV95", {"longitude": "8.55", "latitude": "47.37"}) is None
+
+    def test_from_ordinates_with_an_unknown_crs_is_none(self) -> None:
+        assert compose_geolocation_literal_from_ordinates("EPSG:4326", {"longitude": "8.55", "latitude": "1"}) is None
 
 
 class TestBounds:
     @pytest.mark.parametrize(
-        ("crs_code", "wkt"),
+        ("crs_code", "ordinates"),
         [
-            ("CRS84", "POINT(-180 -90)"),
-            ("CRS84", "POINT(180 90)"),
-            ("LV95", "POINT(2484273.3 1073150.16)"),
-            ("LV95", "POINT(2837939.88 1299970.97)"),
-            ("LV03", "POINT(484273.3 73150.16)"),
-            ("LV03", "POINT(837939.88 299970.97)"),
+            ("CRS84", {"longitude": "-180", "latitude": "-90"}),
+            ("CRS84", {"longitude": "180", "latitude": "90"}),
+            ("LV95", {"easting": "2484273.3", "northing": "1073150.16"}),
+            ("LV95", {"easting": "2837939.88", "northing": "1299970.97"}),
+            ("LV03", {"easting": "484273.3", "northing": "73150.16"}),
+            ("LV03", {"easting": "837939.88", "northing": "299970.97"}),
         ],
     )
-    def test_the_bounds_are_inclusive(self, crs_code: str, wkt: str) -> None:
-        assert get_geolocation_problem(compose_geolocation_literal(crs_code, wkt)) is None
-
-    def test_names_the_offending_ordinate_and_its_range(self) -> None:
-        problem = get_geolocation_problem(compose_geolocation_literal("CRS84", "POINT(200 47.37)"))
-        assert problem is not None
-        assert "first ordinate '200'" in problem
-        assert "longitude" in problem
-        assert "-180…180" in problem
-
-    def test_names_the_axis_by_the_name_the_crs_uses(self) -> None:
-        # a projected system has eastings and northings, not longitude and latitude
-        problem = get_geolocation_problem(compose_geolocation_literal("LV95", "POINT(0 1200000)"))
-        assert problem is not None
-        assert "easting" in problem
-        assert "longitude" not in problem
-
-
-class TestSwappedAxes:
-    def test_hints_at_swapped_axes_when_the_transposed_pair_would_be_valid(self) -> None:
-        problem = get_geolocation_problem(compose_geolocation_literal("LV95", "POINT(1200000 2600000)"))
-        assert problem is not None
-        assert "would be valid if transposed" in problem
-        assert "easting first, then northing" in problem
-
-    def test_stays_silent_when_transposing_would_not_help(self) -> None:
-        problem = get_geolocation_problem(compose_geolocation_literal("CRS84", "POINT(200 300)"))
-        assert problem is not None
-        assert "transposed" not in problem
-
-    def test_a_transposed_crs84_pair_within_90_degrees_is_undetectable(self) -> None:
-        # Documented gap: 47.37 is a valid longitude and 8.55 a valid latitude, so nothing here or on
-        # the server can tell this from a deliberate coordinate. Recorded so its absence is not read
-        # as an oversight.
-        assert get_geolocation_problem(compose_geolocation_literal("CRS84", "POINT(47.37 8.55)")) is None
-
-
-class TestRejections:
-    def test_epsg_4326_explains_itself(self) -> None:
-        problem = get_geolocation_problem("<http://www.opengis.net/def/crs/EPSG/0/4326> POINT(47.37 8.55)")
-        assert problem is not None
-        assert "latitude before longitude" in problem
-        assert CRS84.iri in problem
-
-    def test_an_unknown_crs_lists_the_supported_ones(self) -> None:
-        problem = get_geolocation_problem("<http://example.org/crs/1> POINT(0 0)")
-        assert problem is not None
-        assert LV95.iri in problem
-        assert LV03.iri in problem
+    def test_the_bounds_are_inclusive(self, crs_code: str, ordinates: dict[str, str]) -> None:
+        assert get_geolocation_problem(crs_code, ordinates) is None
 
     @pytest.mark.parametrize(
-        ("wkt", "expected"),
+        ("crs_code", "ordinates", "name"),
         [
-            ("POINT(8.55, 47.37)", "single coordinate pair"),
-            ("POINT(8.55 47.37 500)", "elevation is not yet supported"),
-            ("POINT(8.55)", "ordinates"),
-            ("POINT(abc 47.37)", "is not a number"),
-            ("LINESTRING(0 0, 1 1)", "only a two-dimensional POINT"),
-            ("POLYGON((0 0, 1 1, 1 0, 0 0))", "only a two-dimensional POINT"),
+            ("CRS84", {"longitude": "-180.001", "latitude": "0"}, "longitude"),
+            ("CRS84", {"longitude": "180.001", "latitude": "0"}, "longitude"),
+            ("CRS84", {"longitude": "0", "latitude": "-90.001"}, "latitude"),
+            ("CRS84", {"longitude": "0", "latitude": "90.001"}, "latitude"),
+            ("LV95", {"easting": "2484273.2", "northing": "1200000"}, "easting"),
+            ("LV95", {"easting": "2600000", "northing": "1299970.98"}, "northing"),
+            ("LV03", {"easting": "837939.89", "northing": "200000"}, "easting"),
+            ("LV03", {"easting": "600000", "northing": "73150.15"}, "northing"),
         ],
     )
-    def test_says_what_is_wrong(self, wkt: str, expected: str) -> None:
-        problem = get_geolocation_problem(compose_geolocation_literal("CRS84", wkt))
+    def test_just_outside_the_bounds_is_rejected(self, crs_code: str, ordinates: dict[str, str], name: str) -> None:
+        problem = get_geolocation_problem(crs_code, ordinates)
         assert problem is not None
-        assert expected in problem
+        assert f"The {name} '{ordinates[name]}'" in problem
+
+    def test_names_the_attribute_its_range_and_its_crs(self) -> None:
+        problem = get_geolocation_problem("CRS84", {"longitude": "200", "latitude": "47.37"})
+        assert problem == "The longitude '200' is outside the valid range for WGS84 (CRS84): -180 to 180 inclusive."
+
+    def test_negative_zero_is_zero(self) -> None:
+        assert get_geolocation_problem("CRS84", {"longitude": "-0.0", "latitude": "0"}) is None
+
+    @pytest.mark.parametrize("ordinate", ["abc", "8,55", "1e5", "", "NaN", "Infinity"])
+    def test_a_non_decimal_ordinate_is_rejected(self, ordinate: str) -> None:
+        problem = get_geolocation_problem("CRS84", {"longitude": ordinate, "latitude": "47.37"})
+        assert problem is not None
+        assert "is not a decimal number" in problem
 
 
-class TestUntaggedLiteral:
-    def test_an_untagged_literal_is_read_as_crs84(self) -> None:
-        # GeoSPARQL 1.1 §10.8 — and it must be bounds-checked as CRS84, not waved through
-        assert get_geolocation_problem("POINT(8.55 47.37)") is None
-        assert get_geolocation_problem("POINT(2600000 1200000)") is not None
+class TestPair:
+    def test_a_geographic_pair_with_a_projected_crs(self) -> None:
+        problem = get_geolocation_problem("LV95", {"longitude": "8.55", "latitude": "47.37"})
+        assert problem == (
+            "Given crs=\"LV95\", expected the attributes 'easting' and 'northing'. "
+            "Found 'longitude' and 'latitude', which belong to a geographic CRS."
+        )
+
+    def test_a_projected_pair_with_a_geographic_crs(self) -> None:
+        problem = get_geolocation_problem("CRS84", {"easting": "2600000", "northing": "1200000"})
+        assert problem == (
+            "Given crs=\"CRS84\", expected the attributes 'longitude' and 'latitude'. "
+            "Found 'easting' and 'northing', which belong to a projected CRS."
+        )
+
+    def test_a_mixed_pair(self) -> None:
+        problem = get_geolocation_problem("CRS84", {"longitude": "8.55", "northing": "1200000"})
+        assert problem == (
+            "Given crs=\"CRS84\", expected the attributes 'longitude' and 'latitude'. Found 'northing', "
+            "which belongs to a projected CRS."
+        )
+
+    def test_one_ordinate_missing(self) -> None:
+        problem = get_geolocation_problem("CRS84", {"longitude": "8.55"})
+        assert problem == "Given crs=\"CRS84\", expected both 'longitude' and 'latitude'. 'latitude' is missing."
+
+    def test_both_ordinates_missing(self) -> None:
+        problem = get_geolocation_problem("LV03", {})
+        assert problem == "Given crs=\"LV03\", expected both 'easting' and 'northing'. Both are missing."
+
+    def test_an_unknown_crs_lists_the_supported_ones(self) -> None:
+        problem = get_geolocation_problem("EPSG:4326", {"longitude": "8.55", "latitude": "47.37"})
+        assert problem == "Unsupported coordinate reference system 'EPSG:4326'. Supported are: 'CRS84', 'LV95', 'LV03'."
+
+
+class TestOrdinateToStr:
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("8.550", "8.550"),
+            (" 8.55 ", "8.55"),
+            (8.55, "8.55"),
+            (2600000, "2600000"),
+            (0.00001, "0.00001"),
+            (2600000.0, "2600000.0"),
+        ],
+    )
+    def test_converts_without_exponent_and_keeps_strings(self, value: str | float | int, expected: str) -> None:
+        assert ordinate_to_str(value) == expected

@@ -154,46 +154,38 @@ def test_is_geoname_wrong(val: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    ("val", "crs"),
+    ("crs", "ordinates"),
     [
-        ("POINT(8.55 47.37)", None),
-        ("POINT(8.55 47.37)", "CRS84"),
-        ("POINT(8.550 47.370)", "CRS84"),
-        ("POINT(-180 -90)", "CRS84"),  # both bounds are inclusive
-        ("POINT(180 90)", "CRS84"),
-        ("POINT(0 0)", "CRS84"),
-        ("POINT(-0.0 0)", "CRS84"),  # Decimal has no signed zero
-        ("POINT(2600000 1200000)", "LV95"),
-        ("POINT(2484273.3 1073150.16)", "LV95"),
-        ("POINT(600000 200000)", "LV03"),
-        ("point(8.55 47.37)", None),  # WKT keywords are case-insensitive
-        ("POINT (8.55 47.37)", None),
+        ("CRS84", {"longitude": 8.55, "latitude": 47.37}),
+        ("CRS84", {"longitude": "8.550", "latitude": "47.370"}),
+        ("CRS84", {"longitude": -180, "latitude": 90}),
+        ("CRS84", {"longitude": "-0.0", "latitude": "0"}),
+        ("LV95", {"easting": "2600000", "northing": "1200000"}),
+        ("LV95", {"easting": 2484273.3, "northing": 1073150.16}),
+        ("LV03", {"easting": 600000, "northing": 200000}),
     ],
 )
-def test_is_geolocation_correct(val: Any, crs: str | None) -> None:
-    assert is_geolocation(val, crs)
+def test_is_geolocation_correct(crs: str, ordinates: dict[str, Any]) -> None:
+    assert is_geolocation(crs, **ordinates)
 
 
 @pytest.mark.parametrize(
-    ("val", "crs"),
+    ("crs", "ordinates"),
     [
-        ("POINT(200 47.37)", None),  # longitude out of range
-        ("POINT(8.55 91)", None),  # latitude out of range
-        ("POINT(8.55 47.37)", "LV95"),  # valid CRS84 coordinates, wrong CRS
-        ("POINT(8.55 47.37)", "NAD83"),  # CRS outside the allowlist
-        ("POINT(8.55, 47.37)", None),  # comma-separated
-        ("POINT(8.55 47.37 500)", None),  # elevation is not yet supported
-        ("POINT(8.55)", None),
-        ("POINT(abc 47.37)", None),
-        ("LINESTRING(0 0, 1 1)", None),  # lines are not yet supported
-        ("8.55 47.37", None),  # not WKT at all
-        ("", None),
-        (122.2, None),  # not a string
-        (None, None),
+        ("CRS84", {"longitude": 200, "latitude": 47.37}),  # longitude out of range
+        ("CRS84", {"longitude": 8.55, "latitude": 91}),  # latitude out of range
+        ("LV95", {"longitude": 8.55, "latitude": 47.37}),  # the pair of a geographic CRS
+        ("CRS84", {"easting": "2600000", "northing": "1200000"}),  # the pair of a projected CRS
+        ("CRS84", {"longitude": 8.55}),  # incomplete pair
+        ("NAD83", {"longitude": 8.55, "latitude": 47.37}),  # CRS outside the allowlist
+        ("CRS84", {"longitude": "8,55", "latitude": "47.37"}),
+        ("CRS84", {"longitude": "abc", "latitude": "47.37"}),
+        ("CRS84", {"longitude": None, "latitude": "47.37"}),
+        (None, {"longitude": 8.55, "latitude": 47.37}),
     ],
 )
-def test_is_geolocation_wrong(val: Any, crs: str | None) -> None:
-    assert not is_geolocation(val, crs)
+def test_is_geolocation_wrong(crs: Any, ordinates: dict[str, Any]) -> None:
+    assert not is_geolocation(crs, **ordinates)
 
 
 @pytest.mark.parametrize("val", [1.2, "1.432", 1, "1", -1.1, "1e-1", "1e2"])

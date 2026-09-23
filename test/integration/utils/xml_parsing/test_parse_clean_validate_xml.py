@@ -315,27 +315,46 @@ class TestGeolocationSchema:
     @pytest.mark.parametrize(
         "geolocation_xml",
         [
-            "<geolocation>POINT(8.55 47.37)</geolocation>",
-            '<geolocation crs="CRS84">POINT(8.55 47.37)</geolocation>',
-            '<geolocation crs="LV95">POINT(2600000 1200000)</geolocation>',
-            '<geolocation crs="LV03">POINT(600000 200000)</geolocation>',
-            '<geolocation crs="LV95" comment="a comment">POINT(2600000 1200000)</geolocation>',
-            "<geolocation>POINT(8.55 47.37)</geolocation><geolocation>POINT(7.45 46.95)</geolocation>",
+            '<geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>',
+            '<geolocation crs="CRS84" longitude="-8.550" latitude="+47.37"/>',
+            '<geolocation crs="LV95" easting="2600000" northing="1200000"/>',
+            '<geolocation crs="LV03" easting="600000" northing="200000"/>',
+            '<geolocation crs="LV95" easting="2600000" northing="1200000" comment="a comment" order="0"/>',
+            (
+                '<geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>'
+                '<geolocation crs="CRS84" longitude="7.45" latitude="46.95"/>'
+            ),
+            # the pair is checked in Python, because XSD 1.0 cannot make it depend on the crs
+            '<geolocation crs="LV95" longitude="8.55" latitude="47.37"/>',
         ],
     )
-    def test_accepts_allowlisted_crs(self, geolocation_xml: str) -> None:
+    def test_accepts(self, geolocation_xml: str) -> None:
         root = _make_root_with_geolocation(geolocation_xml)
         assert not _validate_root_get_validation_messages(root)
 
-    @pytest.mark.parametrize(
-        "crs",
-        ["EPSG:4326", "4326", "http://www.opengis.net/def/crs/EPSG/0/4326", "WGS84", ""],
-    )
-    def test_rejects_crs_outside_the_allowlist(self, crs: str) -> None:
-        # REQ-2.4: this must fail locally, before any upload begins
-        root = _make_root_with_geolocation(f'<geolocation crs="{crs}">POINT(8.55 47.37)</geolocation>')
+    def test_rejects_a_missing_crs(self) -> None:
+        root = _make_root_with_geolocation('<geolocation longitude="8.55" latitude="47.37"/>')
         assert _validate_root_get_validation_messages(root)
 
-    def test_rejects_an_empty_geolocation(self) -> None:
-        root = _make_root_with_geolocation("<geolocation></geolocation>")
+    @pytest.mark.parametrize(
+        "crs",
+        ["EPSG:4326", "4326", "http://www.opengis.net/def/crs/EPSG/0/4326", "WGS84", "crs84", ""],
+    )
+    def test_rejects_crs_outside_the_allowlist(self, crs: str) -> None:
+        root = _make_root_with_geolocation(f'<geolocation crs="{crs}" longitude="8.55" latitude="47.37"/>')
+        assert _validate_root_get_validation_messages(root)
+
+    @pytest.mark.parametrize("ordinate", ["8,55", "1e5", "abc", "", " 8.55", "8."])
+    def test_rejects_a_malformed_ordinate(self, ordinate: str) -> None:
+        root = _make_root_with_geolocation(f'<geolocation crs="CRS84" longitude="{ordinate}" latitude="47.37"/>')
+        assert _validate_root_get_validation_messages(root)
+
+    def test_rejects_text_content(self) -> None:
+        root = _make_root_with_geolocation(
+            '<geolocation crs="CRS84" longitude="8.55" latitude="47.37">POINT(8.55 47.37)</geolocation>'
+        )
+        assert _validate_root_get_validation_messages(root)
+
+    def test_rejects_an_unknown_attribute(self) -> None:
+        root = _make_root_with_geolocation('<geolocation crs="CRS84" lon="8.55" lat="47.37"/>')
         assert _validate_root_get_validation_messages(root)

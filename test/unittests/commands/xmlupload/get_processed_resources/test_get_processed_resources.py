@@ -1,6 +1,7 @@
 import pytest
 import regex
 
+from dsp_tools.commands.xmlupload.exceptions import XmlInputConversionError
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadAuthorshipsNotFoundError
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadListNodeNotFoundError
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadPermissionsNotFoundError
@@ -48,6 +49,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileIiifUri
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFilePlaceholder
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
@@ -595,23 +597,39 @@ class TestValues:
         assert result.value_order == 0
 
     def test_geolocation_value(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(HAS_PROP, (None, "POINT(8.550 47.37)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        geolocation = ParsedGeolocation("CRS84", {"longitude": "8.550", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeolocation)
-        # an absent crs becomes CRS84, and the ordinates keep the precision they were given
+        # the ordinates keep the precision they were given
         assert result.value == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.550 47.37)"
         assert result.prop_iri == HAS_PROP
         assert not result.permissions
         assert not result.comment
         assert result.value_order == 0
 
-    def test_geolocation_value_with_crs(self, lookups: XmlReferenceLookups):
-        val = ParsedValue(
-            HAS_PROP, ("LV95", "POINT(2600000 1200000)"), KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0
-        )
+    def test_geolocation_value_projected(self, lookups: XmlReferenceLookups):
+        geolocation = ParsedGeolocation("LV95", {"easting": "2600000", "northing": "1200000"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         result = _get_one_processed_value(val, lookups)
         assert isinstance(result, ProcessedGeolocation)
         assert result.value == "<http://www.opengis.net/def/crs/EPSG/0/2056> POINT(2600000 1200000)"
+
+    @pytest.mark.parametrize(
+        ("geolocation", "expected_msg"),
+        [
+            (ParsedGeolocation("CRS84", {"longitude": "200", "latitude": "47.37"}), "The longitude '200' is outside"),
+            (ParsedGeolocation("LV95", {"longitude": "8.55", "latitude": "47.37"}), "expected the attributes"),
+            (ParsedGeolocation("LV95", {"easting": "2600000"}), "'northing' is missing"),
+        ],
+    )
+    def test_geolocation_value_is_checked_before_sending(
+        self, lookups: XmlReferenceLookups, geolocation: ParsedGeolocation, expected_msg: str
+    ):
+        # the check runs here too, so that an upload that skips validation still rejects the value
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        with pytest.raises(XmlInputConversionError, match=regex.escape(expected_msg)):
+            _get_one_processed_value(val, lookups)
 
     def test_geoname_value(self, lookups: XmlReferenceLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None, None, 0)

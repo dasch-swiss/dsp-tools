@@ -123,6 +123,7 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.DATE_VALUE: TripleObjectType.STRING,
     KnoraValueType.DECIMAL_VALUE: TripleObjectType.DECIMAL,
     KnoraValueType.GEOM_VALUE: TripleObjectType.STRING,
+    KnoraValueType.GEOLOCATION_VALUE: TripleObjectType.STRING,
     KnoraValueType.GEONAME_VALUE: TripleObjectType.STRING,
     KnoraValueType.LIST_VALUE: TripleObjectType.STRING,
     KnoraValueType.LINK_VALUE: TripleObjectType.IRI,

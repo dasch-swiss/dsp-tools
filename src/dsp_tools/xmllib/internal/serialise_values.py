@@ -134,10 +134,15 @@ def _serialise_complete_list_prop(values: list[ListValue], prop_name: str) -> et
 def _serialise_complete_geolocation_prop(values: list[GeolocationValue], prop_name: str) -> etree._Element:
     prop = _serialise_generic_prop(prop_name, "geolocation")
     for val in values:
-        val_ele = _serialise_generic_element(val, "geolocation")
-        if val.crs is not None:
-            val_ele.attrib["crs"] = val.crs
-        prop.append(val_ele)
+        # A geolocation has no text: the CRS and the ordinates are all attributes.
+        attribs = {"crs": val.crs, **val.ordinates}
+        if val.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = val.permissions.value
+        if val.comment is not None:
+            attribs["comment"] = str(val.comment)
+        if val.order is not None:
+            attribs["order"] = str(val.order)
+        prop.append(etree.Element(f"{DASCH_SCHEMA}geolocation", attrib=attribs, nsmap=XML_NAMESPACE_MAP))
     return prop
 
 

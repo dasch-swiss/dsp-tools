@@ -13,6 +13,7 @@ from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat
 from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_converters import dms_to_decimal_degrees
 from dsp_tools.xmllib.value_converters import find_dates_in_string
 from dsp_tools.xmllib.value_converters import reformat_date
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -491,3 +492,45 @@ class TestFindDate:
         input_string = " ".join(all_inputs.keys())
         expected = {x for x in all_inputs.values() if x}
         assert find_dates_in_string(input_string) == expected
+
+
+class TestDmsToDecimalDegrees:
+    @pytest.mark.parametrize(
+        ("dms", "expected"),
+        [
+            ((47, 22, 13.2, "N"), "47.37033"),
+            ((47, 22, 13.2, "S"), "-47.37033"),
+            ((8, 32, 24, "E"), "8.5400"),
+            ((8, 32, 24, "W"), "-8.5400"),
+            (("33", "52", "4.36", "s"), "-33.867878"),
+            ((90, 0, 0, "N"), "90.0000"),
+            ((180, 0, 0, "W"), "-180.0000"),
+            ((0, 0, 0, "S"), "0.0000"),
+        ],
+    )
+    def test_converts(self, dms: tuple[Any, Any, Any, str], expected: str) -> None:
+        assert dms_to_decimal_degrees(*dms) == expected
+
+    @pytest.mark.parametrize(("degrees", "minutes", "seconds"), [(47, 22, "13.2"), (8, 59, "59.99"), (0, 0, "0.001")])
+    def test_round_trips_the_seconds_at_their_precision(self, degrees: int, minutes: int, seconds: str) -> None:
+        result = dms_to_decimal_degrees(degrees, minutes, seconds, "N")
+        remainder = (float(result) - degrees) * 60 - minutes
+        decimals = len(seconds.partition(".")[2])
+        assert round(remainder * 60, decimals) == float(seconds)
+
+    @pytest.mark.parametrize(
+        ("dms", "reason"),
+        [
+            ((47, 22, 13.2, "X"), "direction must be one of N, S, E or W"),
+            ((47, 60, 0, "N"), "less than 60"),
+            ((47, 0, 60, "N"), "less than 60"),
+            ((47.5, 0, 0, "N"), "whole numbers"),
+            ((-47, 0, 0, "N"), "whole numbers"),
+            ((47, 0, "abc", "N"), "seconds must be a decimal number"),
+            ((90, 0, 1, "N"), "must not exceed 90°"),
+            ((180, 0, 1, "E"), "must not exceed 180°"),
+        ],
+    )
+    def test_rejects(self, dms: tuple[Any, Any, Any, str], reason: str) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape(reason)):
+            dms_to_decimal_degrees(*dms)

@@ -10,6 +10,7 @@ from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -135,6 +136,52 @@ class TestSerialiseValues:
         )
         res_str = etree.tostring(result.pop(0))
         assert res_str == expected
+
+    def test_geolocation_geographic(self):
+        v: list[Value] = [
+            GeolocationValue("CRS84 8.55 47.37", ":locProp", "CRS84", {"longitude": "8.55", "latitude": "47.37"})
+        ]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<geolocation-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":locProp">'
+            b'<geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>'
+            b"</geolocation-prop>"
+        )
+        assert etree.tostring(result.pop(0)) == expected
+
+    def test_geolocation_projected_with_metadata(self):
+        v: list[Value] = [
+            GeolocationValue(
+                "LV95 2600000 1200000",
+                ":locProp",
+                "LV95",
+                {"easting": "2600000", "northing": "1200000"},
+                permissions=Permissions.PUBLIC,
+                comment="findspot",
+                order=0,
+            )
+        ]
+        result = serialise_values(v)
+        assert len(result) == 1
+        expected = (
+            b"<geolocation-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":locProp">'
+            b'<geolocation crs="LV95" easting="2600000" northing="1200000" '
+            b'permissions="public" comment="findspot" order="0"/>'
+            b"</geolocation-prop>"
+        )
+        assert etree.tostring(result.pop(0)) == expected
+
+    def test_geolocation_keeps_trailing_zeroes(self):
+        v: list[Value] = [
+            GeolocationValue("CRS84 8.550 47.370", ":locProp", "CRS84", {"longitude": "8.550", "latitude": "47.370"})
+        ]
+        result = serialise_values(v)
+        assert b'longitude="8.550" latitude="47.370"' in etree.tostring(result.pop(0))
 
     def test_geoname(self):
         v: list[Value] = [GeonameValue("99", ":geonameProp", permissions=Permissions.PUBLIC)]

@@ -26,6 +26,15 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- the coordinate reference systems a geolocation may be tagged with -->
+    <xs:simpleType name="crs_code">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CRS84"/>
+            <xs:enumeration value="LV95"/>
+            <xs:enumeration value="LV03"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- data type for resrefs "ID|ID|..." -->
     <xs:simpleType name="resrefs_type">
         <xs:restriction base="xs:string">
@@ -182,6 +191,27 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- one ordinate of a geolocation, as a decimal number; a pattern rather than xs:decimal preserves its written form -->
+    <xs:simpleType name="decimal_ordinate">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[+\-]?[0-9]+(\.[0-9]+)?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- geolocation value type -->
+    <!-- which pair of ordinates is required depends on the value of crs; this cannot be expressed in XSD 1.0 and is checked in Python -->
+    <xs:complexType name="geolocation_type">
+        <xs:sequence />
+        <xs:attribute name="crs" type="crs_code" use="required"/>
+        <xs:attribute name="longitude" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="latitude" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="easting" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="northing" type="decimal_ordinate" use="optional"/>
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="optional"/>
+    </xs:complexType>
+
     <!-- geoname value type -->
     <xs:complexType name="geoname_type">
         <xs:simpleContent>
@@ -327,6 +357,14 @@
     <xs:complexType name="floatprop_type">
         <xs:sequence>
             <xs:element name="float" type="float_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="string_without_space" use="required"/>
+    </xs:complexType>
+
+    <!-- geolocationprop_type -->
+    <xs:complexType name="geolocationprop_type">
+        <xs:sequence>
+            <xs:element name="geolocation" type="geolocation_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="string_without_space" use="required"/>
     </xs:complexType>
@@ -503,6 +541,7 @@
                 <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="geolocation-prop" type="geolocationprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="list-prop" type="listprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="integer-prop" type="integerprop_type" minOccurs="0" maxOccurs="unbounded"/>

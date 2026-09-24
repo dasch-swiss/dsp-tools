@@ -5,8 +5,12 @@ from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Any
+from typing import Literal
+from typing import Never
 
 from dsp_tools.xmllib.internal.checkers import check_raise_if_input_value_for_value_order_is_incorrect
+from dsp_tools.xmllib.internal.geolocation import CRS84
+from dsp_tools.xmllib.internal.geolocation import LV95
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_authorship_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_input
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
@@ -14,6 +18,8 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.geolocation import GeographicCoordinates
+from dsp_tools.xmllib.models.geolocation import ProjectedCoordinates
 from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
@@ -23,6 +29,7 @@ from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -622,6 +629,392 @@ class Resource:
         if is_nonempty_value(value):
             self.add_decimal(prop_name, value, permissions, comment)
         return self
+
+    #######################
+    # GeolocationValue
+    #######################
+
+    def add_geolocation_geographic(
+        self,
+        prop_name: str,
+        crs: Literal["CRS84"],
+        *,
+        longitude: str | float | int,
+        latitude: str | float | int,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        order: int | None = None,
+    ) -> Resource:
+        """
+        Add a geographic location, given in a geographic coordinate reference system, to the resource.
+        The only such coordinate reference system at the moment is `CRS84` (WGS84 with longitude first).
+        For the Swiss coordinate systems `LV95` and `LV03`, use `add_geolocation_projected()`.
+
+        The coordinates must be named, so that longitude and latitude cannot be swapped by accident.
+        Pass them as strings to preserve their decimal precision: a float drops trailing zeroes.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `CRS84`
+            longitude: the east-west coordinate, between -180 and 180
+            latitude: the north-south coordinate, between -90 and 90
+            permissions: optional permissions of this value
+            comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_geographic(
+                prop_name=":propName",
+                crs="CRS84",
+                longitude="8.550",
+                latitude="47.37",
+            )
+            ```
+        """
+        self.values.append(
+            GeolocationValue.new(
+                crs=crs,
+                ordinates={CRS84.x_name: longitude, CRS84.y_name: latitude},
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
+            )
+        )
+        return self
+
+    def add_geolocation_geographic_multiple(
+        self,
+        prop_name: str,
+        crs: Literal["CRS84"],
+        values: Collection[GeographicCoordinates],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        include_value_order: bool = False,
+    ) -> Resource:
+        """
+        Add several geographic locations, given in a geographic coordinate reference system, to the resource.
+        All of them are in the same coordinate reference system, which at the moment can only be `CRS84`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `CRS84`
+            values: the coordinates, as `xmllib.GeographicCoordinates`
+            permissions: optional permissions of these values
+            comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added values
+
+        Raises:
+            XmllibInputError: if a value is not an `xmllib.GeographicCoordinates`
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_geographic_multiple(
+                prop_name=":propName",
+                crs="CRS84",
+                values=[
+                    xmllib.GeographicCoordinates(longitude="8.55", latitude="47.37"),
+                    xmllib.GeographicCoordinates(longitude="7.45", latitude="46.95"),
+                ],
+            )
+            ```
+        """
+        vals, val_order = self._get_geolocation_values_and_order(
+            values, prop_name, "geolocation_geographic", include_value_order
+        )
+        for v, o in zip(vals, val_order):
+            if not isinstance(v, GeographicCoordinates):
+                self._raise_wrong_coordinates_type(v, prop_name, "xmllib.GeographicCoordinates")
+            self.add_geolocation_geographic(
+                prop_name,
+                crs,
+                longitude=v.longitude,
+                latitude=v.latitude,
+                permissions=permissions,
+                comment=comment,
+                order=o,
+            )
+        return self
+
+    def add_geolocation_geographic_optional(
+        self,
+        prop_name: str,
+        crs: Literal["CRS84"],
+        *,
+        longitude: Any,
+        latitude: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If both coordinates are not empty, add the geographic location to the resource.
+        If both are empty, return the resource unchanged.
+        If only one of them is empty, raise an error.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `CRS84`
+            longitude: the east-west coordinate, or an empty value
+            latitude: the north-south coordinate, or an empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if the coordinates were not empty,
+            else the unchanged original resource.
+
+        Raises:
+            XmllibInputError: if only one of the coordinates is empty
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_geographic_optional(
+                prop_name=":propName",
+                crs="CRS84",
+                longitude="8.55",
+                latitude="47.37",
+            )
+            ```
+
+            ```python
+            resource = resource.add_geolocation_geographic_optional(
+                prop_name=":propName",
+                crs="CRS84",
+                longitude=None,
+                latitude=None,
+            )
+            ```
+        """
+        if self._has_geolocation_ordinates(crs, {CRS84.x_name: longitude, CRS84.y_name: latitude}, prop_name):
+            self.add_geolocation_geographic(
+                prop_name, crs, longitude=longitude, latitude=latitude, permissions=permissions, comment=comment
+            )
+        return self
+
+    def add_geolocation_projected(
+        self,
+        prop_name: str,
+        crs: Literal["LV95", "LV03"],
+        *,
+        easting: str | float | int,
+        northing: str | float | int,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        order: int | None = None,
+    ) -> Resource:
+        """
+        Add a geographic location, given in a projected coordinate reference system, to the resource.
+        The projected coordinate reference systems are the Swiss `LV95` and `LV03`.
+        For `CRS84` (WGS84), use `add_geolocation_geographic()`.
+
+        The coordinates must be named, so that easting and northing cannot be swapped by accident.
+        Pass them as strings to preserve their decimal precision: a float drops trailing zeroes.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `LV95` or `LV03`
+            easting: the east-west coordinate
+            northing: the north-south coordinate
+            permissions: optional permissions of this value
+            comment: optional comment
+            order: Position at which this value is displayed in the app (starting at 0),
+                   relative to other values of the same property.
+                   [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_projected(
+                prop_name=":propName",
+                crs="LV95",
+                easting="2600000",
+                northing="1200000",
+            )
+            ```
+        """
+        self.values.append(
+            GeolocationValue.new(
+                crs=crs,
+                ordinates={LV95.x_name: easting, LV95.y_name: northing},
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                order=order,
+                resource_id=self.res_id,
+            )
+        )
+        return self
+
+    def add_geolocation_projected_multiple(
+        self,
+        prop_name: str,
+        crs: Literal["LV95", "LV03"],
+        values: Collection[ProjectedCoordinates],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        include_value_order: bool = False,
+    ) -> Resource:
+        """
+        Add several geographic locations, given in a projected coordinate reference system, to the resource.
+        All of them are in the same coordinate reference system, `LV95` or `LV03`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `LV95` or `LV03`
+            values: the coordinates, as `xmllib.ProjectedCoordinates`
+            permissions: optional permissions of these values
+            comment: optional comment
+            include_value_order: If True, each value is assigned a persistent display order
+                                 based on its position in the input list.
+                                 [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+
+        Returns:
+            The original resource, with the added values
+
+        Raises:
+            XmllibInputError: if a value is not an `xmllib.ProjectedCoordinates`
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_projected_multiple(
+                prop_name=":propName",
+                crs="LV95",
+                values=[
+                    xmllib.ProjectedCoordinates(easting="2600000", northing="1200000"),
+                    xmllib.ProjectedCoordinates(easting="2683000", northing="1248000"),
+                ],
+            )
+            ```
+        """
+        vals, val_order = self._get_geolocation_values_and_order(
+            values, prop_name, "geolocation_projected", include_value_order
+        )
+        for v, o in zip(vals, val_order):
+            if not isinstance(v, ProjectedCoordinates):
+                self._raise_wrong_coordinates_type(v, prop_name, "xmllib.ProjectedCoordinates")
+            self.add_geolocation_projected(
+                prop_name,
+                crs,
+                easting=v.easting,
+                northing=v.northing,
+                permissions=permissions,
+                comment=comment,
+                order=o,
+            )
+        return self
+
+    def add_geolocation_projected_optional(
+        self,
+        prop_name: str,
+        crs: Literal["LV95", "LV03"],
+        *,
+        easting: Any,
+        northing: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
+        """
+        If both coordinates are not empty, add the geographic location to the resource.
+        If both are empty, return the resource unchanged.
+        If only one of them is empty, raise an error.
+
+        [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
+
+        Args:
+            prop_name: name of the property
+            crs: coordinate reference system, `LV95` or `LV03`
+            easting: the east-west coordinate, or an empty value
+            northing: the north-south coordinate, or an empty value
+            permissions: optional permissions of this value
+            comment: optional comment
+
+        Returns:
+            The original resource, with the added value if the coordinates were not empty,
+            else the unchanged original resource.
+
+        Raises:
+            XmllibInputError: if only one of the coordinates is empty
+
+        Examples:
+            ```python
+            resource = resource.add_geolocation_projected_optional(
+                prop_name=":propName",
+                crs="LV95",
+                easting="2600000",
+                northing="1200000",
+            )
+            ```
+
+            ```python
+            resource = resource.add_geolocation_projected_optional(
+                prop_name=":propName",
+                crs="LV95",
+                easting=None,
+                northing=None,
+            )
+            ```
+        """
+        if self._has_geolocation_ordinates(crs, {LV95.x_name: easting, LV95.y_name: northing}, prop_name):
+            self.add_geolocation_projected(
+                prop_name, crs, easting=easting, northing=northing, permissions=permissions, comment=comment
+            )
+        return self
+
+    def _get_geolocation_values_and_order(
+        self, values: Any, prop_name: str, method_type: str, include_value_order: bool
+    ) -> tuple[list[Any], list[int | None]]:
+        # The order is checked on the raw input: once converted to a list, an unordered set is no longer detectable.
+        if include_value_order:
+            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, method_type, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        val_order: list[int | None] = list(range(len(vals))) if include_value_order else [None] * len(vals)
+        return vals, val_order
+
+    def _raise_wrong_coordinates_type(self, value: Any, prop_name: str, expected: str) -> Never:
+        msg_info = MessageInfo(
+            message=f"The coordinates must be given as {expected}, so that they are named. Your input: '{value}'",
+            resource_id=self.res_id,
+            prop_name=prop_name,
+        )
+        raise_xmllib_input_error(msg_info)
+
+    def _has_geolocation_ordinates(self, crs: str, ordinates: dict[str, Any], prop_name: str) -> bool:
+        present = [name for name, val in ordinates.items() if is_nonempty_value(val)]
+        if len(present) == len(ordinates):
+            return True
+        if present:
+            missing = next(name for name in ordinates if name not in present)
+            msg_info = MessageInfo(
+                message=f"The {missing} is empty, but '{present[0]}' is not. With crs=\"{crs}\", both are required.",
+                resource_id=self.res_id,
+                prop_name=prop_name,
+            )
+            raise_xmllib_input_error(msg_info)
+        return False
 
     #######################
     # GeonameValue

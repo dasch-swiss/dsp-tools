@@ -15,6 +15,7 @@ from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
+from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import MessageComponents
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
@@ -34,6 +35,7 @@ from dsp_tools.commands.validate_data.validation.check_for_unknown_classes impor
 from dsp_tools.commands.validate_data.validation.get_validation_report import get_validation_report
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_cardinalities_that_may_cause_a_circle
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
+from dsp_tools.commands.validate_data.validation.python_checks import check_geolocation_values
 from dsp_tools.commands.validate_data.validation.validate_ontology import get_msg_str_ontology_validation_violation
 from dsp_tools.commands.validate_data.validation.validate_ontology import validate_ontology
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -206,12 +208,16 @@ def _validate_data(
     duplicate_file_warnings = None
     if not config.ignore_duplicate_files_warning:
         duplicate_file_warnings = check_for_duplicate_files(parsed_resources)
+    geolocation_violations = check_geolocation_values(parsed_resources)
     report = get_validation_report(graphs, shacl_validator, config.save_graph_dir)
     if report.conforms:
-        return _handle_conforming_shacl_report(duplicate_file_warnings, potential_circles, report)
+        return _handle_conforming_shacl_report(
+            duplicate_file_warnings, geolocation_violations, potential_circles, report
+        )
 
     reformatted = reformat_validation_graph(report)
     sorted_problems = sort_user_problems(reformatted, duplicate_file_warnings, shortcode, existing_resources_retrieved)
+    sorted_problems.unique_violations.extend(geolocation_violations)
     return ValidateDataResult(
         no_problems=False,
         problems=sorted_problems,
@@ -222,10 +228,11 @@ def _validate_data(
 
 def _handle_conforming_shacl_report(
     duplicate_file_warnings: DuplicateFileWarning | None,
+    geolocation_violations: list[InputProblem],
     potential_circles: list[CardinalitiesThatMayCreateAProblematicCircle] | None,
     report: ValidationReportGraphs,
 ) -> ValidateDataResult:
-    if not duplicate_file_warnings:
+    if not duplicate_file_warnings and not geolocation_violations:
         return ValidateDataResult(
             no_problems=True,
             problems=None,
@@ -233,8 +240,8 @@ def _handle_conforming_shacl_report(
             report_graphs=None,
         )
     sorted_problems = SortedProblems(
-        unique_violations=[],
-        user_warnings=duplicate_file_warnings.problems,
+        unique_violations=geolocation_violations,
+        user_warnings=duplicate_file_warnings.problems if duplicate_file_warnings else [],
         user_info=[],
         unexpected_shacl_validation_components=[],
     )

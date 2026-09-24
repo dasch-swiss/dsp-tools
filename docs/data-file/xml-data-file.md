@@ -290,6 +290,7 @@ The following property elements exist:
 - `<date-prop>`: contains date values
 - `<decimal-prop>`: contains decimal values
 - `<geometry-prop>`: contains JSON geometry definitions for a region
+- `<geolocation-prop>`: contains geographic coordinates
 - `<geoname-prop>`: contains [geonames.org](https://www.geonames.org/) location codes
 - `<list-prop>`: contains list element labels
 - `<integer-prop>`: contains integer values
@@ -703,6 +704,70 @@ that were defined above:
 ![grid-for-geometry-prop](../assets/images/img-xml-grid-for-geometry-prop.png)
 
 
+
+
+### `<geolocation-prop>`
+
+The `<geolocation-prop>` element is used for values that contain a geographic location, i.e. a point on Earth.
+It must contain at least one `<geolocation>` element.
+
+This is distinct from `<geoname-prop>`, which references a _named place_ in the geonames.org authority file,
+and from `<geometry-prop>`, which describes a region on an _image_.
+A resource may legitimately carry both a geoname and a geolocation.
+
+Attributes:
+
+- `name`: name of the property as defined in the ontology (required)
+
+
+#### `<geolocation>`
+
+An empty element whose attributes give a location as a coordinate reference system and a pair of coordinates.
+
+Attributes:
+
+- `crs`: the coordinate reference system (required, see the table below)
+- `longitude` and `latitude`: the coordinates, if `crs` is a geographic coordinate reference system
+- `easting` and `northing`: the coordinates, if `crs` is a projected coordinate reference system
+- `permissions`: Permission ID (optional)
+- `comment`: a comment for this specific value (optional)
+- `order`: display order relative to other values of the same property (optional, see [Value Order](#value-order))
+
+Each `crs` takes exactly one pair of coordinates, and both of them are required:
+
+| `crs`   | System                               | Coordinates                                                            |
+| ------- | ------------------------------------ | ---------------------------------------------------------------------- |
+| `CRS84` | WGS84, i.e. ordinary GPS coordinates | `longitude` -180 to 180, `latitude` -90 to 90                          |
+| `LV95`  | Swiss LV95                           | `easting` 2484273.3 to 2837939.88, `northing` 1073150.16 to 1299970.97 |
+| `LV03`  | Swiss LV03                           | `easting` 484273.3 to 837939.88, `northing` 73150.16 to 299970.97      |
+
+The coordinates are decimal numbers, e.g. `8.55` or `-0.1275`, written with a dot and without an exponent.
+They are stored exactly as written, so `8.550` stays `8.550`.
+If your coordinates are in degrees, minutes and seconds,
+convert them with [`xmllib.dms_to_decimal_degrees()`](../xmllib-docs/value-converters.md).
+
+A missing `crs`, an unsupported `crs`, the wrong pair of coordinates for the `crs`,
+and coordinates outside its range are all reported before the upload starts.
+`EPSG:4326` is not supported: use `CRS84` instead, which is the same datum.
+
+Only points are supported. Lines, areas and elevations are not yet accepted.
+
+Example of a property with a location in Zurich and one in Bern:
+
+```xml
+<geolocation-prop name=":hasLocation">
+    <geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>
+    <geolocation crs="CRS84" longitude="7.45" latitude="46.95"/>
+</geolocation-prop>
+```
+
+Example using Swiss coordinates:
+
+```xml
+<geolocation-prop name=":hasFindspot">
+    <geolocation crs="LV95" easting="2600000" northing="1200000"/>
+</geolocation-prop>
+```
 
 
 ### `<geoname-prop>`

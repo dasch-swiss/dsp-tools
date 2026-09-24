@@ -24,8 +24,10 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
+from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal_from_ordinates
 
 
 def get_rdf_like_data(
@@ -134,6 +136,8 @@ def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeV
             user_value = _get_list_value_str(user_value, list_node_lookup)
         case KnoraValueType.GEOM_VALUE:
             user_value = _get_geometry_value_str(user_value)
+        case KnoraValueType.GEOLOCATION_VALUE:
+            user_value = _get_geolocation_value_str(user_value)
         case _:
             pass
     typed_val: str | None = user_value if isinstance(user_value, str) else None
@@ -228,14 +232,26 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, list_node_lookup: ListLookup) -> str:
+def _get_list_value_str(
+    user_value: str | tuple[str | None, str | None] | ParsedGeolocation | None, list_node_lookup: ListLookup
+) -> str:
     in_tuple = cast(tuple[Any, Any], user_value)
     if found := list_node_lookup.lists.get(in_tuple):
         return found
     return " / ".join(x for x in in_tuple if x is not None)
 
 
-def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+def _get_geolocation_value_str(
+    user_value: str | tuple[str | None, str | None] | ParsedGeolocation | None,
+) -> str | None:
+    # An incomplete or mismatched pair yields no literal here: the geolocation check reports it, with a message
+    # naming the expected attributes, which the SHACL validation could not give.
+    if not isinstance(user_value, ParsedGeolocation):
+        return None
+    return compose_geolocation_literal_from_ordinates(user_value.crs, user_value.ordinates)
+
+
+def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | ParsedGeolocation | None) -> str | None:
     try:
         if isinstance(user_value, str):
             return json.dumps(json.loads(user_value))

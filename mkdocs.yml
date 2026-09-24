@@ -46,6 +46,7 @@ nav:
               - Recommended: xmllib-docs/licenses/recommended.md
               - Other: xmllib-docs/licenses/other.md
           - Placeholder Files: xmllib-docs/placeholder.md
+          - Geolocation Coordinates: xmllib-docs/geolocation.md
           - Data Processing Functions:
               - General Functions: xmllib-docs/general-functions.md
               - Value Checkers: xmllib-docs/value-checkers.md

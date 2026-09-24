@@ -107,6 +107,7 @@ segment = VideoSegmentResource.create_new(
 - **Color**: Hex color values
 - **URI**: Web addresses and identifiers
 - **Geoname**: Geographic location references, as geoname.org identifiers
+- **Geolocation**: Geographic coordinates, as a named pair of ordinates (longitude/latitude or easting/northing) in a known coordinate reference system
 - **List**: Controlled vocabulary values
 - **Link**: References to other resources
 - **File**: Multimedia file attachments

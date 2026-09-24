@@ -3,6 +3,7 @@ import warnings
 import pytest
 import regex
 
+from dsp_tools.xmllib.internal import xmllib_warnings_util
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -12,6 +13,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import _check_strings
 from dsp_tools.xmllib.models.dsp_base_resources import _warn_value_exists
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 class TestRegionResource:
@@ -32,6 +34,18 @@ class TestRegionResource:
     def test_no_authorship(self):
         res = RegionResource.create_new("id", "lbl", "regionOfId")
         assert res.authorship is None
+
+    def test_add_comment_provenance_writes_csv_row(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        # The warning-file-initialised flag is process-global, so it is reset here to guarantee
+        # this test's own csv_path gets its header, independent of what earlier tests wrote to.
+        monkeypatch.setattr(xmllib_warnings_util._WarningFileState, "initialised", False)
+        provenance = SourceProvenance(source_file="regions.xlsx", sheet="Sheet1", row=2, cell="D")
+        region = RegionResource.create_new("id", "lbl", "regionOfId")
+        region.add_comment("", provenance=provenance)
+        lines = csv_path.read_text().splitlines()
+        assert lines[1].endswith(",regions.xlsx,Sheet1,2,D")
 
 
 class TestLinkResource:

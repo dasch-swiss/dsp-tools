@@ -13,9 +13,15 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_inf
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
-def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name: str | None) -> str | None:
+def check_and_get_corrected_comment(
+    comment: Any,
+    res_id: str | None,
+    prop_name: str | None,
+    provenance: SourceProvenance | None = None,
+) -> str | None:
     """The input of comments may also be pd.NA or such. In our models we only want a string or None."""
     if is_nonempty_value_internal(comment):
         check_and_warn_if_a_string_contains_a_potentially_empty_value(
@@ -23,6 +29,7 @@ def check_and_get_corrected_comment(comment: Any, res_id: str | None, prop_name:
             res_id=res_id,
             prop_name=prop_name,
             field="comment on value",
+            provenance=provenance,
         )
         return str(comment)
     return None
@@ -34,6 +41,7 @@ def check_and_fix_is_non_empty_string(
     prop_name: str | None = None,
     value_field: str | None = None,
     expected: str = "non empty string",
+    provenance: SourceProvenance | None = None,
 ) -> str:
     """
     Emits warnings if the string is or looks empty.
@@ -46,6 +54,7 @@ def check_and_fix_is_non_empty_string(
         prop_name: property name
         value_field: field if it is not a property
         expected: expected type
+        provenance: where the value came from in the source data
 
     Returns:
         The value as string, if it is empty an empty string.
@@ -56,6 +65,7 @@ def check_and_fix_is_non_empty_string(
             res_id=res_id,
             prop_name=prop_name,
             field=value_field,
+            provenance=provenance,
         )
         return str(value)
     else:
@@ -65,6 +75,7 @@ def check_and_fix_is_non_empty_string(
             res_id=res_id,
             prop_name=prop_name,
             value_field=value_field,
+            provenance=provenance,
         )
         return ""
 
@@ -149,7 +160,12 @@ def check_and_fix_default_resource_authorship_input(
     raise_xmllib_input_error(MessageInfo(message=msg, resource_id="<XMLRoot>", field=field))
 
 
-def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
+def check_and_fix_collection_input(
+    value: Any,
+    prop_name: str,
+    res_id: str,
+    provenance: SourceProvenance | None = None,
+) -> list[Any]:
     """
     To allow varied input but ensure consistent typing internally, collections are converted.
     If a collection is empty, a warning is emitted for the user.
@@ -158,6 +174,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         value: Input value
         prop_name: Property name
         res_id: Resource ID
+        provenance: where the value came from in the source data
 
     Returns:
         The input as a list
@@ -172,6 +189,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
                     message="The input is empty. Please note that no values will be added to the resource.",
                     resource_id=res_id,
                     prop_name=prop_name,
+                    provenance=provenance,
                 )
                 emit_xmllib_input_info(msg_info)
             return list(value)
@@ -180,6 +198,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
                 message="The input is a dictionary. Only collections (list, set, tuple) are permissible.",
                 resource_id=res_id,
                 prop_name=prop_name,
+                provenance=provenance,
             )
             raise_xmllib_input_error(msg_info)
         case _:
@@ -236,7 +255,12 @@ def numeric_entities(text: str) -> str:
     return text
 
 
-def check_and_fix_value_order(input_order: Any, prop_name: str, res_id: str | None) -> int | None:
+def check_and_fix_value_order(
+    input_order: Any,
+    prop_name: str,
+    res_id: str | None,
+    provenance: SourceProvenance | None = None,
+) -> int | None:
     """Check if the value order is correct and convert to an int if it is not none. Else raise an error."""
 
     def _is_convertable_value(inpt: Any) -> bool:
@@ -258,7 +282,9 @@ def check_and_fix_value_order(input_order: Any, prop_name: str, res_id: str | No
             f"The order must be a valid integer or 'None',"
             f" your input of the type {type(input_order).__name__} is not allowed."
         )
-        msg_info = MessageInfo(message=msg, resource_id=res_id, prop_name=prop_name, field="order")
+        msg_info = MessageInfo(
+            message=msg, resource_id=res_id, prop_name=prop_name, field="order", provenance=provenance
+        )
         raise_xmllib_input_error(msg_info)
     else:
         return int(input_order)

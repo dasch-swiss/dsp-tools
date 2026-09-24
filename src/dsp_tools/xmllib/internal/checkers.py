@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 
 import pandas as pd
@@ -9,6 +10,9 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
+
+if TYPE_CHECKING:
+    from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 def is_nonempty_value_internal(value: Any) -> bool:
@@ -73,7 +77,13 @@ def is_date_internal(value: Any) -> bool:
 
 
 def check_and_warn_potentially_empty_string(
-    *, value: Any, res_id: str | None, expected: str, prop_name: str | None = None, field: str | None = None
+    *,
+    value: Any,
+    res_id: str | None,
+    expected: str,
+    prop_name: str | None = None,
+    field: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
@@ -87,6 +97,7 @@ def check_and_warn_potentially_empty_string(
         expected: the type of value that is expected
         prop_name: property name if used to check a property
         field: if used to check a non-property field, for example a comment on a value
+        provenance: where the value came from in the source data
 
     Warnings:
         XmllibInputWarning: if it is an empty value or a string only with whitespaces
@@ -99,16 +110,22 @@ def check_and_warn_potentially_empty_string(
             resource_id=res_id,
             prop_name=prop_name,
             field=field,
+            provenance=provenance,
         )
         emit_xmllib_input_warning(msg_info)
     else:
         check_and_warn_if_a_string_contains_a_potentially_empty_value(
-            value=value, res_id=res_id, prop_name=prop_name, field=field
+            value=value, res_id=res_id, prop_name=prop_name, field=field, provenance=provenance
         )
 
 
 def check_and_warn_if_a_string_contains_a_potentially_empty_value(
-    *, value: Any, res_id: str | None, prop_name: str | None = None, field: str | None = None
+    *,
+    value: Any,
+    res_id: str | None,
+    prop_name: str | None = None,
+    field: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """
     If a user str() casts an input before using it in the xmllib we may get `None` values that are not recognised
@@ -120,6 +137,7 @@ def check_and_warn_if_a_string_contains_a_potentially_empty_value(
         res_id: Resource ID
         prop_name: property name if used to check a property
         field: if used to check a non-property field, for example a comment on a value
+        provenance: where the value came from in the source data
 
     Warnings:
         XmllibInputInfo: if it is a string containing a string value
@@ -137,11 +155,17 @@ def check_and_warn_if_a_string_contains_a_potentially_empty_value(
             resource_id=res_id,
             prop_name=prop_name,
             field=field,
+            provenance=provenance,
         )
         emit_xmllib_input_info(msg_info)
 
 
-def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop_name: str | None = None) -> None:
+def check_and_inform_about_angular_brackets(
+    value: Any,
+    res_id: str | None,
+    prop_name: str | None = None,
+    provenance: SourceProvenance | None = None,
+) -> None:
     """
     Checks if a string value contains angular brackets.
 
@@ -149,6 +173,7 @@ def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop
         value: String value
         res_id: resource id
         prop_name: property name
+        provenance: where the value came from in the source data
     """
     if bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(value))):
         msg_info = MessageInfo(
@@ -159,12 +184,17 @@ def check_and_inform_about_angular_brackets(value: Any, res_id: str | None, prop
             ),
             resource_id=res_id,
             prop_name=prop_name,
+            provenance=provenance,
         )
         emit_xmllib_input_info(msg_info)
 
 
 def check_raise_if_input_value_for_value_order_is_incorrect(
-    input_values: Any, prop_name: str, value_type: str, res_id: str
+    input_values: Any,
+    prop_name: str,
+    value_type: str,
+    res_id: str,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """Raises an error if the input for ...multiple() method is not an ordered collection (list or tuple)."""
     if not isinstance(input_values, (list, tuple)):
@@ -173,5 +203,5 @@ def check_raise_if_input_value_for_value_order_is_incorrect(
             f"This is only possible if the values are in an ordered collection (like a list or a tuple). "
             f"Your input with the type '{type(input_values).__name__}' is not acceptable, because it is unordered."
         )
-        msg_info = MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name)
+        msg_info = MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name, provenance=provenance)
         raise_xmllib_input_error(msg_info)

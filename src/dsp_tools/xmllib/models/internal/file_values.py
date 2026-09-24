@@ -18,6 +18,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_war
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.placeholder import PlaceholderFile
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 @dataclass
@@ -39,6 +40,8 @@ class Metadata:
     authorship: tuple[str, ...] | None
     permissions: Permissions
 
+    # Metadata (license/copyright/authorship) is not a per-value-cell concern, so it does not
+    # accept provenance, unlike FileValue.new / IIIFUri.new below.
     @classmethod
     def new(
         cls,
@@ -98,7 +101,12 @@ class FileValue(AbstractFileValue):
 
     @classmethod
     def new(
-        cls, value: str | Path | PlaceholderFile, metadata: Metadata, comment: str | None, resource_id: str
+        cls,
+        value: str | Path | PlaceholderFile,
+        metadata: Metadata,
+        comment: str | None,
+        resource_id: str,
+        provenance: SourceProvenance | None = None,
     ) -> FileValue:
         match value:
             case Path():
@@ -107,6 +115,7 @@ class FileValue(AbstractFileValue):
                         message=f"Your input '{value}' is empty. Please enter a valid file path.",
                         resource_id=resource_id,
                         field="bitstream",
+                        provenance=provenance,
                     )
                     emit_xmllib_input_warning(msg_info)
                     value = ""
@@ -120,6 +129,7 @@ class FileValue(AbstractFileValue):
                     res_id=resource_id,
                     expected="file path",
                     field="bitstream",
+                    provenance=provenance,
                 )
                 value = str(value)
         if is_nonempty_value_internal(comment):
@@ -128,6 +138,7 @@ class FileValue(AbstractFileValue):
                 value=comment,
                 res_id=resource_id,
                 field="comment on bitstream",
+                provenance=provenance,
             )
         else:
             fixed_comment = None
@@ -141,13 +152,21 @@ class IIIFUri(AbstractFileValue):
     comment: str | None
 
     @classmethod
-    def new(cls, value: str, metadata: Metadata, comment: str | None, resource_id: str) -> IIIFUri:
+    def new(
+        cls,
+        value: str,
+        metadata: Metadata,
+        comment: str | None,
+        resource_id: str,
+        provenance: SourceProvenance | None = None,
+    ) -> IIIFUri:
         v = str(value)
         if not is_iiif_uri(v):
             emit_xmllib_input_type_mismatch_warning(
                 expected_type="IIIF uri",
                 value=value,
                 res_id=resource_id,
+                provenance=provenance,
             )
         if is_nonempty_value_internal(comment):
             fixed_comment = str(comment)
@@ -155,6 +174,7 @@ class IIIFUri(AbstractFileValue):
                 value=comment,
                 res_id=resource_id,
                 field="comment on iiif-uri",
+                provenance=provenance,
             )
         else:
             fixed_comment = None

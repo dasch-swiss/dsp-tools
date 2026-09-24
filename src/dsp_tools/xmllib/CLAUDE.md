@@ -189,6 +189,10 @@ resource.add_richtext(prop_name=":hasDescription", value=f"Rich text with a foot
 
 Any `add_...` value builder accepts an optional `provenance` parameter (`SourceProvenance`).
 When supplied, it appears as 4 extra trailing columns (source file, sheet, row, cell) in the warnings CSV.
+`SourceProvenance.__post_init__` normalises each field to its declared type and never raises,
+so readers of provenance can rely on `str` / `int` / `None`.
+`models/provenance.py` imports the warning helpers at runtime.
+Thus, the modules under `internal/` import `SourceProvenance` only under `TYPE_CHECKING`.
 
 ### Error Types
 

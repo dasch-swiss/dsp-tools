@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 
 import pandas as pd
@@ -9,7 +10,9 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
-from dsp_tools.xmllib.models.provenance import SourceProvenance
+
+if TYPE_CHECKING:
+    from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 def is_nonempty_value_internal(value: Any) -> bool:

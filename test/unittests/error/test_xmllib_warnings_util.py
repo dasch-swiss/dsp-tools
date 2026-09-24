@@ -110,6 +110,16 @@ class TestWriteMessageToCsv:
         lines = csv_path.read_text().splitlines()
         assert lines[1] == ",WARNING,msg,id,,,data.xlsx,Sheet1,5,C"
 
+    def test_na_provenance_does_not_crash(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file=pd.NA, sheet=pd.NA, cell=pd.NA)  # type: ignore[arg-type]
+        message_info = MessageInfo("msg", "id", provenance=provenance)
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        lines = csv_path.read_text().splitlines()
+        assert lines[-1] == ",WARNING,msg,id,,,,,,"
+        assert get_user_message_string(message_info, None) == "Resource ID 'id' | msg"
+
     def test_add_integer_with_provenance_writes_csv_row(self, tmp_path, monkeypatch):
         csv_path = tmp_path / "warnings.csv"
         monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))

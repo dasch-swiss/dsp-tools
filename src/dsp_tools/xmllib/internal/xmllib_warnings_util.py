@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import csv
 import inspect
 import os
 import warnings
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Never
 
@@ -17,7 +20,9 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import UserMessageSeverity
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
-from dsp_tools.xmllib.models.provenance import SourceProvenance
+
+if TYPE_CHECKING:
+    from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 read_dotenv_if_exists()
 

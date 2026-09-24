@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.ansi_colors import YELLOW
-from dsp_tools.xmllib.models.provenance import SourceProvenance
+
+if TYPE_CHECKING:
+    from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 class UserMessageSeverity(StrEnum):

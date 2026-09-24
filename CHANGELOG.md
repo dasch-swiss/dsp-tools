@@ -1,5 +1,22 @@
 # Changelog
 
+## [19.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.3...v19.2.0) (2026-09-24)
+
+
+### Enhancements
+
+* **xmllib:** add source provenance to value builders (DEV-7359) ([#2440](https://github.com/dasch-swiss/dsp-tools/issues/2440)) ([d90ae9e](https://github.com/dasch-swiss/dsp-tools/commit/d90ae9e5ec90ac091d50c5e17c044e2568c15a76))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 3 updates ([#2439](https://github.com/dasch-swiss/dsp-tools/issues/2439)) ([a282b12](https://github.com/dasch-swiss/dsp-tools/commit/a282b12c26cec8faa2d295fbbaa7c447cbdadad2))
+
+
+### Documentation
+
+* add ARCH-MAP.md, CONTEXT.md, ADRs, and eng.yaml (DEV-7256) ([#2441](https://github.com/dasch-swiss/dsp-tools/issues/2441)) ([61a93dc](https://github.com/dasch-swiss/dsp-tools/commit/61a93dc6c2dc3cf9beadf78d60817db5e067a158))
+
 ## [19.1.3](https://github.com/dasch-swiss/dsp-tools/compare/v19.1.2...v19.1.3) (2026-09-23)
 
 

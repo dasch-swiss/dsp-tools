@@ -74,7 +74,11 @@ A project's unique 4-hex-character identifier, assigned by DaSCH.
 A project's unique, human-readable slug (`xsd:NCNAME` form).
 
 **IRI**:
-DSP's actual, internal resource identifier (`http://rdfh.ch/...`).
+A W3C standard identifier (Internationalized Resource Identifier), similar to a URL. In DSP, every
+node of the graph has an IRI: resources, projects, lists, and also ontologies, classes, and properties.
+Each kind of IRI has its own convention. Resource IRIs use `http://rdfh.ch/<shortcode>/<id>`. Ontology,
+class, and property IRIs use `http://<host>/ontology/<shortcode>/<ontology-name>/v2#<name>`.
+_Avoid_: using `http://rdfh.ch/...` as the definition of an IRI — it is only the resource IRI convention.
 
 **ARK**:
 DSP's citable, stable external identifier for a resource — DaSCH promises an ARK stays resolvable long
@@ -108,14 +112,15 @@ separate `authorship-id` attributes, one on `<resource>` and one on `<bitstream>
 ### Command groups
 
 **Group A command**:
-A CLI command safe to fail fast with a traceback, because it runs in a controlled environment (a local
-stack, staging) before production use: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`,
-`ingest-xmlupload`, `resume-xmlupload`.
+A CLI command safe to fail fast with a traceback, because users run it first on localhost or a test
+server, where they can consult the developers or infra before the production run: `create`, `get`,
+`xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `resume-xmlupload`.
 
 **Group B command**:
 A CLI command, or `xmllib`, that must aggregate every problem it finds into one user-facing report rather
-than stopping at the first error, because it runs locally against user-owned files: the `excel2json` family,
-`id2iri`, `update-legal`, `validate-data`, `start-stack`/`stop-stack`, `xmllib`.
+than stopping at the first error, because it is part of the user's own workflow, and users do not want to
+interrupt that workflow to consult a developer: the `excel2json` family, `id2iri`, `update-legal`,
+`validate-data`, `start-stack`/`stop-stack`, `xmllib`.
 
 ## Relationships
 

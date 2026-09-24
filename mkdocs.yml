@@ -16,8 +16,6 @@ validation:
   unrecognized_links: warn
   anchors: warn
 
-# ADRs are a git-native decision log, not a published page — excluded from the nav-completeness
-# check above rather than given a nav entry.
 not_in_nav: |
   adr/**
 

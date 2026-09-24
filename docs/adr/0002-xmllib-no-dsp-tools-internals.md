@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-09-22
+date: 2026-07
 ---
 
 # xmllib does not import dsp-tools internals

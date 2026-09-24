@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-09-22
+date: 2025-02
 ---
 
 # validate-data trusts XSD validation and dsp-tools' own value structuring

@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-09-22
+date: 2025-01-14
 ---
 
 # Represent parsed values as a generic RDF-triple dataclass before building the graph

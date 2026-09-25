@@ -413,7 +413,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `.yamlfmt.yml`, `.kodus-readiness.yml`, `codecov.yml`, `lychee.toml`, `CHANGELOG.md`, `LICENSE`,
   `README.md`, `.vulture_whitelist.py`, `CLAUDE.md`, `CONVENTIONS.md`, `REVIEW.md`, `ARCH-MAP.md`,
   `CONTEXT.md`, `eng.yaml`, `src/dsp_tools/__init__.py`, `src/dsp_tools/py.typed`,
-  `src/dsp_tools/commands/__init__.py`, `.claude/**`
+  `src/dsp_tools/commands/__init__.py`, `.claude/**` (its `rules/comments.md` is a verbatim copy from
+  dasch-claude-plugins; change it there and re-copy)
 - **Purpose**: Repo-level build, lint, and CI tooling — everything a developer or CI runs that isn't
   application code, docs, or tests.
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,

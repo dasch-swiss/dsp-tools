@@ -53,6 +53,7 @@ venv.bak/
 .vscode
 .claude/*
 !.claude/skills/
+!.claude/rules/
 .zed
 
 # generated files

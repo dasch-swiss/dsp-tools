@@ -278,8 +278,8 @@ resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=list
 ### Maintainability
 
 - Follow existing patterns for new value types
-- Comments and docstrings follow `CONVENTIONS.md` -> "Comments"; these are public API, and mkdocstrings
-  renders them into `docs/xmllib-docs/`
+- Comments and docstrings follow `.claude/rules/comments.md` and `CONVENTIONS.md` -> "Comments"; these are public
+  API, and mkdocstrings renders them into `docs/xmllib-docs/`
 - Include validation logic with clear error messages
 
 ## Dependencies

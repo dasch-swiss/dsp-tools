@@ -2,7 +2,7 @@
 version: 1
 
 defaults:
-  conventions: [CLAUDE.md, CONVENTIONS.md]
+  conventions: [CLAUDE.md, CONVENTIONS.md, .claude/rules/comments.md]
   commands:
     test: just unittests
     lint: just lint

@@ -28,9 +28,9 @@ Flag anything below that a change violates.
 - [ ] `pathlib.Path` used throughout — no `os.path`, no paths passed as strings
 - [ ] Names are evergreen (no `new`/`improved`/`enhanced`), in prose as well as identifiers — not
       "the new format" for something that will simply be the format once the migration ends
-- [ ] Added and changed comments follow `CONVENTIONS.md` -> "Comments", in every format and not only
-      `.py`. That section carries the bar, the three carve-outs that are not findings, and the
-      delete-by-default tie-break; check against it rather than against a copy kept here
+- [ ] Added and changed comments follow `.claude/rules/comments.md`, in every format and not only
+      `.py`. It carries the bar and the delete-by-default tie-break, and `CONVENTIONS.md` -> "Comments"
+      the three carve-outs that are not findings; check against those rather than against a copy kept here
 - [ ] No redundant conversions — e.g. don't wrap an already-`list` value in `list(...)`; don't re-parse /
       re-iterate a structure that is already being iterated
 - [ ] Control flow is as flat as the logic allows (early returns kept where they clarify; a helper that only

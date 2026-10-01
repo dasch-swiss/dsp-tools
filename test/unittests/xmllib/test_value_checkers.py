@@ -14,6 +14,7 @@ from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
+from dsp_tools.xmllib.value_checkers import is_geolocation
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
@@ -150,6 +151,41 @@ def test_is_geoname_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [122.2, "asdf"])
 def test_is_geoname_wrong(val: Any) -> None:
     assert not is_geoname(val)
+
+
+@pytest.mark.parametrize(
+    ("crs", "ordinates"),
+    [
+        ("CRS84", {"longitude": 8.55, "latitude": 47.37}),
+        ("CRS84", {"longitude": "8.550", "latitude": "47.370"}),
+        ("CRS84", {"longitude": -180, "latitude": 90}),
+        ("CRS84", {"longitude": "-0.0", "latitude": "0"}),
+        ("LV95", {"easting": "2600000", "northing": "1200000"}),
+        ("LV95", {"easting": 2484273.3, "northing": 1073150.16}),
+        ("LV03", {"easting": 600000, "northing": 200000}),
+    ],
+)
+def test_is_geolocation_correct(crs: str, ordinates: dict[str, Any]) -> None:
+    assert is_geolocation(crs, **ordinates)
+
+
+@pytest.mark.parametrize(
+    ("crs", "ordinates"),
+    [
+        ("CRS84", {"longitude": 200, "latitude": 47.37}),  # longitude out of range
+        ("CRS84", {"longitude": 8.55, "latitude": 91}),  # latitude out of range
+        ("LV95", {"longitude": 8.55, "latitude": 47.37}),  # the pair of a geographic CRS
+        ("CRS84", {"easting": "2600000", "northing": "1200000"}),  # the pair of a projected CRS
+        ("CRS84", {"longitude": 8.55}),  # incomplete pair
+        ("NAD83", {"longitude": 8.55, "latitude": 47.37}),  # CRS outside the allowlist
+        ("CRS84", {"longitude": "8,55", "latitude": "47.37"}),
+        ("CRS84", {"longitude": "abc", "latitude": "47.37"}),
+        ("CRS84", {"longitude": None, "latitude": "47.37"}),
+        (None, {"longitude": 8.55, "latitude": 47.37}),
+    ],
+)
+def test_is_geolocation_wrong(crs: Any, ordinates: dict[str, Any]) -> None:
+    assert not is_geolocation(crs, **ordinates)
 
 
 @pytest.mark.parametrize("val", [1.2, "1.432", 1, "1", -1.1, "1e-1", "1e2"])

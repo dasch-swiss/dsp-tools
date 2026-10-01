@@ -47,6 +47,11 @@ class ProcessedDecimal(ProcessedValue):
 
 
 @dataclass
+class ProcessedGeolocation(ProcessedValue):
+    value: str
+
+
+@dataclass
 class ProcessedGeoname(ProcessedValue):
     value: str
 

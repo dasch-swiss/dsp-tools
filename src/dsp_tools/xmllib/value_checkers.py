@@ -4,6 +4,8 @@ import pandas as pd
 import regex
 
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
+from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
+from dsp_tools.xmllib.internal.geolocation import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 
@@ -186,6 +188,48 @@ def is_geoname(value: Any) -> bool:
         ```
     """
     return is_integer(value)
+
+
+def is_geolocation(crs: Any, **ordinates: Any) -> bool:
+    """
+    Checks if a coordinate reference system and its ordinates form a valid geographic location:
+    the ordinates must be the pair that belongs to the coordinate reference system,
+    and they must be within its range.
+
+    - `CRS84` takes `longitude` and `latitude`
+    - `LV95` and `LV03` take `easting` and `northing`
+
+    Args:
+        crs: coordinate reference system, one of `CRS84`, `LV95` or `LV03`
+        ordinates: the two ordinates, as keyword arguments named after them
+
+    Returns:
+        True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_geolocation("CRS84", longitude=8.55, latitude=47.37)
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation("LV95", easting="2600000", northing="1200000")
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation("CRS84", longitude=500, latitude=47.37)
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_geolocation("LV95", longitude=8.55, latitude=47.37)
+        # result == False
+        ```
+    """
+    if not isinstance(crs, str):
+        return False
+    return get_geolocation_problem(crs, {name: ordinate_to_str(val) for name, val in ordinates.items()}) is None
 
 
 def is_decimal(value: Any) -> bool:

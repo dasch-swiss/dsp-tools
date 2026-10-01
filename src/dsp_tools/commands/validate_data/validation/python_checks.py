@@ -9,8 +9,11 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
+from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
 
 
 def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarning | None:
@@ -60,6 +63,44 @@ def _create_input_problems(duplicates: dict[str, int]) -> list[InputProblem]:
             )
         )
     return all_duplicates
+
+
+def check_geolocation_values(parsed_resources: list[ParsedResource]) -> list[InputProblem]:
+    """
+    Check each geolocation against the pair of ordinates and the bounds of its CRS.
+
+    The SHACL validation cannot do this:
+    which ordinates are admissible depends on the CRS, and the bounds differ per CRS.
+
+    Args:
+        parsed_resources: Resources to check
+
+    Returns:
+        One violation per invalid geolocation
+    """
+    problems = []
+    for res in parsed_resources:
+        for val in res.values:
+            if not isinstance(val.value, ParsedGeolocation):
+                continue
+            if msg := get_geolocation_problem(val.value.crs, val.value.ordinates):
+                problems.append(
+                    InputProblem(
+                        problem_type=ProblemType.GENERIC,
+                        res_id=res.res_id,
+                        res_type=reformat_onto_iri(res.res_type),
+                        prop_name=reformat_onto_iri(val.prop_name),
+                        severity=Severity.VIOLATION,
+                        message=msg,
+                        input_value=_format_geolocation(val.value),
+                    )
+                )
+    return problems
+
+
+def _format_geolocation(geolocation: ParsedGeolocation) -> str:
+    ordinates = " ".join(f'{name}="{value}"' for name, value in geolocation.ordinates.items())
+    return f'crs="{geolocation.crs}" {ordinates}'.strip()
 
 
 def check_for_cardinalities_that_may_cause_a_circle(

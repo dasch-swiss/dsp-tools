@@ -14,8 +14,10 @@ from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat
 from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_converters import crs84_to_lv95
 from dsp_tools.xmllib.value_converters import dms_to_decimal_degrees
 from dsp_tools.xmllib.value_converters import find_dates_in_string
+from dsp_tools.xmllib.value_converters import lv95_to_crs84
 from dsp_tools.xmllib.value_converters import reformat_date
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -540,3 +542,31 @@ class TestDmsToDecimalDegrees:
     def test_rejects(self, dms: tuple[Any, Any, Any, str], reason: str) -> None:
         with pytest.raises(XmllibInputError, match=regex.escape(reason)):
             dms_to_decimal_degrees(*dms)
+
+
+class TestSwissCoordinateConversion:
+    # Reference point of the swisstopo approximate formulas: 46° 2' 38.87" N, 8° 43' 49.79" E
+    def test_crs84_to_lv95(self) -> None:
+        assert crs84_to_lv95(("8.730497222", "46.044130556")) == ("2699999.76", "1099999.97")
+
+    def test_lv95_to_crs84(self) -> None:
+        assert lv95_to_crs84((2700000, 1100000)) == ("8.730499", "46.044127")
+
+    def test_accepts_numpy_floats(self) -> None:
+        assert lv95_to_crs84((np.float64(2700000), np.float64(1100000))) == ("8.730499", "46.044127")
+
+    def test_round_trip_is_within_one_metre(self) -> None:
+        longitude, latitude = lv95_to_crs84(crs84_to_lv95((8.55, 47.37)))
+        # 0.00001 degrees is about 1 metre
+        assert abs(float(longitude) - 8.55) < 0.00001
+        assert abs(float(latitude) - 47.37) < 0.00001
+
+    @pytest.mark.parametrize("value", [(8.55,), [8.55, 47.37], "8.55 47.37", None])
+    def test_raises_if_not_a_pair(self, value: Any) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("a tuple of two values")):
+            crs84_to_lv95(value)
+
+    @pytest.mark.parametrize("value", [("abc", "47.37"), (None, "47.37"), ("8,55", "47.37"), ("1e5", "47.37")])
+    def test_raises_if_not_a_decimal(self, value: tuple[Any, Any]) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("is not a decimal number")):
+            crs84_to_lv95(value)

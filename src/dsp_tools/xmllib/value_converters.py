@@ -9,8 +9,10 @@ from typing import Never
 import regex
 from regex import Match
 
+from dsp_tools.xmllib.internal.checkers import check_raise_if_coordinates_are_not_a_pair
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
@@ -133,6 +135,85 @@ def _raise_dms_error(input_str: str, reason: str) -> Never:
     raise_xmllib_input_error(
         MessageInfo(f"The input '{input_str}' is not a valid degrees/minutes/seconds coordinate. {reason}")
     )
+
+
+def crs84_to_lv95(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+    """
+    Convert coordinates from `CRS84` (WGS84) to the Swiss coordinate system `LV95`.
+
+    The conversion uses the approximate formulas of swisstopo.
+    They are accurate to about 1 metre, and they apply to Switzerland only.
+    `add_geolocation()` warns if a result is outside the range of `LV95`.
+
+    Args:
+        value: the coordinates in `CRS84`, as `(longitude, latitude)`
+
+    Returns:
+        The coordinates in `LV95`, as `(easting, northing)`, rounded to 2 decimal places
+
+    Raises:
+        XmllibInputError: if the value is not a tuple of two decimal numbers
+
+    Examples:
+        ```python
+        result = xmllib.crs84_to_lv95(("8.730497222", "46.044130556"))
+        # result == ("2699999.76", "1099999.97")
+        ```
+    """
+    longitude, latitude = _get_coordinates_as_floats(value)
+    # Auxiliary values of the swisstopo formulas: the distance to the old Bern observatory, in units of 10000"
+    phi = (latitude * 3600 - 169028.66) / 10000
+    lam = (longitude * 3600 - 26782.5) / 10000
+    easting = 2600072.37 + 211455.93 * lam - 10938.51 * lam * phi - 0.36 * lam * phi**2 - 44.54 * lam**3
+    northing = (
+        1200147.07 + 308807.95 * phi + 3745.25 * lam**2 + 76.63 * phi**2 - 194.56 * lam**2 * phi + 119.79 * phi**3
+    )
+    return f"{easting:.2f}", f"{northing:.2f}"
+
+
+def lv95_to_crs84(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+    """
+    Convert coordinates from the Swiss coordinate system `LV95` to `CRS84` (WGS84).
+
+    The conversion uses the approximate formulas of swisstopo.
+    They are accurate to about 1 metre, and they apply to Switzerland only.
+
+    Args:
+        value: the coordinates in `LV95`, as `(easting, northing)`
+
+    Returns:
+        The coordinates in `CRS84`, as `(longitude, latitude)`, rounded to 6 decimal places
+
+    Raises:
+        XmllibInputError: if the value is not a tuple of two decimal numbers
+
+    Examples:
+        ```python
+        result = xmllib.lv95_to_crs84(("2700000", "1100000"))
+        # result == ("8.730499", "46.044127")
+        ```
+    """
+    easting, northing = _get_coordinates_as_floats(value)
+    # Auxiliary values of the swisstopo formulas: the distance to the projection centre, in units of 1000 km
+    y = (easting - 2600000) / 1000000
+    x = (northing - 1200000) / 1000000
+    lam = 2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x**2 - 0.0436 * y**3
+    phi = 16.9023892 + 3.238272 * x - 0.270978 * y**2 - 0.002528 * x**2 - 0.0447 * y**2 * x - 0.0140 * x**3
+    # lam and phi are in units of 10000"
+    return f"{lam * 100 / 36:.6f}", f"{phi * 100 / 36:.6f}"
+
+
+def _get_coordinates_as_floats(value: Any) -> tuple[float, float]:
+    check_raise_if_coordinates_are_not_a_pair(value)
+    coordinates = []
+    for coordinate in value:
+        coordinate_str = ordinate_to_str(coordinate)
+        if not regex.fullmatch(r"[+-]?[0-9]+(\.[0-9]+)?", coordinate_str):
+            raise_xmllib_input_error(
+                MessageInfo(f"The coordinate '{coordinate}' is not a decimal number, e.g. '8.55'.")
+            )
+        coordinates.append(float(coordinate_str))
+    return coordinates[0], coordinates[1]
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:

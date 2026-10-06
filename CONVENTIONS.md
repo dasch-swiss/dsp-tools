@@ -29,8 +29,11 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
   sanitisation, error handling, and retries.
 - **xmllib is the public API** for programmatic XML creation (see `src/dsp_tools/xmllib/CLAUDE.md`).
-  It must not import dsp-tools internals and does not know the JSON project file — dependencies point
-  from dsp-tools *into* xmllib, never the other way.
+  It must not import dsp-tools internals and does not know the JSON project file. The only exception:
+  xmllib may import shared constants and data-format utilities from `src/dsp_tools/utils/`.
+- **Literals and constants that xmllib and other parts of dsp-tools both use go in a shared constants file
+  in `src/dsp_tools/utils/`** (for example `utils/geolocation_constants.py`). Do not put them in an xmllib
+  module or a command module, and do not import them from there.
 - **User-facing docs and docstrings do not cite xmllib internals** — describe user input in the user's
   terms (XML elements, JSON fields), not in terms of library code.
 - **New RDF-mapped properties must be threaded through the validate-data pipeline**

@@ -10,10 +10,10 @@ from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import get_list_of_potentially_problematic_cardinalities
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.utils.rdf_constants import URN_DASCH_PLACEHOLDER
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
-from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
 
 
 def check_for_duplicate_files(parsed_resources: list[ParsedResource]) -> DuplicateFileWarning | None:

@@ -1,15 +1,11 @@
-from decimal import Decimal
-
-import numpy as np
 import pytest
 
-from dsp_tools.xmllib.internal.geolocation import CRS84
-from dsp_tools.xmllib.internal.geolocation import LV03
-from dsp_tools.xmllib.internal.geolocation import LV95
-from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal
-from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal_from_ordinates
-from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
-from dsp_tools.xmllib.internal.geolocation import ordinate_to_str
+from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal
+from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal_from_ordinates
+from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
+from dsp_tools.utils.geolocation_constants import CRS84
+from dsp_tools.utils.geolocation_constants import LV03
+from dsp_tools.utils.geolocation_constants import LV95
 
 
 class TestComposeLiteral:
@@ -124,24 +120,3 @@ class TestPair:
     def test_an_unknown_crs_lists_the_supported_ones(self) -> None:
         problem = get_geolocation_problem("EPSG:4326", {"longitude": "8.55", "latitude": "47.37"})
         assert problem == "Unsupported coordinate reference system 'EPSG:4326'. Supported are: 'CRS84', 'LV95', 'LV03'."
-
-
-class TestOrdinateToStr:
-    @pytest.mark.parametrize(
-        ("value", "expected"),
-        [
-            ("8.550", "8.550"),
-            (" 8.55 ", "8.55"),
-            (8.55, "8.55"),
-            (2600000, "2600000"),
-            (0.00001, "0.00001"),
-            (2600000.0, "2600000.0"),
-            (Decimal("0.0000001"), "0.0000001"),
-            (np.float64(8.55), "8.55"),
-            (np.float64(0.00001), "0.00001"),
-        ],
-    )
-    def test_converts_without_exponent_and_keeps_strings(
-        self, value: str | float | int | Decimal | np.float64, expected: str
-    ) -> None:
-        assert ordinate_to_str(value) == expected

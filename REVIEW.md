@@ -35,6 +35,8 @@ Flag anything below that a change violates.
       applies to one branch lives in that branch, not the shared tail)
 - [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; user-facing
       docs and docstrings describe user input (XML elements, JSON fields), not xmllib internals
+- [ ] Literals and constants that xmllib and other parts of dsp-tools both use live in a shared constants file
+      in `src/dsp_tools/utils/`, not in an xmllib module or a command module
 - [ ] New RDF-mapped properties are threaded through the validate-data pipeline and have an explicit
       cardinality in `api-shapes.ttl` (the generic resource shape is closed)
 

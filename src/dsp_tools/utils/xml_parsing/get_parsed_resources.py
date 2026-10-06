@@ -9,6 +9,7 @@ from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPE
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.iri_util import convert_api_url_for_correct_iri_namespace_construction
 from dsp_tools.utils.exceptions import MalformedPrefixedIriError
+from dsp_tools.utils.geolocation_constants import ORDINATE_NAMES
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -21,7 +22,6 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
-from dsp_tools.xmllib.internal.geolocation import ORDINATE_NAMES
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:

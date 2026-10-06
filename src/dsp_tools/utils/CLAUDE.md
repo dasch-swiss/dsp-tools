@@ -55,6 +55,12 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 - Check if server is production-like
 - Used in: XML upload for multimedia resources, server configuration
 
+**`data_formats/geolocation_util.py`**
+
+- Check a geolocation (CRS code and named ordinates) against the CRS table and describe the first problem
+- Compose the CRS-prefixed WKT literal that is sent to dsp-api
+- Used in: xmllib (checks only), validate-data, xmlupload
+
 **`data_formats/shared.py`**
 
 - Simplify names for use as node names (normalize unicode, handle special chars)
@@ -129,6 +135,14 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 
 - Serialize RDF graphs to JSON-LD
 - Used in: validate-data command for SHACL validation
+
+## Geolocation
+
+**`geolocation_constants.py`**
+
+- The supported coordinate reference systems (`CRS84`, `LV95`, `LV03`): IRIs, ordinate names, bounds
+- Single source shared by xmllib, XML parsing, validate-data and xmlupload
+- Used in: everywhere a geolocation is created, parsed, checked or uploaded
 
 ## Database & Server Monitoring
 

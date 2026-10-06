@@ -17,9 +17,9 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
+from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal_from_ordinates
+from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
-from dsp_tools.xmllib.internal.geolocation import compose_geolocation_literal_from_ordinates
-from dsp_tools.xmllib.internal.geolocation import get_geolocation_problem
 
 type InputTypes = Union[str, FormattedTextValue, tuple[str | None, str | None], ParsedGeolocation | None]
 

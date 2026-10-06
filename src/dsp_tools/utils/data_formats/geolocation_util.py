@@ -1,105 +1,20 @@
 """
-The coordinate reference systems a geolocation value may be given in, and the composition and checking
-of geolocation values.
-
-This module is the single source for the CRS table. `xmllib`, `validate-data` and `xmlupload` all import
-from here so that a coordinate is accepted or rejected by the same numbers everywhere. dsp-api's
-`Geolocation.scala` is the authoritative table; this one mirrors it and is a courtesy that fails fast,
-before any request is sent.
+The checking of geolocation values against their CRS, and the composition of the literal that is sent to dsp-api.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
 from decimal import Decimal
-from enum import StrEnum
-from typing import Any
 
 import regex
 
+from dsp_tools.utils.geolocation_constants import ALL_CRS
+from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
+from dsp_tools.utils.geolocation_constants import Crs
+
 # The same form the XML schema admits: a plain decimal, no exponent, no thousands separator.
 _DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?[0-9]+(\.[0-9]+)?$")
-
-
-class CrsKind(StrEnum):
-    GEOGRAPHIC = "geographic"
-    PROJECTED = "projected"
-
-
-@dataclass(frozen=True)
-class Crs:
-    """One coordinate reference system, with the names and bounds of its ordinates."""
-
-    code: str
-    iri: str
-    label: str
-    kind: CrsKind
-    x_name: str
-    y_name: str
-    x_min: Decimal
-    x_max: Decimal
-    y_min: Decimal
-    y_max: Decimal
-
-
-# Bounds are inclusive. X is longitude for geographic systems and easting for projected ones,
-# Y is latitude or northing. The names are also the XML attribute names of the ordinates.
-CRS84 = Crs(
-    code="CRS84",
-    iri="http://www.opengis.net/def/crs/OGC/1.3/CRS84",
-    label="WGS84 (CRS84)",
-    kind=CrsKind.GEOGRAPHIC,
-    x_name="longitude",
-    y_name="latitude",
-    x_min=Decimal("-180"),
-    x_max=Decimal("180"),
-    y_min=Decimal("-90"),
-    y_max=Decimal("90"),
-)
-LV95 = Crs(
-    code="LV95",
-    iri="http://www.opengis.net/def/crs/EPSG/0/2056",
-    label="Swiss LV95",
-    kind=CrsKind.PROJECTED,
-    x_name="easting",
-    y_name="northing",
-    x_min=Decimal("2484273.3"),
-    x_max=Decimal("2837939.88"),
-    y_min=Decimal("1073150.16"),
-    y_max=Decimal("1299970.97"),
-)
-LV03 = Crs(
-    code="LV03",
-    iri="http://www.opengis.net/def/crs/EPSG/0/21781",
-    label="Swiss LV03",
-    kind=CrsKind.PROJECTED,
-    x_name="easting",
-    y_name="northing",
-    x_min=Decimal("484273.3"),
-    x_max=Decimal("837939.88"),
-    y_min=Decimal("73150.16"),
-    y_max=Decimal("299970.97"),
-)
-
-ALL_CRS: tuple[Crs, ...] = (CRS84, LV95, LV03)
-CRS_BY_CODE: dict[str, Crs] = {crs.code: crs for crs in ALL_CRS}
-ORDINATE_NAMES: tuple[str, ...] = tuple(dict.fromkeys(name for crs in ALL_CRS for name in (crs.x_name, crs.y_name)))
-
-
-def ordinate_to_str(value: Any) -> str:
-    """
-    Convert an ordinate to the string that is written to the XML.
-
-    Floats are written without an exponent, because the XML schema admits plain decimals only.
-    Strings are kept as they are, so that trailing zeroes survive.
-    """
-    if isinstance(value, float):
-        # float() first: a numpy float is a float subclass whose repr is e.g. "np.float64(8.55)"
-        return format(Decimal(repr(float(value))), "f")
-    if isinstance(value, Decimal):
-        return format(value, "f")
-    return str(value).strip()
 
 
 def compose_geolocation_literal(crs_code: str, x: str, y: str) -> str:

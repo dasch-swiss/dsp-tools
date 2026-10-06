@@ -37,7 +37,8 @@ It provides a type-safe, validated approach to generating XML data that conforms
 - **checkers.py**: Type checking and input validation functions
 - **input_converters.py**: Data conversion utilities for internal use
 - **Serialization**: XML output generation (`serialise_resource.py`, `serialise_values.py`, `serialise_file_value.py`)
-- **constants.py**: Constants used in several other files
+- **constants.py**: Constants used in several other xmllib files. Constants that the rest of dsp-tools also uses
+  (for example the geolocation CRS table) live in `src/dsp_tools/utils/` instead
 - **type_aliases.py**: Type definitions and aliases
 - **circumvent_circular_imports.py**: Place for functions that would produce a circular import error in other places
 
@@ -107,7 +108,7 @@ segment = VideoSegmentResource.create_new(
 - **Color**: Hex color values
 - **URI**: Web addresses and identifiers
 - **Geoname**: Geographic location references, as geoname.org identifiers
-- **Geolocation**: Geographic coordinates, as a named pair of ordinates (longitude/latitude or easting/northing) in a known coordinate reference system
+- **Geolocation**: Geographic coordinates, as a tuple `(x, y)` (longitude/latitude or easting/northing) in a coordinate reference system set by `CoordinateSystem`
 - **List**: Controlled vocabulary values
 - **Link**: References to other resources
 - **File**: Multimedia file attachments

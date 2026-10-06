@@ -20,7 +20,7 @@ from dsp_tools.commands.validate_data.models.rdf_like_data import TripleProperty
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import parse_date_string
-from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal_from_ordinates
+from dsp_tools.utils.data_formats.geolocation_literal import compose_geolocation_literal_from_ordinates
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue

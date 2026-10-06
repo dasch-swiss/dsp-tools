@@ -58,8 +58,12 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 **`data_formats/geolocation_util.py`**
 
 - Check a geolocation (CRS code and named ordinates) against the CRS table and describe the first problem
-- Compose the CRS-prefixed WKT literal that is sent to dsp-api
-- Used in: xmllib (checks only), validate-data, xmlupload
+- Used in: xmllib, validate-data, xmlupload
+
+**`data_formats/geolocation_literal.py`**
+
+- The CRS IRIs, and the composition of the CRS-prefixed WKT literal that is sent to dsp-api
+- Used in: validate-data, xmlupload. Never imported by xmllib
 
 **`data_formats/shared.py`**
 
@@ -140,7 +144,7 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 
 **`geolocation_constants.py`**
 
-- The supported coordinate reference systems (`CRS84`, `LV95`, `LV03`): IRIs, ordinate names, bounds
+- The supported coordinate reference systems (`CRS84`, `LV95`, `LV03`): codes, ordinate names, bounds
 - Single source shared by xmllib, XML parsing, validate-data and xmlupload
 - Used in: everywhere a geolocation is created, parsed, checked or uploaded
 

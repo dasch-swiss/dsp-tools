@@ -5,9 +5,6 @@ This module is the single source for the CRS table. `xmllib`, `validate-data` an
 from here so that a coordinate is accepted or rejected by the same numbers everywhere.
 dsp-api's `Geolocation.scala` is the authoritative table; this one mirrors it and is a courtesy that fails fast,
 before any request is sent.
-
-This module holds nothing about how a geolocation is sent to dsp-api:
-that is in `data_formats/geolocation_literal.py`.
 """
 
 from __future__ import annotations

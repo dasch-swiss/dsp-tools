@@ -41,6 +41,7 @@ from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.placeholder import PlaceholderFile
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_valid_resource_id
 
@@ -145,6 +146,7 @@ class Resource:
         value: bool | str | int | float,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a boolean value to the resource.
@@ -161,6 +163,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -175,7 +178,12 @@ class Resource:
         """
         self.values.append(
             BooleanValue.new(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -186,6 +194,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -202,6 +211,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -222,7 +232,9 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_bool(value=value, prop_name=prop_name, permissions=permissions, comment=comment)
+            self.add_bool(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, provenance=provenance
+            )
         return self
 
     #######################
@@ -236,6 +248,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a color value to the resource.
@@ -250,6 +263,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -270,6 +284,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -281,6 +296,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several color values to the resource.
@@ -295,6 +311,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -308,13 +325,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "color", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "color", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_color(prop_name, v, permissions, comment, o)
+            self.add_color(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_color_optional(
@@ -323,6 +342,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -334,6 +354,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -354,7 +375,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_color(prop_name, value, permissions, comment)
+            self.add_color(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -368,6 +389,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a date value to the resource.
@@ -386,6 +408,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -406,6 +429,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -417,6 +441,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several date values to the resource.
@@ -431,6 +456,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -444,13 +470,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "date", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "date", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_date(prop_name, v, permissions, comment, o)
+            self.add_date(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_date_optional(
@@ -459,6 +487,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -470,6 +499,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -490,7 +520,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_date(prop_name, value, permissions, comment)
+            self.add_date(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -504,6 +534,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a decimal value to the resource.
@@ -519,6 +550,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -539,6 +571,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -550,6 +583,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several decimal values to the resource.
@@ -565,6 +599,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -578,13 +613,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "decimal", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "decimal", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_decimal(prop_name, v, permissions, comment, o)
+            self.add_decimal(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_decimal_optional(
@@ -593,6 +630,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -605,6 +643,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -625,7 +664,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_decimal(prop_name, value, permissions, comment)
+            self.add_decimal(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -816,6 +855,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a [geonames.org](https://www.geonames.org/) value to the resource.
@@ -833,6 +873,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -853,6 +894,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -864,6 +906,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several [geonames.org](https://www.geonames.org/) values to the resource.
@@ -880,6 +923,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -893,13 +937,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geoname", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "geoname", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_geoname(prop_name, v, permissions, comment, o)
+            self.add_geoname(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_geoname_optional(
@@ -908,6 +954,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -921,6 +968,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -941,7 +989,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_geoname(prop_name, value, permissions, comment)
+            self.add_geoname(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -955,6 +1003,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add an integer value to the resource.
@@ -970,6 +1019,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -990,6 +1040,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1001,6 +1052,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several integer values to the resource.
@@ -1016,6 +1068,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1029,13 +1082,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "integer", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "integer", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_integer(prop_name, v, permissions, comment, o)
+            self.add_integer(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_integer_optional(
@@ -1044,6 +1099,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1056,6 +1112,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1076,7 +1133,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_integer(prop_name, value, permissions, comment)
+            self.add_integer(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -1090,6 +1147,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a link value to the resource. The value is either the internal ID of another resource
@@ -1105,6 +1163,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1125,6 +1184,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1136,6 +1196,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several link values to the resource. Each value is either the internal ID of another
@@ -1152,6 +1213,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1165,13 +1227,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "link", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "link", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_link(prop_name, v, permissions, comment, o)
+            self.add_link(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_link_optional(
@@ -1180,6 +1244,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1194,6 +1259,7 @@ class Resource:
                 or IRI of an already existing resource on DSP, or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1214,7 +1280,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_link(prop_name, value, permissions, comment)
+            self.add_link(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -1228,6 +1294,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a region-preview value to the resource. The value is either the internal ID of a Region
@@ -1243,6 +1310,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1263,6 +1331,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1274,6 +1343,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several region-preview values to the resource. Each value is either the internal ID of a
@@ -1290,6 +1360,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1303,13 +1374,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "region-preview", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "region-preview", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_region_preview(prop_name, v, permissions, comment, o)
+            self.add_region_preview(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_region_preview_optional(
@@ -1318,6 +1391,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1331,6 +1405,7 @@ class Resource:
             value: internal ID of a Region inside the XML, or IRI of an existing Region on DSP, or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1351,7 +1426,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_region_preview(prop_name, value, permissions, comment)
+            self.add_region_preview(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -1366,6 +1441,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a list value to the resource, i.e. a name of a list node.
@@ -1385,6 +1461,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1407,6 +1484,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1419,6 +1497,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several list values to the resource, i.e. names of list nodes.
@@ -1434,6 +1513,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1448,13 +1528,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "list", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "list", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_list(prop_name, list_name, v, permissions, comment, o)
+            self.add_list(prop_name, list_name, v, permissions, comment, o, provenance)
         return self
 
     def add_list_optional(
@@ -1464,6 +1546,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1476,6 +1559,7 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node) or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1498,7 +1582,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_list(prop_name, list_name, value, permissions, comment)
+            self.add_list(prop_name, list_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -1512,6 +1596,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a simple text value to the resource.
@@ -1526,6 +1611,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1546,6 +1632,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1557,6 +1644,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several simple text values to the resource.
@@ -1571,6 +1659,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1584,13 +1673,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "simpletext", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "simpletext", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_simpletext(prop_name, v, permissions, comment, o)
+            self.add_simpletext(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_simpletext_optional(
@@ -1599,6 +1690,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1610,6 +1702,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1630,7 +1723,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_simpletext(prop_name, value, permissions, comment)
+            self.add_simpletext(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -1644,6 +1737,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a textarea value to the resource.
@@ -1658,6 +1752,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1670,7 +1765,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext(prop_name, value, permissions, comment, order)
+        self.add_simpletext(prop_name, value, permissions, comment, order, provenance)
         return self
 
     def add_textarea_multiple(
@@ -1680,6 +1775,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several textarea values to the resource.
@@ -1694,6 +1790,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1706,7 +1803,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext_multiple(prop_name, values, permissions, comment, include_value_order)
+        self.add_simpletext_multiple(prop_name, values, permissions, comment, include_value_order, provenance)
         return self
 
     def add_textarea_optional(
@@ -1715,6 +1812,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1726,6 +1824,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1745,7 +1844,7 @@ class Resource:
             )
             ```
         """
-        self.add_simpletext_optional(prop_name, value, permissions, comment)
+        self.add_simpletext_optional(prop_name, value, permissions, comment, provenance)
         return self
 
     #######################
@@ -1760,6 +1859,7 @@ class Resource:
         comment: str | None = None,
         order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a rich text value to the resource.
@@ -1783,6 +1883,7 @@ class Resource:
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1813,6 +1914,7 @@ class Resource:
                 order=order,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -1825,6 +1927,7 @@ class Resource:
         comment: str | None = None,
         include_value_order: bool = False,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several rich text values to the resource.
@@ -1848,6 +1951,7 @@ class Resource:
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -1861,11 +1965,13 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "richtext", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "richtext", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         self.values.extend(
             [
                 Richtext.new(
@@ -1876,6 +1982,7 @@ class Resource:
                     order=o,
                     resource_id=self.res_id,
                     newline_replacement=newline_replacement,
+                    provenance=provenance,
                 )
                 for v, o in zip(vals, val_order)
             ]
@@ -1890,6 +1997,7 @@ class Resource:
         comment: str | None = None,
         order: int | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -1913,6 +2021,7 @@ class Resource:
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -1933,7 +2042,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            return self.add_richtext(prop_name, value, permissions, comment, order, newline_replacement)
+            return self.add_richtext(prop_name, value, permissions, comment, order, newline_replacement, provenance)
         return self
 
     #######################
@@ -1947,6 +2056,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a time value to the resource.
@@ -1961,6 +2071,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -1981,6 +2092,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1992,6 +2104,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several time values to the resource.
@@ -2006,6 +2119,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -2019,13 +2133,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "time", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "time", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_time(prop_name, v, permissions, comment, o)
+            self.add_time(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_time_optional(
@@ -2034,6 +2150,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -2045,6 +2162,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -2065,7 +2183,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_time(prop_name, value, permissions, comment)
+            self.add_time(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -2079,6 +2197,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a URI value to the resource.
@@ -2093,6 +2212,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -2113,6 +2233,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -2124,6 +2245,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several URI values to the resource.
@@ -2138,6 +2260,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -2151,13 +2274,15 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "uri", self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "uri", self.res_id, provenance=provenance
+            )
             val_order: list[int | None] = list(range(len(values)))
         else:
             val_order = [None] * len(values)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v, o in zip(vals, val_order):
-            self.add_uri(prop_name, v, permissions, comment, o)
+            self.add_uri(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_uri_optional(
@@ -2166,6 +2291,7 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
@@ -2177,6 +2303,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
@@ -2197,7 +2324,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.add_uri(prop_name, value, permissions, comment)
+            self.add_uri(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################
@@ -2212,6 +2339,7 @@ class Resource:
         authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a file (bitstream) to the resource.
@@ -2226,6 +2354,7 @@ class Resource:
             authorship: The (natural) person who authored something.
             permissions: optional permissions of this file
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Raises:
             XmllibInputError: If the resource already has a file or IIIF URI value
@@ -2279,7 +2408,9 @@ class Resource:
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = FileValue.new(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = FileValue.new(
+            value=filename, metadata=meta, comment=comment, resource_id=self.res_id, provenance=provenance
+        )
         return self
 
     def add_iiif_uri(
@@ -2290,6 +2421,7 @@ class Resource:
         authorship: list[str] | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a IIIF URI to the resource.
@@ -2304,6 +2436,7 @@ class Resource:
             authorship: The (natural) person who authored something.
             permissions: optional permissions of this file
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Raises:
             XmllibInputError: If the resource already has a file or IIIF URI value
@@ -2336,5 +2469,7 @@ class Resource:
             permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = IIIFUri.new(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
+        self.file_value = IIIFUri.new(
+            value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id, provenance=provenance
+        )
         return self

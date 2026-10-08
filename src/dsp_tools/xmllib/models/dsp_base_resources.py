@@ -22,6 +22,7 @@ from dsp_tools.xmllib.models.internal.values import Richtext
 from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import Value
 from dsp_tools.xmllib.models.permissions import Permissions
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
@@ -98,6 +99,8 @@ class RegionResource:
             authorship=authors,
         )
 
+    # Geometry methods build a shape object directly, with no value-factory check to attach
+    # provenance to — unlike the value add_... methods below.
     def add_rectangle(
         self,
         point1: tuple[float, float],
@@ -259,6 +262,7 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> RegionResource:
         """
         Add a comment to the region
@@ -268,6 +272,7 @@ class RegionResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original region, with the added comment
@@ -290,6 +295,7 @@ class RegionResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -300,6 +306,7 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> RegionResource:
         """
         Add several comments to the region
@@ -309,6 +316,7 @@ class RegionResource:
             permissions: optional permissions of these values
             comment: optional comment about these comments
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original region, with the added comments
@@ -318,7 +326,7 @@ class RegionResource:
             region = region.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         comnts = [
             Richtext.new(
                 value=x,
@@ -328,6 +336,7 @@ class RegionResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
             for x in vals
         ]
@@ -340,6 +349,7 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> RegionResource:
         """
         If the value is not empty, add it as comment, otherwise return the region unchanged.
@@ -349,6 +359,7 @@ class RegionResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original region, with the added comment
@@ -363,7 +374,7 @@ class RegionResource:
             ```
         """
         if is_nonempty_value(text):
-            return self.add_comment(text, permissions, comment, newline_replacement)
+            return self.add_comment(text, permissions, comment, newline_replacement, provenance)
         return self
 
 
@@ -435,6 +446,7 @@ class LinkResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> LinkResource:
         """
         Add a comment to the resource
@@ -444,6 +456,7 @@ class LinkResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -466,6 +479,7 @@ class LinkResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -476,6 +490,7 @@ class LinkResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> LinkResource:
         """
         Add several comments to the resource
@@ -485,6 +500,7 @@ class LinkResource:
             permissions: optional permissions of these values
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comments
@@ -494,9 +510,9 @@ class LinkResource:
             link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_comment(v, permissions, comment, newline_replacement)
+            self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_comment_optional(
@@ -505,6 +521,7 @@ class LinkResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> LinkResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -514,6 +531,7 @@ class LinkResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -528,7 +546,7 @@ class LinkResource:
             ```
         """
         if is_nonempty_value(text):
-            return self.add_comment(text, permissions, comment, newline_replacement)
+            return self.add_comment(text, permissions, comment, newline_replacement, provenance)
         return self
 
 
@@ -631,6 +649,7 @@ class VideoSegmentResource:
         title: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add a title to the resource.
@@ -639,6 +658,7 @@ class VideoSegmentResource:
             title: text
             permissions: permissions of the value
             comment: comments on the value
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added title
@@ -661,6 +681,7 @@ class VideoSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -670,6 +691,7 @@ class VideoSegmentResource:
         title: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
@@ -678,6 +700,7 @@ class VideoSegmentResource:
             title: text or empty value
             permissions: permissions of the value
             comment: comments on the value
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added title
@@ -692,7 +715,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(title):
-            self.add_title(title, permissions, comment)
+            self.add_title(title, permissions, comment, provenance)
         return self
 
     def add_comment(
@@ -701,6 +724,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add a comment to the resource
@@ -710,6 +734,7 @@ class VideoSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -728,6 +753,7 @@ class VideoSegmentResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -738,6 +764,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add several comments to the resource
@@ -747,6 +774,7 @@ class VideoSegmentResource:
             permissions: optional permissions of these values
             comment: optional comment about these comments
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comments
@@ -756,9 +784,9 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_comment(v, permissions, comment, newline_replacement)
+            self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_comment_optional(
@@ -767,6 +795,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -776,6 +805,7 @@ class VideoSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -790,7 +820,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.add_comment(text, permissions, comment, newline_replacement)
+            self.add_comment(text, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_description(
@@ -799,6 +829,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add a description to the resource
@@ -808,6 +839,7 @@ class VideoSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added description
@@ -826,6 +858,7 @@ class VideoSegmentResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -836,6 +869,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
@@ -845,6 +879,7 @@ class VideoSegmentResource:
             permissions: optional permissions of these value
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added descriptions
@@ -854,9 +889,9 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_description(v, permissions, comment, newline_replacement)
+            self.add_description(v, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_description_optional(
@@ -865,6 +900,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
@@ -874,6 +910,7 @@ class VideoSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added description
@@ -888,7 +925,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.add_description(description, permissions, comment, newline_replacement)
+            self.add_description(description, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_keyword(
@@ -896,6 +933,7 @@ class VideoSegmentResource:
         keyword: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add a keyword to the resource
@@ -904,6 +942,7 @@ class VideoSegmentResource:
             keyword: text
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keyword
@@ -921,6 +960,7 @@ class VideoSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -930,6 +970,7 @@ class VideoSegmentResource:
         keywords: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add several keywords to the resource
@@ -938,6 +979,7 @@ class VideoSegmentResource:
             keywords: list of texts
             permissions: optional permissions of these values
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keywords
@@ -947,9 +989,9 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_keyword(v, permissions, comment)
+            self.add_keyword(v, permissions, comment, provenance)
         return self
 
     def add_keyword_optional(
@@ -957,6 +999,7 @@ class VideoSegmentResource:
         keyword: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
@@ -965,6 +1008,7 @@ class VideoSegmentResource:
             keyword: text or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keyword
@@ -979,7 +1023,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.add_keyword(keyword, permissions, comment)
+            self.add_keyword(keyword, permissions, comment, provenance)
         return self
 
     def add_relates_to(
@@ -987,6 +1031,7 @@ class VideoSegmentResource:
         relates_to: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add a link to a related resource
@@ -995,6 +1040,7 @@ class VideoSegmentResource:
             relates_to: ID of the related resource
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resource
@@ -1012,6 +1058,7 @@ class VideoSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1021,6 +1068,7 @@ class VideoSegmentResource:
         relates_to: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         Add several links to related resources
@@ -1029,6 +1077,7 @@ class VideoSegmentResource:
             relates_to: list of IDs of the related resources
             permissions: optional permissions of these values
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resources
@@ -1038,9 +1087,9 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_relates_to(v, permissions, comment)
+            self.add_relates_to(v, permissions, comment, provenance)
         return self
 
     def add_relates_to_optional(
@@ -1048,6 +1097,7 @@ class VideoSegmentResource:
         relates_to: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
@@ -1056,6 +1106,7 @@ class VideoSegmentResource:
             relates_to: ID or the related resource or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resources
@@ -1070,7 +1121,7 @@ class VideoSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.add_relates_to(relates_to, permissions, comment)
+            self.add_relates_to(relates_to, permissions, comment, provenance)
         return self
 
 
@@ -1138,6 +1189,7 @@ class AudioSegmentResource:
         title: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add a title to the resource.
@@ -1146,6 +1198,7 @@ class AudioSegmentResource:
             title: text
             permissions: permissions of the value
             comment: comments on the value
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added title
@@ -1168,6 +1221,7 @@ class AudioSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1177,6 +1231,7 @@ class AudioSegmentResource:
         title: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
@@ -1185,6 +1240,7 @@ class AudioSegmentResource:
             title: text or empty value
             permissions: permissions of the value
             comment: comments on the value
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added title
@@ -1199,7 +1255,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(title):
-            self.add_title(title, permissions, comment)
+            self.add_title(title, permissions, comment, provenance)
         return self
 
     def add_comment(
@@ -1208,6 +1264,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add a comment to the resource
@@ -1217,6 +1274,7 @@ class AudioSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -1235,6 +1293,7 @@ class AudioSegmentResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -1245,6 +1304,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add several comments to the resource
@@ -1254,6 +1314,7 @@ class AudioSegmentResource:
             permissions: optional permissions of these values
             comment: optional comment about these comments
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comments
@@ -1263,9 +1324,9 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_comment(v, permissions, comment, newline_replacement)
+            self.add_comment(v, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_comment_optional(
@@ -1274,6 +1335,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -1283,6 +1345,7 @@ class AudioSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added comment
@@ -1297,7 +1360,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(text):
-            self.add_comment(text, permissions, comment, newline_replacement)
+            self.add_comment(text, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_description(
@@ -1306,6 +1369,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add a description to the resource
@@ -1315,6 +1379,7 @@ class AudioSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added description
@@ -1333,6 +1398,7 @@ class AudioSegmentResource:
                 order=None,
                 resource_id=self.res_id,
                 newline_replacement=newline_replacement,
+                provenance=provenance,
             )
         )
         return self
@@ -1343,6 +1409,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
@@ -1352,6 +1419,7 @@ class AudioSegmentResource:
             permissions: optional permissions of these values
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added descriptions
@@ -1361,9 +1429,9 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_description(v, permissions, comment, newline_replacement)
+            self.add_description(v, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_description_optional(
@@ -1372,6 +1440,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
@@ -1381,6 +1450,7 @@ class AudioSegmentResource:
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added description
@@ -1395,7 +1465,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(description):
-            self.add_description(description, permissions, comment, newline_replacement)
+            self.add_description(description, permissions, comment, newline_replacement, provenance)
         return self
 
     def add_keyword(
@@ -1403,6 +1473,7 @@ class AudioSegmentResource:
         keyword: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add a keyword to the resource
@@ -1411,6 +1482,7 @@ class AudioSegmentResource:
             keyword: text
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keyword
@@ -1428,6 +1500,7 @@ class AudioSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1437,6 +1510,7 @@ class AudioSegmentResource:
         keywords: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add several keywords to the resource
@@ -1445,6 +1519,7 @@ class AudioSegmentResource:
             keywords: list of texts
             permissions: optional permissions of these values
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keywords
@@ -1454,9 +1529,9 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_keyword(v, permissions, comment)
+            self.add_keyword(v, permissions, comment, provenance)
         return self
 
     def add_keyword_optional(
@@ -1464,6 +1539,7 @@ class AudioSegmentResource:
         keyword: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
@@ -1472,6 +1548,7 @@ class AudioSegmentResource:
             keyword: text or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added keyword
@@ -1486,7 +1563,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(keyword):
-            self.add_keyword(keyword, permissions, comment)
+            self.add_keyword(keyword, permissions, comment, provenance)
         return self
 
     def add_relates_to(
@@ -1494,6 +1571,7 @@ class AudioSegmentResource:
         relates_to: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add a link to a related resource
@@ -1502,6 +1580,7 @@ class AudioSegmentResource:
             relates_to: ID of the related resource
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resource
@@ -1519,6 +1598,7 @@ class AudioSegmentResource:
                 comment=comment,
                 order=None,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -1528,6 +1608,7 @@ class AudioSegmentResource:
         relates_to: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         Add several links to related resources
@@ -1536,6 +1617,7 @@ class AudioSegmentResource:
             relates_to: list of IDs of the related resources
             permissions: optional permissions of these values
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resources
@@ -1545,9 +1627,9 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id, provenance=provenance)
         for v in vals:
-            self.add_relates_to(v, permissions, comment)
+            self.add_relates_to(v, permissions, comment, provenance)
         return self
 
     def add_relates_to_optional(
@@ -1555,6 +1637,7 @@ class AudioSegmentResource:
         relates_to: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> AudioSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
@@ -1563,6 +1646,7 @@ class AudioSegmentResource:
             relates_to: ID of the related resource or empty value
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added related resources
@@ -1577,7 +1661,7 @@ class AudioSegmentResource:
             ```
         """
         if is_nonempty_value(relates_to):
-            self.add_relates_to(relates_to, permissions, comment)
+            self.add_relates_to(relates_to, permissions, comment, provenance)
         return self
 
 

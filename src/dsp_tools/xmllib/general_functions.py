@@ -20,6 +20,7 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -258,7 +259,9 @@ class ListLookup:
             _label_language=language_of_label,
         )
 
-    def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
+    def get_node_via_list_name(
+        self, list_name: str, node_label: str, provenance: SourceProvenance | None = None
+    ) -> str:
         """
         Returns the list node name based on a label.
         The language of the label was specified when creating the `ListLookup`.
@@ -266,6 +269,7 @@ class ListLookup:
         Args:
             list_name: name of the list
             node_label: label of the node
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             node name
@@ -281,20 +285,26 @@ class ListLookup:
         """
         if not (list_lookup := self._lookup.get(list_name)):
             emit_xmllib_input_warning(
-                MessageInfo(f"The entered list name '{list_name}' was not found. An empty string is returned.")
+                MessageInfo(
+                    f"The entered list name '{list_name}' was not found. An empty string is returned.",
+                    provenance=provenance,
+                )
             )
             return ""
         if not (found_node := list_lookup.get(node_label)):
             emit_xmllib_input_warning(
                 MessageInfo(
                     f"'{node_label}' was not recognised as label of the list '{list_name}'. "
-                    f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned."
+                    f"This ListLookup is configured for '{self._label_language}' labels. An empty string is returned.",
+                    provenance=provenance,
                 )
             )
             return ""
         return found_node
 
-    def get_list_name_and_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
+    def get_list_name_and_node_via_property(
+        self, prop_name: str, node_label: str, provenance: SourceProvenance | None = None
+    ) -> tuple[str, str]:
         """
         Returns the list name and the node name based on a property that is used with the list and the label of a node.
         The language of the label was specified when creating the `ListLookup`.
@@ -303,6 +313,7 @@ class ListLookup:
         Args:
             prop_name: name of the list
             node_label: label of the node
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             list name and node name
@@ -317,17 +328,18 @@ class ListLookup:
             # node_name == "node1"
             ```
         """
-        if not (list_name := self.get_list_name_via_property(prop_name)):
+        if not (list_name := self.get_list_name_via_property(prop_name, provenance=provenance)):
             return "", ""
-        return list_name, self.get_node_via_list_name(list_name, node_label)
+        return list_name, self.get_node_via_list_name(list_name, node_label, provenance=provenance)
 
-    def get_list_name_via_property(self, prop_name: str) -> str:
+    def get_list_name_via_property(self, prop_name: str, provenance: SourceProvenance | None = None) -> str:
         """
         Returns the list name as specified in the ontology for a property.
         The list name needs to be referenced in the XML file.
 
         Args:
             prop_name: name of the property
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             Name of the list
@@ -342,14 +354,21 @@ class ListLookup:
         """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
             emit_xmllib_input_warning(
-                MessageInfo(f"The entered property '{prop_name}' was not found. An empty string is returned.")
+                MessageInfo(
+                    f"The entered property '{prop_name}' was not found. An empty string is returned.",
+                    provenance=provenance,
+                )
             )
             return ""
         return list_name
 
 
 def get_list_nodes_from_string_via_list_name(
-    string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
+    string_with_list_labels: str,
+    label_separator: str,
+    list_name: str,
+    list_lookup: ListLookup,
+    provenance: SourceProvenance | None = None,
 ) -> list[str]:
     """
     Resolves list labels to node names.
@@ -359,6 +378,7 @@ def get_list_nodes_from_string_via_list_name(
         label_separator: separator in the string that contains the labels
         list_name: name of the list
         list_lookup: `ListLookup` of the project
+        provenance: optional information about where the value came from in the source data
 
     Returns:
         A list of node names. If the string is empty, it returns an empty list.
@@ -400,12 +420,16 @@ def get_list_nodes_from_string_via_list_name(
     if not is_nonempty_value_internal(string_with_list_labels):
         return []
     labels_list = create_list_from_input(string_with_list_labels, label_separator)
-    nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
+    nodes_list = [list_lookup.get_node_via_list_name(list_name, label, provenance=provenance) for label in labels_list]
     return nodes_list
 
 
 def get_list_nodes_from_string_via_property(
-    string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
+    string_with_list_labels: str,
+    label_separator: str,
+    property_name: str,
+    list_lookup: ListLookup,
+    provenance: SourceProvenance | None = None,
 ) -> tuple[str, list[str]]:
     """
     Takes a string containing list labels, the separator by which they can be split,
@@ -418,6 +442,7 @@ def get_list_nodes_from_string_via_property(
         label_separator: separator in the string that contains the labels
         property_name: name of the property
         list_lookup: `ListLookup` of the project
+        provenance: optional information about where the value came from in the source data
 
     Returns:
         The name of the list and a list of node names.
@@ -465,7 +490,9 @@ def get_list_nodes_from_string_via_property(
     list_name = ""
     nodes = []
     for lbl in labels_list:
-        list_name, node_name = list_lookup.get_list_name_and_node_via_property(property_name, lbl)
+        list_name, node_name = list_lookup.get_list_name_and_node_via_property(
+            property_name, lbl, provenance=provenance
+        )
         nodes.append(node_name)
     return list_name, nodes
 

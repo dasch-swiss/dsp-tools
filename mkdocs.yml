@@ -16,6 +16,9 @@ validation:
   unrecognized_links: warn
   anchors: warn
 
+not_in_nav: |
+  adr/**
+
 nav:
   - Overview: index.md
   - User Guides:
@@ -39,6 +42,7 @@ nav:
               - VideoSegmentResource: xmllib-docs/dsp-base-resources/video-segment-resource.md
               - AudioSegmentResource: xmllib-docs/dsp-base-resources/audio-segment-resource.md
           - Permissions: xmllib-docs/permissions.md
+          - Source Provenance: xmllib-docs/provenance.md
           - Licenses:
               - Recommended: xmllib-docs/licenses/recommended.md
               - Other: xmllib-docs/licenses/other.md
@@ -61,7 +65,6 @@ nav:
   - Information for developers:
       - Developers documentation: developers/index.md
       - Running DSP locally: developers/start-stack.md
-      - Architectural Decision Records: developers/decision-log.md
       - Architectural Design:
           - XML Parsing and Processing: developers/architecture/xml-parsing-processing.md
           - Create Command: developers/architecture/create-command.md

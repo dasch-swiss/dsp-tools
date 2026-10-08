@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.ansi_colors import YELLOW
+
+if TYPE_CHECKING:
+    from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 class UserMessageSeverity(StrEnum):
@@ -23,12 +29,14 @@ class MessageInfo:
         prop_name: property name of the affected property (if applicable)
         field: information about which field of the resource is affected (if not the property),
             e.g. "resource id", "label"
+        provenance: where the affected value came from in the source data (if applicable)
     """
 
     message: str
     resource_id: str | None = None
     prop_name: str | None = None
     field: str | None = None
+    provenance: SourceProvenance | None = None
 
 
 class XmllibUserInfoBase(Warning, ABC):

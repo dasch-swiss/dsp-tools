@@ -5,10 +5,14 @@ from lxml import etree
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 
 def parse_richtext_as_xml(
-    input_str: str, resource_id: str | None = None, prop_name: str | None = None
+    input_str: str,
+    resource_id: str | None = None,
+    prop_name: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> etree._Element | MessageInfo:
     """
     Parses an input string as XML. If it contains a syntax error a MessageInfo is returned.
@@ -18,6 +22,7 @@ def parse_richtext_as_xml(
         input_str: Richtext string
         resource_id: ID of the resource for improved error message
         prop_name: Property name for improved error message
+        provenance: where the value came from in the source data
 
     Returns:
         Parsed string or information for the user message.
@@ -33,4 +38,4 @@ def parse_richtext_as_xml(
             f"Original error message: {err.msg}\n"
             f"Potential line/column numbers are relative to this text: {pseudo_xml}"
         )
-        return MessageInfo(resource_id=resource_id, prop_name=prop_name, message=msg_str)
+        return MessageInfo(resource_id=resource_id, prop_name=prop_name, message=msg_str, provenance=provenance)

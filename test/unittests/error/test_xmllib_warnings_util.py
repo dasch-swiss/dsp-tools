@@ -19,6 +19,8 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_war
 from dsp_tools.xmllib.internal.xmllib_warnings_util import get_user_message_string
 from dsp_tools.xmllib.internal.xmllib_warnings_util import initialise_warning_file
 from dsp_tools.xmllib.internal.xmllib_warnings_util import write_message_to_csv
+from dsp_tools.xmllib.models.provenance import SourceProvenance
+from dsp_tools.xmllib.models.res import Resource
 
 
 @pytest.fixture
@@ -59,7 +61,9 @@ class TestInitialiseWarningFile:
         csv_path = tmp_path / "warnings.csv"
         monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
         initialise_warning_file()
-        assert csv_path.read_text().splitlines() == ["File,Severity,Message,Resource ID,Property,Field"]
+        assert csv_path.read_text().splitlines() == [
+            "File,Severity,Message,Resource ID,Property,Field,Source File,Sheet,Row,Cell"
+        ]
 
     def test_second_call_is_a_no_op(self, tmp_path, monkeypatch, capsys):
         csv_path = tmp_path / "warnings.csv"
@@ -87,8 +91,8 @@ class TestWriteMessageToCsv:
         monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
         lines = csv_path.read_text().splitlines()
-        assert lines[0] == "File,Severity,Message,Resource ID,Property,Field"
-        assert lines[1] == ",WARNING,msg,id,,"
+        assert lines[0] == "File,Severity,Message,Resource ID,Property,Field,Source File,Sheet,Row,Cell"
+        assert lines[1] == ",WARNING,msg,id,,,,,,"
 
     def test_does_not_reinitialise_on_second_call(self, tmp_path, monkeypatch, message_info):
         csv_path = tmp_path / "warnings.csv"
@@ -96,6 +100,40 @@ class TestWriteMessageToCsv:
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
         write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.INFO)
         assert len(csv_path.read_text().splitlines()) == 3
+
+    def test_writes_provenance_into_trailing_columns(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file="data.xlsx", sheet="Sheet1", row=5, cell="C")
+        message_info = MessageInfo("msg", "id", provenance=provenance)
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        lines = csv_path.read_text().splitlines()
+        assert lines[1] == ",WARNING,msg,id,,,data.xlsx,Sheet1,5,C"
+
+    def test_na_provenance_does_not_crash(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file=pd.NA, sheet=pd.NA, cell=pd.NA)  # type: ignore[arg-type]
+        message_info = MessageInfo("msg", "id", provenance=provenance)
+        write_message_to_csv(str(csv_path), message_info, None, UserMessageSeverity.WARNING)
+        lines = csv_path.read_text().splitlines()
+        assert lines[-1] == ",WARNING,msg,id,,,,,,"
+        assert get_user_message_string(message_info, None) == "Resource ID 'id' | msg"
+
+    def test_add_integer_with_provenance_writes_csv_row(self, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        provenance = SourceProvenance(source_file="data.xlsx", sheet="Sheet1", row=5, cell="C")
+        Resource.create_new("res_id", "restype", "label").add_integer("prop", "not-a-number", provenance=provenance)
+        lines = csv_path.read_text().splitlines()
+        assert len(lines) == 2
+        # The File column carries the calling test's line number, which is not fixed, so only that
+        # segment is a pattern; the rest of the row is matched literally.
+        expected_tail = regex.escape(
+            ",WARNING,\"The input should be a valid integer, your input 'not-a-number' does not match the type.\","
+            "res_id,prop,,data.xlsx,Sheet1,5,C"
+        )
+        assert regex.fullmatch(rf"test_xmllib_warnings_util\.py:\d+{expected_tail}", lines[1])
 
 
 class TestGetMessageString:

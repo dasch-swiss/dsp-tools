@@ -81,6 +81,7 @@ DSP-TOOLS provides the following functionalities:
   "dsp-tools subsystem inventory" in `CONVENTIONS.md`, so no subsystem is silently missed
   (the class of miss where `data_license` skipped `excel2json`).
 - Keep both in sync with this file and the per-module `CLAUDE.md` files whenever a convention changes.
+- Architecture map: see `ARCH-MAP.md`; load on demand for blast-radius and boundary questions.
 
 ## Development Commands
 

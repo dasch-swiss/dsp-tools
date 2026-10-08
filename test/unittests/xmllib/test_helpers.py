@@ -13,12 +13,14 @@ from dsp_tools.xmllib.general_functions import create_standoff_link_to_uri
 from dsp_tools.xmllib.general_functions import escape_reserved_xml_characters
 from dsp_tools.xmllib.general_functions import find_license_in_string
 from dsp_tools.xmllib.general_functions import make_xsd_compatible_id_with_uuid
+from dsp_tools.xmllib.internal import xmllib_warnings_util
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.licenses.other import LicenseOther
 from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 
 NBSP = "\u00a0"
 
@@ -165,6 +167,18 @@ class TestListLookup:
         with pytest.warns(XmllibInputWarning, match=msg):
             result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")
+
+    def test_get_node_via_list_name_provenance_writes_csv_row(self, list_lookup, tmp_path, monkeypatch):
+        csv_path = tmp_path / "warnings.csv"
+        monkeypatch.setenv("XMLLIB_WARNINGS_CSV_SAVEPATH", str(csv_path))
+        # The warning-file-initialised flag is process-global, so it is reset here to guarantee
+        # this test's own csv_path gets its header, independent of what earlier tests wrote to.
+        monkeypatch.setattr(xmllib_warnings_util._WarningFileState, "initialised", False)
+        provenance = SourceProvenance(source_file="lists.xlsx", sheet="Sheet1", row=3, cell="B")
+        result = list_lookup.get_node_via_list_name("inexistent", "Label 1", provenance=provenance)
+        assert result == ""
+        lines = csv_path.read_text().splitlines()
+        assert lines[1].endswith(",lists.xlsx,Sheet1,3,B")
 
 
 @pytest.mark.parametrize(

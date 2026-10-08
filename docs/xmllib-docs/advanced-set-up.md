@@ -30,6 +30,9 @@ but you will get a print notification when writing the XML if any problems were 
 If a CSV file from a previous run already exists, it is overwritten.
 If you wish to keep the old file, you must move or rename it.
 
+If you pass a `SourceProvenance` to an `add_...` method's `provenance` parameter,
+its source file, sheet, row and cell appear as 4 additional trailing columns in the CSV.
+
 
 ## Configure Warnings Level
 

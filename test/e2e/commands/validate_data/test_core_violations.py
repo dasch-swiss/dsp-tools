@@ -477,6 +477,7 @@ def test_reformat_value_type_violation(authentication) -> None:
         ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
         ("date_wrong_value_type", "This property requires a DateValue", "onto:testSubDate1"),
         ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
+        ("geolocation_wrong_value_type", "This property requires a GeolocationValue", "onto:testGeolocation"),
         ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
         ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
         ("is_date_should_be_simpletext", "This property requires a TextValue", "onto:testTextarea"),

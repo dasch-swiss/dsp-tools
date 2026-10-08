@@ -173,6 +173,9 @@ threading — are detailed in the sections above and under "Testing Conventions"
   conforming case and a violating case (see the `*_correct.xml` / `*_violation.xml` pairs under
   `testdata/validate-data/core_validation/`). The mandatory test-data conventions for a new SHACL shape
   are in `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions").
+- **A new value type has a value-type violation test.** Add a resource to
+  `testdata/validate-data/core_validation/value_type_violation.xml` that uses a different value element on a
+  property of the new type (rule 9 of the "Test-data conventions").
 
 ### E2E wiring
 

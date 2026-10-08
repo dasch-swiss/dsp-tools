@@ -62,6 +62,7 @@ Flag anything below that a change violates.
 - [ ] RDF-graph tests assert the *whole* graph (type, label, `attachedToProject`, all values), not only the
       one new triple
 - [ ] `validate-data` changes add **both** a conforming and a violating test case (happy + error paths)
+- [ ] A new value type has a value-type violation case in `core_validation/value_type_violation.xml`
 - [ ] New test data prefers extending the **systematic** test project over a new standalone `feature-XXXX`
       file; new shortcodes/shortnames are added to `testdata/USED_SHORTCODE_SHORTNAMES.md` and follow its
       file-naming convention (`[shortname]-project-[shortcode].json`, `[free]-[shortcode].xml`, invalid → `F…`)

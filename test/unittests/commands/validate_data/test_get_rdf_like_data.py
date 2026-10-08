@@ -355,23 +355,36 @@ class TestValues:
         val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
         assert res.user_facing_prop == HAS_PROP
-        # validate-data sees the same composed literal that xmlupload would send
-        assert res.user_facing_value == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.550 47.37)"
+        assert res.user_facing_value == 'crs="CRS84" longitude="8.550" latitude="47.37"'
         assert res.knora_type == KnoraValueType.GEOLOCATION_VALUE
-        assert not res.value_metadata
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "CRS84", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.550", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
 
     def test_geolocation_projected_corr(self):
         geolocation = ParsedGeolocation("LV95", {"northing": "1200000", "easting": "2600000"})
         val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_value == "<http://www.opengis.net/def/crs/EPSG/0/2056> POINT(2600000 1200000)"
+        assert res.user_facing_value == 'crs="LV95" northing="1200000" easting="2600000"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_NORTHING, "1200000", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_EASTING, "2600000", TripleObjectType.DECIMAL),
+        ]
 
     def test_geolocation_wrong_pair(self):
-        # no literal: the geolocation check reports the problem, naming the expected attributes
+        # the given names are kept, so that the SHACL shape of the CRS can report the mismatch
         geolocation = ParsedGeolocation("LV95", {"longitude": "8.55", "latitude": "47.37"})
         val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
-        assert res.user_facing_value is None
+        assert res.user_facing_value == 'crs="LV95" longitude="8.55" latitude="47.37"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.55", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
 
     def test_geoname_corr(self):
         val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None, None, 0)

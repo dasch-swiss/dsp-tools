@@ -350,13 +350,122 @@ api-shapes:GeolocationValue_ClassShape
   sh:targetClass knora-api:GeolocationValue ;
   sh:property    [
                     a           sh:PropertyShape ;
-                    sh:path     knora-api:geolocationValueAsGeolocation ;
+                    sh:path     knora-api:valueAsString ;
                     sh:datatype xsd:string ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "A GeolocationValue requires exactly one coordinate pair"
                  ] .
+
+# The geolocation shapes mirror the CRS table in src/dsp_tools/utils/geolocation_constants.py.
+# A unit test checks that the codes and the bounds stay the same.
+# The XSD already requires the attribute "crs" and allows only these codes; this shape is a backup.
+api-shapes:GeolocationValue_Crs_Shape
+  a              sh:NodeShape ;
+  sh:name        "Validates the coordinate reference system of a geolocation" ;
+  sh:targetClass knora-api:GeolocationValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     api-shapes:geolocationHasCrs ;
+                    sh:in       ( "CRS84" "LV95" "LV03" ) ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The coordinate reference system must be one of: 'CRS84', 'LV95', 'LV03'."
+                 ] .
+
+api-shapes:GeolocationValue_CRS84_Shape
+  a              sh:NodeShape ;
+  sh:name        "If the CRS is CRS84, validates the ordinates and their bounds" ;
+  sh:targetClass knora-api:GeolocationValue ;
+  # "if the CRS is CRS84, then the rules apply" is written as "the CRS is not CRS84, or the rules apply"
+  sh:or          (
+                    [ sh:not [ sh:property [ sh:path api-shapes:geolocationHasCrs ; sh:hasValue "CRS84" ] ] ]
+                    [
+                      sh:property [
+                                    sh:path         api-shapes:geolocationHasLongitude ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive -180.0 ;
+                                    sh:maxInclusive 180.0
+                                  ] ,
+                                  [
+                                    sh:path         api-shapes:geolocationHasLatitude ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive -90.0 ;
+                                    sh:maxInclusive 90.0
+                                  ] ,
+                                  [ sh:path api-shapes:geolocationHasEasting ; sh:maxCount 0 ] ,
+                                  [ sh:path api-shapes:geolocationHasNorthing ; sh:maxCount 0 ]
+                    ]
+                 ) ;
+  sh:severity    sh:Violation ;
+  sh:message     "A geolocation with crs=\"CRS84\" requires only the attributes 'longitude' (-180 to 180) and 'latitude' (-90 to 90)." .
+
+api-shapes:GeolocationValue_LV95_Shape
+  a              sh:NodeShape ;
+  sh:name        "If the CRS is LV95, validates the ordinates and their bounds" ;
+  sh:targetClass knora-api:GeolocationValue ;
+  # "if the CRS is LV95, then the rules apply" is written as "the CRS is not LV95, or the rules apply"
+  sh:or          (
+                    [ sh:not [ sh:property [ sh:path api-shapes:geolocationHasCrs ; sh:hasValue "LV95" ] ] ]
+                    [
+                      sh:property [
+                                    sh:path         api-shapes:geolocationHasEasting ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive 2484273.3 ;
+                                    sh:maxInclusive 2837939.88
+                                  ] ,
+                                  [
+                                    sh:path         api-shapes:geolocationHasNorthing ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive 1073150.16 ;
+                                    sh:maxInclusive 1299970.97
+                                  ] ,
+                                  [ sh:path api-shapes:geolocationHasLongitude ; sh:maxCount 0 ] ,
+                                  [ sh:path api-shapes:geolocationHasLatitude ; sh:maxCount 0 ]
+                    ]
+                 ) ;
+  sh:severity    sh:Violation ;
+  sh:message     "A geolocation with crs=\"LV95\" requires only the attributes 'easting' (2484273.3 to 2837939.88) and 'northing' (1073150.16 to 1299970.97)." .
+
+api-shapes:GeolocationValue_LV03_Shape
+  a              sh:NodeShape ;
+  sh:name        "If the CRS is LV03, validates the ordinates and their bounds" ;
+  sh:targetClass knora-api:GeolocationValue ;
+  # "if the CRS is LV03, then the rules apply" is written as "the CRS is not LV03, or the rules apply"
+  sh:or          (
+                    [ sh:not [ sh:property [ sh:path api-shapes:geolocationHasCrs ; sh:hasValue "LV03" ] ] ]
+                    [
+                      sh:property [
+                                    sh:path         api-shapes:geolocationHasEasting ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive 484273.3 ;
+                                    sh:maxInclusive 837939.88
+                                  ] ,
+                                  [
+                                    sh:path         api-shapes:geolocationHasNorthing ;
+                                    sh:datatype     xsd:decimal ;
+                                    sh:minCount     1 ;
+                                    sh:maxCount     1 ;
+                                    sh:minInclusive 73150.16 ;
+                                    sh:maxInclusive 299970.97
+                                  ] ,
+                                  [ sh:path api-shapes:geolocationHasLongitude ; sh:maxCount 0 ] ,
+                                  [ sh:path api-shapes:geolocationHasLatitude ; sh:maxCount 0 ]
+                    ]
+                 ) ;
+  sh:severity    sh:Violation ;
+  sh:message     "A geolocation with crs=\"LV03\" requires only the attributes 'easting' (484273.3 to 837939.88) and 'northing' (73150.16 to 299970.97)." .
 
 api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;

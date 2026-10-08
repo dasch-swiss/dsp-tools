@@ -39,6 +39,8 @@ Flag anything below that a change violates.
       in `src/dsp_tools/utils/`, not in an xmllib module or a command module
 - [ ] New RDF-mapped properties are threaded through the validate-data pipeline and have an explicit
       cardinality in `api-shapes.ttl` (the generic resource shape is closed)
+- [ ] A new `validate-data` check is a SHACL shape. A Python check (`validation/python_checks.py`) names its
+      reason: SHACL cannot do it even with validation-only RDF, or SHACL performance is not acceptable
 
 ### Naming
 

@@ -1,8 +1,10 @@
 """
 The coordinate reference systems a geolocation value may be given in.
 
-This module is the single source for the CRS table. `xmllib`, `validate-data` and `xmlupload` all import
-from here so that a coordinate is accepted or rejected by the same numbers everywhere.
+This module is the single source for the CRS table. `xmllib` and `xmlupload` import from here
+so that a coordinate is accepted or rejected by the same numbers everywhere.
+`validate-data` checks with the SHACL shapes in `resources/validate_data/api-shapes.ttl`, which mirror this table.
+A unit test keeps the shapes and this table equal.
 dsp-api's `Geolocation.scala` is the authoritative table; this one mirrors it and is a courtesy that fails fast,
 before any request is sent.
 """

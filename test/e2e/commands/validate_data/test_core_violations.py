@@ -265,6 +265,10 @@ def test_reformat_content_violation(authentication) -> None:
         graphs, triple_stores, used_iris, parsed_resources, CONFIG, SHORTCODE, METADATA_RETRIEVAL_SUCCESS
     )
     msg_end_date_larger_than_start = "The end date must be equal or later than the start date."
+    msg_geolocation_lv95 = (
+        'A geolocation with crs="LV95" requires only the attributes '
+        "'easting' (2484273.3 to 2837939.88) and 'northing' (1073150.16 to 1299970.97)."
+    )
     expected_info_tuples = [
         (
             "comment_on_value_empty",
@@ -304,19 +308,16 @@ def test_reformat_content_violation(authentication) -> None:
             "onto:testSubDate1",
             "The entered date cannot be parsed into a valid date. It may have issues with the month and/or day number.",
         ),
+        ("geolocation_lv03_number_as_lv95", "onto:testGeolocation", msg_geolocation_lv95),
         (
             "geolocation_out_of_range",
             "onto:testGeolocation",
-            "The latitude '91' is outside the valid range for WGS84 (CRS84): -90 to 90 inclusive.",
-        ),
-        (
-            "geolocation_wrong_pair",
-            "onto:testGeolocation",
             (
-                "Given crs=\"LV95\", expected the attributes 'easting' and 'northing'. "
-                "Found 'longitude' and 'latitude', which belong to a geographic CRS."
+                'A geolocation with crs="CRS84" requires only the attributes '
+                "'longitude' (-180 to 180) and 'latitude' (-90 to 90)."
             ),
         ),
+        ("geolocation_wrong_pair", "onto:testGeolocation", msg_geolocation_lv95),
         ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
         (
             "int_too_large",

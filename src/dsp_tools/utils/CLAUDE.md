@@ -60,7 +60,7 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 - Check a geolocation (CRS code and named ordinates) against the CRS table and describe the first problem
 - Used in: xmllib, xmlupload. validate-data checks with SHACL shapes in `api-shapes.ttl` instead
 - The CRS IRIs, and the composition of the CRS-prefixed WKT literal that is sent to dsp-api
-- Used in: xmlupload. Never imported by xmllib
+- Used in: xmlupload only. xmllib writes the CRS and the ordinates as XML attributes, not the literal
 
 **`data_formats/shared.py`**
 

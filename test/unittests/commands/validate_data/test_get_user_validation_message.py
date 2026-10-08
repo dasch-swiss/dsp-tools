@@ -543,9 +543,17 @@ class TestUserMessages:
                 " / http://rdfh.ch/lists/0000/a6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3ma6XOoBsrT3m-D8Q",
             ),
             (
-                "This is a very, very long sentence and should be shortened.",
+                (
+                    "This is a very, very long sentence and should be shortened, "
+                    "because it is longer than eighty characters."
+                ),
                 ProblemType.GENERIC,
-                "This is a very, very long sentence and should be s[...]",
+                "This is a very, very long sentence and should be shortened, because it is longer[...]",
+            ),
+            (
+                'crs="LV95" easting="2600000.12" northing="1200000.45"',
+                ProblemType.GENERIC,
+                'crs="LV95" easting="2600000.12" northing="1200000.45"',
             ),
             ("So short, nothing happens", ProblemType.VALUE_TYPE_MISMATCH, "So short, nothing happens"),
             (None, ProblemType.GENERIC, None),

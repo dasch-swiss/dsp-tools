@@ -17,7 +17,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValue
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedValueTypes
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
-from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal_from_ordinates
+from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal
 from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 
@@ -114,10 +114,7 @@ def transform_geolocation(input_value: InputTypes) -> str:
         raise XmlInputConversionError(f"Expected a geolocation value, but got {input_value}")
     if problem := get_geolocation_problem(input_value.crs, input_value.ordinates):
         raise XmlInputConversionError(problem)
-    literal = compose_geolocation_literal_from_ordinates(input_value.crs, input_value.ordinates)
-    if literal is None:
-        raise XmlInputConversionError(f"Could not compose geolocation: {input_value}")
-    return literal
+    return compose_geolocation_literal(input_value.crs, input_value.ordinates)
 
 
 def transform_geometry(value: InputTypes) -> str:

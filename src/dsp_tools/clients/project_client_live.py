@@ -30,7 +30,7 @@ class ProjectClientLive(ProjectClient):
         params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT_30)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -42,12 +42,29 @@ class ProjectClientLive(ProjectClient):
             raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
         raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
 
+    def get_project_shortname(self, shortcode: str) -> str:
+        url = f"{self.server}/admin/projects/shortcode/{shortcode}"
+        params = RequestParameters("GET", url, TIMEOUT_30)
+        log_request(params)
+        try:
+            response = requests.get(params.url, timeout=params.timeout)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        log_response(response, status_code=response.status_code)
+        if response.ok:
+            result = response.json()
+            return cast(str, result["project"]["shortname"])
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
+        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+
     def get_default_data_authorship(self, shortcode: str) -> list[str]:
         url = f"{self.server}/admin/projects/shortcode/{shortcode}"
         params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT_30)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
 

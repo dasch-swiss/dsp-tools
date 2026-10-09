@@ -33,6 +33,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.dsp_user_account_check import check_for_dsp_admin_account_email_for_data_upload
 from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -72,6 +73,8 @@ def xmlupload(
     project_client: ProjectClient = ProjectClientLive(creds.server, auth)
     # verify that a project with the shortcode exists
     project_client.get_project_iri(shortcode)
+    shortname = project_client.get_project_shortname(shortcode)
+    check_for_dsp_admin_account_email_for_data_upload(shortname, creds.user, creds.server)
     project_default_authorship = _resolve_project_default_authorship(root, project_client, shortcode)
 
     config = config.with_server_info(server=creds.server, shortcode=shortcode)

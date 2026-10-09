@@ -107,6 +107,25 @@ class TestGetDefaultDataAuthorship:
                 project_client.get_default_data_authorship("9999")
 
 
+class TestGetProjectShortname:
+    def test_success(self, project_client: ProjectClientLive) -> None:
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {
+            "project": {"id": "http://rdfh.ch/projects/0001", "shortcode": "0001", "shortname": "test-project"}
+        }
+        with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
+            result = project_client.get_project_shortname("0001")
+        assert result == "test-project"
+        assert mock_get.call_args[0][0] == f"{project_client.server}/admin/projects/shortcode/0001"
+
+    def test_not_found(self, project_client: ProjectClientLive) -> None:
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response):
+            with pytest.raises(ProjectNotFoundError):
+                project_client.get_project_shortname("9999")
+
+
 class TestPostNewProject:
     def test_good(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK.value, ok=True, headers={})

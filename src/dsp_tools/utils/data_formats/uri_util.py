@@ -5,8 +5,6 @@ def is_prod_like_server(server: str) -> bool:
     return server in [
         "https://api.dasch.swiss",
         "https://api.rdu.dasch.swiss",
-        "https://api.ls-prod-server.dasch.swiss",
-        "https://api.ls-test-server.dasch.swiss",
         "https://api.stage.dasch.swiss",
     ]
 

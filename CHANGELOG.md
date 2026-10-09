@@ -1,5 +1,12 @@
 # Changelog
 
+## [19.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.2.1...v19.3.0) (2026-10-09)
+
+
+### Enhancements
+
+* check project admin accounts exist and are used correctly (DEV-7474) ([#2453](https://github.com/dasch-swiss/dsp-tools/issues/2453)) ([92acc4d](https://github.com/dasch-swiss/dsp-tools/commit/92acc4d83c965a38fa511da910b03bc3f750f648))
+
 ## [19.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.2.0...v19.2.1) (2026-10-07)
 
 

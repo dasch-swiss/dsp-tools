@@ -25,6 +25,8 @@ Flag anything below that a change violates.
 - [ ] No command imports from another command — shared logic is in `utils/`, shared HTTP routes in `clients/`
 - [ ] Behaviour lives in stateless functions; classes only bundle data (`@dataclass`)
 - [ ] HTTP goes through `utils/request_utils.py` (no raw requests, no retry logic in `clients/`)
+- [ ] The HTTP call takes only values from the logged `RequestParameters` (`params.url`, `params.timeout`, …),
+      not local variables or constants
 - [ ] `pathlib.Path` used throughout — no `os.path`, no paths passed as strings
 - [ ] Names are evergreen (no `new`/`improved`/`enhanced`), in prose as well as identifiers — not
       "the new format" for something that will simply be the format once the migration ends

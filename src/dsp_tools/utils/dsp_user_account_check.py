@@ -13,16 +13,20 @@ def is_correct_dsp_admin_account_email(shortname: str, email: str) -> bool:
 
 def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str, server: str) -> None:
     is_dsp_admin_account = is_correct_dsp_admin_account_email(shortname, email)
+    enforce_dsp_admin_account(is_dsp_admin_account, server, activity="uploading data")
+
+
+def enforce_dsp_admin_account(has_dsp_admin_account: bool, server: str, activity: str) -> None:
     is_prod_like = is_prod_like_server(server)
 
-    match is_dsp_admin_account, is_prod_like:
+    match has_dsp_admin_account, is_prod_like:
         case True, _:
             return
         case False, True:
-            msg = "You are uploading data to a prod-like server."
+            msg = f"You are {activity} on a prod-like server."
             raise DspAdminAccountError(msg)
         case False, False:
-            msg = "You are uploading data on a test environment."
+            msg = f"You are {activity} on a test environment."
             warnings.warn(DspToolsMissingAdminAccountWarning(msg))
         case _:
             raise UnreachableCodeError()

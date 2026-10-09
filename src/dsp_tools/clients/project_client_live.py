@@ -30,7 +30,7 @@ class ProjectClientLive(ProjectClient):
         params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT_30)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -47,7 +47,7 @@ class ProjectClientLive(ProjectClient):
         params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT_30)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
 
@@ -64,7 +64,7 @@ class ProjectClientLive(ProjectClient):
         params = RequestParameters("GET", url, TIMEOUT_30)
         log_request(params)
         try:
-            response = requests.get(url, timeout=TIMEOUT_30)
+            response = requests.get(params.url, timeout=params.timeout)
         except RequestException as err:
             log_and_raise_request_exception(err)
 

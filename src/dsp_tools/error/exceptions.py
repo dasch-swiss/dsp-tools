@@ -113,7 +113,7 @@ class DspAdminAccountError(UserError):
     def __init__(self, specifics_to_upload: str) -> None:
         generic = (
             "It is mandatory that each project has an admin account for DaSCH internal usage. "
-            "The account must be in the format of [shortname]@admin.dasch.swiss and be used for all data upload. "
+            "On prod-like servers, data uploads must be done by an account named [shortname]@admin.dasch.swiss. "
             "Please create such an account and re-start the upload."
         )
         self.message = f"{specifics_to_upload}\n{generic}"

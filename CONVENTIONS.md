@@ -28,6 +28,10 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   `utils/request_utils.py`).
 - Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
   sanitisation, error handling, and retries.
+- Build the HTTP call only from the `RequestParameters` object that `log_request()` received
+  (`url=params.url`, `headers=params.headers`, `data=params.data_serialized`, `timeout=params.timeout`).
+  Do not pass local variables or constants directly — the log must show the request that was actually sent.
+  Exception: a streamed binary body (open file handle) goes in directly, because `RequestParameters` does not hold it.
 - **xmllib is the public API** for programmatic XML creation (see `src/dsp_tools/xmllib/CLAUDE.md`).
   It must not import dsp-tools internals and does not know the JSON project file — dependencies point
   from dsp-tools *into* xmllib, never the other way.

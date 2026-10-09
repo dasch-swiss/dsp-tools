@@ -49,7 +49,7 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
 
 
 def _check_that_dsp_admin_account_exists(shortname: str, users: list[ParsedUser], server: str) -> None:
-    has_dsp_admin = any(is_correct_dsp_admin_account_email(usr.email, shortname) for usr in users)
+    has_dsp_admin = any(is_correct_dsp_admin_account_email(shortname, usr.email) for usr in users)
     is_prod_like = is_prod_like_server(server)
 
     match has_dsp_admin, is_prod_like:

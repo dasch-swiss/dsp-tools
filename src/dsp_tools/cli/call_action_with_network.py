@@ -33,7 +33,6 @@ from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import UnreachableCodeError
-from dsp_tools.utils.dsp_user_account_check import check_for_dsp_admin_account_email_for_data_upload
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 
@@ -92,15 +91,10 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, [network_requirements])
 
-    creds = get_creds(args)
-    check_for_dsp_admin_account_email_for_data_upload(
-        "", creds.user, creds.server
-    )  # TODO should be used in a place where we know shortname
-
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
-        creds=creds,
+        creds=get_creds(args),
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
@@ -122,11 +116,6 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, [network_requirements])
 
-    creds = get_creds(args)
-    check_for_dsp_admin_account_email_for_data_upload(
-        "", creds.user, creds.server
-    )  # TODO should be used in a place where we know shortname
-
     if args.validate_only:
         if parse_and_validate_xml_file(xml_path):
             print("The XML file is syntactically correct.")
@@ -146,7 +135,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
                 raise UnreachableCodeError()
         return xmlupload(
             input_file=xml_path,
-            creds=creds,
+            creds=get_creds(args),
             imgdir=args.imgdir,
             config=UploadConfig(
                 interrupt_after=interrupt_after,

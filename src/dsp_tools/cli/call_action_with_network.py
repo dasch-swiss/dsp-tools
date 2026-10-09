@@ -93,7 +93,9 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     check_input_dependencies(path_deps, [network_requirements])
 
     creds = get_creds(args)
-    check_for_dsp_admin_account_email_for_data_upload("", creds.user, creds.server)  # TODO
+    check_for_dsp_admin_account_email_for_data_upload(
+        "", creds.user, creds.server
+    )  # TODO should be used in a place where we know shortname
 
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
@@ -121,7 +123,9 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     check_input_dependencies(path_deps, [network_requirements])
 
     creds = get_creds(args)
-    check_for_dsp_admin_account_email_for_data_upload("", creds.user, creds.server)  # TODO
+    check_for_dsp_admin_account_email_for_data_upload(
+        "", creds.user, creds.server
+    )  # TODO should be used in a place where we know shortname
 
     if args.validate_only:
         if parse_and_validate_xml_file(xml_path):
@@ -206,8 +210,6 @@ def call_create(args: argparse.Namespace) -> bool:
     check_input_dependencies(path_dependencies, [network_dependencies])
     project_file = Path(args.project_definition)
     creds = get_creds(args)
-
-    # TODO: in code make a check if the admin account exists
 
     success = False
     match args.lists_only, args.validate_only:

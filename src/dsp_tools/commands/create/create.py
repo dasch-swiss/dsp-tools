@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 from loguru import logger
@@ -18,11 +19,16 @@ from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
+from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
+from dsp_tools.error.custom_warnings import DspToolsMissingAdminAccountWarning
+from dsp_tools.error.exceptions import DspAdminAccountError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.dsp_user_account_check import is_correct_dsp_admin_account_email
 
 read_dotenv_if_exists()
 
@@ -40,6 +46,23 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
             return False
         case _:
             raise UnreachableCodeError("Unreachable result of project parsing.")
+
+
+def _check_that_dsp_admin_account_exists(shortname: str, users: list[ParsedUser], server: str) -> None:
+    has_dsp_admin = any(is_correct_dsp_admin_account_email(usr.email, shortname) for usr in users)
+    is_prod_like = is_prod_like_server(server)
+
+    match has_dsp_admin, is_prod_like:
+        case True, _:
+            return
+        case False, True:
+            msg = "You are creating a project on a prod-like server."
+            raise DspAdminAccountError(msg)
+        case False, False:
+            msg = "You are creating a project on a test environment."
+            warnings.warn(DspToolsMissingAdminAccountWarning(msg))
+        case _:
+            raise UnreachableCodeError()
 
 
 def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exit_if_exists: bool) -> bool:

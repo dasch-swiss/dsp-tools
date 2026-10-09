@@ -40,6 +40,11 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
 
     match parsing_result:
         case ParsedProject():
+            _check_that_dsp_admin_account_exists(
+                shortname=parsing_result.project_metadata.shortname,
+                users=parsing_result.users,
+                server=creds.server,
+            )
             return _execute_create(parsing_result, creds, exit_if_exists)
         case list():
             print_all_problem_collections(parsing_result)

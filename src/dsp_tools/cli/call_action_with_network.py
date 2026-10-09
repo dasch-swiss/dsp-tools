@@ -6,6 +6,7 @@ from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ProhibitedPaths
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
+from dsp_tools.cli.utils import check_for_dsp_admin_account_email_for_data_upload
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.cli.utils import get_creds
@@ -91,10 +92,13 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     path_deps = PathDependencies(required_files)
     check_input_dependencies(path_deps, [network_requirements])
 
+    creds = get_creds(args)
+    check_for_dsp_admin_account_email_for_data_upload("", creds.user, creds.server)  # TODO
+
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
-        creds=get_creds(args),
+        creds=creds,
         interrupt_after=interrupt_after,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
@@ -116,6 +120,9 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
     path_deps = PathDependencies(required_files, [Path(args.imgdir)])
     check_input_dependencies(path_deps, [network_requirements])
 
+    creds = get_creds(args)
+    check_for_dsp_admin_account_email_for_data_upload("", creds.user, creds.server)  # TODO
+
     if args.validate_only:
         if parse_and_validate_xml_file(xml_path):
             print("The XML file is syntactically correct.")
@@ -135,7 +142,7 @@ def call_xmlupload(args: argparse.Namespace) -> bool:
                 raise UnreachableCodeError()
         return xmlupload(
             input_file=xml_path,
-            creds=get_creds(args),
+            creds=creds,
             imgdir=args.imgdir,
             config=UploadConfig(
                 interrupt_after=interrupt_after,
@@ -199,6 +206,8 @@ def call_create(args: argparse.Namespace) -> bool:
     check_input_dependencies(path_dependencies, [network_dependencies])
     project_file = Path(args.project_definition)
     creds = get_creds(args)
+
+    # TODO: in code make a check if the admin account exists
 
     success = False
     match args.lists_only, args.validate_only:

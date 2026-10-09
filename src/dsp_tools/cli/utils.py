@@ -14,9 +14,12 @@ from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.cli.exceptions import IngestNotReachableError
+from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathMustNotExistError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.dsp_user_account_check import is_correct_dsp_admin_account_email
 
 LOCALHOST_API = "http://0.0.0.0:3333"
 LOCALHOST_INGEST = "http://0.0.0.0:3340"
@@ -165,3 +168,17 @@ def get_canonical_server_and_dsp_ingest_url(
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
 
     return server, dsp_ingest_url
+
+
+def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str, server: str) -> None:
+    is_dsp_admin_account = is_correct_dsp_admin_account_email(shortname, email)
+    is_prod_like = is_prod_like_server(server)
+    match is_dsp_admin_account, is_prod_like:
+        case True, _:
+            return None
+        case False, True:
+            raise ValueError()  # TODO
+        case False, False:
+            not_admin_account_warning = 1  # TODO
+        case _:
+            raise UnreachableCodeError()

@@ -199,7 +199,9 @@ def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: b
 
 1. **Prepare Request Parameters**: Create `RequestParameters` object with method, URL, timeout, data, and headers
 2. **Log Request**: Call `log_request(params)` before making the request
-3. **Execute Request**: Use `requests.<method>()` with explicit parameters wrapped in try/except
+3. **Execute Request**: Use `requests.<method>()` wrapped in try/except.
+   Take every argument from the logged `params` (`url=params.url`, `timeout=params.timeout`, ...),
+   so that the log shows the request that was actually sent
 4. **Log Response**: Call `log_response(response)` after receiving response
 5. **Handle Status**: Check response status and raise appropriate exceptions
 
@@ -359,6 +361,7 @@ headers = {
 - Skip request/response logging
 - Use generic error messages
 - Hardcode timeout values in method calls
+- Pass `url`, `timeout`, or other local variables to `requests.<method>()` directly instead of the `params` values
 - Catch exceptions without re-raising or logging
 - Return raw response objects from public methods
 - Mix business logic with HTTP communication

@@ -105,3 +105,15 @@ class NonInteractiveContextCliError(UserError):
             f"Provide it via '{cli_flag}'."
         )
         super().__init__(msg)
+
+
+class DspAdminAccountError(UserError):
+    """Class for errors when a DSP-Admin account is missing"""
+
+    def __init__(self, specifics_to_upload: str) -> None:
+        generic = (
+            "It is mandatory that each project has an admin account for DaSCH internal usage. "
+            "On prod-like servers, data uploads must be done by an account named [shortname]@admin.dasch.swiss. "
+            "Please create such an account and re-start the upload."
+        )
+        self.message = f"{specifics_to_upload}\n{generic}"

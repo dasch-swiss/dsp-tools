@@ -23,6 +23,18 @@ class DspToolsUserWarning(DspToolsWarning):
         print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)
 
 
+class DspToolsMissingAdminAccountWarning(DspToolsUserWarning):
+    """Class to display warning that an admin account is missing."""
+
+    def __init__(self, specifics_to_upload: str) -> None:
+        generic = (
+            "It is mandatory that each project has an admin account for DaSCH internal usage. "
+            "On prod-like servers, data uploads must be done by an account named [shortname]@admin.dasch.swiss. "
+            "Other accounts are only permitted in test environments."
+        )
+        self.message = f"{specifics_to_upload}\n{generic}"
+
+
 class DspToolsFutureWarning(DspToolsWarning, FutureWarning):
     """Class for user-facing deprecation warnings"""
 

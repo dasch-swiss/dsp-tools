@@ -304,6 +304,31 @@ class TestDecimalValue:
         assert next(g.objects(bn, KNORA_API.decimalValueAsDecimal)) == Literal("1.2", datatype=XSD.decimal)
 
 
+class TestGeolocationValue:
+    def test_corr(self):
+        val = RdfLikeValue(
+            "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeolocation",
+            'crs="LV95" easting="2600000" northing="1200000.5"',
+            KnoraValueType.GEOLOCATION_VALUE,
+            [
+                PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+                PropertyObject(TriplePropertyType.GEOLOCATION_EASTING, "2600000", TripleObjectType.DECIMAL),
+                PropertyObject(TriplePropertyType.GEOLOCATION_NORTHING, "1200000.5", TripleObjectType.DECIMAL),
+            ],
+        )
+        g = Graph(store="Oxigraph")
+        _add_one_value(g, val, RES_IRI)
+        assert len(g) == 6
+        bn = next(g.objects(RES_IRI, ONTO.testGeolocation))
+        assert next(g.objects(bn, RDF.type)) == KNORA_API.GeolocationValue
+        assert next(g.objects(bn, KNORA_API.valueAsString)) == Literal(
+            'crs="LV95" easting="2600000" northing="1200000.5"', datatype=XSD.string
+        )
+        assert next(g.objects(bn, API_SHAPES.geolocationHasCrs)) == Literal("LV95", datatype=XSD.string)
+        assert next(g.objects(bn, API_SHAPES.geolocationHasEasting)) == Literal("2600000", datatype=XSD.decimal)
+        assert next(g.objects(bn, API_SHAPES.geolocationHasNorthing)) == Literal("1200000.5", datatype=XSD.decimal)
+
+
 class TestGeonameValue:
     def test_corr(self):
         val = RdfLikeValue(

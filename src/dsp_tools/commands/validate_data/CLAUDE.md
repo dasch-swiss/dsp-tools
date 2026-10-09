@@ -43,7 +43,7 @@ whether or not the skill is used.
 - **get_validation_report.py**: Main validation orchestrator that coordinates SHACL validation
 - **check_for_unknown_classes.py**: Validates that all classes used in data are defined in the ontology
 - **validate_ontology.py**: Validates the ontology itself before data validation
-- **python_checks.py**: Python-based validation checks including duplicate file detection and circular cardinality warnings
+- **python_checks.py**: Python-based validation checks: duplicate file detection and circular cardinality warnings
 
 ### Validation Report Processing (`process_validation_report/`)
 
@@ -116,7 +116,12 @@ The validation process follows a strict sequential pipeline:
 3. **Python-based Checks** (`validation/python_checks.py`):
    - Checks for duplicate file references in the data
    - Warns against potential circular references in data with mandatory properties
-   - Generates warnings which will be added to potential warnings from the SHACL validation
+   - Both checks produce warnings
+   - A check belongs here only if one of these is true. Otherwise, write a SHACL shape:
+       1. SHACL cannot do the check, even with validation-only RDF (triples in the `api-shapes:` namespace
+          that are not sent to the API, for example the start and end of a date)
+       2. The SHACL performance is not acceptable. Example: the duplicate-file check, because n uses of one
+          file produce n * (n-1) SHACL results
 4. **SHACL Validation** (`validation/get_validation_report.py`):
    - Performs comprehensive SHACL validation using Docker CLI
    - Validates both cardinality constraints and content validation
@@ -190,6 +195,9 @@ The tests enforce these rules. A new SHACL shape follows all of them, whether or
 8. A newly wired constraint component adds a `report_<x>` + `extracted_<x>` fixture pair in
    `fixtures/validation_result.py`, a dispatch test in `test_query_validation_result.py`, and a reformat
    test in `test_reformat_validation_results.py`.
+9. A new value type adds a value-type violation to `value_type_violation.xml`: a resource that uses a
+   different value element (for example a `text-prop`) on a property of the new type. Append its tuple to
+   `test_reformat_value_type_violation` in `test_core_violations.py`.
 
 ## Important Notes
 

@@ -2,6 +2,7 @@ import datetime
 import warnings
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 import regex
@@ -13,7 +14,10 @@ from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat
 from dsp_tools.xmllib.models.date_formats import Era
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_converters import crs84_to_lv95
+from dsp_tools.xmllib.value_converters import dms_to_decimal_degrees
 from dsp_tools.xmllib.value_converters import find_dates_in_string
+from dsp_tools.xmllib.value_converters import lv95_to_crs84
 from dsp_tools.xmllib.value_converters import reformat_date
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -491,3 +495,78 @@ class TestFindDate:
         input_string = " ".join(all_inputs.keys())
         expected = {x for x in all_inputs.values() if x}
         assert find_dates_in_string(input_string) == expected
+
+
+class TestDmsToDecimalDegrees:
+    @pytest.mark.parametrize(
+        ("dms", "expected"),
+        [
+            ((47, 22, 13.2, "N"), "47.37033"),
+            ((47, 22, 13.2, "S"), "-47.37033"),
+            ((8, 32, 24, "E"), "8.5400"),
+            ((47, 22, np.float64(13.2), "N"), "47.37033"),
+            ((8, 32, 24, "W"), "-8.5400"),
+            (("33", "52", "4.36", "s"), "-33.867878"),
+            ((90, 0, 0, "N"), "90.0000"),
+            ((180, 0, 0, "W"), "-180.0000"),
+            ((0, 0, 0, "S"), "0.0000"),
+        ],
+    )
+    def test_converts(self, dms: tuple[Any, Any, Any, str], expected: str) -> None:
+        assert dms_to_decimal_degrees(*dms) == expected
+
+    @pytest.mark.parametrize(("degrees", "minutes", "seconds"), [(47, 22, "13.2"), (8, 59, "59.99"), (0, 0, "0.001")])
+    def test_round_trips_the_seconds_at_their_precision(self, degrees: int, minutes: int, seconds: str) -> None:
+        result = dms_to_decimal_degrees(degrees, minutes, seconds, "N")
+        remainder = (float(result) - degrees) * 60 - minutes
+        decimals = len(seconds.partition(".")[2])
+        assert round(remainder * 60, decimals) == float(seconds)
+
+    def test_many_decimals_in_the_seconds(self) -> None:
+        assert dms_to_decimal_degrees(47, 22, "13.2" + "0" * 30, "N") == "47.37033333333333333333333333333333333"
+
+    @pytest.mark.parametrize(
+        ("dms", "reason"),
+        [
+            ((47, 22, 13.2, "X"), "direction must be one of N, S, E or W"),
+            ((47, 60, 0, "N"), "less than 60"),
+            ((47, 0, 60, "N"), "less than 60"),
+            ((47.5, 0, 0, "N"), "whole numbers"),
+            ((-47, 0, 0, "N"), "whole numbers"),
+            ((47, 0, "abc", "N"), "seconds must be a decimal number"),
+            (("\u0664\u0667", 0, 0, "N"), "whole numbers"),  # Arabic-Indic digits
+            ((90, 0, 1, "N"), "must not exceed 90°"),
+            ((180, 0, 1, "E"), "must not exceed 180°"),
+        ],
+    )
+    def test_rejects(self, dms: tuple[Any, Any, Any, str], reason: str) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape(reason)):
+            dms_to_decimal_degrees(*dms)
+
+
+class TestSwissCoordinateConversion:
+    # Reference point of the swisstopo approximate formulas: 46° 2' 38.87" N, 8° 43' 49.79" E
+    def test_crs84_to_lv95(self) -> None:
+        assert crs84_to_lv95(("8.730497222", "46.044130556")) == ("2699999.76", "1099999.97")
+
+    def test_lv95_to_crs84(self) -> None:
+        assert lv95_to_crs84((2700000, 1100000)) == ("8.730499", "46.044127")
+
+    def test_accepts_numpy_floats(self) -> None:
+        assert lv95_to_crs84((np.float64(2700000), np.float64(1100000))) == ("8.730499", "46.044127")
+
+    def test_round_trip_is_within_one_metre(self) -> None:
+        longitude, latitude = lv95_to_crs84(crs84_to_lv95((8.55, 47.37)))
+        # 0.00001 degrees is about 1 metre
+        assert abs(float(longitude) - 8.55) < 0.00001
+        assert abs(float(latitude) - 47.37) < 0.00001
+
+    @pytest.mark.parametrize("value", [(8.55,), [8.55, 47.37], "8.55 47.37", None])
+    def test_raises_if_not_a_pair(self, value: Any) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("a tuple of two values")):
+            crs84_to_lv95(value)
+
+    @pytest.mark.parametrize("value", [("abc", "47.37"), (None, "47.37"), ("8,55", "47.37"), ("1e5", "47.37")])
+    def test_raises_if_not_a_decimal(self, value: tuple[Any, Any]) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("is not a decimal number")):
+            crs84_to_lv95(value)

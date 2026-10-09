@@ -59,6 +59,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "date-prop": KnoraValueType.DATE_VALUE,
     "decimal-prop": KnoraValueType.DECIMAL_VALUE,
     "geometry-prop": KnoraValueType.GEOM_VALUE,
+    "geolocation-prop": KnoraValueType.GEOLOCATION_VALUE,
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
     "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,
@@ -84,6 +85,19 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_RESOURCE_AUTHORSHIP: KNORA_API.hasResourceAuthorship,
     TriplePropertyType.KNORA_DATE_START: API_SHAPES.dateHasStart,
     TriplePropertyType.KNORA_DATE_END: API_SHAPES.dateHasEnd,
+    TriplePropertyType.GEOLOCATION_CRS: API_SHAPES.geolocationHasCrs,
+    TriplePropertyType.GEOLOCATION_LONGITUDE: API_SHAPES.geolocationHasLongitude,
+    TriplePropertyType.GEOLOCATION_LATITUDE: API_SHAPES.geolocationHasLatitude,
+    TriplePropertyType.GEOLOCATION_EASTING: API_SHAPES.geolocationHasEasting,
+    TriplePropertyType.GEOLOCATION_NORTHING: API_SHAPES.geolocationHasNorthing,
+}
+
+# The keys are the ordinate names of geolocation_constants.ALL_CRS, which are also the XML attribute names.
+ORDINATE_NAME_TO_TRIPLE_PROP_TYPE = {
+    "longitude": TriplePropertyType.GEOLOCATION_LONGITUDE,
+    "latitude": TriplePropertyType.GEOLOCATION_LATITUDE,
+    "easting": TriplePropertyType.GEOLOCATION_EASTING,
+    "northing": TriplePropertyType.GEOLOCATION_NORTHING,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {
@@ -91,6 +105,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.COLOR_VALUE: COLOR_PROP_TYPE_INFO,
     KnoraValueType.DATE_VALUE: RDFPropTypeInfo(KNORA_API.DateValue, KNORA_API.valueAsString, XSD.string),
     KnoraValueType.DECIMAL_VALUE: DECIMAL_PROP_TYPE_INFO,
+    KnoraValueType.GEOLOCATION_VALUE: RDFPropTypeInfo(KNORA_API.GeolocationValue, KNORA_API.valueAsString, XSD.string),
     KnoraValueType.GEONAME_VALUE: GEONAME_PROP_TYPE_INFO,
     KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
     KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode, XSD.string),
@@ -120,6 +135,7 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.DATE_VALUE: TripleObjectType.STRING,
     KnoraValueType.DECIMAL_VALUE: TripleObjectType.DECIMAL,
     KnoraValueType.GEOM_VALUE: TripleObjectType.STRING,
+    KnoraValueType.GEOLOCATION_VALUE: TripleObjectType.STRING,
     KnoraValueType.GEONAME_VALUE: TripleObjectType.STRING,
     KnoraValueType.LIST_VALUE: TripleObjectType.STRING,
     KnoraValueType.LINK_VALUE: TripleObjectType.IRI,

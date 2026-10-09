@@ -84,6 +84,12 @@
         </geoname-prop>
     </resource>
 
+    <resource label="geolocation" restype=":ClassWithEverything" id="geolocation">
+        <geolocation-prop name=":testGeolocation">
+            <geolocation crs="CRS84" longitude="8.540" latitude="47.378"/>
+        </geolocation-prop>
+    </resource>
+
     <resource label="integer" restype=":ClassWithEverything" id="integer">
         <integer-prop name=":testIntegerSimpleText">
             <integer>1</integer>

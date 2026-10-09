@@ -369,6 +369,11 @@ def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
     return out_dict
 
 
+# Long enough for a projected geolocation with decimals, for example
+# crs="LV95" easting="2600000.12" northing="1200000.45"
+_MAX_INPUT_LENGTH = 80
+
+
 def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | None:
     if problem_type in [
         ProblemType.FILE_DUPLICATE,
@@ -382,6 +387,6 @@ def _shorten_input(user_input: str | None, problem_type: ProblemType) -> str | N
         return None
     if user_input.startswith(("http://rdfh.ch/", " / http://rdfh.ch/lists/")):
         return user_input
-    if len(user_input) < 51:
+    if len(user_input) <= _MAX_INPUT_LENGTH:
         return user_input
-    return f"{user_input[:50]}[...]"
+    return f"{user_input[:_MAX_INPUT_LENGTH]}[...]"

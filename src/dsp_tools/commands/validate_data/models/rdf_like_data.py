@@ -101,6 +101,11 @@ class TriplePropertyType(Enum):
     KNORA_RESOURCE_AUTHORSHIP = auto()
     KNORA_DATE_START = auto()
     KNORA_DATE_END = auto()
+    GEOLOCATION_CRS = auto()
+    GEOLOCATION_LONGITUDE = auto()
+    GEOLOCATION_LATITUDE = auto()
+    GEOLOCATION_EASTING = auto()
+    GEOLOCATION_NORTHING = auto()
 
 
 class TripleObjectType(Enum):

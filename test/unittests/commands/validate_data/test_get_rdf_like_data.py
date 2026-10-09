@@ -28,6 +28,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -348,6 +349,42 @@ class TestValues:
         assert res.user_facing_value == "1.4"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
         assert not res.value_metadata
+
+    def test_geolocation_corr(self):
+        geolocation = ParsedGeolocation("CRS84", {"longitude": "8.550", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == 'crs="CRS84" longitude="8.550" latitude="47.37"'
+        assert res.knora_type == KnoraValueType.GEOLOCATION_VALUE
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "CRS84", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.550", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
+
+    def test_geolocation_projected_corr(self):
+        geolocation = ParsedGeolocation("LV95", {"northing": "1200000", "easting": "2600000"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_value == 'crs="LV95" northing="1200000" easting="2600000"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_NORTHING, "1200000", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_EASTING, "2600000", TripleObjectType.DECIMAL),
+        ]
+
+    def test_geolocation_wrong_pair(self):
+        # the given names are kept, so that the SHACL shape of the CRS can report the mismatch
+        geolocation = ParsedGeolocation("LV95", {"longitude": "8.55", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_value == 'crs="LV95" longitude="8.55" latitude="47.37"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.55", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
 
     def test_geoname_corr(self):
         val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None, None, 0)

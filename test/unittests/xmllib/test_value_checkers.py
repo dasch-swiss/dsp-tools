@@ -7,6 +7,7 @@ import polars as pl
 import pytest
 
 from dsp_tools.xmllib.internal.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.models.config_options import CoordinateSystem
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
@@ -14,6 +15,7 @@ from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
+from dsp_tools.xmllib.value_checkers import is_geolocation
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_link_value
@@ -150,6 +152,42 @@ def test_is_geoname_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [122.2, "asdf"])
 def test_is_geoname_wrong(val: Any) -> None:
     assert not is_geoname(val)
+
+
+@pytest.mark.parametrize(
+    ("crs", "value"),
+    [
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (8.55, 47.37)),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, ("8.550", "47.370")),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (-180, 90)),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, ("-0.0", "0")),
+        (CoordinateSystem.PROJECTED_LV95, ("2600000", "1200000")),
+        (CoordinateSystem.PROJECTED_LV95, (2484273.3, 1073150.16)),
+        (CoordinateSystem.PROJECTED_LV03, (600000, 200000)),
+    ],
+)
+def test_is_geolocation_correct(crs: CoordinateSystem, value: tuple[Any, Any]) -> None:
+    assert is_geolocation(crs, value)
+
+
+@pytest.mark.parametrize(
+    ("crs", "value"),
+    [
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (200, 47.37)),  # longitude out of range
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (8.55, 91)),  # latitude out of range
+        (CoordinateSystem.PROJECTED_LV95, (8.55, 47.37)),  # geographic coordinates in a projected CRS
+        (CoordinateSystem.PROJECTED_LV95, ("1200000", "2600000")),  # easting and northing swapped
+        (CoordinateSystem.GEOGRAPHIC_CRS84, ("8,55", "47.37")),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, ("abc", "47.37")),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (None, "47.37")),
+        (CoordinateSystem.GEOGRAPHIC_CRS84, (8.55,)),  # not a pair
+        (CoordinateSystem.GEOGRAPHIC_CRS84, [8.55, 47.37]),  # not a tuple
+        ("CRS84", (8.55, 47.37)),  # not the enum
+        (None, (8.55, 47.37)),
+    ],
+)
+def test_is_geolocation_wrong(crs: Any, value: Any) -> None:
+    assert not is_geolocation(crs, value)
 
 
 @pytest.mark.parametrize("val", [1.2, "1.432", 1, "1", -1.1, "1e-1", "1e2"])

@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import datetime
+from decimal import Decimal
+from decimal import localcontext
 from typing import Any
+from typing import Never
 
 import regex
 from regex import Match
 
+from dsp_tools.xmllib.internal.checkers import check_raise_if_coordinates_are_not_a_pair
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
+from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
@@ -57,6 +62,158 @@ def convert_to_bool_string(value: Any) -> bool:
     elif str_val in ("true", "1", "1.0", "yes", "oui", "ja", "sì"):
         return True
     raise_xmllib_input_error(MessageInfo(f"The entered value '{value}' cannot be converted to a bool."))
+
+
+def dms_to_decimal_degrees(degrees: int | str, minutes: int | str, seconds: float | int | str, direction: str) -> str:
+    """
+    Convert a coordinate given in degrees, minutes and seconds to decimal degrees,
+    which is the form a geolocation takes in `CRS84`.
+
+    The result is signed by the direction: north and east are positive, south and west are negative.
+    It has four more decimal places than the seconds,
+    so that converting it back gives the seconds at the precision they were given in.
+
+    Args:
+        degrees: the whole degrees, 0 to 90 for north/south, 0 to 180 for east/west
+        minutes: the whole minutes, 0 to 59
+        seconds: the seconds, at least 0 and less than 60
+        direction: `N`, `S`, `E` or `W`
+
+    Returns:
+        The coordinate in decimal degrees, as a string
+
+    Raises:
+        XmllibInputError: if a part is not a number, is out of range, or the direction is unknown
+
+    Examples:
+        ```python
+        result = xmllib.dms_to_decimal_degrees(47, 22, 13.2, "N")
+        # result == "47.37033"
+        ```
+
+        ```python
+        result = xmllib.dms_to_decimal_degrees(8, 32, 24, "E")
+        # result == "8.5400"
+        ```
+
+        ```python
+        result = xmllib.dms_to_decimal_degrees("33", "52", "4.36", "S")
+        # result == "-33.867878"
+        ```
+    """
+    input_str = f"{degrees}° {minutes}' {seconds}\" {direction}"
+    maximum_by_direction = {"N": 90, "S": 90, "E": 180, "W": 180}
+    direction_upper = str(direction).strip().upper()
+    if direction_upper not in maximum_by_direction:
+        _raise_dms_error(input_str, "The direction must be one of N, S, E or W.")
+    deg_str, min_str = str(degrees).strip(), str(minutes).strip()
+    sec_str = format(Decimal(repr(float(seconds))), "f") if isinstance(seconds, float) else str(seconds).strip()
+    if not regex.fullmatch(r"[0-9]+", deg_str) or not regex.fullmatch(r"[0-9]+", min_str):
+        _raise_dms_error(input_str, "The degrees and minutes must be whole numbers.")
+    if not regex.fullmatch(r"[0-9]+(\.[0-9]+)?", sec_str):
+        _raise_dms_error(input_str, "The seconds must be a decimal number.")
+    # Enough precision for the quantization below, however many decimals the seconds have.
+    with localcontext() as ctx:
+        ctx.prec = len(deg_str) + len(sec_str) + 10
+        deg, mins, secs = Decimal(deg_str), Decimal(min_str), Decimal(sec_str)
+        if mins >= 60 or secs >= 60:
+            _raise_dms_error(input_str, "The minutes and seconds must be less than 60.")
+        value = deg + mins / 60 + secs / 3600
+        if value > maximum_by_direction[direction_upper]:
+            _raise_dms_error(
+                input_str,
+                f"A coordinate towards {direction_upper} must not exceed {maximum_by_direction[direction_upper]}°.",
+            )
+        seconds_places = len(sec_str.partition(".")[2])
+        rounded = value.quantize(Decimal(1).scaleb(-(seconds_places + 4)))
+        if direction_upper in ("S", "W") and rounded != 0:
+            rounded = -rounded
+    return format(rounded, "f")
+
+
+def _raise_dms_error(input_str: str, reason: str) -> Never:
+    raise_xmllib_input_error(
+        MessageInfo(f"The input '{input_str}' is not a valid degrees/minutes/seconds coordinate. {reason}")
+    )
+
+
+def crs84_to_lv95(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+    """
+    Convert coordinates from `CRS84` (WGS84) to the Swiss coordinate system `LV95`.
+
+    The conversion uses the approximate formulas of swisstopo.
+    They are accurate to about 1 metre, and they apply to Switzerland only.
+    `add_geolocation()` warns if a result is outside the range of `LV95`.
+
+    Args:
+        value: the coordinates in `CRS84`, as `(longitude, latitude)`
+
+    Returns:
+        The coordinates in `LV95`, as `(easting, northing)`, rounded to 2 decimal places
+
+    Raises:
+        XmllibInputError: if the value is not a tuple of two decimal numbers
+
+    Examples:
+        ```python
+        result = xmllib.crs84_to_lv95(("8.730497222", "46.044130556"))
+        # result == ("2699999.76", "1099999.97")
+        ```
+    """
+    longitude, latitude = _get_coordinates_as_floats(value)
+    # Auxiliary values of the swisstopo formulas: the distance to the old Bern observatory, in units of 10000"
+    phi = (latitude * 3600 - 169028.66) / 10000
+    lam = (longitude * 3600 - 26782.5) / 10000
+    easting = 2600072.37 + 211455.93 * lam - 10938.51 * lam * phi - 0.36 * lam * phi**2 - 44.54 * lam**3
+    northing = (
+        1200147.07 + 308807.95 * phi + 3745.25 * lam**2 + 76.63 * phi**2 - 194.56 * lam**2 * phi + 119.79 * phi**3
+    )
+    return f"{easting:.2f}", f"{northing:.2f}"
+
+
+def lv95_to_crs84(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+    """
+    Convert coordinates from the Swiss coordinate system `LV95` to `CRS84` (WGS84).
+
+    The conversion uses the approximate formulas of swisstopo.
+    They are accurate to about 1 metre, and they apply to Switzerland only.
+
+    Args:
+        value: the coordinates in `LV95`, as `(easting, northing)`
+
+    Returns:
+        The coordinates in `CRS84`, as `(longitude, latitude)`, rounded to 6 decimal places
+
+    Raises:
+        XmllibInputError: if the value is not a tuple of two decimal numbers
+
+    Examples:
+        ```python
+        result = xmllib.lv95_to_crs84(("2700000", "1100000"))
+        # result == ("8.730499", "46.044127")
+        ```
+    """
+    easting, northing = _get_coordinates_as_floats(value)
+    # Auxiliary values of the swisstopo formulas: the distance to the projection centre, in units of 1000 km
+    y = (easting - 2600000) / 1000000
+    x = (northing - 1200000) / 1000000
+    lam = 2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x**2 - 0.0436 * y**3
+    phi = 16.9023892 + 3.238272 * x - 0.270978 * y**2 - 0.002528 * x**2 - 0.0447 * y**2 * x - 0.0140 * x**3
+    # lam and phi are in units of 10000"
+    return f"{lam * 100 / 36:.6f}", f"{phi * 100 / 36:.6f}"
+
+
+def _get_coordinates_as_floats(value: Any) -> tuple[float, float]:
+    check_raise_if_coordinates_are_not_a_pair(value)
+    coordinates = []
+    for coordinate in value:
+        coordinate_str = ordinate_to_str(coordinate)
+        if not regex.fullmatch(r"[+-]?[0-9]+(\.[0-9]+)?", coordinate_str):
+            raise_xmllib_input_error(
+                MessageInfo(f"The coordinate '{coordinate}' is not a decimal number, e.g. '8.55'.")
+            )
+        coordinates.append(float(coordinate_str))
+    return coordinates[0], coordinates[1]
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:

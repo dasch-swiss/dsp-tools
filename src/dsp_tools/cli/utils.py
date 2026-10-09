@@ -1,5 +1,6 @@
 import argparse
 import subprocess
+import warnings
 from pathlib import Path
 
 import regex
@@ -14,6 +15,8 @@ from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.cli.exceptions import IngestNotReachableError
+from dsp_tools.error.custom_warnings import DspToolsMissingAdminAccountWarning
+from dsp_tools.error.exceptions import DspAdminAccountError
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathMustNotExistError
@@ -175,10 +178,12 @@ def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str
     is_prod_like = is_prod_like_server(server)
     match is_dsp_admin_account, is_prod_like:
         case True, _:
-            return None
+            return
         case False, True:
-            raise ValueError()  # TODO
+            msg = "You are uploading data to a prod-like server."
+            raise DspAdminAccountError(msg)
         case False, False:
-            not_admin_account_warning = 1  # TODO
+            msg = "You are uploading data on a test environment."
+            warnings.warn(DspToolsMissingAdminAccountWarning(msg))
         case _:
             raise UnreachableCodeError()

@@ -1,6 +1,5 @@
 import argparse
 import subprocess
-import warnings
 from pathlib import Path
 
 import regex
@@ -15,14 +14,9 @@ from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.cli.exceptions import IngestNotReachableError
-from dsp_tools.error.custom_warnings import DspToolsMissingAdminAccountWarning
-from dsp_tools.error.exceptions import DspAdminAccountError
-from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.error.exceptions import UserDirectoryNotFoundError
 from dsp_tools.error.exceptions import UserFilepathMustNotExistError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
-from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
-from dsp_tools.utils.dsp_user_account_check import is_correct_dsp_admin_account_email
 
 LOCALHOST_API = "http://0.0.0.0:3333"
 LOCALHOST_INGEST = "http://0.0.0.0:3340"
@@ -171,19 +165,3 @@ def get_canonical_server_and_dsp_ingest_url(
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
 
     return server, dsp_ingest_url
-
-
-def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str, server: str) -> None:
-    is_dsp_admin_account = is_correct_dsp_admin_account_email(shortname, email)
-    is_prod_like = is_prod_like_server(server)
-    match is_dsp_admin_account, is_prod_like:
-        case True, _:
-            return
-        case False, True:
-            msg = "You are uploading data to a prod-like server."
-            raise DspAdminAccountError(msg)
-        case False, False:
-            msg = "You are uploading data on a test environment."
-            warnings.warn(DspToolsMissingAdminAccountWarning(msg))
-        case _:
-            raise UnreachableCodeError()

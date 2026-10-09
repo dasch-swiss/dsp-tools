@@ -6,7 +6,6 @@ from dsp_tools.cli.args import PathDependencies
 from dsp_tools.cli.args import ProhibitedPaths
 from dsp_tools.cli.args import ValidationSeverity
 from dsp_tools.cli.utils import check_docker_health
-from dsp_tools.cli.utils import check_for_dsp_admin_account_email_for_data_upload
 from dsp_tools.cli.utils import check_input_dependencies
 from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 from dsp_tools.cli.utils import get_creds
@@ -34,6 +33,7 @@ from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_tools.utils.dsp_user_account_check import check_for_dsp_admin_account_email_for_data_upload
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_validate_xml_file
 
 

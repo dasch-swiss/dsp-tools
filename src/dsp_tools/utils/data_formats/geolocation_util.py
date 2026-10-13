@@ -68,13 +68,6 @@ def _get_ordinate_problem(crs: Crs, name: str, ordinate: str, minimum: Decimal, 
     return None
 
 
-CRS_IRI_BY_CODE: dict[str, str] = {
-    "CRS84": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
-    "LV95": "http://www.opengis.net/def/crs/EPSG/0/2056",
-    "LV03": "http://www.opengis.net/def/crs/EPSG/0/21781",
-}
-
-
 def compose_geolocation_literal(crs_code: str, ordinates: Mapping[str, str]) -> str:
     """
     Compose the stored literal from a CRS code and its named ordinates.
@@ -92,4 +85,4 @@ def compose_geolocation_literal(crs_code: str, ordinates: Mapping[str, str]) -> 
     """
     crs = CRS_BY_CODE[crs_code]
     x, y = ordinates[crs.x_name].strip(), ordinates[crs.y_name].strip()
-    return f"<{CRS_IRI_BY_CODE[crs_code]}> POINT({x} {y})"
+    return f"<{crs.iri}> POINT({x} {y})"

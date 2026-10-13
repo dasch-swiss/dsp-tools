@@ -23,9 +23,10 @@ class CrsKind(StrEnum):
 
 @dataclass(frozen=True)
 class Crs:
-    """One coordinate reference system, with the names and bounds of its ordinates."""
+    """One coordinate reference system, with its IRI and the names and bounds of its ordinates."""
 
     code: str
+    iri: str
     label: str
     kind: CrsKind
     x_name: str
@@ -40,6 +41,7 @@ class Crs:
 # Y is latitude or northing. The names are also the XML attribute names of the ordinates.
 CRS84 = Crs(
     code="CRS84",
+    iri="http://www.opengis.net/def/crs/OGC/1.3/CRS84",
     label="WGS84 (CRS84)",
     kind=CrsKind.GEOGRAPHIC,
     x_name="longitude",
@@ -51,6 +53,7 @@ CRS84 = Crs(
 )
 LV95 = Crs(
     code="LV95",
+    iri="http://www.opengis.net/def/crs/EPSG/0/2056",
     label="Swiss LV95",
     kind=CrsKind.PROJECTED,
     x_name="easting",
@@ -62,6 +65,7 @@ LV95 = Crs(
 )
 LV03 = Crs(
     code="LV03",
+    iri="http://www.opengis.net/def/crs/EPSG/0/21781",
     label="Swiss LV03",
     kind=CrsKind.PROJECTED,
     x_name="easting",

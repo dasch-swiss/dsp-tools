@@ -3,10 +3,11 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.data_formats.geolocation_util import CRS_IRI_BY_CODE
 from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal
 from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
+from dsp_tools.utils.geolocation_constants import CRS84
 from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
+from dsp_tools.utils.geolocation_constants import LV95
 from dsp_tools.utils.geolocation_constants import ORDINATE_NAMES
 
 
@@ -94,10 +95,6 @@ class TestPair:
         assert problem == "Unsupported coordinate reference system 'EPSG:4326'. Supported are: 'CRS84', 'LV95', 'LV03'."
 
 
-def test_every_supported_crs_has_an_iri() -> None:
-    assert set(CRS_IRI_BY_CODE) == set(CRS_BY_CODE)
-
-
 class TestXsdMatchesCrsTable:
     xsd = etree.parse(Path("src/dsp_tools/resources/schema/data.xsd"))
     xs = "{http://www.w3.org/2001/XMLSchema}"
@@ -136,8 +133,8 @@ class TestComposeLiteral:
 
     def test_puts_x_first(self) -> None:
         literal = compose_geolocation_literal("CRS84", {"latitude": "47.37", "longitude": "8.55"})
-        assert literal == f"<{CRS_IRI_BY_CODE['CRS84']}> POINT(8.55 47.37)"
+        assert literal == f"<{CRS84.iri}> POINT(8.55 47.37)"
 
     def test_puts_easting_first(self) -> None:
         literal = compose_geolocation_literal("LV95", {"northing": "1200000", "easting": "2600000"})
-        assert literal == f"<{CRS_IRI_BY_CODE['LV95']}> POINT(2600000 1200000)"
+        assert literal == f"<{LV95.iri}> POINT(2600000 1200000)"

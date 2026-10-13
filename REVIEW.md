@@ -37,7 +37,8 @@ Flag anything below that a change violates.
       re-iterate a structure that is already being iterated
 - [ ] Control flow is as flat as the logic allows (early returns kept where they clarify; a helper that only
       applies to one branch lives in that branch, not the shared tail)
-- [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; user-facing
+- [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; the only
+      exception is shared constants and data-format utilities from `src/dsp_tools/utils/`; user-facing
       docs and docstrings describe user input (XML elements, JSON fields), not xmllib internals
 - [ ] Literals and constants that xmllib and other parts of dsp-tools both use live in a shared constants file
       in `src/dsp_tools/utils/`, not in an xmllib module or a command module

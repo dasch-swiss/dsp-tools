@@ -9,6 +9,7 @@ from typing import Never
 import regex
 from regex import Match
 
+from dsp_tools.utils.data_formats.geolocation_util import DECIMAL_ORDINATE_PATTERN
 from dsp_tools.xmllib.internal.checkers import check_raise_if_not_geolocation_coordinates
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
@@ -109,7 +110,7 @@ def dms_to_decimal_degrees(degrees: int | str, minutes: int | str, seconds: floa
     if direction_upper not in maximum_by_direction:
         _raise_dms_error(input_str, "The direction must be one of N, S, E or W.")
     deg_str, min_str = str(degrees).strip(), str(minutes).strip()
-    sec_str = format(Decimal(repr(float(seconds))), "f") if isinstance(seconds, float) else str(seconds).strip()
+    sec_str = ordinate_to_str(seconds)
     if not regex.fullmatch(r"[0-9]+", deg_str) or not regex.fullmatch(r"[0-9]+", min_str):
         _raise_dms_error(input_str, "The degrees and minutes must be whole numbers.")
     if not regex.fullmatch(r"[0-9]+(\.[0-9]+)?", sec_str):
@@ -211,7 +212,7 @@ def lv95_to_crs84(value: ProjectedLV95) -> GeographicCRS84:
 
 def _get_coordinate_as_float(coordinate: Any) -> float:
     coordinate_str = ordinate_to_str(coordinate)
-    if not regex.fullmatch(r"[+-]?[0-9]+(\.[0-9]+)?", coordinate_str):
+    if not DECIMAL_ORDINATE_PATTERN.match(coordinate_str):
         raise_xmllib_input_error(MessageInfo(f"The coordinate '{coordinate}' is not a decimal number, e.g. '8.55'."))
     return float(coordinate_str)
 

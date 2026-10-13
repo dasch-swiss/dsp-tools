@@ -14,7 +14,7 @@ from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
 from dsp_tools.utils.geolocation_constants import Crs
 
 # The same form the XML schema admits: a plain decimal, no exponent, no thousands separator.
-_DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?[0-9]+(\.[0-9]+)?$")
+DECIMAL_ORDINATE_PATTERN = regex.compile(r"^[+-]?[0-9]+(\.[0-9]+)?$")
 
 
 def get_geolocation_problem(crs_code: str, ordinates: Mapping[str, str]) -> str | None:
@@ -60,7 +60,7 @@ def _get_pair_problem(crs: Crs, ordinates: Mapping[str, str]) -> str | None:
 
 
 def _get_ordinate_problem(crs: Crs, name: str, ordinate: str, minimum: Decimal, maximum: Decimal) -> str | None:
-    if not _DECIMAL_ORDINATE_PATTERN.match(ordinate.strip()):
+    if not DECIMAL_ORDINATE_PATTERN.match(ordinate.strip()):
         return f"The {name} '{ordinate}' is not a decimal number, e.g. '8.55'."
     value = Decimal(ordinate.strip())
     if not minimum <= value <= maximum:

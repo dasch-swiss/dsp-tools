@@ -9,7 +9,7 @@ from typing import Never
 import regex
 from regex import Match
 
-from dsp_tools.xmllib.internal.checkers import check_raise_if_coordinates_are_not_a_pair
+from dsp_tools.xmllib.internal.checkers import check_raise_if_not_geolocation_coordinates
 from dsp_tools.xmllib.internal.checkers import is_date_internal
 from dsp_tools.xmllib.internal.checkers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
@@ -20,6 +20,8 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat
 from dsp_tools.xmllib.models.date_formats import Era
+from dsp_tools.xmllib.models.geolocation import GeographicCRS84
+from dsp_tools.xmllib.models.geolocation import ProjectedLV95
 
 
 def convert_to_bool_string(value: Any) -> bool:
@@ -137,7 +139,7 @@ def _raise_dms_error(input_str: str, reason: str) -> Never:
     )
 
 
-def crs84_to_lv95(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+def crs84_to_lv95(value: GeographicCRS84) -> ProjectedLV95:
     """
     Convert coordinates from `CRS84` (WGS84) to the Swiss coordinate system `LV95`.
 
@@ -146,21 +148,24 @@ def crs84_to_lv95(value: tuple[str | float | int, str | float | int]) -> tuple[s
     `add_geolocation()` warns if a result is outside the range of `LV95`.
 
     Args:
-        value: the coordinates in `CRS84`, as `(longitude, latitude)`
+        value: the coordinates in `CRS84`
 
     Returns:
-        The coordinates in `LV95`, as `(easting, northing)`, rounded to 2 decimal places
+        The coordinates in `LV95`, rounded to 2 decimal places
 
     Raises:
-        XmllibInputError: if the value is not a tuple of two decimal numbers
+        XmllibInputError: if the value is not `xmllib.GeographicCRS84`, or a coordinate is not a decimal number
 
     Examples:
         ```python
-        result = xmllib.crs84_to_lv95(("8.730497222", "46.044130556"))
-        # result == ("2699999.76", "1099999.97")
+        result = xmllib.crs84_to_lv95(
+            xmllib.GeographicCRS84.create_new(longitude="8.730497222", latitude="46.044130556")
+        )
+        # result == xmllib.ProjectedLV95.create_new(easting="2699999.76", northing="1099999.97")
         ```
     """
-    longitude, latitude = _get_coordinates_as_floats(value)
+    check_raise_if_not_geolocation_coordinates(value, GeographicCRS84)
+    longitude, latitude = _get_coordinate_as_float(value.longitude), _get_coordinate_as_float(value.latitude)
     # Auxiliary values of the swisstopo formulas: the distance to the old Bern observatory, in units of 10000"
     phi = (latitude * 3600 - 169028.66) / 10000
     lam = (longitude * 3600 - 26782.5) / 10000
@@ -168,10 +173,10 @@ def crs84_to_lv95(value: tuple[str | float | int, str | float | int]) -> tuple[s
     northing = (
         1200147.07 + 308807.95 * phi + 3745.25 * lam**2 + 76.63 * phi**2 - 194.56 * lam**2 * phi + 119.79 * phi**3
     )
-    return f"{easting:.2f}", f"{northing:.2f}"
+    return ProjectedLV95.create_new(easting=f"{easting:.2f}", northing=f"{northing:.2f}")
 
 
-def lv95_to_crs84(value: tuple[str | float | int, str | float | int]) -> tuple[str, str]:
+def lv95_to_crs84(value: ProjectedLV95) -> GeographicCRS84:
     """
     Convert coordinates from the Swiss coordinate system `LV95` to `CRS84` (WGS84).
 
@@ -179,41 +184,36 @@ def lv95_to_crs84(value: tuple[str | float | int, str | float | int]) -> tuple[s
     They are accurate to about 1 metre, and they apply to Switzerland only.
 
     Args:
-        value: the coordinates in `LV95`, as `(easting, northing)`
+        value: the coordinates in `LV95`
 
     Returns:
-        The coordinates in `CRS84`, as `(longitude, latitude)`, rounded to 6 decimal places
+        The coordinates in `CRS84`, rounded to 6 decimal places
 
     Raises:
-        XmllibInputError: if the value is not a tuple of two decimal numbers
+        XmllibInputError: if the value is not `xmllib.ProjectedLV95`, or a coordinate is not a decimal number
 
     Examples:
         ```python
-        result = xmllib.lv95_to_crs84(("2700000", "1100000"))
-        # result == ("8.730499", "46.044127")
+        result = xmllib.lv95_to_crs84(xmllib.ProjectedLV95.create_new(easting="2700000", northing="1100000"))
+        # result == xmllib.GeographicCRS84.create_new(longitude="8.730499", latitude="46.044127")
         ```
     """
-    easting, northing = _get_coordinates_as_floats(value)
+    check_raise_if_not_geolocation_coordinates(value, ProjectedLV95)
+    easting, northing = _get_coordinate_as_float(value.easting), _get_coordinate_as_float(value.northing)
     # Auxiliary values of the swisstopo formulas: the distance to the projection centre, in units of 1000 km
     y = (easting - 2600000) / 1000000
     x = (northing - 1200000) / 1000000
     lam = 2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x**2 - 0.0436 * y**3
     phi = 16.9023892 + 3.238272 * x - 0.270978 * y**2 - 0.002528 * x**2 - 0.0447 * y**2 * x - 0.0140 * x**3
     # lam and phi are in units of 10000"
-    return f"{lam * 100 / 36:.6f}", f"{phi * 100 / 36:.6f}"
+    return GeographicCRS84.create_new(longitude=f"{lam * 100 / 36:.6f}", latitude=f"{phi * 100 / 36:.6f}")
 
 
-def _get_coordinates_as_floats(value: Any) -> tuple[float, float]:
-    check_raise_if_coordinates_are_not_a_pair(value)
-    coordinates = []
-    for coordinate in value:
-        coordinate_str = ordinate_to_str(coordinate)
-        if not regex.fullmatch(r"[+-]?[0-9]+(\.[0-9]+)?", coordinate_str):
-            raise_xmllib_input_error(
-                MessageInfo(f"The coordinate '{coordinate}' is not a decimal number, e.g. '8.55'.")
-            )
-        coordinates.append(float(coordinate_str))
-    return coordinates[0], coordinates[1]
+def _get_coordinate_as_float(coordinate: Any) -> float:
+    coordinate_str = ordinate_to_str(coordinate)
+    if not regex.fullmatch(r"[+-]?[0-9]+(\.[0-9]+)?", coordinate_str):
+        raise_xmllib_input_error(MessageInfo(f"The coordinate '{coordinate}' is not a decimal number, e.g. '8.55'."))
+    return float(coordinate_str)
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:

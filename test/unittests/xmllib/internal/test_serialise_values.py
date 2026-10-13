@@ -6,6 +6,7 @@ from lxml import etree
 
 from dsp_tools.xmllib.internal.serialise_values import _sort_and_group_values
 from dsp_tools.xmllib.internal.serialise_values import serialise_values
+from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
@@ -139,7 +140,12 @@ class TestSerialiseValues:
 
     def test_geolocation_geographic(self):
         v: list[Value] = [
-            GeolocationValue("CRS84 8.55 47.37", ":locProp", "CRS84", {"longitude": "8.55", "latitude": "47.37"})
+            GeolocationValue(
+                "CRS84 8.55 47.37",
+                ":locProp",
+                CoordinateSystem.GEOGRAPHIC_CRS84,
+                {"longitude": "8.55", "latitude": "47.37"},
+            )
         ]
         result = serialise_values(v)
         assert len(result) == 1
@@ -157,7 +163,7 @@ class TestSerialiseValues:
             GeolocationValue(
                 "LV95 2600000 1200000",
                 ":locProp",
-                "LV95",
+                CoordinateSystem.PROJECTED_LV95,
                 {"easting": "2600000", "northing": "1200000"},
                 permissions=Permissions.PUBLIC,
                 comment="findspot",
@@ -178,7 +184,12 @@ class TestSerialiseValues:
 
     def test_geolocation_keeps_trailing_zeroes(self):
         v: list[Value] = [
-            GeolocationValue("CRS84 8.550 47.370", ":locProp", "CRS84", {"longitude": "8.550", "latitude": "47.370"})
+            GeolocationValue(
+                "CRS84 8.550 47.370",
+                ":locProp",
+                CoordinateSystem.GEOGRAPHIC_CRS84,
+                {"longitude": "8.550", "latitude": "47.370"},
+            )
         ]
         result = serialise_values(v)
         assert b'longitude="8.550" latitude="47.370"' in etree.tostring(result.pop(0))

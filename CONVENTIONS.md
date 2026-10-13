@@ -40,6 +40,14 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   module or a command module, and do not import them from there.
 - **User-facing docs and docstrings do not cite xmllib internals** — describe user input in the user's
   terms (XML elements, JSON fields), not in terms of library code.
+- **xmllib has one `Resource.add_<value>` method family per value type (`object` in the ontology).**
+  `TextValue` is an exception: it has one family per `gui_element` (`add_simpletext`, `add_textarea`,
+  `add_richtext`). A file value is a second exception: it has one family per XML element (`add_file` for
+  `<bitstream>`, `add_iiif_uri` for `<iiif-uri>`).
+- **Use one public, frozen dataclass per variant as the input of an xmllib value only if the value has several
+  named parts whose meaning depends on a variant**, as the coordinates of a geolocation depend on its CRS
+  (`GeographicCRS84`, `ProjectedLV95`, `ProjectedLV03`). The field names use the terms of the user, and
+  `xmllib/__init__.py` exports each class. Do not ask the user for an enum plus a tuple instead.
 - **New RDF-mapped properties must be threaded through the validate-data pipeline**
   (`get_rdf_like_data()` → property type → SHACL shape in
   `src/dsp_tools/resources/validate_data/api-shapes.ttl`). The generic resource shape is closed: a new

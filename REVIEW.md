@@ -41,6 +41,10 @@ Flag anything below that a change violates.
       docs and docstrings describe user input (XML elements, JSON fields), not xmllib internals
 - [ ] Literals and constants that xmllib and other parts of dsp-tools both use live in a shared constants file
       in `src/dsp_tools/utils/`, not in an xmllib module or a command module
+- [ ] A new xmllib `Resource.add_<value>` method family maps to one value type, or to one `gui_element` of
+      `TextValue`, or to one XML file element (see `CONVENTIONS.md`)
+- [ ] An xmllib value whose parts depend on a variant takes one public, frozen dataclass per variant,
+      not an enum plus a tuple (see `CONVENTIONS.md`)
 - [ ] New RDF-mapped properties are threaded through the validate-data pipeline and have an explicit
       cardinality in `api-shapes.ttl` (the generic resource shape is closed)
 - [ ] A new `validate-data` check is a SHACL shape. A Python check (`validation/python_checks.py`) names its

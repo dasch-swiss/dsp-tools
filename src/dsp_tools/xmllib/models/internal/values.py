@@ -6,7 +6,6 @@ from typing import Protocol
 
 from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.utils.data_formats.uri_util import is_uri
-from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
 from dsp_tools.xmllib.internal.checkers import check_and_inform_about_angular_brackets
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
@@ -18,8 +17,8 @@ from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_type_mismatch_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
-from dsp_tools.xmllib.models.config_options import CoordinateSystem
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
 from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.provenance import SourceProvenance
@@ -186,26 +185,22 @@ class GeolocationValue(Value):
     @classmethod
     def new(
         cls,
-        crs: CoordinateSystem,
-        value: tuple[Any, Any],
+        value: GeolocationCoordinates,
         prop_name: str,
         permissions: Permissions,
         comment: str | None,
         order: int | None,
         resource_id: str | None,
     ) -> GeolocationValue:
-        crs_def = CRS_BY_CODE[crs.value]
-        x, y = value
-        fixed_ordinates = {crs_def.x_name: ordinate_to_str(x), crs_def.y_name: ordinate_to_str(y)}
+        ordinates, crs = value.to_tuple()
+        fixed_ordinates = {name: ordinate_to_str(ordinate) for name, ordinate in ordinates.items()}
         if problem := get_geolocation_problem(crs.value, fixed_ordinates):
             emit_xmllib_input_warning(MessageInfo(message=problem, resource_id=resource_id, prop_name=prop_name))
         fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
         return cls(
-            # The value is only used to sort the values of a property; it is not written to the XML.
-            value=" ".join(
-                [crs.value, *fixed_ordinates.values()]
-            ),  # TODO: rename this to show the purpose use value for the actual values
+            # The value is only the key to sort the values of a property. It is not written to the XML.
+            value=" ".join([crs.value, *fixed_ordinates.values()]),
             prop_name=prop_name,
             crs=crs,
             ordinates=fixed_ordinates,

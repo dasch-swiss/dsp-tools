@@ -4,12 +4,11 @@ import pandas as pd
 import regex
 
 from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
-from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
 from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
-from dsp_tools.xmllib.models.config_options import CoordinateSystem
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -192,47 +191,44 @@ def is_geoname(value: Any) -> bool:
     return is_integer(value)
 
 
-def is_geolocation(crs: Any, value: Any) -> bool:
+def is_geolocation(value: Any) -> bool:
     """
-    Checks if coordinates form a valid geographic location in a coordinate reference system:
-    the coordinates must be a tuple of two decimal numbers within the range of the coordinate reference system.
-
-    - `xmllib.CoordinateSystem.GEOGRAPHIC_CRS84` takes `(longitude, latitude)`
-    - `xmllib.CoordinateSystem.PROJECTED_LV95` and `PROJECTED_LV03` take `(easting, northing)`
+    Checks if coordinates form a valid geographic location:
+    the value must be one of `xmllib.GeographicCRS84`, `xmllib.ProjectedLV95` or `xmllib.ProjectedLV03`,
+    and both coordinates must be decimal numbers within the range of the coordinate reference system.
 
     Args:
-        crs: coordinate reference system, as `xmllib.CoordinateSystem`
-        value: the coordinates, as a tuple of two values
+        value: the coordinates
 
     Returns:
         True if it conforms
 
     Examples:
         ```python
-        result = xmllib.is_geolocation(xmllib.CoordinateSystem.GEOGRAPHIC_CRS84, (8.55, 47.37))
+        result = xmllib.is_geolocation(xmllib.GeographicCRS84.create_new(longitude=8.55, latitude=47.37))
         # result == True
         ```
 
         ```python
-        result = xmllib.is_geolocation(xmllib.CoordinateSystem.PROJECTED_LV95, ("2600000", "1200000"))
+        result = xmllib.is_geolocation(xmllib.ProjectedLV95.create_new(easting="2600000", northing="1200000"))
         # result == True
         ```
 
         ```python
-        result = xmllib.is_geolocation(xmllib.CoordinateSystem.GEOGRAPHIC_CRS84, (500, 47.37))
+        result = xmllib.is_geolocation(xmllib.GeographicCRS84.create_new(longitude=500, latitude=47.37))
         # result == False
         ```
 
         ```python
-        result = xmllib.is_geolocation(xmllib.CoordinateSystem.PROJECTED_LV95, (8.55, 47.37))
+        result = xmllib.is_geolocation(xmllib.ProjectedLV95.create_new(easting=8.55, northing=47.37))
         # result == False
         ```
     """
-    if not isinstance(crs, CoordinateSystem) or not isinstance(value, tuple) or len(value) != 2:
+    if not isinstance(value, GeolocationCoordinates):
         return False
-    crs_def = CRS_BY_CODE[crs.value]
-    ordinates = {crs_def.x_name: ordinate_to_str(value[0]), crs_def.y_name: ordinate_to_str(value[1])}
-    return get_geolocation_problem(crs.value, ordinates) is None
+    ordinates, crs = value.to_tuple()
+    fixed_ordinates = {name: ordinate_to_str(ordinate) for name, ordinate in ordinates.items()}
+    return get_geolocation_problem(crs.value, fixed_ordinates) is None
 
 
 def is_decimal(value: Any) -> bool:

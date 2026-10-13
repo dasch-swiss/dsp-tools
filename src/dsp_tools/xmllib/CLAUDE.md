@@ -25,6 +25,7 @@ It provides a type-safe, validated approach to generating XML data that conforms
 - **Configuration**: Enums and options (`models/config_options.py`)
 - **Licenses**: License definitions (`models/licenses/`)
 - **Provenance**: Optional source-data coordinate carried by value builders (`models/provenance.py`)
+- **Geolocation**: Public coordinate classes, one per coordinate reference system (`models/geolocation.py`)
 - **Internal Models**: Value types and file models (`models/internal/`)
 
 #### Utilities Layer
@@ -109,7 +110,8 @@ segment = VideoSegmentResource.create_new(
 - **Color**: Hex color values
 - **URI**: Web addresses and identifiers
 - **Geoname**: Geographic location references, as geoname.org identifiers
-- **Geolocation**: Geographic coordinates, as a tuple `(x, y)` (longitude/latitude or easting/northing) in a coordinate reference system set by `CoordinateSystem`
+- **Geolocation**: Geographic coordinates, as one of the frozen dataclasses `GeographicCRS84`, `ProjectedLV95`
+  or `ProjectedLV03` (`models/geolocation.py`). Each class sets its coordinate reference system.
 - **List**: Controlled vocabulary values
 - **Link**: References to other resources
 - **File**: Multimedia file attachments
@@ -280,6 +282,8 @@ resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=list
 ### Maintainability
 
 - Follow existing patterns for new value types
+- One `Resource.add_<value>` method family per value type, and the typed-input-object rule:
+  see `CONVENTIONS.md` -> xmllib
 - Comments and docstrings follow `CONVENTIONS.md` -> "Comments"; these are public API, and mkdocstrings
   renders them into `docs/xmllib-docs/`
 - Include validation logic with clear error messages

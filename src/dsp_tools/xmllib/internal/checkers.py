@@ -6,12 +6,11 @@ from typing import Any
 import pandas as pd
 import regex
 
-from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_info
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
-from dsp_tools.xmllib.models.config_options import CoordinateSystem
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
 
 if TYPE_CHECKING:
     from dsp_tools.xmllib.models.provenance import SourceProvenance
@@ -209,39 +208,38 @@ def check_raise_if_input_value_for_value_order_is_incorrect(
         raise_xmllib_input_error(msg_info)
 
 
-def check_raise_if_coordinate_system_is_incorrect(crs: Any, prop_name: str, res_id: str) -> None:
-    """Raises an error if the coordinate system is not an `xmllib.CoordinateSystem`."""
-    if not isinstance(crs, CoordinateSystem):
-        msg_str = (
-            f"The coordinate system must be given as xmllib.CoordinateSystem, "
-            f"for example xmllib.CoordinateSystem.PROJECTED_LV95. Your input: '{crs}'"
-        )
-        raise_xmllib_input_error(MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name))
-
-
-def check_raise_if_coordinates_are_not_a_pair(
-    value: Any, res_id: str | None = None, prop_name: str | None = None
+def check_raise_if_not_geolocation_coordinates(
+    value: Any,
+    expected: type[GeolocationCoordinates] = GeolocationCoordinates,
+    prop_name: str | None = None,
+    res_id: str | None = None,
 ) -> None:
-    """Raises an error if the coordinates are not a tuple of two values."""
-    if not (isinstance(value, tuple) and len(value) == 2):
-        msg_str = (
-            f"The coordinates must be given as a tuple of two values: "
-            f"(longitude, latitude) or (easting, northing). Your input: '{value}'"
-        )
+    """Raises an error if the value is not an instance of the expected coordinates class."""
+    if not isinstance(value, expected):
+        if expected is GeolocationCoordinates:
+            expected_str = "xmllib.GeographicCRS84, xmllib.ProjectedLV95 or xmllib.ProjectedLV03"
+        else:
+            expected_str = f"xmllib.{expected.__name__}"
+        msg_str = f"The coordinates must be given as {expected_str}. Your input: '{value}'"
         raise_xmllib_input_error(MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name))
 
 
-def check_and_get_if_coordinates_are_nonempty(crs: CoordinateSystem, value: Any, prop_name: str, res_id: str) -> bool:
+def check_and_get_if_coordinates_are_nonempty(
+    value: GeolocationCoordinates | None, prop_name: str, res_id: str
+) -> bool:
     """
-    Returns False if the value is empty, or a pair of two empty values.
-    Raises an error if one value of a pair is empty, but the other is not.
+    Returns False if the value is None, or if both of its coordinates are empty.
+    Raises an error if the value is not coordinates,
+    or if one coordinate is empty, but the other is not.
     """
-    if not isinstance(value, tuple) or len(value) != 2:
-        return is_nonempty_value_internal(value)
-    x_present, y_present = (is_nonempty_value_internal(x) for x in value)
+    if value is None:
+        return False
+    check_raise_if_not_geolocation_coordinates(value, prop_name=prop_name, res_id=res_id)
+    ordinates, crs = value.to_tuple()
+    (x_name, x), (y_name, y) = ordinates.items()
+    x_present, y_present = is_nonempty_value_internal(x), is_nonempty_value_internal(y)
     if x_present == y_present:
         return x_present
-    crs_def = CRS_BY_CODE[crs.value]
-    present, missing = (crs_def.x_name, crs_def.y_name) if x_present else (crs_def.y_name, crs_def.x_name)
+    present, missing = (x_name, y_name) if x_present else (y_name, x_name)
     msg_str = f'The {missing} is empty, but the {present} is not. With crs="{crs.value}", both are required.'
     raise_xmllib_input_error(MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name))

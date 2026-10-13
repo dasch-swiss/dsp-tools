@@ -1,5 +1,5 @@
 from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
-from dsp_tools.xmllib.models.config_options import CoordinateSystem
+from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 
 
 def test_coordinate_system_has_one_member_per_supported_crs() -> None:

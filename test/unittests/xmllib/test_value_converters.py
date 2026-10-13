@@ -13,6 +13,9 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.date_formats import Calendar
 from dsp_tools.xmllib.models.date_formats import DateFormat
 from dsp_tools.xmllib.models.date_formats import Era
+from dsp_tools.xmllib.models.geolocation import GeographicCRS84
+from dsp_tools.xmllib.models.geolocation import ProjectedLV03
+from dsp_tools.xmllib.models.geolocation import ProjectedLV95
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.xmllib.value_converters import crs84_to_lv95
 from dsp_tools.xmllib.value_converters import dms_to_decimal_degrees
@@ -547,26 +550,38 @@ class TestDmsToDecimalDegrees:
 class TestSwissCoordinateConversion:
     # Reference point of the swisstopo approximate formulas: 46° 2' 38.87" N, 8° 43' 49.79" E
     def test_crs84_to_lv95(self) -> None:
-        assert crs84_to_lv95(("8.730497222", "46.044130556")) == ("2699999.76", "1099999.97")
+        result = crs84_to_lv95(GeographicCRS84.create_new(longitude="8.730497222", latitude="46.044130556"))
+        assert result == ProjectedLV95.create_new(easting="2699999.76", northing="1099999.97")
 
     def test_lv95_to_crs84(self) -> None:
-        assert lv95_to_crs84((2700000, 1100000)) == ("8.730499", "46.044127")
+        result = lv95_to_crs84(ProjectedLV95.create_new(easting=2700000, northing=1100000))
+        assert result == GeographicCRS84.create_new(longitude="8.730499", latitude="46.044127")
 
     def test_accepts_numpy_floats(self) -> None:
-        assert lv95_to_crs84((np.float64(2700000), np.float64(1100000))) == ("8.730499", "46.044127")
+        result = lv95_to_crs84(ProjectedLV95.create_new(easting=np.float64(2700000), northing=np.float64(1100000)))
+        assert result == GeographicCRS84.create_new(longitude="8.730499", latitude="46.044127")
 
     def test_round_trip_is_within_one_metre(self) -> None:
-        longitude, latitude = lv95_to_crs84(crs84_to_lv95((8.55, 47.37)))
+        result = lv95_to_crs84(crs84_to_lv95(GeographicCRS84.create_new(longitude=8.55, latitude=47.37)))
         # 0.00001 degrees is about 1 metre
-        assert abs(float(longitude) - 8.55) < 0.00001
-        assert abs(float(latitude) - 47.37) < 0.00001
+        assert abs(float(result.longitude) - 8.55) < 0.00001
+        assert abs(float(result.latitude) - 47.37) < 0.00001
 
-    @pytest.mark.parametrize("value", [(8.55,), [8.55, 47.37], "8.55 47.37", None])
-    def test_raises_if_not_a_pair(self, value: Any) -> None:
-        with pytest.raises(XmllibInputError, match=regex.escape("a tuple of two values")):
+    @pytest.mark.parametrize(
+        "value", [(8.55, 47.37), None, ProjectedLV95.create_new(easting="2600000", northing="1200000")]
+    )
+    def test_crs84_to_lv95_raises_if_not_crs84(self, value: Any) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
             crs84_to_lv95(value)
+
+    @pytest.mark.parametrize(
+        "value", [(2600000, 1200000), None, ProjectedLV03.create_new(easting="600000", northing="200000")]
+    )
+    def test_lv95_to_crs84_raises_if_not_lv95(self, value: Any) -> None:
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.ProjectedLV95")):
+            lv95_to_crs84(value)
 
     @pytest.mark.parametrize("value", [("abc", "47.37"), (None, "47.37"), ("8,55", "47.37"), ("1e5", "47.37")])
     def test_raises_if_not_a_decimal(self, value: tuple[Any, Any]) -> None:
         with pytest.raises(XmllibInputError, match=regex.escape("is not a decimal number")):
-            crs84_to_lv95(value)
+            crs84_to_lv95(GeographicCRS84.create_new(longitude=value[0], latitude=value[1]))

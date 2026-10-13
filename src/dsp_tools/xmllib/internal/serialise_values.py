@@ -135,7 +135,7 @@ def _serialise_complete_geolocation_prop(values: list[GeolocationValue], prop_na
     prop = _serialise_generic_prop(prop_name, "geolocation")
     for val in values:
         # A geolocation has no text: the CRS and the ordinates are all attributes.
-        attribs = {"crs": val.crs, **val.ordinates}
+        attribs = {"crs": val.crs.value, **val.ordinates}
         if val.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = val.permissions.value
         if val.comment is not None:

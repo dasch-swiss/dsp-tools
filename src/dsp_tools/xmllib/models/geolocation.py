@@ -19,7 +19,7 @@ class GeolocationCoordinates(ABC):
         """Returns the coordinates by their XML attribute name, and the coordinate reference system."""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class GeographicCRS84(GeolocationCoordinates):
     """
     Coordinates in WGS84, with the longitude first (CRS84).
@@ -38,7 +38,7 @@ class GeographicCRS84(GeolocationCoordinates):
     latitude: Any
 
     @classmethod
-    def create_new(cls, longitude: Any, latitude: Any) -> GeographicCRS84:
+    def create_new(cls, *, longitude: Any, latitude: Any) -> GeographicCRS84:
         """
         Creates new coordinates in CRS84.
         Pass the coordinates as strings to preserve their decimal precision: a float drops trailing zeroes.
@@ -56,7 +56,7 @@ class GeographicCRS84(GeolocationCoordinates):
         return {"longitude": self.longitude, "latitude": self.latitude}, CoordinateSystem.GEOGRAPHIC_CRS84
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ProjectedLV95(GeolocationCoordinates):
     """
     Coordinates in the Swiss coordinate system LV95.
@@ -75,7 +75,7 @@ class ProjectedLV95(GeolocationCoordinates):
     northing: Any
 
     @classmethod
-    def create_new(cls, easting: Any, northing: Any) -> ProjectedLV95:
+    def create_new(cls, *, easting: Any, northing: Any) -> ProjectedLV95:
         """
         Creates new coordinates in LV95.
         Pass the coordinates as strings to preserve their decimal precision: a float drops trailing zeroes.
@@ -93,7 +93,7 @@ class ProjectedLV95(GeolocationCoordinates):
         return {"easting": self.easting, "northing": self.northing}, CoordinateSystem.PROJECTED_LV95
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ProjectedLV03(GeolocationCoordinates):
     """
     Coordinates in the old Swiss coordinate system LV03.
@@ -112,7 +112,7 @@ class ProjectedLV03(GeolocationCoordinates):
     northing: Any
 
     @classmethod
-    def create_new(cls, easting: Any, northing: Any) -> ProjectedLV03:
+    def create_new(cls, *, easting: Any, northing: Any) -> ProjectedLV03:
         """
         Creates new coordinates in LV03.
         Pass the coordinates as strings to preserve their decimal precision: a float drops trailing zeroes.

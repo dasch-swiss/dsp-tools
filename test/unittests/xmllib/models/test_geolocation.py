@@ -47,3 +47,15 @@ def test_create_new_accepts_empty_coordinates() -> None:
 def test_the_base_class_cannot_be_instantiated() -> None:
     with pytest.raises(TypeError):
         GeolocationCoordinates()  # type: ignore[abstract]
+
+
+@pytest.mark.parametrize("cls", [GeographicCRS84, ProjectedLV95, ProjectedLV03])
+def test_create_new_rejects_positional_coordinates(cls: type[GeolocationCoordinates]) -> None:
+    with pytest.raises(TypeError):
+        cls.create_new("8.55", "47.37")  # type: ignore[attr-defined, misc]
+
+
+@pytest.mark.parametrize("cls", [GeographicCRS84, ProjectedLV95, ProjectedLV03])
+def test_constructor_rejects_positional_coordinates(cls: type[GeolocationCoordinates]) -> None:
+    with pytest.raises(TypeError):
+        cls("8.55", "47.37")  # type: ignore[call-arg]

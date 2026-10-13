@@ -334,7 +334,7 @@ class TestAddValues:
     def test_add_geolocation_optional_raises_if_the_value_is_not_coordinates(self) -> None:
         res = Resource.create_new("res_id", "restype", "label")
         with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
-            res.add_geolocation_optional(":prop", ("2600000", "1200000"))  # type: ignore[arg-type]
+            res.add_geolocation_optional(":prop", ("2600000", "1200000"))
 
     def test_add_geolocation_optional_both_present(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional(

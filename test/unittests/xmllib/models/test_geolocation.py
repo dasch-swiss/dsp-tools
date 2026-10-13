@@ -52,7 +52,7 @@ def test_the_base_class_cannot_be_instantiated() -> None:
 @pytest.mark.parametrize("cls", [GeographicCRS84, ProjectedLV95, ProjectedLV03])
 def test_create_new_rejects_positional_coordinates(cls: type[GeolocationCoordinates]) -> None:
     with pytest.raises(TypeError):
-        cls.create_new("8.55", "47.37")  # type: ignore[attr-defined, misc]
+        cls.create_new("8.55", "47.37")  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("cls", [GeographicCRS84, ProjectedLV95, ProjectedLV03])

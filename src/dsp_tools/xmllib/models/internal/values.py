@@ -191,13 +191,16 @@ class GeolocationValue(Value):
         comment: str | None,
         order: int | None,
         resource_id: str | None,
+        provenance: SourceProvenance | None = None,
     ) -> GeolocationValue:
         ordinates, crs = value.to_tuple()
         fixed_ordinates = {name: ordinate_to_str(ordinate) for name, ordinate in ordinates.items()}
         if problem := get_geolocation_problem(crs.value, fixed_ordinates):
-            emit_xmllib_input_warning(MessageInfo(message=problem, resource_id=resource_id, prop_name=prop_name))
-        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name)
-        fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
+            emit_xmllib_input_warning(
+                MessageInfo(message=problem, resource_id=resource_id, prop_name=prop_name, provenance=provenance)
+            )
+        fixed_comment = check_and_get_corrected_comment(comment, resource_id, prop_name, provenance=provenance)
+        fixed_order = check_and_fix_value_order(order, prop_name, resource_id, provenance=provenance)
         return cls(
             # The value is only the key to sort the values of a property. It is not written to the XML.
             value=" ".join([crs.value, *fixed_ordinates.values()]),

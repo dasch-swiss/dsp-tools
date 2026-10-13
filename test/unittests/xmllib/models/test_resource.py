@@ -32,6 +32,7 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.models.res import Resource
 
 
@@ -234,6 +235,31 @@ class TestAddValues:
         with pytest.warns(XmllibInputWarning, match=regex.escape("The easting 'abc' is not a decimal number")):
             Resource.create_new("res_id", "restype", "label").add_geolocation(
                 ":prop", ProjectedLV95.create_new(easting="abc", northing="1200000")
+            )
+
+    def test_add_geolocation_warning_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        with pytest.warns(XmllibInputWarning, match=regex.escape("Source File 'geo.xlsx'")):
+            Resource.create_new("res_id", "restype", "label").add_geolocation(
+                ":prop", GeographicCRS84.create_new(longitude=8.55, latitude=91), provenance=provenance
+            )
+
+    def test_add_geolocation_multiple_error_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("Source File 'geo.xlsx'")):
+            res.add_geolocation_multiple(
+                ":prop",
+                [("2683000", "1247000")],  # type: ignore[list-item]
+                provenance=provenance,
+            )
+
+    def test_add_geolocation_optional_error_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("Source File 'geo.xlsx'")):
+            res.add_geolocation_optional(
+                ":prop", ProjectedLV95.create_new(easting="2600000", northing=None), provenance=provenance
             )
 
     @pytest.mark.parametrize("value", [(8.55, 47.37), "8.55 47.37", None])

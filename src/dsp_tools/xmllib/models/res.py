@@ -677,6 +677,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add a geographic location to the resource.
@@ -698,6 +699,7 @@ class Resource:
             order: Position at which this value is displayed in the app (starting at 0),
                    relative to other values of the same property.
                    [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value
@@ -721,7 +723,9 @@ class Resource:
             )
             ```
         """
-        check_raise_if_not_geolocation_coordinates(value, prop_name=prop_name, res_id=self.res_id)
+        check_raise_if_not_geolocation_coordinates(
+            value, prop_name=prop_name, res_id=self.res_id, provenance=provenance
+        )
         self.values.append(
             GeolocationValue.new(
                 value=value,
@@ -730,6 +734,7 @@ class Resource:
                 comment=comment,
                 order=order,
                 resource_id=self.res_id,
+                provenance=provenance,
             )
         )
         return self
@@ -741,6 +746,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         include_value_order: bool = False,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         Add several geographic locations to the resource.
@@ -756,6 +762,7 @@ class Resource:
             include_value_order: If True, each value is assigned a persistent display order
                                  based on its position in the input list.
                                  [See documentation for details.](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#value-order)
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added values
@@ -776,13 +783,17 @@ class Resource:
             ```
         """
         if include_value_order:
-            check_raise_if_input_value_for_value_order_is_incorrect(values, prop_name, "geolocation", self.res_id)
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+            check_raise_if_input_value_for_value_order_is_incorrect(
+                values, prop_name, "geolocation", self.res_id, provenance=provenance
+            )
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
         for v in vals:
-            check_raise_if_not_geolocation_coordinates(v, prop_name=prop_name, res_id=self.res_id)
+            check_raise_if_not_geolocation_coordinates(
+                v, prop_name=prop_name, res_id=self.res_id, provenance=provenance
+            )
         val_order: list[int | None] = list(range(len(vals))) if include_value_order else [None] * len(vals)
         for v, o in zip(vals, val_order):
-            self.add_geolocation(prop_name, v, permissions, comment, o)
+            self.add_geolocation(prop_name, v, permissions, comment, o, provenance)
         return self
 
     def add_geolocation_optional(
@@ -791,6 +802,7 @@ class Resource:
         value: GeolocationCoordinates | None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
+        provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the coordinates are not empty, add the geographic location to the resource.
@@ -804,6 +816,7 @@ class Resource:
             value: the coordinates, or `None`
             permissions: optional permissions of this value
             comment: optional comment
+            provenance: optional information about where the value came from in the source data
 
         Returns:
             The original resource, with the added value if the coordinates were not empty,
@@ -828,8 +841,10 @@ class Resource:
             )
             ```
         """
-        if value is not None and check_and_get_if_coordinates_are_nonempty(value, prop_name, self.res_id):
-            self.add_geolocation(prop_name, value, permissions, comment)
+        if value is not None and check_and_get_if_coordinates_are_nonempty(
+            value, prop_name, self.res_id, provenance=provenance
+        ):
+            self.add_geolocation(prop_name, value, permissions, comment, provenance=provenance)
         return self
 
     #######################

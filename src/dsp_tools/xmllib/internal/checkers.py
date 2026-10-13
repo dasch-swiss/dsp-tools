@@ -213,6 +213,7 @@ def check_raise_if_not_geolocation_coordinates(
     expected: type[GeolocationCoordinates] = GeolocationCoordinates,
     prop_name: str | None = None,
     res_id: str | None = None,
+    provenance: SourceProvenance | None = None,
 ) -> None:
     """Raises an error if the value is not an instance of the expected coordinates class."""
     if not isinstance(value, expected):
@@ -221,11 +222,16 @@ def check_raise_if_not_geolocation_coordinates(
         else:
             expected_str = f"xmllib.{expected.__name__}"
         msg_str = f"The coordinates must be given as {expected_str}. Your input: '{value}'"
-        raise_xmllib_input_error(MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name))
+        raise_xmllib_input_error(
+            MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name, provenance=provenance)
+        )
 
 
 def check_and_get_if_coordinates_are_nonempty(
-    value: GeolocationCoordinates | None, prop_name: str, res_id: str
+    value: GeolocationCoordinates | None,
+    prop_name: str,
+    res_id: str,
+    provenance: SourceProvenance | None = None,
 ) -> bool:
     """
     Returns False if the value is None, or if both of its coordinates are empty.
@@ -234,7 +240,7 @@ def check_and_get_if_coordinates_are_nonempty(
     """
     if value is None:
         return False
-    check_raise_if_not_geolocation_coordinates(value, prop_name=prop_name, res_id=res_id)
+    check_raise_if_not_geolocation_coordinates(value, prop_name=prop_name, res_id=res_id, provenance=provenance)
     ordinates, crs = value.to_tuple()
     (x_name, x), (y_name, y) = ordinates.items()
     x_present, y_present = is_nonempty_value_internal(x), is_nonempty_value_internal(y)
@@ -242,4 +248,6 @@ def check_and_get_if_coordinates_are_nonempty(
         return x_present
     present, missing = (x_name, y_name) if x_present else (y_name, x_name)
     msg_str = f'The {missing} is empty, but the {present} is not. With crs="{crs.value}", both are required.'
-    raise_xmllib_input_error(MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name))
+    raise_xmllib_input_error(
+        MessageInfo(message=msg_str, resource_id=res_id, prop_name=prop_name, provenance=provenance)
+    )

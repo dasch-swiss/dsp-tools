@@ -199,7 +199,7 @@
     </xs:simpleType>
 
     <!-- geolocation value type -->
-    <!-- which pair of ordinates is required depends on the value of crs; this cannot be expressed in XSD 1.0 and is checked in Python -->
+    <!-- which pair of ordinates is required depends on the value of crs. XSD 1.0 cannot express this. The SHACL shapes of validate-data and the checks of xmlupload enforce it -->
     <xs:complexType name="geolocation_type">
         <xs:sequence />
         <xs:attribute name="crs" type="crs_code" use="required"/>

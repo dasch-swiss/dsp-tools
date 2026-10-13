@@ -320,7 +320,7 @@ class TestGeolocationSchema:
                 '<geolocation crs="CRS84" longitude="8.55" latitude="47.37"/>'
                 '<geolocation crs="CRS84" longitude="7.45" latitude="46.95"/>'
             ),
-            # the pair is checked in Python, because XSD 1.0 cannot make it depend on the crs
+            # XSD 1.0 cannot make the pair depend on the crs. validate-data and xmlupload check the pair
             '<geolocation crs="LV95" longitude="8.55" latitude="47.37"/>',
         ],
     )

@@ -146,7 +146,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
 | xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
 | other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `start_stack` / `stop_stack`. |
-| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals; exports live in `xmllib/__init__.py`. |
+| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
 | utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
 | schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
 | docs | `docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |

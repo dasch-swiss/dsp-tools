@@ -3,6 +3,7 @@ import logging
 import pytest
 
 from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
+from dsp_tools.commands.validate_data.mappers import ORDINATE_NAME_TO_TRIPLE_PROP_TYPE
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
@@ -22,6 +23,7 @@ from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.geolocation_constants import ORDINATE_NAMES
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -665,6 +667,10 @@ class TestRichtextStandoff:
         link_str, triple_type = _get_link_string_and_triple_object_type(link)
         assert link_str == link
         assert triple_type == TripleObjectType.INTERNAL_ID
+
+
+def test_every_ordinate_name_has_a_triple_property_type() -> None:
+    assert set(ORDINATE_NAME_TO_TRIPLE_PROP_TYPE) == set(ORDINATE_NAMES)
 
 
 if __name__ == "__main__":

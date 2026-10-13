@@ -1,9 +1,13 @@
+from pathlib import Path
+
 import pytest
+from lxml import etree
 
 from dsp_tools.utils.data_formats.geolocation_util import CRS_IRI_BY_CODE
 from dsp_tools.utils.data_formats.geolocation_util import compose_geolocation_literal
 from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.utils.geolocation_constants import CRS_BY_CODE
+from dsp_tools.utils.geolocation_constants import ORDINATE_NAMES
 
 
 class TestBounds:
@@ -92,6 +96,23 @@ class TestPair:
 
 def test_every_supported_crs_has_an_iri() -> None:
     assert set(CRS_IRI_BY_CODE) == set(CRS_BY_CODE)
+
+
+class TestXsdMatchesCrsTable:
+    xsd = etree.parse(Path("src/dsp_tools/resources/schema/data.xsd"))
+    xs = "{http://www.w3.org/2001/XMLSchema}"
+
+    def test_crs_codes(self) -> None:
+        crs_type = self.xsd.find(f"{self.xs}simpleType[@name='crs_code']")
+        assert crs_type is not None
+        codes = {ele.attrib["value"] for ele in crs_type.iter(f"{self.xs}enumeration")}
+        assert codes == set(CRS_BY_CODE)
+
+    def test_ordinate_attributes(self) -> None:
+        geolocation_type = self.xsd.find(f"{self.xs}complexType[@name='geolocation_type']")
+        assert geolocation_type is not None
+        attributes = {ele.attrib["name"] for ele in geolocation_type.iter(f"{self.xs}attribute")}
+        assert attributes - {"crs", "permissions", "comment", "order"} == set(ORDINATE_NAMES)
 
 
 class TestComposeLiteral:

@@ -8,8 +8,10 @@ class CliUserError(UserError):
 class DockerNotReachableError(UserError):
     """This error is raised when docker is not running."""
 
-    def __init__(self) -> None:
+    def __init__(self, details: str | None = None) -> None:
         msg = "Docker is not running properly. Please start Docker and try again."
+        if details:
+            msg += f"\nDetails: {details}"
         super().__init__(msg)
 
 

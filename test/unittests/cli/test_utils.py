@@ -1,14 +1,57 @@
 import logging
+import subprocess
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
 import requests
 
+from dsp_tools.cli.exceptions import DockerNotReachableError
 from dsp_tools.cli.exceptions import DspApiNotReachableError
 from dsp_tools.cli.exceptions import IngestNotReachableError
 from dsp_tools.cli.utils import _check_api_health
 from dsp_tools.cli.utils import _check_ingest_health
+from dsp_tools.cli.utils import check_docker_health
+
+DOCKER_STATS_CMD = ["docker", "stats", "--no-stream"]
+
+
+@patch("dsp_tools.cli.utils.subprocess.run")
+def test_check_docker_health_success(mock_run: Mock) -> None:
+    mock_run.return_value = Mock(returncode=0, stderr="")
+
+    check_docker_health()
+    mock_run.assert_called_once_with(DOCKER_STATS_CMD, check=False, capture_output=True, text=True, timeout=10)
+
+
+@patch("dsp_tools.cli.utils.subprocess.run")
+def test_check_docker_health_nonzero_exit(mock_run: Mock) -> None:
+    mock_run.return_value = Mock(returncode=1, stderr="Cannot connect to the Docker daemon\n")
+
+    with pytest.raises(DockerNotReachableError) as exc_info:
+        check_docker_health()
+
+    assert "Exit code 1: Cannot connect to the Docker daemon" in exc_info.value.message
+
+
+@patch("dsp_tools.cli.utils.subprocess.run")
+def test_check_docker_health_timeout(mock_run: Mock) -> None:
+    mock_run.side_effect = subprocess.TimeoutExpired(cmd=DOCKER_STATS_CMD, timeout=10)
+
+    with pytest.raises(DockerNotReachableError) as exc_info:
+        check_docker_health()
+
+    assert "timed out after 10 seconds" in exc_info.value.message
+
+
+@patch("dsp_tools.cli.utils.subprocess.run")
+def test_check_docker_health_docker_not_installed(mock_run: Mock) -> None:
+    mock_run.side_effect = FileNotFoundError(2, "No such file or directory", "docker")
+
+    with pytest.raises(DockerNotReachableError) as exc_info:
+        check_docker_health()
+
+    assert "No such file or directory: 'docker'" in exc_info.value.message
 
 
 @patch("requests.get")

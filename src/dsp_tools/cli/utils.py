@@ -77,8 +77,14 @@ def _check_network_health(network_requirements: NetworkRequirements) -> None:
 
 
 def check_docker_health() -> None:
-    if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True, timeout=3).returncode != 0:
-        raise DockerNotReachableError()
+    try:
+        result = subprocess.run(
+            "docker stats --no-stream".split(), check=False, capture_output=True, text=True, timeout=10
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError) as err:
+        raise DockerNotReachableError(details=str(err)) from None
+    if result.returncode != 0:
+        raise DockerNotReachableError(details=f"Exit code {result.returncode}: {result.stderr.strip()}")
 
 
 def _check_api_health(api_url: str) -> None:

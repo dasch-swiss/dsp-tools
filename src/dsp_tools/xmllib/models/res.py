@@ -18,6 +18,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_typ
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import CoordinateSystem
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
 from dsp_tools.xmllib.models.internal.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
@@ -674,8 +675,7 @@ class Resource:
     def add_geolocation(
         self,
         prop_name: str,
-        crs: CoordinateSystem,
-        value: tuple[str | float | int, str | float | int],
+        value: GeolocationCoordinates,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         order: int | None = None,
@@ -725,12 +725,12 @@ class Resource:
             )
             ```
         """
+        # TODO: change the check if it is an instance of the correct class
         check_raise_if_coordinate_system_is_incorrect(crs, prop_name, self.res_id)
         check_raise_if_coordinates_are_not_a_pair(value, self.res_id, prop_name)
         self.values.append(
             GeolocationValue.new(
-                crs=crs,
-                value=value,
+                value=value.to_tuple(),
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,

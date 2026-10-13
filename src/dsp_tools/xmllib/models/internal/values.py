@@ -20,6 +20,7 @@ from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_war
 from dsp_tools.xmllib.internal.xmllib_warnings_util import raise_xmllib_input_error
 from dsp_tools.xmllib.models.config_options import CoordinateSystem
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 from dsp_tools.xmllib.models.permissions import Permissions
 from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.value_checkers import is_color
@@ -176,7 +177,7 @@ class DecimalValue(Value):
 class GeolocationValue(Value):
     value: str
     prop_name: str
-    crs: str
+    crs: CoordinateSystem
     ordinates: dict[str, str]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
@@ -202,9 +203,11 @@ class GeolocationValue(Value):
         fixed_order = check_and_fix_value_order(order, prop_name, resource_id)
         return cls(
             # The value is only used to sort the values of a property; it is not written to the XML.
-            value=" ".join([crs.value, *fixed_ordinates.values()]),
+            value=" ".join(
+                [crs.value, *fixed_ordinates.values()]
+            ),  # TODO: rename this to show the purpose use value for the actual values
             prop_name=prop_name,
-            crs=crs.value,
+            crs=crs,
             ordinates=fixed_ordinates,
             permissions=permissions,
             comment=fixed_comment,

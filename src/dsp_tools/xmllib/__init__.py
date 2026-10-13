@@ -23,6 +23,10 @@ from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResou
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
+from .models.geolocation import GeographicCRS84 as GeographicCRS84
+from .models.geolocation import GeolocationCoordinates as GeolocationCoordinates
+from .models.geolocation import ProjectedLV03 as ProjectedLV03
+from .models.geolocation import ProjectedLV95 as ProjectedLV95
 from .models.licenses.other import LicenseOther as LicenseOther
 from .models.licenses.recommended import LicenseRecommended as LicenseRecommended
 from .models.permissions import Permissions as Permissions

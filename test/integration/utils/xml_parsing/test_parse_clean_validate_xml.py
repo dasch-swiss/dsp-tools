@@ -298,10 +298,6 @@ class TestBitstreamPlaceholderFile:
         assert result[0].element == "placeholder-file"
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
-
-
 def _make_root_with_geolocation(geolocation_xml: str) -> etree._Element:
     return etree.fromstring(
         f'<knora xmlns="{_NS}" shortcode="9999" default-ontology="test">'
@@ -358,3 +354,7 @@ class TestGeolocationSchema:
     def test_rejects_an_unknown_attribute(self) -> None:
         root = _make_root_with_geolocation('<geolocation crs="CRS84" lon="8.55" lat="47.37"/>')
         assert _validate_root_get_validation_messages(root)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

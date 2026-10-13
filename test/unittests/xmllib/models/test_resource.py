@@ -293,14 +293,13 @@ class TestAddValues:
         ]
         assert [x.order for x in res.values] == [0, 1]
 
-    def test_add_geolocation_multiple_adds_nothing_if_one_value_is_not_coordinates(self) -> None:
+    def test_add_geolocation_multiple_raises_if_one_value_is_not_coordinates(self) -> None:
         res = Resource.create_new("res_id", "restype", "label")
         with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
             res.add_geolocation_multiple(
                 ":prop",
                 [ProjectedLV95.create_new(easting="2600000", northing="1200000"), ("2683000", "1247000")],  # type: ignore[list-item]
             )
-        assert not res.values
 
     def test_add_geolocation_multiple_with_value_order_rejects_a_set(self) -> None:
         res = Resource.create_new("res_id", "restype", "label")
@@ -315,12 +314,15 @@ class TestAddValues:
         "value",
         [
             None,
+            pd.NA,
+            float("nan"),
+            "",
             GeographicCRS84.create_new(longitude=None, latitude=None),
             GeographicCRS84.create_new(longitude=pd.NA, latitude=""),
             ProjectedLV95.create_new(easting="", northing=" "),
         ],
     )
-    def test_add_geolocation_optional_empty(self, value: GeolocationCoordinates | None) -> None:
+    def test_add_geolocation_optional_empty(self, value: Any) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional(":prop", value)
         assert not res.values
 

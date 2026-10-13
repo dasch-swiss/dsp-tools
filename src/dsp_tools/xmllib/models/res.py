@@ -769,7 +769,7 @@ class Resource:
 
         Raises:
             XmllibInputError: if a value is not `xmllib.GeographicCRS84`, `xmllib.ProjectedLV95`
-                or `xmllib.ProjectedLV03`. No value is added in this case.
+                or `xmllib.ProjectedLV03`
 
         Examples:
             ```python
@@ -787,10 +787,6 @@ class Resource:
                 values, prop_name, "geolocation", self.res_id, provenance=provenance
             )
         vals = check_and_fix_collection_input(values, prop_name, self.res_id, provenance=provenance)
-        for v in vals:
-            check_raise_if_not_geolocation_coordinates(
-                v, prop_name=prop_name, res_id=self.res_id, provenance=provenance
-            )
         val_order: list[int | None] = list(range(len(vals))) if include_value_order else [None] * len(vals)
         for v, o in zip(vals, val_order):
             self.add_geolocation(prop_name, v, permissions, comment, o, provenance)
@@ -799,21 +795,22 @@ class Resource:
     def add_geolocation_optional(
         self,
         prop_name: str,
-        value: GeolocationCoordinates | None,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         provenance: SourceProvenance | None = None,
     ) -> Resource:
         """
         If the coordinates are not empty, add the geographic location to the resource.
-        If the value is `None`, or both coordinates are empty, return the resource unchanged.
+        If the value is empty (`None`, `pd.NA`, `""`, ...), or both coordinates are empty,
+        return the resource unchanged.
         If only one of the two coordinates is empty, raise an error.
 
         [See XML documentation for details](https://docs.dasch.swiss/DSP-TOOLS/data-file/xml-data-file/#geolocation)
 
         Args:
             prop_name: name of the property
-            value: the coordinates, or `None`
+            value: the coordinates, or an empty value
             permissions: optional permissions of this value
             comment: optional comment
             provenance: optional information about where the value came from in the source data
@@ -823,7 +820,7 @@ class Resource:
             else the unchanged original resource.
 
         Raises:
-            XmllibInputError: if `value` is not `None`, `xmllib.GeographicCRS84`, `xmllib.ProjectedLV95`
+            XmllibInputError: if `value` is not empty and not `xmllib.GeographicCRS84`, `xmllib.ProjectedLV95`
                 or `xmllib.ProjectedLV03`, or if only one of the coordinates is empty
 
         Examples:
@@ -841,7 +838,7 @@ class Resource:
             )
             ```
         """
-        if value is not None and check_and_get_if_coordinates_are_nonempty(
+        if is_nonempty_value(value) and check_and_get_if_coordinates_are_nonempty(
             value, prop_name, self.res_id, provenance=provenance
         ):
             self.add_geolocation(prop_name, value, permissions, comment, provenance=provenance)

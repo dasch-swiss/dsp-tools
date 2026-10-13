@@ -228,18 +228,16 @@ def check_raise_if_not_geolocation_coordinates(
 
 
 def check_and_get_if_coordinates_are_nonempty(
-    value: GeolocationCoordinates | None,
+    value: Any,
     prop_name: str,
     res_id: str,
     provenance: SourceProvenance | None = None,
 ) -> bool:
     """
-    Returns False if the value is None, or if both of its coordinates are empty.
+    Returns False if both coordinates are empty.
     Raises an error if the value is not coordinates,
     or if one coordinate is empty, but the other is not.
     """
-    if value is None:
-        return False
     check_raise_if_not_geolocation_coordinates(value, prop_name=prop_name, res_id=res_id, provenance=provenance)
     ordinates, crs = value.to_tuple()
     (x_name, x), (y_name, y) = ordinates.items()

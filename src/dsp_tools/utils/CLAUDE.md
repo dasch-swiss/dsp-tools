@@ -57,10 +57,14 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 
 **`data_formats/geolocation_util.py`**
 
-- Check a geolocation (CRS code and named ordinates) against the CRS table and describe the first problem
-- Used in: xmllib, xmlupload. validate-data checks with SHACL shapes in `api-shapes.ttl` instead
-- The CRS IRIs, and the composition of the CRS-prefixed WKT literal that is sent to dsp-api
-- Used in: xmlupload only. xmllib writes the CRS and the ordinates as XML attributes, not the literal
+- `get_geolocation_problem`: check a geolocation (CRS code and named ordinates) against the CRS table
+  and describe the first problem. Used in: xmllib, xmlupload.
+  validate-data checks with the SHACL shapes in `api-shapes.ttl` instead.
+- `DECIMAL_ORDINATE_PATTERN`: the decimal form an ordinate must have.
+  Used in: `get_geolocation_problem`, xmllib converters.
+- `CRS_IRI_BY_CODE` and `compose_geolocation_literal`: the CRS IRIs, and the CRS-prefixed WKT literal
+  that is sent to dsp-api. Used in: xmlupload only.
+  xmllib writes the CRS and the ordinates as XML attributes, not the literal.
 
 **`data_formats/shared.py`**
 

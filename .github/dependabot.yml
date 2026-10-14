@@ -10,6 +10,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      # Applies to version updates only. Security updates ignore the cooldown.
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 7
     open-pull-requests-limit: 1
     groups:
       all-dependencies:

@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import warnings
 from typing import Any
 
@@ -271,8 +271,8 @@ class TestFindDate:
         assert find_dates_in_string("x 2193_02_30 x") == set()
 
     def test_find_dates_in_string_eur_date_2_digit(self) -> None:
-        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
-        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        cur = str(dt.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(dt.date.today().year - 2000 + 1)  # in 2024, this will be "25"
         assert find_dates_in_string(f"x 30.4.{cur} x") == {f"GREGORIAN:CE:20{cur}-04-30:CE:20{cur}-04-30"}
         assert find_dates_in_string(f"x 30.4.{nxt} x") == {f"GREGORIAN:CE:19{nxt}-04-30:CE:19{nxt}-04-30"}
         assert find_dates_in_string(f"x 31.4.{nxt} x") == set()
@@ -286,8 +286,8 @@ class TestFindDate:
             assert find_dates_in_string("x 25.-24.2.0800 x") == set()
 
     def test_find_dates_in_string_eur_date_range_2_digit(self) -> None:
-        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
-        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        cur = str(dt.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(dt.date.today().year - 2000 + 1)  # in 2024, this will be "25"
         assert find_dates_in_string(f"x 15.-16.4.{cur} x") == {f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-04-16"}
         assert find_dates_in_string(f"x 15.-16.4.{nxt} x") == {f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-04-16"}
 
@@ -301,8 +301,8 @@ class TestFindDate:
             assert find_dates_in_string("x 28.2.-26.2.1515 x") == set()
 
     def test_find_dates_in_string_eur_date_range_across_month_2_digit(self) -> None:
-        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
-        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        cur = str(dt.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(dt.date.today().year - 2000 + 1)  # in 2024, this will be "25"
         assert find_dates_in_string(f"x 15.04.-1.5.{cur} x") == {f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-05-01"}
         assert find_dates_in_string(f"x 15.04.-1.5.{nxt} x") == {f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-05-01"}
 
@@ -320,8 +320,8 @@ class TestFindDate:
             assert find_dates_in_string("x 25/12/2022-03/01/2022 x") == set()
 
     def test_find_dates_in_string_eur_date_range_across_year_2_digit(self) -> None:
-        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
-        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        cur = str(dt.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(dt.date.today().year - 2000 + 1)  # in 2024, this will be "25"
         assert find_dates_in_string(f"x 15.04.23-1.5.{cur} x") == {f"GREGORIAN:CE:2023-04-15:CE:20{cur}-05-01"}
         assert find_dates_in_string(f"x 15.04.{nxt}-1.5.99 x") == {f"GREGORIAN:CE:19{nxt}-04-15:CE:1999-05-01"}
 

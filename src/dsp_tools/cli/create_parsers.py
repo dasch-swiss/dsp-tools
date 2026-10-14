@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 from argparse import ArgumentParser
 from argparse import _SubParsersAction
 from importlib.metadata import version
@@ -30,7 +30,7 @@ def make_parser(
     """
 
     parser = ArgumentParser(
-        description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)"
+        description=f"DSP-TOOLS (version {version('dsp-tools')}, © {dt.datetime.now().year} by DaSCH)"
     )
     parser.add_argument("--version", action="store_true", help="print the installed and latest verison of dsp-tools")
     subparsers = parser.add_subparsers(

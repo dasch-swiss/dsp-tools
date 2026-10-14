@@ -1,5 +1,23 @@
 # Changelog
 
+## [19.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.2.1...v19.3.0) (2026-10-14)
+
+
+### Enhancements
+
+* check project admin accounts exist and are used correctly (DEV-7474) ([#2453](https://github.com/dasch-swiss/dsp-tools/issues/2453)) ([92acc4d](https://github.com/dasch-swiss/dsp-tools/commit/92acc4d83c965a38fa511da910b03bc3f750f648))
+* support the geolocation value type (DEV-7296) ([#2438](https://github.com/dasch-swiss/dsp-tools/issues/2438)) ([1c92b23](https://github.com/dasch-swiss/dsp-tools/commit/1c92b23f447a198dbb4a4de0f612496b067ec548))
+
+
+### Bug Fixes
+
+* **cli:** handle slow Docker daemon in Docker health check ([#2455](https://github.com/dasch-swiss/dsp-tools/issues/2455)) ([5b02a93](https://github.com/dasch-swiss/dsp-tools/commit/5b02a93fa6a6b3b8f9dfee4ba8e1707511d93a30))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.10.02 ([#2456](https://github.com/dasch-swiss/dsp-tools/issues/2456)) ([62d5009](https://github.com/dasch-swiss/dsp-tools/commit/62d50090e66305dee693efe7b8e47ad5826953d3))
+
 ## [19.2.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.2.0...v19.2.1) (2026-10-07)
 
 

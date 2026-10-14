@@ -9,7 +9,7 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     cooldown:
       # Applies to version updates only. Security updates ignore the cooldown.
       default-days: 7

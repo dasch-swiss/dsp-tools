@@ -21,3 +21,8 @@ updates:
       all-dependencies:
         patterns:
           - "*"
+      # Without this group, each security update gets its own PR.
+      all-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"

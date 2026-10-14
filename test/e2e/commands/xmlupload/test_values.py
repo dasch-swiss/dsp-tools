@@ -174,6 +174,21 @@ class TestValues:
         assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.GeonameValue
         assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE
 
+    def test_geolocation(self, g_minimal, onto_iri_9999):
+        prop_iri = URIRef(f"{onto_iri_9999}testGeolocation")
+        val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "geolocation", prop_iri)
+        val_triples = list(g_minimal.triples((val_iri, None, None)))
+        expected_val = Literal("<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.540 47.378)")
+        actual_value = next(g_minimal.objects(val_iri, KNORA_API.geolocationValueAsGeolocation))
+        assert actual_value == expected_val
+        assert next(g_minimal.objects(val_iri, RDF.type)) == KNORA_API.GeolocationValue
+        # dsp-api derives these three from the literal, so they show that it read the ordinates as X then Y
+        crs = next(g_minimal.objects(val_iri, KNORA_API.geolocationValueHasCrs))
+        assert crs == Literal("http://www.opengis.net/def/crs/OGC/1.3/CRS84")
+        assert next(g_minimal.objects(val_iri, KNORA_API.geolocationValueHasCoordinates)) == Literal("8.540 47.378")
+        assert next(g_minimal.objects(val_iri, KNORA_API.geolocationValueHasShape)) == Literal("Point")
+        assert len(val_triples) == BASE_NUMBER_OF_TRIPLES_PER_VALUE + 3
+
     def test_integer(self, g_minimal, onto_iri_9999):
         prop_iri = URIRef(f"{onto_iri_9999}testIntegerSimpleText")
         val_iri = _assert_number_of_values_is_one_and_get_val_iri(g_minimal, "integer", prop_iri)

@@ -87,6 +87,7 @@
                 "ColorValue",
                 "DateValue",
                 "DecimalValue",
+                "GeolocationValue",
                 "GeonameValue",
                 "IntValue",
                 "ListValue",
@@ -102,6 +103,7 @@
                 "Checkbox",
                 "Colorpicker",
                 "Date",
+                "Geolocation",
                 "Geonames",
                 "List",
                 "Radio",
@@ -629,6 +631,41 @@
                     "if": {
                         "properties": {
                             "object": {
+                                "const": "GeolocationValue"
+                            }
+                        },
+                        "required": [
+                            "object"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
+                            "gui_element": {
+                                "const": "Geolocation"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
                                 "const": "GeonameValue"
                             }
                         },
@@ -1030,6 +1067,7 @@
                                     "Richtext",
                                     "Date",
                                     "TimeStamp",
+                                    "Geolocation",
                                     "Geonames",
                                     "Checkbox"
                                 ]

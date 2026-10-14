@@ -9,6 +9,7 @@ from lxml import etree
 
 from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
 from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
+from dsp_tools.commands.validate_data.mappers import ORDINATE_NAME_TO_TRIPLE_PROP_TYPE
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import MigrationMetadata
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
@@ -24,6 +25,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueTyp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -130,6 +132,8 @@ def _get_one_value(value: ParsedValue, list_node_lookup: ListLookup) -> RdfLikeV
             return _get_date_value(value)
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
+        case KnoraValueType.GEOLOCATION_VALUE:
+            return _get_geolocation_value(value)
         case KnoraValueType.LIST_VALUE:
             user_value = _get_list_value_str(user_value, list_node_lookup)
         case KnoraValueType.GEOM_VALUE:
@@ -228,14 +232,45 @@ def _get_interval_value(value: ParsedValue) -> RdfLikeValue:
     )
 
 
-def _get_list_value_str(user_value: str | tuple[str | None, str | None] | None, list_node_lookup: ListLookup) -> str:
+def _get_list_value_str(
+    user_value: str | tuple[str | None, str | None] | ParsedGeolocation | None, list_node_lookup: ListLookup
+) -> str:
     in_tuple = cast(tuple[Any, Any], user_value)
     if found := list_node_lookup.lists.get(in_tuple):
         return found
     return " / ".join(x for x in in_tuple if x is not None)
 
 
-def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+def _get_geolocation_value(value: ParsedValue) -> RdfLikeValue:
+    geolocation_metadata = _get_value_metadata(value)
+    user_value = None
+    if isinstance(value.value, ParsedGeolocation):
+        user_value = _format_geolocation(value.value)
+        geolocation_metadata.extend(_get_geolocation_crs_and_ordinates(value.value))
+    return RdfLikeValue(
+        user_facing_prop=value.prop_name,
+        user_facing_value=user_value,
+        knora_type=value.value_type,
+        value_metadata=geolocation_metadata,
+    )
+
+
+def _format_geolocation(geolocation: ParsedGeolocation) -> str:
+    ordinates = " ".join(f'{name}="{value}"' for name, value in geolocation.ordinates.items())
+    return f'crs="{geolocation.crs}" {ordinates}'.strip()
+
+
+def _get_geolocation_crs_and_ordinates(geolocation: ParsedGeolocation) -> list[PropertyObject]:
+    # The ordinates keep the names the user gave, so that the SHACL shape of the CRS can find a mismatched pair.
+    crs = PropertyObject(TriplePropertyType.GEOLOCATION_CRS, geolocation.crs, TripleObjectType.STRING)
+    ordinates = [
+        PropertyObject(ORDINATE_NAME_TO_TRIPLE_PROP_TYPE[name], ordinate, TripleObjectType.DECIMAL)
+        for name, ordinate in geolocation.ordinates.items()
+    ]
+    return [crs, *ordinates]
+
+
+def _get_geometry_value_str(user_value: str | tuple[str | None, str | None] | ParsedGeolocation | None) -> str | None:
     try:
         if isinstance(user_value, str):
             return json.dumps(json.loads(user_value))

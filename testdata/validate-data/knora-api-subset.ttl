@@ -90,6 +90,10 @@ knora-api:GeomValue
   a               owl:Class ;
   rdfs:subClassOf knora-api:Value .
 
+knora-api:GeolocationValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
 knora-api:GeonameValue
   a               owl:Class ;
   rdfs:subClassOf knora-api:Value .

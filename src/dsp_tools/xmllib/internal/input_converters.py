@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from html.entities import html5
 from typing import Any
 
@@ -288,3 +289,18 @@ def check_and_fix_value_order(
         raise_xmllib_input_error(msg_info)
     else:
         return int(input_order)
+
+
+def ordinate_to_str(value: Any) -> str:
+    """
+    Convert an ordinate of a geolocation to the string that is written to the XML.
+
+    Floats are written without an exponent, because the XML schema admits plain decimals only.
+    Strings are kept as they are, so that trailing zeroes survive.
+    """
+    if isinstance(value, float):
+        # float() first: a numpy float is a float subclass whose repr is e.g. "np.float64(8.55)"
+        return format(Decimal(repr(float(value))), "f")
+    if isinstance(value, Decimal):
+        return format(value, "f")
+    return str(value).strip()

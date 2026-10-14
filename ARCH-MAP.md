@@ -293,11 +293,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Used by**: `other-commands` (excel2xml, update_legal), `setup/warnings_config.py` (reach-in), external
   user scripts, the `0854-daschland-scripts` repo
 - **Boundary rules**:
-    - **Stated rule violated**: `CLAUDE.md` and the root `CLAUDE.md` both say "xmllib must not import
-    dsp-tools internals," but 8 files import from `dsp_tools.error`, `dsp_tools.setup`, or `dsp_tools.utils`
-    (e.g. `xmllib/internal/exceptions.py`, `xmllib/models/root.py`, `xmllib/internal/serialise_resource.py`).
-    (enforcement: docs-only today; strong candidate for a `dune-grill` ADR — either fix the imports or
-    update the stated rule to match reality)
+    - xmllib does not import dsp-tools internals (ADR 0002). The only exception: shared constants and
+    data-format utilities from `dsp_tools.utils` (for example `utils/geolocation_constants.py`,
+    `utils/data_formats/geolocation_util.py`, `utils/data_formats/uri_util.py`).
+    - **Stated rule violated**: 7 files import from `dsp_tools.error`, `dsp_tools.setup`, or
+    `dsp_tools.utils.xml_parsing` (e.g. `xmllib/internal/exceptions.py`, `xmllib/models/root.py`,
+    `xmllib/internal/serialise_resource.py`). (enforcement: docs-only)
     - `setup/warnings_config.py`, `commands/excel2xml/excel2xml_lib.py`, and `commands/update_legal/*` all
     import from `xmllib.internal`/`xmllib.general_functions` directly, bypassing `__init__.py`.
     - New helper: add to `general_functions.py`/`value_checkers.py`/`value_converters.py` or a new `models/`
@@ -485,4 +486,4 @@ per the error-handling doc. No durable state beyond each instance's own value.
 | A command imports directly from another command's package | Spreads blast radius silently; contradicts the stated rule | Move the shared logic into `utils/` or a new neutral module | docs-only (violated: `mapping`→`excel2json`, `validate-data`↔`create`, `validate-data`↔`xmlupload`, `ingest-xmlupload`/`resume-xmlupload`→`xmlupload`) |
 | `utils/` importing from `commands/` | Inverts `utils`' leaf-dependency role; real circular-import risk since every command also imports `utils` | Move the shared type/constant into `utils/` itself | docs-only (violated: 5 files / 9 import sites — see the `utils` entry) |
 | `clients/` importing from `commands/` | `clients/` is documented as generic/reusable; a command-specific import defeats that and risks circular imports | Define the shared type in `clients/` or `utils/` instead | docs-only (violated: `clients/ingest.py`, `clients/bulk_ingest_client.py`) |
-| `xmllib` importing `dsp_tools.error`/`setup`/`utils` | `xmllib`'s own `CLAUDE.md` and the root `CLAUDE.md` both require it to stay free of dsp-tools internals, so it works as a standalone library | Vendor the helper into `xmllib/internal/`, or update the stated rule to match reality | docs-only (violated: 8 files) |
+| `xmllib` importing `dsp_tools.error`/`setup`, or `utils` outside shared constants and data-format utilities | ADR 0002 keeps `xmllib` conceptually independent of the rest of dsp-tools | Vendor the helper into `xmllib/internal/`. Shared constants and data-format utilities go in `utils/` and xmllib imports them from there (ADR 0002 exception) | docs-only (violated: 7 files) |

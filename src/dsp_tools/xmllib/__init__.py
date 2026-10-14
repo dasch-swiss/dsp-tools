@@ -22,6 +22,10 @@ from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResou
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
+from .models.geolocation import GeographicCRS84 as GeographicCRS84
+from .models.geolocation import GeolocationCoordinates as GeolocationCoordinates
+from .models.geolocation import ProjectedLV03 as ProjectedLV03
+from .models.geolocation import ProjectedLV95 as ProjectedLV95
 from .models.licenses.other import LicenseOther as LicenseOther
 from .models.licenses.recommended import LicenseRecommended as LicenseRecommended
 from .models.permissions import Permissions as Permissions
@@ -36,12 +40,16 @@ from .value_checkers import is_date as is_date
 from .value_checkers import is_decimal as is_decimal
 from .value_checkers import is_dsp_ark as is_dsp_ark
 from .value_checkers import is_dsp_iri as is_dsp_iri
+from .value_checkers import is_geolocation as is_geolocation
 from .value_checkers import is_geoname as is_geoname
 from .value_checkers import is_integer as is_integer
 from .value_checkers import is_nonempty_value as is_nonempty_value
 from .value_checkers import is_timestamp as is_timestamp
 from .value_converters import convert_to_bool_string as convert_to_bool_string
+from .value_converters import crs84_to_lv95 as crs84_to_lv95
+from .value_converters import dms_to_decimal_degrees as dms_to_decimal_degrees
 from .value_converters import find_dates_in_string as find_dates_in_string
+from .value_converters import lv95_to_crs84 as lv95_to_crs84
 from .value_converters import reformat_date as reformat_date
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags

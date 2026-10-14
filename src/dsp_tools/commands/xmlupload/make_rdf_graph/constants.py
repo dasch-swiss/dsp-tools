@@ -5,6 +5,7 @@ from rdflib import XSD
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolean
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -26,6 +27,9 @@ BOOLEAN_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.boole
 COLOR_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor, XSD.string)
 DECIMAL_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, XSD.decimal)
 GEOMETRY_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry, XSD.string)
+GEOLOCATION_PROP_TYPE_INFO = RDFPropTypeInfo(
+    KNORA_API.GeolocationValue, KNORA_API.geolocationValueAsGeolocation, XSD.string
+)
 GEONAME_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, XSD.string)
 INT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, XSD.int)
 SIMPLE_TEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString, XSD.string)
@@ -37,6 +41,7 @@ RDF_LITERAL_PROP_TYPE_MAPPER = {
     ProcessedColor: COLOR_PROP_TYPE_INFO,
     ProcessedDecimal: DECIMAL_PROP_TYPE_INFO,
     ProcessedGeometry: GEOMETRY_PROP_TYPE_INFO,
+    ProcessedGeolocation: GEOLOCATION_PROP_TYPE_INFO,
     ProcessedGeoname: GEONAME_PROP_TYPE_INFO,
     ProcessedInt: INT_PROP_TYPE_INFO,
     ProcessedSimpleText: SIMPLE_TEXT_PROP_TYPE_INFO,

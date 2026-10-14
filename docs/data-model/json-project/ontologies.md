@@ -249,6 +249,7 @@ These three are related as follows:
 | hasColor                              | ColorValue                                                         | Colorpicker                            |
 | hasValue                              | DateValue                                                          | Date                                   |
 | hasValue                              | DecimalValue                                                       | Spinbox, <br>SimpleText                |
+| hasValue                              | GeolocationValue                                                   | Geolocation                            |
 | hasValue                              | GeonameValue                                                       | Geonames                               |
 | hasValue                              | IntValue                                                           | Spinbox, <br>SimpleText                |
 | hasValue                              | ListValue                                                          | List                                   |
@@ -372,6 +373,38 @@ Example:
     "en": "Decimal number"
   },
   "gui_element": "SimpleText"
+}
+```
+
+
+#### `GeolocationValue`
+
+`"object": "GeolocationValue"`
+
+Represents a geographic location, i.e. a point on Earth, as coordinates in a known coordinate reference system.
+See the [xmlupload documentation](../../data-file/xml-data-file.md#geolocation-prop) for more information.
+
+This is distinct from *GeonameValue*, which references a named place in the geonames.org authority file,
+and from *GeomValue*, which describes a region on an image.
+
+*gui_elements*:
+
+- `Geolocation`: The only GUI element for *GeolocationValue*. Fields for the two coordinates,
+  and a dropdown to select the coordinate reference system.
+
+Example:
+
+```json
+{
+  "name": "hasFindspot",
+  "super": [
+    "hasValue"
+  ],
+  "object": "GeolocationValue",
+  "labels": {
+    "en": "Findspot"
+  },
+  "gui_element": "Geolocation"
 }
 ```
 

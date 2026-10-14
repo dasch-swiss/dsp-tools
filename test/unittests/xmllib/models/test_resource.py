@@ -10,12 +10,18 @@ from dsp_tools.xmllib.internal.input_converters import check_and_fix_collection_
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.geolocation import GeographicCRS84
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
+from dsp_tools.xmllib.models.geolocation import ProjectedLV03
+from dsp_tools.xmllib.models.geolocation import ProjectedLV95
 from dsp_tools.xmllib.models.internal.file_values import FileValue
 from dsp_tools.xmllib.models.internal.file_values import IIIFUri
+from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -26,6 +32,7 @@ from dsp_tools.xmllib.models.internal.values import SimpleText
 from dsp_tools.xmllib.models.internal.values import TimeValue
 from dsp_tools.xmllib.models.internal.values import UriValue
 from dsp_tools.xmllib.models.licenses.recommended import LicenseRecommended
+from dsp_tools.xmllib.models.provenance import SourceProvenance
 from dsp_tools.xmllib.models.res import Resource
 
 
@@ -184,6 +191,157 @@ class TestAddValues:
         res = res.add_decimal_optional(":prop", "0.1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
+
+    @pytest.mark.parametrize(
+        ("value", "expected_crs", "expected_ordinates"),
+        [
+            (
+                GeographicCRS84.create_new(longitude="8.550", latitude=47.37),
+                CoordinateSystem.GEOGRAPHIC_CRS84,
+                {"longitude": "8.550", "latitude": "47.37"},
+            ),
+            (
+                ProjectedLV95.create_new(easting=2600000, northing="1200000"),
+                CoordinateSystem.PROJECTED_LV95,
+                {"easting": "2600000", "northing": "1200000"},
+            ),
+            (
+                ProjectedLV03.create_new(easting="600000", northing="200000"),
+                CoordinateSystem.PROJECTED_LV03,
+                {"easting": "600000", "northing": "200000"},
+            ),
+        ],
+    )
+    def test_add_geolocation(
+        self,
+        value: GeolocationCoordinates,
+        expected_crs: CoordinateSystem,
+        expected_ordinates: dict[str, str],
+    ) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation(":prop", value)
+        assert len(res.values) == 1
+        val = res.values[0]
+        assert isinstance(val, GeolocationValue)
+        assert val.crs == expected_crs
+        assert val.ordinates == expected_ordinates
+
+    def test_add_geolocation_warns_when_out_of_range(self) -> None:
+        with pytest.warns(XmllibInputWarning, match=regex.escape("The latitude '91' is outside the valid range")):
+            Resource.create_new("res_id", "restype", "label").add_geolocation(
+                ":prop", GeographicCRS84.create_new(longitude=8.55, latitude=91)
+            )
+
+    def test_add_geolocation_warns_when_not_a_decimal(self) -> None:
+        with pytest.warns(XmllibInputWarning, match=regex.escape("The easting 'abc' is not a decimal number")):
+            Resource.create_new("res_id", "restype", "label").add_geolocation(
+                ":prop", ProjectedLV95.create_new(easting="abc", northing="1200000")
+            )
+
+    def test_add_geolocation_warning_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        with pytest.warns(XmllibInputWarning, match=regex.escape("Source File 'geo.xlsx'")):
+            Resource.create_new("res_id", "restype", "label").add_geolocation(
+                ":prop", GeographicCRS84.create_new(longitude=8.55, latitude=91), provenance=provenance
+            )
+
+    def test_add_geolocation_multiple_error_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("Source File 'geo.xlsx'")):
+            res.add_geolocation_multiple(
+                ":prop",
+                [("2683000", "1247000")],  # type: ignore[list-item]
+                provenance=provenance,
+            )
+
+    def test_add_geolocation_optional_error_contains_provenance(self) -> None:
+        provenance = SourceProvenance(source_file="geo.xlsx", sheet="Sheet1", row=4, cell="C")
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("Source File 'geo.xlsx'")):
+            res.add_geolocation_optional(
+                ":prop", ProjectedLV95.create_new(easting="2600000", northing=None), provenance=provenance
+            )
+
+    @pytest.mark.parametrize("value", [(8.55, 47.37), "8.55 47.37", None])
+    def test_add_geolocation_raises_if_the_value_is_not_coordinates(self, value: Any) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
+            res.add_geolocation(":prop", value)
+
+    def test_add_geolocation_from_a_dataframe(self) -> None:
+        df = pd.DataFrame({"lon": [8.55], "lat": [47.37]})
+        row = df.iloc[0]
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation(
+            ":prop", GeographicCRS84.create_new(longitude=row["lon"], latitude=row["lat"])
+        )
+        assert res.values[0].ordinates == {"longitude": "8.55", "latitude": "47.37"}  # type: ignore[attr-defined]
+
+    def test_add_geolocation_multiple(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_multiple(
+            ":prop",
+            [
+                GeographicCRS84.create_new(longitude="8.55", latitude="47.37"),
+                ProjectedLV95.create_new(easting="2600000", northing="1200000"),
+            ],
+            include_value_order=True,
+        )
+        assert len(res.values) == 2
+        assert all(isinstance(x, GeolocationValue) for x in res.values)
+        assert [(x.crs, x.ordinates) for x in res.values] == [  # type: ignore[attr-defined]
+            (CoordinateSystem.GEOGRAPHIC_CRS84, {"longitude": "8.55", "latitude": "47.37"}),
+            (CoordinateSystem.PROJECTED_LV95, {"easting": "2600000", "northing": "1200000"}),
+        ]
+        assert [x.order for x in res.values] == [0, 1]
+
+    def test_add_geolocation_multiple_raises_if_one_value_is_not_coordinates(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
+            res.add_geolocation_multiple(
+                ":prop",
+                [ProjectedLV95.create_new(easting="2600000", northing="1200000"), ("2683000", "1247000")],  # type: ignore[list-item]
+            )
+
+    def test_add_geolocation_multiple_with_value_order_rejects_a_set(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("add_geolocation_multiple()")):
+            res.add_geolocation_multiple(
+                ":prop",
+                {ProjectedLV03.create_new(easting="600000", northing="200000")},
+                include_value_order=True,
+            )
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            None,
+            pd.NA,
+            float("nan"),
+            "",
+            GeographicCRS84.create_new(longitude=None, latitude=None),
+            GeographicCRS84.create_new(longitude=pd.NA, latitude=""),
+            ProjectedLV95.create_new(easting="", northing=" "),
+        ],
+    )
+    def test_add_geolocation_optional_empty(self, value: Any) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional(":prop", value)
+        assert not res.values
+
+    def test_add_geolocation_optional_one_empty(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("The northing is empty, but the easting is not")):
+            res.add_geolocation_optional(":prop", ProjectedLV95.create_new(easting="2600000", northing=None))
+
+    def test_add_geolocation_optional_raises_if_the_value_is_not_coordinates(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label")
+        with pytest.raises(XmllibInputError, match=regex.escape("xmllib.GeographicCRS84")):
+            res.add_geolocation_optional(":prop", ("2600000", "1200000"))
+
+    def test_add_geolocation_optional_both_present(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_geolocation_optional(
+            ":prop", ProjectedLV95.create_new(easting="2600000", northing="1200000")
+        )
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], GeolocationValue)
 
     def test_add_geoname(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_geoname(":prop", "123456")

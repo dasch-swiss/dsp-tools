@@ -7,10 +7,14 @@ import regex
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
+from dsp_tools.xmllib.models.geolocation import GeographicCRS84
+from dsp_tools.xmllib.models.geolocation import ProjectedLV95
+from dsp_tools.xmllib.models.internal.geolocation import CoordinateSystem
 from dsp_tools.xmllib.models.internal.values import BooleanValue
 from dsp_tools.xmllib.models.internal.values import ColorValue
 from dsp_tools.xmllib.models.internal.values import DateValue
 from dsp_tools.xmllib.models.internal.values import DecimalValue
+from dsp_tools.xmllib.models.internal.values import GeolocationValue
 from dsp_tools.xmllib.models.internal.values import GeonameValue
 from dsp_tools.xmllib.models.internal.values import IntValue
 from dsp_tools.xmllib.models.internal.values import LinkValue
@@ -113,6 +117,56 @@ class TestDecimalValue:
             DecimalValue.new(
                 "invalidDecimal",
                 ":decimalProp",
+                resource_id="res_id",
+                permissions=Permissions.PUBLIC,
+                comment=None,
+                order=None,
+            )
+
+
+class TestGeolocationValue:
+    def test_good(self) -> None:
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            val = GeolocationValue.new(
+                ProjectedLV95.create_new(easting="2600000", northing=" 1200000.50 "),
+                ":geolocationProp",
+                resource_id="res_id",
+                permissions=Permissions.PUBLIC,
+                comment=None,
+                order=None,
+            )
+        assert len(caught_warnings) == 0
+        assert val.crs == CoordinateSystem.PROJECTED_LV95
+        assert val.ordinates == {"easting": "2600000", "northing": "1200000.50"}
+        assert val.value == "LV95 2600000 1200000.50"
+
+    def test_converts_floats_without_exponent(self) -> None:
+        val = GeolocationValue.new(
+            GeographicCRS84.create_new(longitude=0.00001, latitude=47.37),
+            ":geolocationProp",
+            resource_id="res_id",
+            permissions=Permissions.PUBLIC,
+            comment=None,
+            order=None,
+        )
+        assert val.ordinates == {"longitude": "0.00001", "latitude": "47.37"}
+
+    def test_warns_if_out_of_range(self) -> None:
+        with pytest.warns(XmllibInputWarning, match=regex.escape("The latitude '91' is outside the valid range")):
+            GeolocationValue.new(
+                GeographicCRS84.create_new(longitude="8.55", latitude="91"),
+                ":geolocationProp",
+                resource_id="res_id",
+                permissions=Permissions.PUBLIC,
+                comment=None,
+                order=None,
+            )
+
+    def test_warns_if_not_a_decimal(self) -> None:
+        with pytest.warns(XmllibInputWarning, match=regex.escape("The easting 'abc' is not a decimal number")):
+            GeolocationValue.new(
+                ProjectedLV95.create_new(easting="abc", northing="1200000"),
+                ":geolocationProp",
                 resource_id="res_id",
                 permissions=Permissions.PUBLIC,
                 comment=None,

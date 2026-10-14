@@ -1,4 +1,5 @@
 import warnings
+from decimal import Decimal
 
 import numpy as np
 import pandas as pd
@@ -9,6 +10,7 @@ from dsp_tools.xmllib.internal.input_converters import check_and_fix_default_res
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_is_non_empty_string
 from dsp_tools.xmllib.internal.input_converters import check_and_fix_value_order
 from dsp_tools.xmllib.internal.input_converters import numeric_entities
+from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputInfo
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibInputWarning
 from dsp_tools.xmllib.models.config_options import ResourceAuthorshipDefault
@@ -114,3 +116,24 @@ class TestCheckAndFixDefaultResourceAuthorship:
     def test_invalid_type_raises(self, authorship: object) -> None:
         with pytest.raises(XmllibInputError, match=type(authorship).__name__):
             check_and_fix_default_resource_authorship_input(authorship)
+
+
+class TestOrdinateToStr:
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("8.550", "8.550"),
+            (" 8.55 ", "8.55"),
+            (8.55, "8.55"),
+            (2600000, "2600000"),
+            (0.00001, "0.00001"),
+            (2600000.0, "2600000.0"),
+            (Decimal("0.0000001"), "0.0000001"),
+            (np.float64(8.55), "8.55"),
+            (np.float64(0.00001), "0.00001"),
+        ],
+    )
+    def test_converts_without_exponent_and_keeps_strings(
+        self, value: str | float | int | Decimal | np.float64, expected: str
+    ) -> None:
+        assert ordinate_to_str(value) == expected

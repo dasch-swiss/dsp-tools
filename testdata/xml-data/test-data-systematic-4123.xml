@@ -155,6 +155,11 @@
         <geoname-prop name=":hasGeoname">
             <geoname permissions="public" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
+        <geolocation-prop name=":hasGeolocation">
+            <geolocation crs="CRS84" longitude="8.540" latitude="47.378" permissions="public" comment="The main station"/>
+            <geolocation crs="LV95" easting="2683163" northing="1247966" permissions="public"/>
+            <geolocation crs="LV03" easting="683163" northing="247966"/>
+        </geolocation-prop>
         <color-prop name=":hasColor">
             <color permissions="public">#00ff00</color>
         </color-prop>
@@ -283,6 +288,9 @@
         <geoname-prop name=":hasGeoname">
             <geoname comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
+        <geolocation-prop name=":hasGeolocation">
+            <geolocation crs="CRS84" longitude="8.540" latitude="47.378"/>
+        </geolocation-prop>
         <color-prop name=":hasColor">
             <color>#00ff00</color>
         </color-prop>

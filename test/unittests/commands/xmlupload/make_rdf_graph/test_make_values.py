@@ -22,6 +22,7 @@ from dsp_tools.commands.xmlupload.models.processed.values import ProcessedBoolea
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedColor
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDate
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedDecimal
+from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeolocation
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeometry
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedGeoname
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedInt
@@ -133,6 +134,23 @@ class TestMakeOneValueGraphSuccess:
             (RDF.type, KNORA_API.GeomValue),
             (KNORA_API.geometryValueAsGeometry, Literal(geom_str, datatype=XSD.string)),
             (KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)),
+        ]
+        for p, o in value_triples:
+            assert (val_bn, p, o) in result
+
+    def test_geolocation(self, lookups: IRILookups) -> None:
+        res_bn = BNode()
+        val_bn = BNode()
+        literal = "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT(8.550 47.37)"
+        prop = ProcessedGeolocation(literal, absolute_iri("hasGeolocation"), None, None, 0)
+        result = _make_one_value_graph(prop, val_bn, res_bn, lookups)
+        assert len(result) == 4
+
+        assert (res_bn, ONTO.hasGeolocation, val_bn) in result
+        value_triples = [
+            (RDF.type, KNORA_API.GeolocationValue),
+            # xsd:string, not geo:wktLiteral - the ontology constrains it to a plain string
+            (KNORA_API.geolocationValueAsGeolocation, Literal(literal, datatype=XSD.string)),
         ]
         for p, o in value_triples:
             assert (val_bn, p, o) in result

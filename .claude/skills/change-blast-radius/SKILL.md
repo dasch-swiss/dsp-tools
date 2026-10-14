@@ -173,7 +173,8 @@ The data side of the same fan-out. Checklist:
   `src/dsp_tools/commands/validate_data/mappers.py`,
   `src/dsp_tools/commands/validate_data/models/rdf_like_data.py`,
   `src/dsp_tools/resources/validate_data/api-shapes.ttl`. **Authoring a shape?
-  run the `add-shacl-shape` skill.**
+  run the `add-shacl-shape` skill.** A new value type also needs a value-type violation case in
+  `testdata/validate-data/core_validation/value_type_violation.xml`.
 - [ ] **xmllib** — public API + serialisation: `src/dsp_tools/xmllib/__init__.py`,
   `src/dsp_tools/xmllib/internal/serialise_resource.py`, `src/dsp_tools/xmllib/models/`.
 - [ ] **docs** — **run the `update-docs` skill** (`docs/data-file/xml-data-file.md`).

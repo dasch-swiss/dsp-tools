@@ -38,6 +38,12 @@
         </text-prop>
     </resource>
 
+    <resource label="Geolocation" restype=":ClassWithEverything" id="geolocation_wrong_value_type">
+        <text-prop name=":testGeolocation">
+            <text encoding="utf8">8.55 47.37</text>
+        </text-prop>
+    </resource>
+
     <resource label="Geoname" restype=":ClassWithEverything" id="geoname_wrong_value_type">
         <text-prop name=":testGeoname">
             <text encoding="utf8">1111111</text>

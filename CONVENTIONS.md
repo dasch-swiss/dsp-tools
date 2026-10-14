@@ -33,10 +33,21 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   Do not pass local variables or constants directly — the log must show the request that was actually sent.
   Exception: a streamed binary body (open file handle) goes in directly, because `RequestParameters` does not hold it.
 - **xmllib is the public API** for programmatic XML creation (see `src/dsp_tools/xmllib/CLAUDE.md`).
-  It must not import dsp-tools internals and does not know the JSON project file — dependencies point
-  from dsp-tools *into* xmllib, never the other way.
+  It must not import dsp-tools internals and does not know the JSON project file. The only exception:
+  xmllib may import shared constants and data-format utilities from `src/dsp_tools/utils/`.
+- **Literals and constants that xmllib and other parts of dsp-tools both use go in a shared constants file
+  in `src/dsp_tools/utils/`** (for example `utils/geolocation_constants.py`). Do not put them in an xmllib
+  module or a command module, and do not import them from there.
 - **User-facing docs and docstrings do not cite xmllib internals** — describe user input in the user's
   terms (XML elements, JSON fields), not in terms of library code.
+- **xmllib has one `Resource.add_<value>` method family per value type (`object` in the ontology).**
+  `TextValue` is an exception: it has one family per `gui_element` (`add_simpletext`, `add_textarea`,
+  `add_richtext`). A file value is a second exception: it has one family per XML element (`add_file` for
+  `<bitstream>`, `add_iiif_uri` for `<iiif-uri>`).
+- **Use one public, frozen dataclass per variant as the input of an xmllib value only if the value has several
+  named parts whose meaning depends on a variant**, as the coordinates of a geolocation depend on its CRS
+  (`GeographicCRS84`, `ProjectedLV95`, `ProjectedLV03`). The field names use the terms of the user, and
+  `xmllib/__init__.py` exports each class. Do not ask the user for an enum plus a tuple instead.
 - **New RDF-mapped properties must be threaded through the validate-data pipeline**
   (`get_rdf_like_data()` → property type → SHACL shape in
   `src/dsp_tools/resources/validate_data/api-shapes.ttl`). The generic resource shape is closed: a new
@@ -135,7 +146,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
 | xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
 | other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `start_stack` / `stop_stack`. |
-| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals; exports live in `xmllib/__init__.py`. |
+| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
 | utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
 | schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
 | docs | `docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |
@@ -174,6 +185,9 @@ threading — are detailed in the sections above and under "Testing Conventions"
   conforming case and a violating case (see the `*_correct.xml` / `*_violation.xml` pairs under
   `testdata/validate-data/core_validation/`). The mandatory test-data conventions for a new SHACL shape
   are in `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions").
+- **A new value type has a value-type violation test.** Add a resource to
+  `testdata/validate-data/core_validation/value_type_violation.xml` that uses a different value element on a
+  property of the new type (rule 9 of the "Test-data conventions").
 
 ### E2E wiring
 

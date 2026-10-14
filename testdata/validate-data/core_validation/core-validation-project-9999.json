@@ -169,6 +169,17 @@
             "gui_element": "Geonames"
           },
           {
+            "name": "testGeolocation",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeolocationValue",
+            "labels": {
+              "en": "Test Geolocation"
+            },
+            "gui_element": "Geolocation"
+          },
+          {
             "name": "testIntegerSimpleText",
             "super": [
               "hasValue"
@@ -381,6 +392,11 @@
               },
               {
                 "propname": ":testGeoname",
+                "cardinality": "0-n",
+                "gui_order": 6
+              },
+              {
+                "propname": ":testGeolocation",
                 "cardinality": "0-n",
                 "gui_order": 6
               },

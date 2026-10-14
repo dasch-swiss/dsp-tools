@@ -37,10 +37,19 @@ Flag anything below that a change violates.
       re-iterate a structure that is already being iterated
 - [ ] Control flow is as flat as the logic allows (early returns kept where they clarify; a helper that only
       applies to one branch lives in that branch, not the shared tail)
-- [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; user-facing
+- [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; the only
+      exception is shared constants and data-format utilities from `src/dsp_tools/utils/`; user-facing
       docs and docstrings describe user input (XML elements, JSON fields), not xmllib internals
+- [ ] Literals and constants that xmllib and other parts of dsp-tools both use live in a shared constants file
+      in `src/dsp_tools/utils/`, not in an xmllib module or a command module
+- [ ] A new xmllib `Resource.add_<value>` method family maps to one value type, or to one `gui_element` of
+      `TextValue`, or to one XML file element (see `CONVENTIONS.md`)
+- [ ] An xmllib value whose parts depend on a variant takes one public, frozen dataclass per variant,
+      not an enum plus a tuple (see `CONVENTIONS.md`)
 - [ ] New RDF-mapped properties are threaded through the validate-data pipeline and have an explicit
       cardinality in `api-shapes.ttl` (the generic resource shape is closed)
+- [ ] A new `validate-data` check is a SHACL shape. A Python check (`validation/python_checks.py`) names its
+      reason: SHACL cannot do it even with validation-only RDF, or SHACL performance is not acceptable
 
 ### Naming
 
@@ -62,6 +71,7 @@ Flag anything below that a change violates.
 - [ ] RDF-graph tests assert the *whole* graph (type, label, `attachedToProject`, all values), not only the
       one new triple
 - [ ] `validate-data` changes add **both** a conforming and a violating test case (happy + error paths)
+- [ ] A new value type has a value-type violation case in `core_validation/value_type_violation.xml`
 - [ ] New test data prefers extending the **systematic** test project over a new standalone `feature-XXXX`
       file; new shortcodes/shortnames are added to `testdata/USED_SHORTCODE_SHORTNAMES.md` and follow its
       file-naming convention (`[shortname]-project-[shortcode].json`, `[free]-[shortcode].xml`, invalid → `F…`)

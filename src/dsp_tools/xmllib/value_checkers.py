@@ -3,9 +3,12 @@ from typing import Any
 import pandas as pd
 import regex
 
+from dsp_tools.utils.data_formats.geolocation_util import get_geolocation_problem
 from dsp_tools.xmllib.internal.circumvent_circular_imports import parse_richtext_as_xml
+from dsp_tools.xmllib.internal.input_converters import ordinate_to_str
 from dsp_tools.xmllib.internal.xmllib_warnings import MessageInfo
 from dsp_tools.xmllib.internal.xmllib_warnings_util import emit_xmllib_input_warning
+from dsp_tools.xmllib.models.geolocation import GeolocationCoordinates
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -186,6 +189,46 @@ def is_geoname(value: Any) -> bool:
         ```
     """
     return is_integer(value)
+
+
+def is_geolocation(value: Any) -> bool:
+    """
+    Checks if coordinates form a valid geographic location:
+    the value must be one of `xmllib.GeographicCRS84`, `xmllib.ProjectedLV95` or `xmllib.ProjectedLV03`,
+    and both coordinates must be decimal numbers within the range of the coordinate reference system.
+
+    Args:
+        value: the coordinates
+
+    Returns:
+        True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_geolocation(xmllib.GeographicCRS84.create_new(longitude=8.55, latitude=47.37))
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation(xmllib.ProjectedLV95.create_new(easting="2600000", northing="1200000"))
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_geolocation(xmllib.GeographicCRS84.create_new(longitude=500, latitude=47.37))
+        # result == False
+        ```
+
+        ```python
+        result = xmllib.is_geolocation(xmllib.ProjectedLV95.create_new(easting=8.55, northing=47.37))
+        # result == False
+        ```
+    """
+    if not isinstance(value, GeolocationCoordinates):
+        return False
+    ordinates, crs = value.to_tuple()
+    fixed_ordinates = {name: ordinate_to_str(ordinate) for name, ordinate in ordinates.items()}
+    return get_geolocation_problem(crs.value, fixed_ordinates) is None
 
 
 def is_decimal(value: Any) -> bool:

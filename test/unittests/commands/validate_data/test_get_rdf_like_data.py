@@ -3,6 +3,7 @@ import logging
 import pytest
 
 from dsp_tools.commands.validate_data.exceptions import FootnoteNotParsableError
+from dsp_tools.commands.validate_data.mappers import ORDINATE_NAME_TO_TRIPLE_PROP_TYPE
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
 from dsp_tools.commands.validate_data.models.rdf_like_data import PropertyObject
 from dsp_tools.commands.validate_data.models.rdf_like_data import RdfLikeResource
@@ -22,12 +23,14 @@ from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import _get
 from dsp_tools.commands.validate_data.prepare_data.get_rdf_like_data import get_rdf_like_data
 from dsp_tools.utils.data_formats.date_util import Era
 from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.geolocation_constants import ORDINATE_NAMES
 from dsp_tools.utils.rdf_constants import KNORA_API_PREFIX
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedGeolocation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -349,6 +352,42 @@ class TestValues:
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
         assert not res.value_metadata
 
+    def test_geolocation_corr(self):
+        geolocation = ParsedGeolocation("CRS84", {"longitude": "8.550", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == 'crs="CRS84" longitude="8.550" latitude="47.37"'
+        assert res.knora_type == KnoraValueType.GEOLOCATION_VALUE
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "CRS84", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.550", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
+
+    def test_geolocation_projected_corr(self):
+        geolocation = ParsedGeolocation("LV95", {"northing": "1200000", "easting": "2600000"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_value == 'crs="LV95" northing="1200000" easting="2600000"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_NORTHING, "1200000", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_EASTING, "2600000", TripleObjectType.DECIMAL),
+        ]
+
+    def test_geolocation_wrong_pair(self):
+        # the given names are kept, so that the SHACL shape of the CRS can report the mismatch
+        geolocation = ParsedGeolocation("LV95", {"longitude": "8.55", "latitude": "47.37"})
+        val = ParsedValue(HAS_PROP, geolocation, KnoraValueType.GEOLOCATION_VALUE, None, None, None, 0)
+        res = _get_one_value(val, LIST_LOOKUP)
+        assert res.user_facing_value == 'crs="LV95" longitude="8.55" latitude="47.37"'
+        assert res.value_metadata == [
+            PropertyObject(TriplePropertyType.GEOLOCATION_CRS, "LV95", TripleObjectType.STRING),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LONGITUDE, "8.55", TripleObjectType.DECIMAL),
+            PropertyObject(TriplePropertyType.GEOLOCATION_LATITUDE, "47.37", TripleObjectType.DECIMAL),
+        ]
+
     def test_geoname_corr(self):
         val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None, None, 0)
         res = _get_one_value(val, LIST_LOOKUP)
@@ -628,6 +667,10 @@ class TestRichtextStandoff:
         link_str, triple_type = _get_link_string_and_triple_object_type(link)
         assert link_str == link
         assert triple_type == TripleObjectType.INTERNAL_ID
+
+
+def test_every_ordinate_name_has_a_triple_property_type() -> None:
+    assert set(ORDINATE_NAME_TO_TRIPLE_PROP_TYPE) == set(ORDINATE_NAMES)
 
 
 if __name__ == "__main__":

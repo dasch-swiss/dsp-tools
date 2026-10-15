@@ -19,8 +19,8 @@ class UserClient(Protocol):
     api_url: str
     auth: AuthenticationClient
 
-    def get_user_iri_by_username(self, username: str) -> str | None:
-        """Get a user by its username."""
+    def get_all_users(self) -> list[dict[str, Any]]:
+        """Get all the users on this DSP-Server."""
 
     def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
         """Create a new user."""

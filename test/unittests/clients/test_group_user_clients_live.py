@@ -7,7 +7,6 @@ import requests
 from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.clients.group_user_clients_live import UserClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
@@ -162,43 +161,44 @@ class TestGroupClientCreateNewGroup:
                 group_client.create_new_group(new_group)
 
 
-class TestUserClientLiveGetUserIriByUsername:
+class TestUserClientLiveGetAllUsers:
     def test_success(self, user_client: UserClientLive) -> None:
+        users = [{"id": USER_IRI, "username": "testuser", "email": "test@example.com"}]
         mock_response = Mock(status_code=200, ok=True, headers={})
-        mock_response.json.return_value = {"user": {"id": USER_IRI, "username": "testuser"}}
+        mock_response.json.return_value = {"users": users}
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
-            result = user_client.get_user_iri_by_username("testuser")
-        assert result == USER_IRI
-        assert mock_get.call_args[1]["url"] == f"{user_client.api_url}/admin/users/username/testuser"
+            result = user_client.get_all_users()
+        assert result == users
+        assert mock_get.call_args[1]["url"] == f"{user_client.api_url}/admin/users"
 
     def test_not_found(self, user_client: UserClientLive) -> None:
-        mock_response = Mock(status_code=404, ok=False, headers={}, text="User not found")
-        mock_response.json.return_value = {"message": "User with username 'nonexistent' not found"}
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="No users found")
+        mock_response.json.return_value = {"message": "No users found"}
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
-            result = user_client.get_user_iri_by_username("nonexistent")
-        assert result is None
+            result = user_client.get_all_users()
+        assert result == []
 
     def test_forbidden(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
-                user_client.get_user_iri_by_username("testuser")
+                user_client.get_all_users()
 
     def test_timeout(self, user_client: UserClientLive) -> None:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspToolsRequestException):
-                user_client.get_user_iri_by_username("testuser")
+                user_client.get_all_users()
 
     def test_server_error(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.get", return_value=mock_response):
             with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
-                result = user_client.get_user_iri_by_username("testuser")
-        assert result is None
+                result = user_client.get_all_users()
+        assert result == []
 
 
 class TestUserClientLivePostNewUser:
@@ -214,8 +214,9 @@ class TestUserClientLivePostNewUser:
         mock_response = Mock(status_code=400, ok=False, headers={}, text="User already exists")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
-                user_client.post_new_user(new_user)
+            with pytest.warns(DspToolsUnexpectedStatusCodeWarning):
+                result = user_client.post_new_user(new_user)
+        assert result is None
 
     def test_forbidden(self, user_client: UserClientLive, new_user) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")

@@ -385,6 +385,13 @@ This object contains user definitions. A user has the following elements:
     - If _projects_ is omitted, the user won't be part in any project.
 - `status` (optional): true (default) if the user is active, false if the user is deleted/inactive
 
+A user can already exist on the server.
+To use an existing user, write the `username` and the `email` exactly as they are on the server.
+Then the existing user is not changed, but is added to the groups and projects.
+If only the `username` or only the `email` matches a user on the server,
+the user is not created and not added to the project.
+The `create` command reports this as a problem at the end.
+
 Example:
 
 ```json

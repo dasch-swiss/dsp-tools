@@ -68,6 +68,19 @@ class UserNameToIriLookup:
 
 
 @dataclass
+class ServerUser:
+    iri: str
+    username: str
+    email: str
+
+
+@dataclass
+class ServerUserLookup:
+    by_username: dict[str, ServerUser]
+    by_email: dict[str, ServerUser]
+
+
+@dataclass
 class CreatedIriCollection:
     created_classes: set[str] = field(default_factory=set)
     created_properties: set[str] = field(default_factory=set)

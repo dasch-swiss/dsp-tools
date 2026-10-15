@@ -8,7 +8,6 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
 from dsp_tools.clients.group_user_clients import GroupClient
 from dsp_tools.clients.group_user_clients import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -26,8 +25,8 @@ class UserClientLive(UserClient):
     api_url: str
     auth: AuthenticationClient
 
-    def get_user_iri_by_username(self, username: str) -> str | None:
-        url = f"{self.api_url}/admin/users/username/{username}"
+    def get_all_users(self) -> list[dict[str, Any]]:
+        url = f"{self.api_url}/admin/users"
         headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
         params = RequestParameters("GET", url, TIMEOUT_30, headers=headers)
         log_request(params)
@@ -38,13 +37,14 @@ class UserClientLive(UserClient):
         log_response(response, status_code=response.status_code)
         if response.ok:
             result = response.json()
-            return cast(str, result["user"]["id"])
+            return cast(list[dict[str, Any]], result["users"])
         if response.status_code == HTTPStatus.NOT_FOUND:
-            return None
+            # the API returns 404 if the server has no users
+            return []
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You do not have sufficient credentials to retrieve user information.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
-        return None
+        return []
 
     def post_new_user(self, user_dict: dict[str, Any]) -> str | None:
         url = f"{self.api_url}/admin/users"
@@ -64,9 +64,6 @@ class UserClientLive(UserClient):
         if response.ok:
             result = response.json()
             return cast(str, result["user"]["id"])
-        if response.status_code == HTTPStatus.BAD_REQUEST:
-            # if the user exists we get a 400, this should never happen through code design
-            raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to create users.")
         log_and_warn_unexpected_non_ok_response(response.status_code, response.text)

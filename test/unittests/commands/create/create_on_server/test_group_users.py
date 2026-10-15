@@ -8,9 +8,11 @@ from dsp_tools.commands.create.create_on_server.group_users import _add_all_memb
 from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_custom_groups
 from dsp_tools.commands.create.create_on_server.group_users import _add_user_to_project_memberships
 from dsp_tools.commands.create.create_on_server.group_users import _construct_group_lookup
+from dsp_tools.commands.create.create_on_server.group_users import _construct_server_user_lookup
 from dsp_tools.commands.create.create_on_server.group_users import _create_all_users
 from dsp_tools.commands.create.create_on_server.group_users import _create_one_group
 from dsp_tools.commands.create.create_on_server.group_users import _create_one_user
+from dsp_tools.commands.create.create_on_server.group_users import _resolve_existing_user
 from dsp_tools.commands.create.create_on_server.group_users import create_groups
 from dsp_tools.commands.create.create_on_server.group_users import create_users
 from dsp_tools.commands.create.create_on_server.group_users import get_existing_group_to_iri_lookup
@@ -22,12 +24,15 @@ from dsp_tools.commands.create.models.parsed_project import ParsedGroupDescripti
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
+from dsp_tools.commands.create.models.server_project_info import ServerUser
+from dsp_tools.commands.create.models.server_project_info import ServerUserLookup
 from dsp_tools.commands.create.models.server_project_info import UserNameToIriLookup
 from test.unittests.commands.create.constants import PROJECT_IRI
 from test.unittests.commands.create.constants import SHORTNAME
 
 USER_1_IRI = "http://rdfh.ch/users/testuser1IRI"
 USER_2_IRI = "http://rdfh.ch/users/testuser2IRI"
+OTHER_USER_IRI = "http://rdfh.ch/users/otherUserIRI"
 
 
 @pytest.fixture
@@ -173,6 +178,17 @@ def user_lookup() -> UserNameToIriLookup:
     lookup.add_iri("testuser1", USER_1_IRI)
     lookup.add_iri("testuser2", USER_2_IRI)
     return lookup
+
+
+@pytest.fixture
+def empty_server_user_lookup() -> ServerUserLookup:
+    return ServerUserLookup(by_username={}, by_email={})
+
+
+@pytest.fixture
+def server_user_lookup_with_user_2() -> ServerUserLookup:
+    user = ServerUser(iri=USER_2_IRI, username="testuser2", email="testuser2@example.com")
+    return ServerUserLookup(by_username={user.username: user}, by_email={user.email: user})
 
 
 @pytest.fixture
@@ -361,64 +377,155 @@ class TestCreateGroups:
         mock_group_client.create_new_group.assert_not_called()
 
 
+class TestConstructServerUserLookup:
+    def test_maps_username_and_email(self):
+        all_users = [
+            {"id": USER_1_IRI, "username": "testuser1", "email": "testuser1@example.com", "givenName": "Test"},
+            {"id": USER_2_IRI, "username": "testuser2", "email": "testuser2@example.com", "givenName": "Test"},
+        ]
+        lookup = _construct_server_user_lookup(all_users)
+        expected_1 = ServerUser(iri=USER_1_IRI, username="testuser1", email="testuser1@example.com")
+        expected_2 = ServerUser(iri=USER_2_IRI, username="testuser2", email="testuser2@example.com")
+        assert lookup.by_username == {"testuser1": expected_1, "testuser2": expected_2}
+        assert lookup.by_email == {"testuser1@example.com": expected_1, "testuser2@example.com": expected_2}
+
+    def test_empty_list(self):
+        lookup = _construct_server_user_lookup([])
+        assert lookup.by_username == {}
+        assert lookup.by_email == {}
+
+
+class TestResolveExistingUser:
+    def test_user_does_not_exist(self, parsed_user_1: ParsedUser, server_user_lookup_with_user_2: ServerUserLookup):
+        assert _resolve_existing_user(parsed_user_1, server_user_lookup_with_user_2) is None
+
+    def test_username_and_email_match(
+        self, parsed_user_2: ParsedUser, server_user_lookup_with_user_2: ServerUserLookup
+    ):
+        assert _resolve_existing_user(parsed_user_2, server_user_lookup_with_user_2) == USER_2_IRI
+
+    def test_only_username_matches(self, parsed_user_2: ParsedUser):
+        server_user = ServerUser(iri=USER_2_IRI, username="testuser2", email="different@example.com")
+        lookup = ServerUserLookup(
+            by_username={server_user.username: server_user}, by_email={server_user.email: server_user}
+        )
+        result = _resolve_existing_user(parsed_user_2, lookup)
+        assert isinstance(result, UploadProblem)
+        assert result.problematic_object == "testuser2"
+        assert result.problem == UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS
+
+    def test_only_email_matches(self, parsed_user_2: ParsedUser):
+        server_user = ServerUser(iri=USER_2_IRI, username="differentUsername", email="testuser2@example.com")
+        lookup = ServerUserLookup(
+            by_username={server_user.username: server_user}, by_email={server_user.email: server_user}
+        )
+        result = _resolve_existing_user(parsed_user_2, lookup)
+        assert isinstance(result, UploadProblem)
+        assert result.problematic_object == "testuser2"
+        assert result.problem == UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS
+
+    def test_username_and_email_belong_to_different_users(self, parsed_user_2: ParsedUser):
+        user_with_username = ServerUser(iri=USER_2_IRI, username="testuser2", email="different@example.com")
+        user_with_email = ServerUser(iri=OTHER_USER_IRI, username="other", email="testuser2@example.com")
+        lookup = ServerUserLookup(
+            by_username={user_with_username.username: user_with_username, user_with_email.username: user_with_email},
+            by_email={user_with_username.email: user_with_username, user_with_email.email: user_with_email},
+        )
+        result = _resolve_existing_user(parsed_user_2, lookup)
+        assert isinstance(result, UploadProblem)
+        assert result.problem == UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS
+
+
 class TestCreateOneUser:
-    def test_creates_new_user(self, parsed_user_1: ParsedUser, mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = None
+    def test_creates_new_user(
+        self, parsed_user_1: ParsedUser, mock_user_client: Mock, empty_server_user_lookup: ServerUserLookup
+    ):
         mock_user_client.post_new_user.return_value = USER_1_IRI
-        result = _create_one_user(parsed_user_1, mock_user_client)
+        result = _create_one_user(parsed_user_1, mock_user_client, empty_server_user_lookup)
         assert result == USER_1_IRI
-        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
         mock_user_client.post_new_user.assert_called_once()
 
-    def test_returns_existing_user_iri(self, parsed_user_2: ParsedUser, mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = USER_2_IRI
-        result = _create_one_user(parsed_user_2, mock_user_client)
+    def test_returns_existing_user_iri(
+        self, parsed_user_2: ParsedUser, mock_user_client: Mock, server_user_lookup_with_user_2: ServerUserLookup
+    ):
+        result = _create_one_user(parsed_user_2, mock_user_client, server_user_lookup_with_user_2)
         assert result == USER_2_IRI
-        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser2")
         mock_user_client.post_new_user.assert_not_called()
 
-    def test_returns_none_when_creation_fails(self, parsed_user_1: ParsedUser, mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = None
+    def test_returns_problem_when_credentials_differ(self, parsed_user_2: ParsedUser, mock_user_client: Mock):
+        server_user = ServerUser(iri=USER_2_IRI, username="differentUsername", email="testuser2@example.com")
+        lookup = ServerUserLookup(
+            by_username={server_user.username: server_user}, by_email={server_user.email: server_user}
+        )
+        result = _create_one_user(parsed_user_2, mock_user_client, lookup)
+        assert isinstance(result, UploadProblem)
+        assert result.problem == UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS
+        mock_user_client.post_new_user.assert_not_called()
+
+    def test_returns_problem_when_creation_fails(
+        self, parsed_user_1: ParsedUser, mock_user_client: Mock, empty_server_user_lookup: ServerUserLookup
+    ):
         mock_user_client.post_new_user.return_value = None
-        result = _create_one_user(parsed_user_1, mock_user_client)
-        assert result is None
-        mock_user_client.get_user_iri_by_username.assert_called_once_with("testuser1")
+        result = _create_one_user(parsed_user_1, mock_user_client, empty_server_user_lookup)
+        assert isinstance(result, UploadProblem)
+        assert result.problematic_object == "testuser1"
+        assert result.problem == UploadProblemType.USER_COULD_NOT_BE_CREATED
         mock_user_client.post_new_user.assert_called_once()
 
 
 class TestCreateAllUsers:
-    def test_creates_all_new_users_successfully(self, parsed_users: list[ParsedUser], mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = None
+    def test_creates_all_new_users_successfully(
+        self, parsed_users: list[ParsedUser], mock_user_client: Mock, empty_server_user_lookup: ServerUserLookup
+    ):
         mock_user_client.post_new_user.side_effect = [USER_1_IRI, USER_2_IRI]
-        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+        lookup, problems = _create_all_users(parsed_users, mock_user_client, empty_server_user_lookup)
         assert len(problems) == 0
         assert lookup.get_iri("testuser1") == USER_1_IRI
         assert lookup.get_iri("testuser2") == USER_2_IRI
         assert mock_user_client.post_new_user.call_count == 2
 
-    def test_handles_existing_users(self, parsed_users: list[ParsedUser], mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.side_effect = [USER_1_IRI, None]
-        mock_user_client.post_new_user.return_value = USER_2_IRI
-        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+    def test_handles_existing_users(
+        self, parsed_users: list[ParsedUser], mock_user_client: Mock, server_user_lookup_with_user_2: ServerUserLookup
+    ):
+        mock_user_client.post_new_user.return_value = USER_1_IRI
+        lookup, problems = _create_all_users(parsed_users, mock_user_client, server_user_lookup_with_user_2)
         assert len(problems) == 0
         assert lookup.get_iri("testuser1") == USER_1_IRI
         assert lookup.get_iri("testuser2") == USER_2_IRI
         assert mock_user_client.post_new_user.call_count == 1
 
-    def test_handles_creation_failures(self, parsed_users: list[ParsedUser], mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = None
+    def test_handles_existing_users_with_different_credentials(
+        self, parsed_users: list[ParsedUser], mock_user_client: Mock
+    ):
+        server_user = ServerUser(iri=OTHER_USER_IRI, username="other", email="testuser2@example.com")
+        server_lookup = ServerUserLookup(
+            by_username={server_user.username: server_user}, by_email={server_user.email: server_user}
+        )
+        mock_user_client.post_new_user.return_value = USER_1_IRI
+        lookup, problems = _create_all_users(parsed_users, mock_user_client, server_lookup)
+        assert len(problems) == 1
+        assert problems[0].problematic_object == "testuser2"
+        assert problems[0].problem == UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS
+        assert lookup.get_iri("testuser1") == USER_1_IRI
+        assert lookup.get_iri("testuser2") is None
+        assert mock_user_client.post_new_user.call_count == 1
+
+    def test_handles_creation_failures(
+        self, parsed_users: list[ParsedUser], mock_user_client: Mock, empty_server_user_lookup: ServerUserLookup
+    ):
         mock_user_client.post_new_user.side_effect = [None, USER_2_IRI]
-        lookup, problems = _create_all_users(parsed_users, mock_user_client)
+        lookup, problems = _create_all_users(parsed_users, mock_user_client, empty_server_user_lookup)
         assert len(problems) == 1
         assert problems[0].problematic_object == "testuser1"
         assert problems[0].problem == UploadProblemType.USER_COULD_NOT_BE_CREATED
         assert lookup.get_iri("testuser1") is None
         assert lookup.get_iri("testuser2") == USER_2_IRI
 
-    def test_handles_all_failures(self, parsed_users: list[ParsedUser], mock_user_client: Mock):
-        mock_user_client.get_user_iri_by_username.return_value = None
+    def test_handles_all_failures(
+        self, parsed_users: list[ParsedUser], mock_user_client: Mock, empty_server_user_lookup: ServerUserLookup
+    ):
         mock_user_client.post_new_user.return_value = None
-        _, problems = _create_all_users(parsed_users, mock_user_client)
+        _, problems = _create_all_users(parsed_users, mock_user_client, empty_server_user_lookup)
         assert len(problems) == 2
         assert problems[0].problematic_object == "testuser1"
         assert problems[1].problematic_object == "testuser2"
@@ -613,7 +720,7 @@ class TestCreateUsers:
         mock_auth: Mock,
     ):
         mock_client = Mock()
-        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.get_all_users.return_value = []
         mock_client.post_new_user.side_effect = [USER_1_IRI, USER_2_IRI]
         mock_client.add_user_as_project_member.return_value = True
         mock_client.add_user_as_project_admin.return_value = True
@@ -632,7 +739,7 @@ class TestCreateUsers:
         mock_auth: Mock,
     ):
         mock_client = Mock()
-        mock_client.get_user_iri_by_username.return_value = None
+        mock_client.get_all_users.return_value = []
         mock_client.post_new_user.side_effect = [None, USER_2_IRI]
         mock_client.add_user_as_project_member.return_value = True
         mock_client.add_user_as_project_admin.return_value = True

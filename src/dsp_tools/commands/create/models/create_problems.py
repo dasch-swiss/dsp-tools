@@ -90,6 +90,10 @@ class UploadProblemType(ProblemType):
     GROUP_COULD_NOT_BE_CREATED = "The group could not be created."
     # Users
     USER_COULD_NOT_BE_CREATED = "The user could not be created."
+    USER_EXISTS_WITH_DIFFERENT_CREDENTIALS = (
+        "The username or the email already exists on the server, but not in the same combination as in the JSON. "
+        "The user was not created and was not added to the project."
+    )
     USER_COULD_NOT_BE_ADDED_TO_GROUP = "The user could not be added to some or all of the custom groups."
     USER_GROUPS_NOT_FOUND = "The user could not be added to the groups because they do not exist on the server."
     PROJECT_MEMBERSHIP_COULD_NOT_BE_ADDED = "The user could not be added as project member."

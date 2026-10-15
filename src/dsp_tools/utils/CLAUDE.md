@@ -150,15 +150,6 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 - The geolocation shapes in `resources/validate_data/api-shapes.ttl` mirror this table. A unit test keeps them equal
 - Used in: everywhere a geolocation is created, parsed, checked or uploaded
 
-## Database & Server Monitoring
-
-**`fuseki_bloating.py`**
-
-- Calculate database size growth during upload
-- Warn/alert when database bloating exceeds thresholds (10GB warning, 20GB critical)
-- Communicate disk space concerns to users
-- Used in: XML upload workflows on localhost
-
 ## Error Handling
 
 **`exceptions.py`**

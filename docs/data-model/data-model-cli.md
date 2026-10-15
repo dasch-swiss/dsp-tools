@@ -51,6 +51,10 @@ it is necessary to specify the following options:
 dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' project_definition.json
 ```
 
+On production, a DaSCH system admin runs `create`.
+For when to add the project admin account to the JSON project file,
+see [Who Creates the Account](../production-account.md#who-creates-the-account).
+
 The expected JSON format is [documented here](./json-project/overview.md).
 
 ## `get`
@@ -177,6 +181,7 @@ password: test
 
 All fields are required.
 The `server`, `user`, and `password` fields follow the same conventions as other DSP-TOOLS commands.
+On production, use the [project admin account](../production-account.md) of the project as `user`.
 
 ### `mapping update`
 

@@ -52,6 +52,7 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
       as we will ensure interoperability between the DSP-API requirements and your input.
     - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
       Please note, that only DaSCH employees are permitted to upload data on a production server.
+      They use the [project admin account](./production-account.md) of the project.
 
 ## List of CLI Commands
 

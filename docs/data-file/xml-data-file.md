@@ -236,6 +236,9 @@ These identifiers can later be referenced via the `authorship-id` attribute:
 - on the `<resource>`, `<region>`, `<link>`, `<video-segment>` and `<audio-segment>` elements,
   to describe the author(s) of the resource record itself.
 
+DSP-APP shows the uploading account as the creator, not as the author.
+For details, see the [project admin account](../production-account.md#authorship-of-the-data).
+
 
 ## Describing Resources With the `<resource>` Element
 

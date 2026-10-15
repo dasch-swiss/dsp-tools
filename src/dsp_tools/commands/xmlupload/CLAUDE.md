@@ -59,7 +59,6 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **transform_input_values.py**: Value transformation utilities
 - **ark2iri.py**: ARK to IRI resolution
 - **iiif_uri_validator.py**: IIIF URI validation
-- **list_client.py**: Client for list node lookups
 
 #### models/
 
@@ -70,7 +69,6 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **lookup_models.py**: Lookup tables for IRIs and XML references
 - **upload_state.py**: State management for upload operations
 - **upload_clients.py**: Client collection for various services
-- **ingest.py**: File ingest process models
 - **permission.py**: Permission handling models
 - **bitstream_info.py**: Bitstream metadata models
 - **input_problems.py**: Input validation problem tracking
@@ -80,7 +78,9 @@ It handles the complete workflow from XML parsing and validation to resource cre
 - **stash_models.py**: Data models for stashing circular references
     - `StandoffStash`: Manages stashed RichtextValue with standoff markup
     - `StandoffStashItem`: Individual stashed RichtextValue
-    - `LinkObjStash`: Manages stashed LinkValue references
+    - `LinkValueStash`: Manages stashed LinkValue references
+    - `LinkValueStashItem`: Individual stashed LinkValue
+    - `Stash`: Holds both stashes
 - **graph_models.py**: Graph-related data models for circular reference analysis
 - **stash_circular_references.py**: Logic for detecting and stashing circular references
 - **analyse_circular_reference_graph.py**: Graph analysis for upload ordering
@@ -98,9 +98,11 @@ It handles the complete workflow from XML parsing and validation to resource cre
 
 #### Client Classes
 
-- **resource_create_client.py**: `ResourceCreateClient` for creating resources via DSP API
-- **project_client.py**: `ProjectClient` for project-related operations
 - **iri_resolver.py**: IRI resolution utilities
+
+The HTTP clients that xmlupload uses live in `src/dsp_tools/clients/`:
+`resource_client.py` (`ResourceClient`, creates resources), `project_client.py` (`ProjectClient`),
+`list_client.py` (list node lookups), and `ingest.py` (file ingest).
 
 #### Utilities
 
@@ -114,14 +116,14 @@ It handles the complete workflow from XML parsing and validation to resource cre
 The central data model representing a fully processed resource ready for upload:
 The class `ProcessedResource` in `models/processed/res.py`
 
-The `ProcessedResource` is created from the `ParsedResources`
+The `ProcessedResource` is created from a `ParsedResource`
 
 ### Stash Models
 
 For handling circular references:
 
 - **StandoffStash**: Manages stashed Richtext values with standoff markup
-- **LinkObjStash**: Manages stashed resource pointer properties
+- **LinkValueStash**: Manages stashed resource pointer properties
 
 ### Upload Configuration
 
@@ -184,7 +186,7 @@ The xmlupload process automatically generates diagnostic files containing mappin
 
 - **Function**: `write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)`
 - **Purpose**: Creates JSON files mapping XML resource IDs to their corresponding DSP server IRIs
-- **Timing**: Generated at the end of successful uploads (called in `xmlupload.py`)
+- **Timing**: Generated at the end of successful uploads (called in `execute_upload.py`)
 
 #### State Management
 
@@ -293,7 +295,7 @@ When working on xmlupload functionality, these are the most important files to u
 - `models/processed/res.py` - Core ProcessedResource model
 - `stash/stash_circular_references.py` - Circular reference handling
 - `make_rdf_graph/make_resource_and_values.py` - RDF generation
-- `resource_create_client.py` - DSP-API resource creation
+- `src/dsp_tools/clients/resource_client.py` - DSP-API resource creation
 
 ## Module Dependencies
 

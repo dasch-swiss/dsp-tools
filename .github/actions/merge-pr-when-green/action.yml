@@ -21,65 +21,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # The App bypasses the *review* only: required status checks have no
-    # per-actor bypass under branch protection, so the server rejects an
-    # `--admin` merge until every check passes and the retry loop can never
-    # merge early. The rejection message always names the missing review even
-    # for this App, which is noise rather than something to act on.
     - name: Merge once required checks pass
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.token }}
         PR_URL: ${{ inputs.pr-url }}
         TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
-      run: |
-        set -euo pipefail
-        echo "::notice::merging $PR_URL once required checks pass (App bypasses the review)"
-        deadline=$(( $(date +%s) + TIMEOUT_MINUTES * 60 ))
-        # run id -> attempt number at the moment we re-ran it
-        declare -A reran_at_attempt
-
-        until merge_out=$(gh pr merge --squash --admin "$PR_URL" 2>&1); do
-          echo "$merge_out"
-          if [[ "$(gh pr view "$PR_URL" --json state --jq .state 2>/dev/null)" == "MERGED" ]]; then
-            break
-          fi
-          if (( $(date +%s) >= deadline )); then
-            echo "::error::could not merge $PR_URL within budget (check failing or branch blocked)"
-            exit 1
-          fi
-
-          # A required check in a terminal `fail` state never turns green on its
-          # own, so polling it to the deadline only delays the alert. Re-run it
-          # once, then give up as soon as the re-run has failed too.
-          while read -r run_id; do
-            [[ -n "$run_id" ]] || continue
-            read -r attempt status < <(gh run view "$run_id" --json attempt,status --jq '"\(.attempt) \(.status)"')
-            if [[ -z "${reran_at_attempt[$run_id]:-}" ]]; then
-              echo "::notice::required check in run $run_id failed; re-running it once in case it is a flake"
-              if ! gh run rerun "$run_id" --failed; then
-                echo "::error::required check in run $run_id failed and could not be re-run"
-                exit 1
-              fi
-              # Comparing against the attempt seen *before* the re-run is what
-              # keeps the check below from reading the pre-re-run failure as a
-              # second one.
-              reran_at_attempt[$run_id]=$attempt
-            elif [[ "$status" == "completed" && "$attempt" -gt "${reran_at_attempt[$run_id]}" ]]; then
-              echo "::error::required check in run $run_id failed again after a re-run — not a flake"
-              exit 1
-            fi
-          done < <(gh pr checks "$PR_URL" --required --json bucket,link --jq '
-            [.[] | select(.bucket == "fail") | .link | capture("/actions/runs/(?<id>[0-9]+)").id]
-            | unique | .[]' || true)
-
-          # A branch behind base can never merge. Refresh only when the merge
-          # output says so: doing it unconditionally re-triggers the checks
-          # every loop and never converges.
-          if grep -qiE "not up to date|out of date|base branch was modified|behind" <<<"$merge_out"; then
-            echo "::notice::branch behind base; updating"
-            gh pr update-branch "$PR_URL" >/dev/null 2>&1 || true
-          fi
-          sleep 30
-        done
-        echo "::notice::merged $PR_URL"
+      # Run unbuffered, so the log shows each poll at once.
+      run: python -u scripts/merge_pr_when_green.py

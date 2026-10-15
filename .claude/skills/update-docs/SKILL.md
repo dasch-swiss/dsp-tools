@@ -74,7 +74,7 @@ The `RegionPreviewValue` case. A value type surfaces in the ontology, in the XML
       "following DSP base properties are available" list.
     - [ ] Add a row to the `hasValue | <Object> | <gui_element>` table.
     - [ ] Add the `#### <NewValue>` object-type section: description, `"object": "<NewValue>"`, a
-      *gui_elements* list, and a JSON `Example`. **← the spot that was missed for `RegionPreviewValue`.**
+      *gui_elements* list, and a JSON `Example`.
 - [ ] `docs/data-file/xml-data-file.md` — add a `### <new-prop>` section: the element, its attributes,
   its constraints, an XML example, and a cross-link to the ontology section. Document any child element
   too (e.g. `<region-preview>` inside `<region-preview-prop>`).

@@ -31,7 +31,8 @@ DSP-TOOLS provides the following functionalities:
 - `dsp-tools get` reads a project with its data model(s) from a DSP server and writes it into a JSON file.
 - `dsp-tools validate-data` validates an XML data file according to the ontology previously uploaded on the server.
 - `dsp-tools xmlupload` uploads data from an XML file onto a DSP server, incl. multimedia assets referenced in the XML.
-- New workflow for `xmlupload`:
+- Alternative to `xmlupload`: a workflow split into three commands.
+  Both ways are supported.
     - `dsp-tools upload-files` uploads all multimedia assets that are referenced in an XML file to a DSP server.
     - `dsp-tools ingest-files` kicks off the ingest process on the DSP server,
       and retrieves the mapping CSV when it is finished.
@@ -150,7 +151,7 @@ Some commands share a subdirectory, and some commands live in a single file inst
 Public API library for programmatic creation of XML files:
 
 - **models/**: Resource and value models for XML generation
-- **helpers.py**: Utility functions for creating XML files
+- **general_functions.py**: Public utility functions for creating XML files
 - **value_checkers.py**: Validation functions for different value types
 - **value_converters.py**: Conversion utilities for values
 
@@ -204,7 +205,7 @@ The system follows this general flow for XML processing:
   even if the latter are more concise or performant.
   Readability and maintainability are primary concerns.
 - Make the smallest reasonable changes to get to the desired outcome.
-  You MUST ask permission before reimplementing features or systems from scratch
+  Ask permission before you reimplement a feature or system from scratch
   instead of updating the existing implementation.
 - For coding, testing, and naming conventions (evergreen naming, docstring policy, types, `pathlib`,
   stateless functions, test data, commit rules), follow `CONVENTIONS.md`; the review checklist is `REVIEW.md`.
@@ -212,7 +213,7 @@ The system follows this general flow for XML processing:
 ### Code quality
 
 - Whenever you modify the codebase, make sure to also update all CLAUDE.md files (if necessary)
-- NEVER ignore the output of the system or the tests - Logs and messages often contain CRITICAL information.
+- Read the output of the system and the tests. Logs and messages often show the cause of a failure.
 - If the logs are supposed to contain errors, capture and test it.
 
 ### Getting help

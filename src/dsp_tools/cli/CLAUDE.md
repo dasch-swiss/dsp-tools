@@ -123,8 +123,8 @@ def call_create(args: argparse.Namespace) -> bool:
 
     # 2. Validate inputs
     check_input_dependencies(
-        paths=PathDependencies(required_files=[xml_file]),
-        network_dependencies=NetworkRequirements(api_url=creds.server),
+        required_paths=PathDependencies(required_files=[xml_file]),
+        network_dependencies=[NetworkRequirements(api_url=creds.server)],
     )
 
     # 3. Execute the command logic
@@ -188,10 +188,12 @@ from dsp_tools.cli.utils import check_input_dependencies
 
 # Check that Docker is running and DSP-API is healthy
 check_input_dependencies(
-    network_dependencies=NetworkRequirements(
-        api_url="http://0.0.0.0:3333",
-        always_requires_docker=True,  # Set to True for commands that always need Docker
-    )
+    network_dependencies=[
+        NetworkRequirements(
+            api_url="http://0.0.0.0:3333",
+            always_requires_docker=True,  # Set to True for commands that always need Docker
+        )
+    ]
 )
 ```
 
@@ -360,7 +362,7 @@ def call_validate_project(args: argparse.Namespace) -> bool:
     strict_mode = args.strict
 
     # 2. Validate inputs at CLI level
-    check_input_dependencies(paths=PathDependencies(required_files=[project_file]))
+    check_input_dependencies(required_paths=PathDependencies(required_files=[project_file]))
 
     # 3. Call implementation from commands module
     result = validate_project_file(

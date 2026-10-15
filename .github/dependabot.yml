@@ -9,9 +9,20 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    cooldown:
+      # Applies to version updates only. Security updates ignore the cooldown.
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 7
     open-pull-requests-limit: 1
     groups:
       all-dependencies:
+        patterns:
+          - "*"
+      # Without this group, each security update gets its own PR.
+      all-security-updates:
+        applies-to: security-updates
         patterns:
           - "*"

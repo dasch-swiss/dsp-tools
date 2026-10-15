@@ -186,6 +186,9 @@ All creation follows strict sequential order because of dependencies.
 **4. Users** (`group_users.py: create_users()`)
 
 - Creates users with credentials
+- Fetches all server users first. A JSON user whose `username` and `email` match one server user is reused.
+  A partial match (only one of the two, or two different server users) is a non-crashing problem:
+  the user is not created and gets no memberships.
 - Assigns project admin status
 - Assigns group memberships (requires group IRIs from step 3)
 

@@ -15,6 +15,8 @@ from dsp_tools.commands.create.models.parsed_project import ParsedGroup
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.models.server_project_info import GroupNameToIriLookup
+from dsp_tools.commands.create.models.server_project_info import ServerUser
+from dsp_tools.commands.create.models.server_project_info import ServerUserLookup
 from dsp_tools.commands.create.models.server_project_info import UserNameToIriLookup
 from dsp_tools.commands.create.serialisation.project import serialise_one_group
 from dsp_tools.commands.create.serialisation.project import serialise_one_user_for_creation
@@ -31,7 +33,8 @@ def create_users(
 ) -> CollectedProblems | None:
     print(BOLD + "Processing user section:" + RESET_TO_DEFAULT)
     client = UserClientLive(auth.server, auth)
-    user_to_iri, problems = _create_all_users(users, client)
+    server_users = _construct_server_user_lookup(client.get_all_users())
+    user_to_iri, problems = _create_all_users(users, client, server_users)
     membership_problems = _add_all_memberships(user_memberships, user_to_iri, group_lookup, client, project_iri)
     problems.extend(membership_problems)
     if problems:
@@ -39,25 +42,54 @@ def create_users(
     return None
 
 
-def _create_all_users(users: list[ParsedUser], client: UserClient) -> tuple[UserNameToIriLookup, list[CreateProblem]]:
+def _construct_server_user_lookup(all_users: list[dict[str, Any]]) -> ServerUserLookup:
+    server_users = [ServerUser(iri=usr["id"], username=usr["username"], email=usr["email"]) for usr in all_users]
+    return ServerUserLookup(
+        by_username={usr.username: usr for usr in server_users},
+        by_email={usr.email: usr for usr in server_users},
+    )
+
+
+def _create_all_users(
+    users: list[ParsedUser], client: UserClient, server_users: ServerUserLookup
+) -> tuple[UserNameToIriLookup, list[CreateProblem]]:
     problems: list[CreateProblem] = []
     user_to_iri = UserNameToIriLookup()
     progress_bar = tqdm(users, desc="    Creating users", dynamic_ncols=True)
     logger.debug("Creating users")
     for usr in progress_bar:
-        result = _create_one_user(usr, client)
-        if result is None:
-            problems.append(UploadProblem(usr.username, UploadProblemType.USER_COULD_NOT_BE_CREATED))
+        result = _create_one_user(usr, client, server_users)
+        if isinstance(result, UploadProblem):
+            problems.append(result)
         else:
             user_to_iri.add_iri(usr.username, result)
     return user_to_iri, problems
 
 
-def _create_one_user(user: ParsedUser, client: UserClient) -> str | None:
-    if user_iri := client.get_user_iri_by_username(user.username):
-        return user_iri
+def _create_one_user(user: ParsedUser, client: UserClient, server_users: ServerUserLookup) -> str | UploadProblem:
+    existing = _resolve_existing_user(user, server_users)
+    if existing is not None:
+        return existing
     serialised_user = serialise_one_user_for_creation(user)
-    return client.post_new_user(serialised_user)
+    if new_iri := client.post_new_user(serialised_user):
+        return new_iri
+    return UploadProblem(user.username, UploadProblemType.USER_COULD_NOT_BE_CREATED)
+
+
+def _resolve_existing_user(user: ParsedUser, server_users: ServerUserLookup) -> str | UploadProblem | None:
+    """
+    Returns the IRI if a server user has the same username and email,
+    None if neither the username nor the email exist on the server,
+    and a problem if only one of them matches or they match different server users.
+    """
+    by_username = server_users.by_username.get(user.username)
+    by_email = server_users.by_email.get(user.email)
+    if by_username is None and by_email is None:
+        return None
+    if by_username is not None and by_email is not None and by_username.iri == by_email.iri:
+        logger.debug(f"User '{user.username}' already exists on the server, using the existing user.")
+        return by_username.iri
+    return UploadProblem(user.username, UploadProblemType.USER_EXISTS_WITH_DIFFERENT_CREDENTIALS)
 
 
 def _add_all_memberships(

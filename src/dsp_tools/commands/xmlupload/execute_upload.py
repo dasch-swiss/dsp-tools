@@ -7,7 +7,6 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from tqdm import tqdm
 
-from dsp_tools.clients.fuseki_metrics import FusekiMetrics
 from dsp_tools.clients.ingest import AssetClient
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.clients.project_client_live import ProjectClientLive
@@ -40,7 +39,6 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.exceptions import DspToolsRequestException
-from dsp_tools.utils.fuseki_bloating import communicate_fuseki_bloating
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import should_retry_request
 
@@ -58,17 +56,10 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         False if any resource could not be uploaded
     """
     logger.debug("Start uploading data")
-    db_metrics = None
-    if clients.legal_info_client.server == "http://0.0.0.0:3333":
-        db_metrics = FusekiMetrics()
-        db_metrics.try_get_start_size()
     upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     if _upload_all_resources(clients, upload_state):
         # the upload was interrupted as requested by the user: the state is saved, so it can be resumed
         return True
-    if db_metrics is not None:
-        db_metrics.try_get_end_size()
-        communicate_fuseki_bloating(db_metrics)
     return cleanup_upload(upload_state)
 
 

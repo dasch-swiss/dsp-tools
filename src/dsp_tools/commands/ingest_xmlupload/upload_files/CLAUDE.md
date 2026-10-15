@@ -26,7 +26,7 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 - The bitstream contract lives in `get_parsed_resources` (utils), not here. Do not re-parse
   `<bitstream>` with xpath. Extract file paths from `ParsedResource` and filter by type
   (`ParsedFileBitstream`). Placeholder and `<iiif-uri>` values are then excluded by type.
-  A second xpath parser drifts from this contract and mishandles placeholder bitstreams.
+  A second xpath parsing pass drifts from this contract and mishandles placeholder bitstreams.
 - Two-level design: `upload_files` takes the XML file and runs standalone. `_get_validated_paths`
   takes a `list[ParsedResource]` and returns the real bitstream file paths.
 - Two distinct error types: `FileProblems` for local problems before upload (missing or unsupported

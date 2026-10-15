@@ -31,7 +31,8 @@ DSP-TOOLS provides the following functionalities:
 - `dsp-tools get` reads a project with its data model(s) from a DSP server and writes it into a JSON file.
 - `dsp-tools validate-data` validates an XML data file according to the ontology previously uploaded on the server.
 - `dsp-tools xmlupload` uploads data from an XML file onto a DSP server, incl. multimedia assets referenced in the XML.
-- Split workflow for `xmlupload` (three steps):
+- Alternative to `xmlupload`: a workflow split into three commands.
+  Both ways are supported.
     - `dsp-tools upload-files` uploads all multimedia assets that are referenced in an XML file to a DSP server.
     - `dsp-tools ingest-files` kicks off the ingest process on the DSP server,
       and retrieves the mapping CSV when it is finished.

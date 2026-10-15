@@ -94,8 +94,10 @@ to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
+
+On production, use the [project admin account](../production-account.md) of the project.
 
 The expected XML format is [documented here](./xml-data-file.md).
 
@@ -137,6 +139,8 @@ The following options are available:
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
 Currently, only one interrupted upload can be resumed at a time per server.
+
+On production, use the [project admin account](../production-account.md) of the project.
 
 
 ## `id2iri`

@@ -412,6 +412,8 @@ Example:
 
 The `users` element is optional. If not used, it should be omitted.
 
+For a project on production, add the [project admin account](../../production-account.md#who-creates-the-account).
+
 
 
 ### `lists`

@@ -67,7 +67,20 @@ After `create`, DaSCH uses the project admin account for these commands:
 
 ## Authorship of the Data
 
-DSP-APP shows the project admin account as the creator of the data, not as the author.
+DSP-APP shows the project admin account as the creator of the data.
+The creator is only the account that uploaded the data.
+It does not show who made the data.
+Because DaSCH uploads all data of the project with the same account,
+the creator is the same for all resources.
+
+The author is the person or the institution that made the content, for example
+the researcher who transcribed a letter or the photographer of an image.
+DSP does not get the authors from the account.
+If the XML file gives no authorship, the data has no author in DSP.
+Then the users of the data cannot see whom to give credit to, and cannot cite the authors correctly.
+The project default `default_data_authorship` does not change this on its own:
+`xmlupload` applies it only if the XML file tells it to.
+
 Give the authorship, the copyright holder and the license in the legal metadata of the XML file:
 
 - Multimedia assets: the attributes `authorship-id`, `copyright-holder` and `license`
@@ -77,5 +90,7 @@ Give the authorship, the copyright holder and the license in the legal metadata 
   on the `<resource>` element.
 - Definitions of the authors: [`<authorship>`](./data-file/xml-data-file.md#defining-the-authorships).
 - Project defaults: [`default_data_authorship`](./data-model/json-project/overview.md#default_data_authorship).
+  The attribute [`use-project-default-resource-authorship`](./data-file/xml-data-file.md#the-root-element-knora)
+  on the `<knora>` element applies the project default to all resources without their own `authorship-id`.
 
 If you use the `xmllib`, see [Setting the Authorship of a Resource](./xmllib-docs/overview.md#setting-the-authorship-of-a-resource).

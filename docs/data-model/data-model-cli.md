@@ -174,8 +174,6 @@ The command creates a file named `{shortcode}-{ontology}-mapping.yaml` in the cu
 shortcode: "0XXX"
 ontology: "my-ontology"
 excel-file: path/to/mappings.xlsx
-server: http://0.0.0.0:3333
-user: root@example.com
 server: https://api.dasch.swiss
 user: <shortname>@admin.dasch.swiss
 password: <your_password>

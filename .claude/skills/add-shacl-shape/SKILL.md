@@ -1,13 +1,11 @@
 ---
 name: add-shacl-shape
 description: >-
-  This skill should be used when adding a new validation ("SHACL shape") to the dsp-tools
-  `validate-data` command. Trigger it when the user asks to "add a SHACL shape", "add a new
-  validation", "add a validation check", "add a validation rule or constraint to validate-data",
-  "make some data fail validation", or "add a new cardinality or content check" — including
-  outcome-phrased requests like "make a property required" or "reject values outside an allowed
-  range". It gives the fail-fast, test-data-first workflow for authoring the shape and wiring its
-  constraint component through the report-processing pipeline.
+  This skill should be used when adding or changing a check ("SHACL shape") in the dsp-tools
+  `validate-data` command: a new validation, cardinality or content rule, or an outcome such as
+  "make a property required" or "reject values outside an allowed range". It gives the
+  test-data-first workflow for authoring the shape and wiring its constraint component through
+  the report-processing pipeline.
 ---
 
 # SHACL Shape Playbook

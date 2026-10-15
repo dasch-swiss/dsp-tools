@@ -56,7 +56,7 @@ whether or not the skill is used.
 The validate_data module uses clients from the shared `src/dsp_tools/clients/` module:
 
 - **OntologyGetClient**: Fetches project ontologies and knora-api ontology from DSP server
-- **ListClient**: Retrieves and reformats project lists for validation
+- **ListGetClient**: Retrieves and reformats project lists for validation
 - **MetadataClient**: Retrieves project metadata
 - **LegalInfoClient**: Fetches legal information for validation
 
@@ -162,7 +162,7 @@ Validation results are categorized into:
 ## Testing Strategy
 
 - **Unit tests**: Test individual validation components
-- **Integration tests**: Test API client interactions
+- **Integration tests**: Test file I/O and cross-module interactions
 - **E2E tests**: Test complete validation workflows with testcontainers
 
 ### Test-data conventions (mandatory)

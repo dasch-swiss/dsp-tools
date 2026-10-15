@@ -116,7 +116,7 @@ XML manipulation and metadata application:
 - `_apply_metadata_to_element()`: Applies metadata as attributes on media element
 - `_remove_text_properties()`: Removes old text-prop elements
 - `add_authorship_definitions_to_xml()`: Creates `<authorship>` definitions at root level
-- `write_final_xml()`: Writes updated XML with statistics
+- `write_updated_xml()`: Writes updated XML with statistics
 
 **Authorship deduplication:**
 
@@ -168,10 +168,10 @@ Problem: Multiple resources may share the same authorship (e.g., "Jane Doe, Alic
 
 Solution:
 
-1. Maintain `auth_text_to_id: dict[str, int]` throughout tree traversal
+1. Maintain `auth_text_to_id: dict[Authorships, int]` throughout tree traversal
 2. When applying authorship to media element:
-   - Join all authorship values with ", " separator
-   - Check if this text already has an ID
+   - Wrap the authorship values in an `Authorships` (a frozenset, so their order does not matter)
+   - Check if this set already has an ID
    - If not, assign next sequential ID
    - Add `authorship-id="authorship_{id}"` attribute to media element
 3. After tree traversal, create `<authorship>` definitions at root level

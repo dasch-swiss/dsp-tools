@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 from decimal import Decimal
 from decimal import localcontext
 from typing import Any
@@ -850,14 +850,14 @@ def _from_iso_date(iso_date: Match[str]) -> str | None:
     month = int(iso_date.group(2))
     day = int(iso_date.group(3))
     try:
-        date = datetime.date(year, month, day)
+        date = dt.date(year, month, day)
         return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None
 
 
 def _expand_2_digit_year(year: int) -> int:
-    current_year = datetime.date.today().year - 2000
+    current_year = dt.date.today().year - 2000
     if year <= current_year:
         return year + 2000
     elif year <= 99:
@@ -876,8 +876,8 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str | None:
     endyear = int(eur_date_range.group(6))
     endyear = _expand_2_digit_year(endyear)
     try:
-        startdate = datetime.date(startyear, startmonth, startday)
-        enddate = datetime.date(endyear, endmonth, endday)
+        startdate = dt.date(startyear, startmonth, startday)
+        enddate = dt.date(endyear, endmonth, endday)
     except ValueError:
         return None
     if enddate < startdate:
@@ -893,7 +893,7 @@ def _from_eur_date(eur_date: Match[str]) -> str | None:
     startyear = int(eur_date.group(3))
     startyear = _expand_2_digit_year(startyear)
     try:
-        date = datetime.date(startyear, startmonth, startday)
+        date = dt.date(startyear, startmonth, startday)
         return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None
@@ -904,7 +904,7 @@ def _from_monthname_date(monthname_date: Match[str]) -> str | None:
     month = _months_dict[monthname_date.group(1)]
     year = int(monthname_date.group(3))
     try:
-        date = datetime.date(year, month, day)
+        date = dt.date(year, month, day)
         return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None
@@ -915,7 +915,7 @@ def _from_monthname_after_day(monthname_after_day: Match[str]) -> str | None:
     month = _months_dict[monthname_after_day.group(2)]
     year = int(monthname_after_day.group(3))
     try:
-        date = datetime.date(year, month, day)
+        date = dt.date(year, month, day)
         return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None
@@ -926,7 +926,7 @@ def _from_german_monthname_date(german_monthname_date: Match[str]) -> str | None
     month = _months_dict[german_monthname_date.group(2)]
     year = int(german_monthname_date.group(3))
     try:
-        date = datetime.date(year, month, day)
+        date = dt.date(year, month, day)
         return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
     except ValueError:
         return None

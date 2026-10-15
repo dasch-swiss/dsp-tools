@@ -315,7 +315,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Public interface**: every file is directly importable; there is no `__init__.py` gate.
 - **Local-context kit**: `CLAUDE.md`, `request_utils.py`, `xml_parsing/parse_clean_validate_xml.py`,
   `data_formats/shared.py`
-- **Depends on**: `error`, `setup`, `clients.fuseki_metrics`, top-level `legacy_models` (correctly
+- **Depends on**: `error`, `setup`, top-level `legacy_models` (correctly
   directioned); `commands/get`, `commands/excel2xml`, `commands/xmlupload`, `commands/validate_data` (see
   Boundary rules — incorrectly directioned)
 - **Used by**: every component in this map (`cli`, `clients`, every command, `xmllib`)
@@ -330,8 +330,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     a `dune-grill` ADR — move these types into `utils/` itself or a neutral shared module)
     - One instance of a repo-wide pattern — see the banned-constructs table in Conventions.
     - New shared helper: drop a file into `utils/` or a subpackage; no registration needed.
-- **Durable state**: none — `request_utils.py`'s retry/backoff settings and `fuseki_bloating.py`'s thresholds
-  are static, not runtime-mutable.
+- **Durable state**: none — `request_utils.py`'s retry/backoff settings are static, not runtime-mutable.
 
 ### resources
 

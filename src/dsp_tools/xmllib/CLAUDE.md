@@ -22,7 +22,7 @@ It provides a type-safe, validated approach to generating XML data that conforms
 - **XMLRoot**: Main container for XML documents (`models/root.py`)
 - **Resource**: Primary resource class for DSP resources (`models/res.py`)
 - **DSP Base Resources**: Specialized resource types (`models/dsp_base_resources.py`)
-- **Configuration**: Enums and options (`models/config_options.py`)
+- **Configuration**: Enums and options (`models/config_options.py`, `models/date_formats.py`, `models/permissions.py`)
 - **Licenses**: License definitions (`models/licenses/`)
 - **Provenance**: Optional source-data coordinate carried by value builders (`models/provenance.py`)
 - **Geolocation**: Public coordinate classes, one per coordinate reference system (`models/geolocation.py`)
@@ -60,7 +60,7 @@ Input Converters → Checkers → Models/Values → XML Output
 ```python
 root = XMLRoot.create_new(shortcode="0000", default_ontology="onto")
 root.add_resource(resource)
-root.serialise_to_file("output.xml")
+root.write_file("output.xml")
 ```
 
 ### Resource - Core Data Model
@@ -196,7 +196,8 @@ When supplied, it appears as 4 extra trailing columns (source file, sheet, row, 
 `SourceProvenance.__post_init__` normalises each field to its declared type and never raises,
 so readers of provenance can rely on `str` / `int` / `None`.
 `models/provenance.py` imports the warning helpers at runtime.
-Thus, the modules under `internal/` import `SourceProvenance` only under `TYPE_CHECKING`.
+Thus, the modules that `models/provenance.py` imports (`checkers.py`, `xmllib_warnings.py`,
+`xmllib_warnings_util.py`) import `SourceProvenance` only under `TYPE_CHECKING`.
 
 ### Error Types
 
@@ -209,7 +210,7 @@ if not is_color(val):
     emit_xmllib_input_type_mismatch_warning(expected_type="color", value=val, res_id=resource_id, prop_name=prop_name)
 
 # Input validation errors
-raise_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1", prop_name=":hasDate"))
+raise_xmllib_input_error(MessageInfo(f"Invalid date format: {date}", resource_id="res_1", prop_name=":hasDate"))
 ```
 
 ## Testing Approach
@@ -265,10 +266,10 @@ nodes = get_list_nodes_from_string_via_list_name(
     string_with_list_labels="Label 1; Label 2",
     label_separator=";",
     list_name="list1",
-    list_lookup=list_lookup,
+    list_lookup=lookup,
 )
 assert nodes == ["node1", "node2"]
-resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=list_nodes)
+resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=nodes)
 ```
 
 ## Important Guidelines

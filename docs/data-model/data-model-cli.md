@@ -176,7 +176,9 @@ ontology: "my-ontology"
 excel-file: path/to/mappings.xlsx
 server: http://0.0.0.0:3333
 user: root@example.com
-password: test
+server: https://api.dasch.swiss
+user: <shortname>@admin.dasch.swiss
+password: <your_password>
 ```
 
 All fields are required.

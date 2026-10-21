@@ -26,7 +26,7 @@ def enforce_dsp_admin_account(has_dsp_admin_account: bool, server: str, activity
             msg = f"You are {activity} on a prod-like server."
             raise DspAdminAccountError(msg)
         case False, False:
-            msg = f"You are {activity} on a test environment."
+            msg = f"You are {activity} without the project admin account."
             warnings.warn(DspToolsMissingAdminAccountWarning(msg))
         case _:
             raise UnreachableCodeError()

@@ -44,5 +44,14 @@ def test_enforce_dsp_admin_account_missing_prod() -> None:
 
 
 def test_enforce_dsp_admin_account_missing_local() -> None:
-    with pytest.warns(DspToolsMissingAdminAccountWarning, match="You are doing something on a test environment"):
+    with pytest.warns(
+        DspToolsMissingAdminAccountWarning, match="You are doing something without the project admin account"
+    ):
+        enforce_dsp_admin_account(has_dsp_admin_account=False, server=LOCAL_SERVER, activity="doing something")
+
+
+def test_enforce_dsp_admin_account_missing_local_explains_rule() -> None:
+    with pytest.warns(
+        DspToolsMissingAdminAccountWarning, match="Other accounts are only permitted in test environments"
+    ):
         enforce_dsp_admin_account(has_dsp_admin_account=False, server=LOCAL_SERVER, activity="doing something")

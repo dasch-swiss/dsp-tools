@@ -32,7 +32,7 @@ class DspToolsMissingAdminAccountWarning(DspToolsUserWarning):
             "On prod-like servers, data uploads must be done by an account named [shortname]@admin.dasch.swiss. "
             "Other accounts are only permitted in test environments."
         )
-        self.message = f"{specifics_to_upload}\n{generic}"
+        super().__init__(f"{specifics_to_upload}\n{generic}")
 
 
 class DspToolsFutureWarning(DspToolsWarning, FutureWarning):

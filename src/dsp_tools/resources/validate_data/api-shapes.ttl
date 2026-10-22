@@ -155,8 +155,8 @@ api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape
         $this ?path ?valueClass .
 
         # At least one sibling value of the same property has an order.
-        # Join it here, not in FILTER EXISTS: the engine does not push the $this binding into EXISTS,
-        # so each check would scan all resources. DISTINCT removes the duplicate rows of this join.
+        # Join it here, not in FILTER EXISTS: as of 2026-10 the Jena-based engine does not push the $this binding
+        # into EXISTS, so each check scans all resources. DISTINCT removes the duplicate rows of this join.
         $this ?path ?otherValueClass .
         ?otherValueClass knora-api:valueHasOrder ?otherOrder .
         FILTER(?otherValueClass != ?valueClass)

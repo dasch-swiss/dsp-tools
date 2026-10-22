@@ -21,6 +21,20 @@ class ShaclValidationCliError(InternalError):
         super().__init__(msg, keep_default_msg=True)
 
 
+class ShaclValidationOutOfMemoryError(UserError):
+    """This error is raised when the validate data docker command (most likely) ran out of memory"""
+
+    def __init__(self, docker_memory_bytes: int | None) -> None:
+        msg = "The data validation in Docker stopped, most likely because it ran out of memory."
+        if docker_memory_bytes:
+            msg += f" Docker reports {docker_memory_bytes / 1024**3:.1f} GB of memory."
+        msg += (
+            "\nIncrease the memory that Docker may use (Docker Desktop: Settings > Resources > Memory) "
+            "and try again, or split the XML file into smaller files."
+        )
+        super().__init__(msg)
+
+
 class ShaclValidationError(InternalError):
     """This error is raised when an unexpected error occurs during the validation"""
 

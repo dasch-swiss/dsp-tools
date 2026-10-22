@@ -13,6 +13,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationOutOfMemoryError
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validation.get_validation_report import _merge_into_ox_store
@@ -56,6 +57,17 @@ def test_already_logged_docker_failure_still_preserves_validation_graphs(
     shacl_validator = Mock(spec=ShaclCliValidator)
     shacl_validator.validate.side_effect = ShaclValidationCliError(1, "stdout", "stderr")
     with pytest.raises(ShaclValidationCliError):
+        get_validation_report(_make_rdf_graphs(), shacl_validator)
+    assert (tmp_path / "validation-graphs").is_dir()
+
+
+def test_out_of_memory_is_not_wrapped_and_preserves_validation_graphs(
+    tmp_path: Path, patch_temp_directory: Callable[[str], None]
+) -> None:
+    patch_temp_directory(_GET_TEMP_DIRECTORY_TARGET)
+    shacl_validator = Mock(spec=ShaclCliValidator)
+    shacl_validator.validate.side_effect = ShaclValidationOutOfMemoryError(None)
+    with pytest.raises(ShaclValidationOutOfMemoryError):
         get_validation_report(_make_rdf_graphs(), shacl_validator)
     assert (tmp_path / "validation-graphs").is_dir()
 

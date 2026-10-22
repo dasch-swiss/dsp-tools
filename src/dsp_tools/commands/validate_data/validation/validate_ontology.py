@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.constants import ONTOLOGIES_REPORT_TTL
 from dsp_tools.commands.validate_data.constants import ONTOLOGIES_SHACL_TTL
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationCliError
 from dsp_tools.commands.validate_data.exceptions import ShaclValidationError
+from dsp_tools.commands.validate_data.exceptions import ShaclValidationOutOfMemoryError
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
@@ -49,7 +50,7 @@ def validate_ontology(
     try:
         result = _get_ontology_validation_result(onto_graph, shacl_validator, tmp_path)
         return result
-    except ShaclValidationCliError:
+    except (ShaclValidationCliError, ShaclValidationOutOfMemoryError):
         # the Docker command layer already logged this once - do not re-log, but still
         # preserve the validation graphs for debugging, same as the Exception branch below
         save_graph_dir = error_save_graph_dir

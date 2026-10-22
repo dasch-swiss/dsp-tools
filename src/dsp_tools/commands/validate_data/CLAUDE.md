@@ -82,6 +82,11 @@ See [src/dsp_tools/clients/CLAUDE.md](../../clients/CLAUDE.md) for client archit
 
 `src/dsp_tools/resources/validate_data/` contains RDF turtle files with SHACL shapes that apply to all ontologies.
 
+A SPARQL constraint (`sh:sparql`) on the data graph must not reference `$this` inside `FILTER EXISTS` or
+`FILTER NOT EXISTS`. The SHACL engine (Jena-based) does not push the `$this` binding into those blocks,
+so every focus node scans the whole data graph. Join the pattern in the main `WHERE` block instead, and use
+`SELECT DISTINCT` if the join can repeat rows. Precedent: `api-shapes:ValueHasOrder_MissingWhenSomeOrdered_Shape`.
+
 ### Utility Functions
 
 - **constants.py**: Defines file paths for validation artifacts and RDF property type information

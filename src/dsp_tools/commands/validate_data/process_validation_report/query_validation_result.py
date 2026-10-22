@@ -7,6 +7,7 @@ from rdflib import SH
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
+from rdflib.graph import ReadOnlyGraphAggregate
 
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import LEGAL_INFO_PROPS
@@ -39,8 +40,9 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
         All Problems
     """
     logger.debug("Reformatting validation results.")
-    results_and_onto = report.validation_graph + report.onto_graph
-    data_and_onto = report.onto_graph + report.data_graph
+    # Read-only views: rdflib's `+` would copy the whole data graph into an in-memory store.
+    results_and_onto = ReadOnlyGraphAggregate([report.validation_graph, report.onto_graph])
+    data_and_onto = ReadOnlyGraphAggregate([report.onto_graph, report.data_graph])
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
     logger.debug(f"{len(validation_results)} validation results found before filtering.")
     logger.debug(f"{len(unexpected_extracted)} unexpected validation results.")

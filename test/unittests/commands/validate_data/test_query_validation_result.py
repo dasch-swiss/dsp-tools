@@ -57,6 +57,45 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.expected == "Representation"
 
 
+def test_reformat_validation_graph_does_not_copy_graphs(
+    report_target_resource_wrong_type: tuple[Graph, Graph], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    validation_g, onto_data_g = report_target_resource_wrong_type
+    report = ValidationReportGraphs(
+        conforms=False,
+        validation_graph=validation_g,
+        shacl_graph=Graph(),
+        onto_graph=onto_data_g,
+        data_graph=onto_data_g,
+    )
+
+    def fail_on_copy(*_: object) -> None:
+        raise AssertionError
+
+    monkeypatch.setattr(Graph, "__add__", fail_on_copy)
+    monkeypatch.setattr(Graph, "__iadd__", fail_on_copy)
+    result_all_problems = reformat_validation_graph(report)
+    assert len(result_all_problems.problems) == 1
+
+
+def test_reformat_validation_graph_leaves_graphs_unchanged(
+    report_target_resource_wrong_type: tuple[Graph, Graph],
+) -> None:
+    validation_g, onto_data_g = report_target_resource_wrong_type
+    validation_triples_before = set(validation_g)
+    onto_data_triples_before = set(onto_data_g)
+    report = ValidationReportGraphs(
+        conforms=False,
+        validation_graph=validation_g,
+        shacl_graph=Graph(),
+        onto_graph=onto_data_g,
+        data_graph=onto_data_g,
+    )
+    reformat_validation_graph(report)
+    assert set(validation_g) == validation_triples_before
+    assert set(onto_data_g) == onto_data_triples_before
+
+
 def test_reformat_region_preview_target_wrong_type(
     report_region_preview_target_wrong_type: tuple[Graph, Graph],
 ) -> None:

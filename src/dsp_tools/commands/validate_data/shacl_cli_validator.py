@@ -14,9 +14,9 @@ from dsp_tools.commands.validate_data.exceptions import ShaclValidationOutOfMemo
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationFilePaths
 
-# The image's launcher passes JAVA_OPTS to the JVM, whose default heap is only 25 % of the container memory.
-# 50 % leaves room for a local DSP stack in the same Docker VM. Exiting on the first OutOfMemoryError
-# makes the failure recognisable instead of leaving the JVM running in a broken state.
+# As of 2026-10 (shacl-cli v0.0.6), the image's launcher passes JAVA_OPTS to the JVM, whose default heap is 25 %
+# of the container memory. 50 % leaves room for a local DSP stack in the same Docker VM.
+# ExitOnOutOfMemoryError turns an out-of-memory error into a recognisable exit, see `_ran_out_of_memory`.
 _JAVA_OPTS = "-XX:MaxRAMPercentage=50 -XX:+ExitOnOutOfMemoryError"
 _KILLED_EXIT_CODE = 137
 

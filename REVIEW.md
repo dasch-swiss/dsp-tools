@@ -50,8 +50,7 @@ Flag anything below that a change violates.
       cardinality in `api-shapes.ttl` (the generic resource shape is closed)
 - [ ] A new `validate-data` check is a SHACL shape. A Python check (`validation/python_checks.py`) names its
       reason: SHACL cannot do it even with validation-only RDF, or SHACL performance is not acceptable
-- [ ] A SPARQL constraint on the data graph does not reference `$this` inside `FILTER EXISTS` / `NOT EXISTS`
-      (see `src/dsp_tools/commands/validate_data/CLAUDE.md`, "Ontology Independent SHACL Shapes")
+- [ ] A `sh:sparql` constraint does not reference `$this` inside `FILTER (NOT) EXISTS` (unbound there, scans everything)
 
 ### Naming
 

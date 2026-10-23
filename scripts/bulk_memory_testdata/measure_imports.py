@@ -1,9 +1,11 @@
 """
 Sends each bulk-import payload to the local API and writes the measured values to a CSV file.
 
-The API must log BULK_IMPORT_METRIC lines (dsp-api branch investigate/bulk-import-validation-memory).
+The API must log BULK_IMPORT_METRIC lines (dsp-api branch investigate/bulk-import-validation-memory),
+and run with -XX:NativeMemoryTracking=summary for the NMT columns.
 Before each import, the data graph is reset to the exported baseline (the lists of the project),
 so that the project IRI and the list IRIs stay the same.
+Then the API container restarts, so that the container memory of each import starts from the same state.
 
 Run from the repository root, with a local stack that has the projects 9999 and 0011:
     python -m scripts.bulk_memory_testdata.measure_imports [max size, default 50000]
@@ -51,9 +53,12 @@ CSV_COLUMNS = [
     "heap_baseline_bytes",
     "heap_after_load_bytes",
     "heap_peak_bytes",
+    "nmt_peak_committed_bytes",
+    "nmt_peak_non_heap_committed_bytes",
     "load_ms",
     "shacl_ms",
     "validation_ms",
+    "container_start_bytes",
     "container_peak_bytes",
     "status",
     "shacl_results",
@@ -129,20 +134,39 @@ class _ContainerMemorySampler:
 
     def _run(self) -> None:
         while not self._stop.is_set():
-            usage = subprocess.run(
-                ["docker", "stats", "--no-stream", "--format", "{{.MemUsage}}", API_CONTAINER],
-                capture_output=True,
-                text=True,
-                check=False,
-            ).stdout
-            if usage.strip():
-                self.peak = max(self.peak, parse_docker_memory(usage))
+            self.peak = max(self.peak, _container_memory())
             self._stop.wait(2)
 
 
-def measure(payload: Path, token: str) -> dict[str, Any]:
+def _container_memory() -> int:
+    usage = subprocess.run(
+        ["docker", "stats", "--no-stream", "--format", "{{.MemUsage}}", API_CONTAINER],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
+    return parse_docker_memory(usage) if usage.strip() else 0
+
+
+def restart_api() -> None:
+    subprocess.run(["docker", "restart", API_CONTAINER], capture_output=True, check=True)
+    deadline = time.monotonic() + 300
+    while time.monotonic() < deadline:
+        try:
+            if requests.get(f"{API}/health", timeout=5).ok:
+                return
+        except requests.ConnectionError:
+            pass
+        time.sleep(2)
+    raise TimeoutError("The API did not start within 300 s")
+
+
+def measure(payload: Path) -> dict[str, Any]:
     shortcode = payload.parent.name
     reset_data_graph(shortcode)
+    restart_api()
+    token = _get_token()
+    container_start = _container_memory()
     project = quote(_get_project_iri(shortcode), safe="")
     headers = {"Authorization": f"Bearer {token}"}
     since = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -171,6 +195,7 @@ def measure(payload: Path, token: str) -> dict[str, Any]:
         "resources": count_resources(payload),
         "file_bytes": payload.stat().st_size,
         **parse_metrics(log.stdout + log.stderr, task_id),
+        "container_start_bytes": container_start,
         "container_peak_bytes": sampler.peak,
         "status": status["status"],
         "shacl_results": count_shacl_results(error),
@@ -227,6 +252,6 @@ def _get_token() -> str:
 if __name__ == "__main__":
     max_size = int(sys.argv[1]) if len(sys.argv) > 1 else 50_000
     for file in get_payloads(OUTPUT_DIR, max_size):
-        row = measure(file, _get_token())
+        row = measure(file)
         append_row(CSV_FILE, row)
         print(f"{row['payload']}: {row['status']}, {row['total_s']} s, heap peak {row.get('heap_peak_bytes', '')}")

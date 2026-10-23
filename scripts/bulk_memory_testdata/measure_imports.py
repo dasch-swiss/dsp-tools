@@ -50,6 +50,10 @@ CSV_COLUMNS = [
     "quads",
     "model_triples",
     "heap_max_bytes",
+    "transform_heap_baseline_bytes",
+    "transform_heap_peak_bytes",
+    "transform_nmt_peak_committed_bytes",
+    "transform_nmt_peak_non_heap_committed_bytes",
     "heap_baseline_bytes",
     "heap_after_load_bytes",
     "heap_peak_bytes",
@@ -78,6 +82,11 @@ def parse_metrics(log: str, task_id: str) -> dict[str, int]:
         if f"bulkImportTask={task_id}" in line and (match := _METRIC.search(line)):
             metrics[match.group(1)] = int(match.group(2))
     return metrics
+
+
+def find_crash_reason(log: str) -> str:
+    """Returns the first OutOfMemoryError line of the API log, or an empty string."""
+    return next((line.strip() for line in _ANSI.sub("", log).splitlines() if "OutOfMemoryError" in line), "")
 
 
 def count_shacl_results(report: str) -> int:
@@ -187,13 +196,16 @@ def measure(payload: Path) -> dict[str, Any]:
             )
         response.raise_for_status()
         task_id = response.json()["id"]
-        status = _wait_for_end(f"{API}/v3/projects/{project}/data-imports/{task_id}", headers)
+        try:
+            status = _wait_for_end(f"{API}/v3/projects/{project}/data-imports/{task_id}", headers)
+            requests.delete(f"{API}/v3/projects/{project}/data-imports/{task_id}", headers=headers, timeout=60)
+        except requests.ConnectionError:
+            status = {"status": "api_crashed"}
     total_s = round(time.monotonic() - start, 1)
-    requests.delete(f"{API}/v3/projects/{project}/data-imports/{task_id}", headers=headers, timeout=60)
     log = subprocess.run(
         ["docker", "logs", "--since", since, API_CONTAINER], capture_output=True, text=True, check=True
     )
-    error = status.get("errorMessage") or ""
+    error = status.get("errorMessage") or find_crash_reason(log.stdout + log.stderr)
     return {
         "payload": f"{payload.parent.name}/{payload.name}",
         "shortcode": shortcode,

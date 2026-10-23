@@ -6,6 +6,7 @@ from scripts.bulk_memory_testdata.measure_imports import CSV_COLUMNS
 from scripts.bulk_memory_testdata.measure_imports import append_row
 from scripts.bulk_memory_testdata.measure_imports import count_resources
 from scripts.bulk_memory_testdata.measure_imports import count_shacl_results
+from scripts.bulk_memory_testdata.measure_imports import find_crash_reason
 from scripts.bulk_memory_testdata.measure_imports import get_payloads
 from scripts.bulk_memory_testdata.measure_imports import get_shortcode
 from scripts.bulk_memory_testdata.measure_imports import parse_docker_memory
@@ -80,3 +81,9 @@ def test_get_payloads_sorted_by_size_and_limited(tmp_path: Path) -> None:
 def test_get_shortcode() -> None:
     assert get_shortcode(Path("testdata/bulk-memory/9999/failing_10000.jsonld")) == "9999"
     assert get_shortcode(Path("testdata/bulk-memory/9999-many-values/failing_10000.jsonld")) == "9999"
+
+
+def test_find_crash_reason() -> None:
+    log = "INFO start\njava.lang.OutOfMemoryError: Java heap space\n\tat com.apicatalog.jsonld.flattening.NodeMap.set\n"
+    assert find_crash_reason(log) == "java.lang.OutOfMemoryError: Java heap space"
+    assert find_crash_reason("INFO nothing") == ""

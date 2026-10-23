@@ -1,5 +1,6 @@
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.serialise_bulk_payload import serialise_bulk_payload
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import YELLOW
 from dsp_tools.utils.data_formats.date_util import is_full_date
@@ -25,3 +26,6 @@ check_notna("")
 validate_root_emit_user_message()
 
 ParsedValue.xml_value_order
+
+# used by scripts/bulk_memory_testdata/serialise_all.py, which vulture does not scan
+serialise_bulk_payload

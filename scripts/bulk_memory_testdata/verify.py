@@ -6,7 +6,6 @@ Run from the repository root, with a local stack that has the projects 9999 and 
 """
 
 import json
-import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -15,15 +14,14 @@ from lxml import etree
 
 from scripts.bulk_memory_testdata.generate_all import LOCAL_CREDS
 from scripts.bulk_memory_testdata.problem_types import get_problem_types
+from scripts.bulk_memory_testdata.transformer_errors import get_base_id
 from scripts.bulk_memory_testdata.xml_ids import get_resources
-
-_COPY_SUFFIX = re.compile(r"__[ce]\d{6}$")
 
 
 def expected_problem_types(xml_file: Path, base_problem_types: dict[str, list[str]]) -> Counter[str]:
     expected: Counter[str] = Counter()
     for res in get_resources(etree.parse(xml_file).getroot()):
-        expected.update(base_problem_types.get(_COPY_SUFFIX.sub("", res.attrib["id"]), []))
+        expected.update(base_problem_types.get(get_base_id(res.attrib["id"]), []))
     return expected
 
 

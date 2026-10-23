@@ -24,6 +24,12 @@ def get_resources(root: etree._Element) -> list[etree._Element]:
     return [x for x in root if is_element(x) and localname(x) in RESOURCE_TAGS]
 
 
+def remove_resources(root: etree._Element, res_ids: set[str] | frozenset[str]) -> None:
+    for res in get_resources(root):
+        if res.attrib["id"] in res_ids:
+            root.remove(res)
+
+
 def copy_non_resource_children(root: etree._Element) -> list[etree._Element]:
     resources = set(get_resources(root))
     return [copy.deepcopy(x) for x in root if is_element(x) and x not in resources]

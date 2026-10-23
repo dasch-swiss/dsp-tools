@@ -108,8 +108,7 @@ def get_payloads(directory: Path, max_size: int) -> list[Path]:
 
 
 def _size_of(payload: Path) -> int:
-    stem = payload.stem.removesuffix("_no_transformer_errors")
-    return int(match.group(1)) if (match := _SIZE.search(stem)) else 0
+    return int(match.group(1)) if (match := _SIZE.search(payload.stem)) else 0
 
 
 class _ContainerMemorySampler:

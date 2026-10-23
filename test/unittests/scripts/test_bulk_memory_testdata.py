@@ -12,10 +12,10 @@ from scripts.bulk_memory_testdata.combine import combine_xml_files
 from scripts.bulk_memory_testdata.mix import mix_resources
 from scripts.bulk_memory_testdata.multiply import multiply_resources
 from scripts.bulk_memory_testdata.problem_types import group_problems_by_resource
-from scripts.bulk_memory_testdata.transformer_errors import get_transformer_rejected_ids
 from scripts.bulk_memory_testdata.xml_ids import get_references
 from scripts.bulk_memory_testdata.xml_ids import get_resources
 from scripts.bulk_memory_testdata.xml_ids import make_files_unique
+from scripts.bulk_memory_testdata.xml_ids import remove_resources
 from scripts.bulk_memory_testdata.xml_ids import rename_ids
 
 NS = "https://dasch.swiss/schema"
@@ -249,11 +249,8 @@ def test_group_problems_by_resource() -> None:
     assert group_problems_by_resource(problems) == {"a": ["MIN_CARD"], "b": ["GENERIC", "GENERIC"]}
 
 
-def test_get_transformer_rejected_ids() -> None:
-    ids = [
-        "content_violation__date_end_day_does_not_exist__c000003",
-        "content_violation__geolocation_out_of_range__e000012",
-        "content_violation__date_end_day_does_not_exist",
-        "content_violation__int_too_large__c000003",
-    ]
-    assert get_transformer_rejected_ids(ids) == set(ids[:3])
+def test_remove_resources() -> None:
+    root = _root(LINKING_BODY)
+    remove_resources(root, {"source", "segment", "unknown"})
+    assert _ids(root) == ["target", "region", "file", "iiif"]
+    assert len(list(root.iterchildren(f"{{{NS}}}permissions"))) == 1

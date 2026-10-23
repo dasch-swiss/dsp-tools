@@ -17,6 +17,8 @@ from scripts.bulk_memory_testdata.combine import combine_xml_files
 from scripts.bulk_memory_testdata.mix import mix_resources
 from scripts.bulk_memory_testdata.multiply import multiply_resources
 from scripts.bulk_memory_testdata.problem_types import get_problem_types
+from scripts.bulk_memory_testdata.transformer_errors import TRANSFORMER_REJECTED_BASE_IDS
+from scripts.bulk_memory_testdata.xml_ids import remove_resources
 
 OUTPUT_DIR = Path("testdata/bulk-memory")
 SIZES = (10_000, 20_000, 50_000, 100_000)
@@ -31,6 +33,7 @@ class ProjectSources:
     default_ontology: str
     failing: list[Path]
     correct: list[Path]
+    excluded_failing_ids: frozenset[str] = frozenset()
 
 
 PROJECTS = [
@@ -58,6 +61,7 @@ PROJECTS = [
                 "dsp_inbuilt_correct",
             )
         ],
+        excluded_failing_ids=TRANSFORMER_REJECTED_BASE_IDS,
     ),
     ProjectSources(
         shortcode="0011",
@@ -72,6 +76,7 @@ def generate_project(project: ProjectSources) -> None:
     out_dir = OUTPUT_DIR / project.shortcode
     out_dir.mkdir(parents=True, exist_ok=True)
     failing = _combine(project, project.failing)
+    remove_resources(failing, project.excluded_failing_ids)
     correct = _combine(project, project.correct)
     _write(failing, out_dir / "failing_combined.xml")
     _write(correct, out_dir / "correct_combined.xml")

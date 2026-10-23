@@ -1,7 +1,7 @@
 import re
 
 # Resources of the combined 9999 failing data that the dsp-api transformer rejects before the SHACL validation.
-# One of them in a payload stops the whole import.
+# One of them in a payload stops the whole import. Thus the failing base leaves them out.
 TRANSFORMER_REJECTED_BASE_IDS = frozenset(
     f"content_violation__{x}"
     for x in (
@@ -27,7 +27,3 @@ _COPY_SUFFIX = re.compile(r"__[ce]\d{6}$")
 
 def get_base_id(res_id: str) -> str:
     return _COPY_SUFFIX.sub("", res_id)
-
-
-def get_transformer_rejected_ids(res_ids: list[str]) -> set[str]:
-    return {x for x in res_ids if get_base_id(x) in TRANSFORMER_REJECTED_BASE_IDS}

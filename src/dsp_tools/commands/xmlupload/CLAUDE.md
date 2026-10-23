@@ -108,6 +108,10 @@ The HTTP clients that xmlupload uses live in `src/dsp_tools/clients/`:
 
 - **write_diagnostic_info.py**: Generates JSON files mapping XML resource IDs to DSP server IRIs 
   for troubleshooting and post-upload reference
+- **serialise_bulk_payload.py**: Serialises all resources of an XML file into one knora-api v2 JSON-LD array
+  for the bulk import (`/v3/projects/{iri}/data-imports`), with client-minted resource and value IRIs and
+  without the stash. Its lenient mode is for test data only.
+  `scripts/bulk_memory_testdata/` uses it to make the memory test data
 
 ## Key Data Models
 

@@ -7,6 +7,7 @@ from scripts.bulk_memory_testdata.measure_imports import append_row
 from scripts.bulk_memory_testdata.measure_imports import count_resources
 from scripts.bulk_memory_testdata.measure_imports import count_shacl_results
 from scripts.bulk_memory_testdata.measure_imports import get_payloads
+from scripts.bulk_memory_testdata.measure_imports import get_shortcode
 from scripts.bulk_memory_testdata.measure_imports import parse_docker_memory
 from scripts.bulk_memory_testdata.measure_imports import parse_metrics
 
@@ -74,3 +75,8 @@ def test_get_payloads_sorted_by_size_and_limited(tmp_path: Path) -> None:
         path.write_text("[]", encoding="utf-8")
     names = [f"{x.parent.name}/{x.stem}" for x in get_payloads(tmp_path, max_size=50_000)]
     assert names == ["9999/correct_combined", "0011/failing_10000", "9999/correct_10000", "9999/correct_20000"]
+
+
+def test_get_shortcode() -> None:
+    assert get_shortcode(Path("testdata/bulk-memory/9999/failing_10000.jsonld")) == "9999"
+    assert get_shortcode(Path("testdata/bulk-memory/9999-many-values/failing_10000.jsonld")) == "9999"

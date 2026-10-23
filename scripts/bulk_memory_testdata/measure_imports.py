@@ -161,8 +161,13 @@ def restart_api() -> None:
     raise TimeoutError("The API did not start within 300 s")
 
 
+def get_shortcode(payload: Path) -> str:
+    """The folder of a payload starts with the shortcode, for example `9999` or `9999-many-values`."""
+    return payload.parent.name.split("-")[0]
+
+
 def measure(payload: Path) -> dict[str, Any]:
-    shortcode = payload.parent.name
+    shortcode = get_shortcode(payload)
     reset_data_graph(shortcode)
     restart_api()
     token = _get_token()
@@ -190,7 +195,7 @@ def measure(payload: Path) -> dict[str, Any]:
     )
     error = status.get("errorMessage") or ""
     return {
-        "payload": f"{shortcode}/{payload.name}",
+        "payload": f"{payload.parent.name}/{payload.name}",
         "shortcode": shortcode,
         "resources": count_resources(payload),
         "file_bytes": payload.stat().st_size,

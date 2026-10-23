@@ -5,6 +5,7 @@ Run from the repository root, with a local stack that has the projects 9999 and 
     python -m scripts.bulk_memory_testdata.generate_all
 """
 
+import dataclasses
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +13,8 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from scripts.bulk_memory_testdata.add_values import fill_resources
+from scripts.bulk_memory_testdata.add_values import get_class_properties
 from scripts.bulk_memory_testdata.combine import SourceFile
 from scripts.bulk_memory_testdata.combine import combine_xml_files
 from scripts.bulk_memory_testdata.mix import mix_resources
@@ -28,40 +31,69 @@ _INHERITANCE = Path("testdata/validate-data/inheritance")
 
 
 @dataclass(frozen=True)
+class ValueFilling:
+    """
+    Gives resources between 2 and 50 generated values.
+    Each failing resource gets values, as far as its class allows.
+    Correct resources get values only in the given classes.
+    """
+
+    project_json: Path
+    correct_classes: frozenset[str]
+    seed: int = 20261023
+
+
+@dataclass(frozen=True)
 class ProjectSources:
     shortcode: str
     default_ontology: str
     failing: list[Path]
     correct: list[Path]
     excluded_failing_ids: frozenset[str] = frozenset()
+    folder: str = ""
+    value_filling: ValueFilling | None = None
 
+    @property
+    def output_dir(self) -> Path:
+        return OUTPUT_DIR / (self.folder or self.shortcode)
+
+
+_CORE_9999 = ProjectSources(
+    shortcode="9999",
+    default_ontology="onto",
+    failing=[
+        _CORE / f"{x}.xml"
+        for x in (
+            "cardinality_violation",
+            "content_violation",
+            "value_type_violation",
+            "unique_value_violation",
+            "file_value_violation",
+            "dsp_inbuilt_violation",
+        )
+    ],
+    correct=[
+        _CORE / f"{x}.xml"
+        for x in (
+            "cardinality_correct",
+            "content_correct",
+            "file_value_correct",
+            "minimal_correct",
+            "dsp_inbuilt_correct",
+        )
+    ],
+    excluded_failing_ids=TRANSFORMER_REJECTED_BASE_IDS,
+)
 
 PROJECTS = [
-    ProjectSources(
-        shortcode="9999",
-        default_ontology="onto",
-        failing=[
-            _CORE / f"{x}.xml"
-            for x in (
-                "cardinality_violation",
-                "content_violation",
-                "value_type_violation",
-                "unique_value_violation",
-                "file_value_violation",
-                "dsp_inbuilt_violation",
-            )
-        ],
-        correct=[
-            _CORE / f"{x}.xml"
-            for x in (
-                "cardinality_correct",
-                "content_correct",
-                "file_value_correct",
-                "minimal_correct",
-                "dsp_inbuilt_correct",
-            )
-        ],
-        excluded_failing_ids=TRANSFORMER_REJECTED_BASE_IDS,
+    _CORE_9999,
+    dataclasses.replace(
+        _CORE_9999,
+        folder="9999-many-values",
+        value_filling=ValueFilling(
+            project_json=_CORE / "core-validation-project-9999.json",
+            correct_classes=frozenset({":ClassWithEverything"}),
+        ),
     ),
     ProjectSources(
         shortcode="0011",
@@ -73,11 +105,13 @@ PROJECTS = [
 
 
 def generate_project(project: ProjectSources) -> None:
-    out_dir = OUTPUT_DIR / project.shortcode
+    out_dir = project.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     failing = _combine(project, project.failing)
     remove_resources(failing, project.excluded_failing_ids)
     correct = _combine(project, project.correct)
+    if filling := project.value_filling:
+        _write_json(_fill_values(project.default_ontology, filling, failing, correct), out_dir / "values_added.json")
     _write(failing, out_dir / "failing_combined.xml")
     _write(correct, out_dir / "correct_combined.xml")
     problem_types = get_problem_types(out_dir / "failing_combined.xml", LOCAL_CREDS)
@@ -88,6 +122,17 @@ def generate_project(project: ProjectSources) -> None:
         mixed, stats = mix_resources(correct, failing, problem_types, size)
         _write(mixed, out_dir / f"mixed20_{size}.xml")
         _write_json(vars(stats), out_dir / f"mixed20_{size}_stats.json")
+
+
+def _fill_values(
+    default_ontology: str, filling: ValueFilling, failing: etree._Element, correct: etree._Element
+) -> dict[str, int]:
+    project_json = json.loads(filling.project_json.read_text(encoding="utf-8"))
+    classes = get_class_properties(project_json, default_ontology)
+    return {
+        "failing": fill_resources(failing, classes, set(classes), filling.seed),
+        "correct": fill_resources(correct, classes, set(filling.correct_classes), filling.seed),
+    }
 
 
 def _combine(project: ProjectSources, paths: list[Path]) -> etree._Element:

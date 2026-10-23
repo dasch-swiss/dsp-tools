@@ -79,3 +79,6 @@ tmp/
 /testdata/e2e/sipi-cache
 
 /testdata/e2e/testcontainer_port_lockfiles
+
+# Bulk-import memory test data (generated, large)
+testdata/bulk-memory/

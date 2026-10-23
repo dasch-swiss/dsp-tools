@@ -87,3 +87,12 @@ def test_find_crash_reason() -> None:
     log = "INFO start\njava.lang.OutOfMemoryError: Java heap space\n\tat com.apicatalog.jsonld.flattening.NodeMap.set\n"
     assert find_crash_reason(log) == "java.lang.OutOfMemoryError: Java heap space"
     assert find_crash_reason("INFO nothing") == ""
+
+
+def test_append_row_adds_heap_max_in_gib(tmp_path: Path) -> None:
+    out = tmp_path / "m.csv"
+    append_row(out, {"payload": "a", "heap_max_bytes": 17179869184})
+    append_row(out, {"payload": "b"})
+    with out.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert [x["heap_max_gib"] for x in rows] == ["16.0", ""]

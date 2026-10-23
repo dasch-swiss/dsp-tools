@@ -50,6 +50,7 @@ CSV_COLUMNS = [
     "quads",
     "model_triples",
     "heap_max_bytes",
+    "heap_max_gib",
     "transform_heap_baseline_bytes",
     "transform_heap_peak_bytes",
     "transform_nmt_peak_committed_bytes",
@@ -107,6 +108,9 @@ def count_resources(payload: Path) -> int:
 
 
 def append_row(csv_file: Path, row: dict[str, Any]) -> None:
+    """Adds `heap_max_gib`, computed from `heap_max_bytes`."""
+    if row.get("heap_max_bytes"):
+        row = {**row, "heap_max_gib": round(int(row["heap_max_bytes"]) / 1024**3, 1)}
     is_new = not csv_file.exists()
     with csv_file.open("a", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)

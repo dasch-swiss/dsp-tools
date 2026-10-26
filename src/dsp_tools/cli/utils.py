@@ -19,7 +19,7 @@ from dsp_tools.error.exceptions import UserFilepathMustNotExistError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
 LOCALHOST_API = "http://0.0.0.0:3333"
-LOCALHOST_INGEST = "http://0.0.0.0:3340"
+LOCALHOST_INGEST = f"{LOCALHOST_API}/ingest"
 
 
 def get_creds(args: argparse.Namespace) -> ServerCredentials:
@@ -128,30 +128,31 @@ def _check_ingest_health(ingest_url: str) -> None:
 def get_canonical_server_and_dsp_ingest_url(
     server: str,
     default_dsp_api_url: str = LOCALHOST_API,
-    default_dsp_ingest_url: str = LOCALHOST_INGEST,
 ) -> tuple[str, str]:
     """
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
-    and derive the ingest server URL from it.
+    and derive the ingest URL from it.
+
+    Ingest is served by DSP-API under the path "/ingest",
+    so the ingest URL is always the canonical DSP server URL followed by "/ingest".
 
     If the DSP server URL points to port 3333 on localhost,
-    the ingest server will point to port 3340 on localhost.
+    the canonical DSP server URL is the default DSP server on localhost.
 
     If the DSP server URL points to a remote server ending in "dasch.swiss",
-    modify it (if necessary) to point to the "api" subdomain of that server,
-    and add a new "dsp_ingest_url" argument pointing to the "ingest" subdomain of that server.
+    modify it (if necessary) to point to the "api" subdomain of that server.
+    Any of the subdomains "admin", "api", "app" and "ingest" are accepted as input.
 
     Args:
         server: DSP server URL passed by the user
         default_dsp_api_url: default DSP server on localhost
-        default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
         CliUserError: if the DSP server URL passed by the user is invalid
 
     Returns:
-        canonical DSP URL and ingest server URL
+        canonical DSP URL and ingest URL
     """
     localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", server)
     remote_url_match = regex.search(
@@ -160,12 +161,11 @@ def get_canonical_server_and_dsp_ingest_url(
 
     if localhost_match:
         server = default_dsp_api_url
-        dsp_ingest_url = default_dsp_ingest_url
     elif remote_url_match:
         server = f"https://api.{remote_url_match.group(1)}.swiss"
-        dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
         raise CliUserError(f"Invalid DSP server URL '{server}'")
+    dsp_ingest_url = f"{server}/ingest"
 
     logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")

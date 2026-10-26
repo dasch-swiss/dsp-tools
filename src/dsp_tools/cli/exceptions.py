@@ -64,8 +64,8 @@ class IngestNotReachableError(UserError):
         if is_localhost:
             base_msg = (
                 "Cannot connect to the local DSP Ingest service. "
-                "Please check in Docker Desktop if the ingest container is healthy "
-                "or start a stack with 'dsp-tools start-stack' if no stack is running."
+                "The local DSP-API must be a version that serves ingest under '/ingest/'. "
+                "Please restart the stack with 'dsp-tools start-stack'."
             )
         else:
             base_msg = (

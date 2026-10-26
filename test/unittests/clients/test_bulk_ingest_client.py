@@ -14,7 +14,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
-DSP_INGEST_URL = "https://example.com"
+DSP_INGEST_URL = "https://example.com/ingest"
 SHORTCODE = "0001"
 
 

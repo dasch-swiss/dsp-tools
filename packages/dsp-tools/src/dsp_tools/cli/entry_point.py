@@ -238,7 +238,7 @@ def _derive_dsp_ingest_url(
     default_dsp_api_url: str,
 ) -> argparse.Namespace:
     """
-    Modify the parsed arguments so that the DSP and ingest server URLs are correct.
+    Modify the parsed arguments so that the DSP server URL and the ingest URL are correct.
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
     and derive the ingest URL from it.

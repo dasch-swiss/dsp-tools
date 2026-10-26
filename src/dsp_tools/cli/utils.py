@@ -134,11 +134,7 @@ def get_canonical_server_and_dsp_ingest_url(
     transform it to its canonical form,
     and derive the ingest URL from it.
 
-    Ingest is served by DSP-API under the path "/ingest",
-    so the ingest URL is always the canonical DSP server URL followed by "/ingest".
-
-    If the DSP server URL points to port 3333 on localhost,
-    the canonical DSP server URL is the default DSP server on localhost.
+    Ingest is served by DSP-API under the path "/ingest" of the canonical DSP server URL.
 
     If the DSP server URL points to a remote server ending in "dasch.swiss",
     modify it (if necessary) to point to the "api" subdomain of that server.
@@ -167,7 +163,7 @@ def get_canonical_server_and_dsp_ingest_url(
         raise CliUserError(f"Invalid DSP server URL '{server}'")
     dsp_ingest_url = f"{server}/ingest"
 
-    logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
-    print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
+    logger.info(f"Using DSP server '{server}' and ingest URL '{dsp_ingest_url}'")
+    print(f"Using DSP server '{server}' and ingest URL '{dsp_ingest_url}'")
 
     return server, dsp_ingest_url

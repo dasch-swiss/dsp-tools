@@ -136,6 +136,9 @@ def get_canonical_server_and_dsp_ingest_url(
 
     Ingest is served by DSP-API under the path "/ingest" of the canonical DSP server URL.
 
+    If the DSP server URL points to port 3333 on localhost,
+    the canonical DSP server URL is the default DSP server on localhost.
+
     If the DSP server URL points to a remote server ending in "dasch.swiss",
     modify it (if necessary) to point to the "api" subdomain of that server.
     Any of the subdomains "admin", "api", "app" and "ingest" are accepted as input.

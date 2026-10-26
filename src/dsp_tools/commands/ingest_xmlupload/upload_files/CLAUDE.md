@@ -1,8 +1,8 @@
 # upload-files — Quick Reference
 
 Implements `dsp-tools upload-files`: upload the multimedia files referenced in an XML data file to
-ingest (served by DSP-API under `/ingest`). No processing or ingesting — upload only. It is step 1 of the split xmlupload
-workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
+the ingest service (served by DSP-API under `/ingest`). No processing or ingesting — upload only.
+It is step 1 of the split xmlupload workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 
 ## Entry point
 
@@ -19,7 +19,7 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 - `upload_files.py` — command entry point plus the private path extraction.
 - `filechecker.py` — `check_files(paths)`: local existence and supported-extension check.
 - `input_error.py` — `FileProblems`: pre-upload local validation errors.
-- `upload_failures.py` — `UploadFailure` / `UploadFailures`: per-file failures from ingest.
+- `upload_failures.py` — `UploadFailure` / `UploadFailures`: per-file failures from the ingest service.
 
 ## Conventions
 
@@ -30,7 +30,7 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 - Two-level design: `upload_files` takes the XML file and runs standalone. `_get_validated_paths`
   takes a `list[ParsedResource]` and returns the real bitstream file paths.
 - Two distinct error types: `FileProblems` for local problems before upload (missing or unsupported
-  files). `UploadFailures` for files ingest rejects. Both expose `execute_error_protocol()`,
+  files). `UploadFailures` for files the ingest service rejects. Both expose `execute_error_protocol()`,
   which prints the list or writes a CSV past `maximum_prints`.
 - `creds.server` is the DSP-API URL (passed to `get_parsed_resources`). `creds.dsp_ingest_url` is the
   ingest base URL `<server>/ingest` on the DSP-API host (passed to `BulkIngestClient`). It carries a path,

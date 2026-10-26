@@ -43,7 +43,6 @@ def run(args: Sequence[str]) -> None:
             excluding the leading "dsp-tools" command.
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
-    default_dsp_ingest_url = "http://0.0.0.0:3340"
     root_user_email = "root@example.com"
     root_user_pw = "test"
 
@@ -65,7 +64,6 @@ def run(args: Sequence[str]) -> None:
         parsed_arguments = _derive_dsp_ingest_url(
             parsed_arguments=parsed_arguments,
             default_dsp_api_url=default_dsp_api_url,
-            default_dsp_ingest_url=default_dsp_ingest_url,
         )
         success = call_requested_action(parsed_arguments)
     except KeyboardInterrupt:
@@ -238,18 +236,16 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
 def _derive_dsp_ingest_url(
     parsed_arguments: argparse.Namespace,
     default_dsp_api_url: str,
-    default_dsp_ingest_url: str,
 ) -> argparse.Namespace:
     """
     Modify the parsed arguments so that the DSP and ingest server URLs are correct.
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
-    and derive the ingest server URL from it.
+    and derive the ingest URL from it.
 
     Args:
         parsed_arguments: CLI arguments passed by the user, parsed by argparse
         default_dsp_api_url: default DSP server on localhost
-        default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
         CliUserError: if the DSP server URL passed by the user is invalid
@@ -264,7 +260,6 @@ def _derive_dsp_ingest_url(
     server, dsp_ingest_url = get_canonical_server_and_dsp_ingest_url(
         server=parsed_arguments.server,
         default_dsp_api_url=default_dsp_api_url,
-        default_dsp_ingest_url=default_dsp_ingest_url,
     )
     parsed_arguments.server = server
     parsed_arguments.dsp_ingest_url = dsp_ingest_url

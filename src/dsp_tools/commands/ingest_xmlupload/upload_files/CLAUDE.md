@@ -36,7 +36,8 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
   `BulkIngestClient.upload_file` raises `BadCredentialsError`, and the command stops at the first file.
   This follows the fail-fast rule for this command in `docs/adr/0001-split-error-handling-fail-fast-vs-aggregate.md`.
 - `creds.server` is the DSP-API URL (passed to `get_parsed_resources`). `creds.dsp_ingest_url` is the
-  ingest server (passed to `BulkIngestClient`).
+  ingest base URL `<server>/ingest` on the DSP-API host (passed to `BulkIngestClient`). It carries a path,
+  so `UploadFailures` replaces its `/` before putting it into the failure CSV's file name.
 
 ## Tests
 

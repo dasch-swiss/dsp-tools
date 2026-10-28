@@ -98,7 +98,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     latest_text = (
         "instead of the latest deployed version, "
         "use the latest development version (from the `main` branch) "
-        "of the backend components (api, sipi, fuseki, ingest)"
+        "of the backend components (api, sipi, fuseki)"
     )
     max_file_size_text = "max. multimedia file size allowed for ingest, in MB (default: 2000, max: 100'000)"
     no_prune_text = "don't execute 'docker system prune' (and don't ask)"

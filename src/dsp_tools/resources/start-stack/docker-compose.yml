@@ -17,6 +17,7 @@ services:
       - TZ=Europe/Zurich
       - KNORA_AKKA_LOGLEVEL=DEBUG
       - KNORA_AKKA_STDOUT_LOGLEVEL=DEBUG
+      # JWT audience label shared by DSP-API and its /ingest routes, not an address: nothing listens on 3340.
       - KNORA_WEBAPI_DSP_INGEST_AUDIENCE=http://localhost:3340
       - KNORA_WEBAPI_TRIPLESTORE_HOST=db
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME=dsp-repo
@@ -27,6 +28,7 @@ services:
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
       - ALLOW_ERASE_PROJECTS=true
+      # Ingest's own erase gate; ALLOW_ERASE_PROJECTS above does not reach the /ingest routes.
       - INGEST_ALLOW_ERASE_PROJECTS=true
       - INGEST_STORAGE_ASSET_DIR=/opt/images
       - INGEST_STORAGE_TEMP_DIR=/opt/temp

@@ -117,6 +117,7 @@ def _get_api(
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
+        # The ingest settings and mounts below mirror the api service in start-stack/docker-compose.yml; change both.
         .with_env("INGEST_ALLOW_ERASE_PROJECTS", "true")
         .with_env("INGEST_STORAGE_ASSET_DIR", "/opt/images")
         .with_env("INGEST_STORAGE_TEMP_DIR", "/opt/temp")

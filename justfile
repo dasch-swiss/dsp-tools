@@ -171,7 +171,6 @@ clean:
     -rm -f ./warnings.log
     -rm -rf ./testdata/e2e/tmp-dsp-ingest/
     -rm -rf ./testdata/e2e/tmp-dsp-sipi/
-    -rm -rf ./testdata/e2e/ingest-db/
     -rm -rf ./testdata/e2e/images/
     -rm -rf ./site
     -rm -f ./mapping-????.csv

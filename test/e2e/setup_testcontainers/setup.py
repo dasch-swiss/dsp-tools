@@ -62,7 +62,6 @@ def _get_image_versions() -> ImageVersions:
     return ImageVersions(
         fuseki=versions["DB"],
         sipi=versions["API"],
-        ingest=versions["API"],
         api=versions["API"],
     )
 
@@ -77,12 +76,11 @@ def _download_sipi_config(api_version: str, artifact_dirs: ArtifactDirs) -> None
 
 def _get_container_names(_uuid: str) -> ContainerNames:
     prefix = f"testcontainer-{_uuid}"
-    return ContainerNames(f"{prefix}-DB", f"{prefix}-SIPI", f"{prefix}-INGEST", f"{prefix}-API")
+    return ContainerNames(f"{prefix}-DB", f"{prefix}-SIPI", f"{prefix}-API")
 
 
 def _stop_all_containers(containers: Containers) -> None:
     containers.fuseki.stop()
     containers.sipi.stop()
-    containers.ingest.stop()
     containers.api.stop()
     print("All containers have been stopped")

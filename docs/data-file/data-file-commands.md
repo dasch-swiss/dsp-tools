@@ -97,6 +97,12 @@ it is necessary to specify the following options:
 dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
 
+!!! Attention
+
+    `xmlupload` needs the credentials of a project admin of the project or of a system admin.
+    The credentials of a project member are not enough, even for an XML file without multimedia files.
+    On production, DSP-TOOLS accepts only the project admin account.
+
 On production, use the [project admin account](../production-account.md) of the project.
 
 The expected XML format is [documented here](./xml-data-file.md).
@@ -139,6 +145,11 @@ The following options are available:
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
 Currently, only one interrupted upload can be resumed at a time per server.
+
+!!! Attention
+
+    `resume-xmlupload` needs the credentials of a project admin of the project or of a system admin.
+    The credentials of a project member are not enough.
 
 On production, use the [project admin account](../production-account.md) of the project.
 

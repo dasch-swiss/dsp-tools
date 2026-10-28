@@ -130,6 +130,12 @@ dsp-tools ingest-xmlupload xml_data_file.xml
 
 will create the resources contained in `xml_data_file.xml` on `localhost` for local viewing.
 
+!!! Attention
+
+    `ingest-xmlupload` needs the credentials of a project admin of the project or of a system admin.
+    The credentials of a project member are not enough, even for an XML file without multimedia files.
+    On production, DSP-TOOLS accepts only the project admin account.
+
 In order to create the same resources on the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 

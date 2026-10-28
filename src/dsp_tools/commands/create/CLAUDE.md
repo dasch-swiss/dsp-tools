@@ -21,6 +21,8 @@ This is one of the two main tasks DSP-TOOLS serves (the other being `xmlupload` 
 
 - **create.py**: Main entry point containing `create()` function and workflow orchestration
     - Calls validation/parsing
+    - Checks that the project file defines the project admin account (`<shortname>@admin.dasch.swiss`
+      with `:admin` in its `projects`): an error on prod-like servers, a warning elsewhere
     - Executes creation in strict sequential order
     - Collects and reports problems
 
@@ -351,6 +353,8 @@ After successful creation:
 ### exceptions.py
 
 - **`ProjectJsonSchemaValidationError`**: JSON Schema validation failures
+- **`DspAdminAccountNotInProjectFileError`**: on prod-like servers, the project file does not define the
+  project admin account with `:admin`
 
 ## Client Usage
 

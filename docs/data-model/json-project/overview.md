@@ -419,7 +419,9 @@ Example:
 
 The `users` element is optional. If not used, it should be omitted.
 
-For a project on production, add the [project admin account](../../production-account.md#who-creates-the-account).
+For a project on production, add the [project admin account](../../production-account.md#who-creates-the-account)
+with `":admin"` and `":member"` in its `projects`.
+The `create` command stops on prod-like servers if the account is missing or has no `":admin"`.
 
 
 

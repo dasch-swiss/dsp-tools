@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 from loguru import logger
@@ -17,15 +18,18 @@ from dsp_tools.commands.create.create_on_server.group_users import get_existing_
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.create_on_server.lists import get_existing_lists_on_server
 from dsp_tools.commands.create.create_on_server.project import create_project
+from dsp_tools.commands.create.exceptions import DspAdminAccountNotInProjectFileError
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
 from dsp_tools.commands.create.project_validate import parse_and_validate_project
+from dsp_tools.error.custom_warnings import DspAdminAccountNotInProjectFileWarning
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
-from dsp_tools.utils.dsp_user_account_check import enforce_dsp_admin_account
-from dsp_tools.utils.dsp_user_account_check import is_correct_dsp_admin_account_email
+from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.dsp_user_account_check import dsp_admin_account_email
 
 read_dotenv_if_exists()
 
@@ -40,6 +44,7 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
             _check_that_dsp_admin_account_exists(
                 shortname=parsing_result.project_metadata.shortname,
                 users=parsing_result.users,
+                memberships=parsing_result.user_memberships,
                 server=creds.server,
             )
             return _execute_create(parsing_result, creds, exit_if_exists)
@@ -50,9 +55,33 @@ def create(project_file: Path, creds: ServerCredentials, exit_if_exists: bool) -
             raise UnreachableCodeError("Unreachable result of project parsing.")
 
 
-def _check_that_dsp_admin_account_exists(shortname: str, users: list[ParsedUser], server: str) -> None:
-    has_dsp_admin = any(is_correct_dsp_admin_account_email(shortname, usr.email) for usr in users)
-    enforce_dsp_admin_account(has_dsp_admin, server, activity="creating a project")
+def _check_that_dsp_admin_account_exists(
+    shortname: str, users: list[ParsedUser], memberships: list[ParsedUserMemberShipInfo], server: str
+) -> None:
+    admin_email = dsp_admin_account_email(shortname)
+    if (problem := _find_dsp_admin_account_problem(admin_email, users, memberships)) is None:
+        return
+    rule = (
+        "It is mandatory that each project has an admin account for DaSCH internal usage. "
+        f"On prod-like servers, the 'users' section of the project file must therefore contain the user {admin_email} "
+        'with "projects": [":admin", ":member"].'
+    )
+    if is_prod_like_server(server):
+        msg = f"{problem}\n{rule} Please correct the 'users' section and run 'create' again."
+        raise DspAdminAccountNotInProjectFileError(msg)
+    msg = f"{problem}\n{rule} On other servers, this is only a warning."
+    warnings.warn(DspAdminAccountNotInProjectFileWarning(msg))
+
+
+def _find_dsp_admin_account_problem(
+    admin_email: str, users: list[ParsedUser], memberships: list[ParsedUserMemberShipInfo]
+) -> str | None:
+    admin_usernames = {usr.username for usr in users if usr.email == admin_email}
+    if not admin_usernames:
+        return f"The 'users' section of the project file has no user with the email {admin_email}."
+    if not any(memb.is_admin for memb in memberships if memb.username in admin_usernames):
+        return f"The user with the email {admin_email} is not a project admin: ':admin' is missing in its 'projects'."
+    return None
 
 
 def _execute_create(parsed_project: ParsedProject, creds: ServerCredentials, exit_if_exists: bool) -> bool:

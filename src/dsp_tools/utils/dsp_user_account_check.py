@@ -1,32 +1,33 @@
 import warnings
 
-from dsp_tools.error.custom_warnings import DspToolsMissingAdminAccountWarning
-from dsp_tools.error.exceptions import DspAdminAccountError
-from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_tools.error.custom_warnings import DspAdminAccountNotUsedForUploadWarning
+from dsp_tools.error.exceptions import DspAdminAccountNotUsedForUploadError
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 
 
+def dsp_admin_account_email(shortname: str) -> str:
+    return f"{shortname}@admin.dasch.swiss"
+
+
 def is_correct_dsp_admin_account_email(shortname: str, email: str) -> bool:
-    expected = f"{shortname}@admin.dasch.swiss"
-    return email == expected
+    return email == dsp_admin_account_email(shortname)
 
 
 def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str, server: str) -> None:
-    is_dsp_admin_account = is_correct_dsp_admin_account_email(shortname, email)
-    enforce_dsp_admin_account(is_dsp_admin_account, server, activity="uploading data")
-
-
-def enforce_dsp_admin_account(has_dsp_admin_account: bool, server: str, activity: str) -> None:
-    is_prod_like = is_prod_like_server(server)
-
-    match has_dsp_admin_account, is_prod_like:
-        case True, _:
-            return
-        case False, True:
-            msg = f"You are {activity} on a prod-like server."
-            raise DspAdminAccountError(msg)
-        case False, False:
-            msg = f"You are {activity} without the project admin account."
-            warnings.warn(DspToolsMissingAdminAccountWarning(msg))
-        case _:
-            raise UnreachableCodeError()
+    if is_correct_dsp_admin_account_email(shortname, email):
+        return
+    rule = (
+        "It is mandatory that each project has an admin account for DaSCH internal usage. "
+        f"On prod-like servers, data uploads must be done by an account named {dsp_admin_account_email('[shortname]')}."
+    )
+    if is_prod_like_server(server):
+        msg = (
+            "You are uploading data on a prod-like server.\n"
+            f"{rule} Please create such an account and re-start the upload."
+        )
+        raise DspAdminAccountNotUsedForUploadError(msg)
+    msg = (
+        "You are uploading data without the project admin account.\n"
+        f"{rule} Other accounts are only permitted in test environments."
+    )
+    warnings.warn(DspAdminAccountNotUsedForUploadWarning(msg))

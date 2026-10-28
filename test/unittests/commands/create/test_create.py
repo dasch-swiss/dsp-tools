@@ -1,28 +1,99 @@
+import re
+import warnings
+from pathlib import Path
+from unittest.mock import Mock
+
 import pytest
 
+import dsp_tools.commands.create.create as create_module
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import _check_that_dsp_admin_account_exists
+from dsp_tools.commands.create.exceptions import DspAdminAccountNotInProjectFileError
+from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
-from dsp_tools.error.custom_warnings import DspToolsMissingAdminAccountWarning
-from dsp_tools.error.exceptions import DspAdminAccountError
+from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
+from dsp_tools.error.custom_warnings import DspAdminAccountNotInProjectFileWarning
 
 PROD_SERVER = "https://api.dasch.swiss"
 LOCAL_SERVER = "http://0.0.0.0:3333"
+SHORTNAME = "my-proj"
+ADMIN_EMAIL = "my-proj@admin.dasch.swiss"
+
+NO_USER_WITH_ADMIN_EMAIL = "has no user with the email"
+USER_NOT_ADMIN = "is not a project admin"
 
 
-def _user(email: str) -> ParsedUser:
-    return ParsedUser("usr", email, "Given", "Family", "pw", "en")
+def _user(username: str, email: str) -> ParsedUser:
+    return ParsedUser(username, email, "Given", "Family", "pw", "en")
 
 
-def test_check_admin_account_exists() -> None:
-    users = [_user("other@example.com"), _user("my-proj@admin.dasch.swiss")]
-    _check_that_dsp_admin_account_exists("my-proj", users, PROD_SERVER)
+def _membership(username: str, is_admin: bool) -> ParsedUserMemberShipInfo:
+    return ParsedUserMemberShipInfo(username, is_admin, [])
 
 
-def test_check_admin_account_missing_prod() -> None:
-    with pytest.raises(DspAdminAccountError):
-        _check_that_dsp_admin_account_exists("my-proj", [_user("other@example.com")], PROD_SERVER)
+PROBLEMS = [
+    pytest.param([], [], NO_USER_WITH_ADMIN_EMAIL, id="no users"),
+    pytest.param(
+        [_user("other", "other@example.com")],
+        [_membership("other", True)],
+        NO_USER_WITH_ADMIN_EMAIL,
+        id="no user with the admin email",
+    ),
+    pytest.param(
+        [_user("other", "other@example.com"), _user("admin", ADMIN_EMAIL)],
+        [_membership("other", True), _membership("admin", False)],
+        USER_NOT_ADMIN,
+        id="admin email without admin rights, other user is admin",
+    ),
+    pytest.param(
+        [_user("admin", ADMIN_EMAIL)],
+        [],
+        USER_NOT_ADMIN,
+        id="admin email without membership",
+    ),
+]
 
 
-def test_check_admin_account_missing_local() -> None:
-    with pytest.warns(DspToolsMissingAdminAccountWarning):
-        _check_that_dsp_admin_account_exists("my-proj", [_user("other@example.com")], LOCAL_SERVER)
+@pytest.mark.parametrize("server", [PROD_SERVER, LOCAL_SERVER])
+def test_check_admin_account_with_admin_rights(server: str) -> None:
+    users = [_user("other", "other@example.com"), _user("admin", ADMIN_EMAIL)]
+    memberships = [_membership("other", False), _membership("admin", True)]
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _check_that_dsp_admin_account_exists(SHORTNAME, users, memberships, server)
+
+
+@pytest.mark.parametrize(("users", "memberships", "problem"), PROBLEMS)
+def test_check_admin_account_problem_prod(
+    users: list[ParsedUser], memberships: list[ParsedUserMemberShipInfo], problem: str
+) -> None:
+    with pytest.raises(DspAdminAccountNotInProjectFileError) as exc_info:
+        _check_that_dsp_admin_account_exists(SHORTNAME, users, memberships, PROD_SERVER)
+    message = str(exc_info.value)
+    assert problem in message
+    assert ADMIN_EMAIL in message
+    assert "'users' section" in message
+    assert "run 'create' again" in message
+    assert "upload" not in message
+
+
+@pytest.mark.parametrize(("users", "memberships", "problem"), PROBLEMS)
+def test_check_admin_account_problem_local(
+    users: list[ParsedUser], memberships: list[ParsedUserMemberShipInfo], problem: str
+) -> None:
+    with pytest.warns(DspAdminAccountNotInProjectFileWarning, match=re.escape(problem)):
+        _check_that_dsp_admin_account_exists(SHORTNAME, users, memberships, LOCAL_SERVER)
+
+
+def test_create_checks_admin_account_before_creating_anything(monkeypatch: pytest.MonkeyPatch) -> None:
+    parsed_project = Mock(spec=ParsedProject)
+    parsed_project.project_metadata = Mock(shortname=SHORTNAME)
+    parsed_project.users = []
+    parsed_project.user_memberships = []
+    monkeypatch.setattr(create_module, "parse_and_validate_project", Mock(return_value=(parsed_project, [])))
+    execute_create = Mock()
+    monkeypatch.setattr(create_module, "_execute_create", execute_create)
+    creds = ServerCredentials(user="user@example.com", password="pw", server=PROD_SERVER)
+    with pytest.raises(DspAdminAccountNotInProjectFileError):
+        create_module.create(Path("project.json"), creds, exit_if_exists=False)
+    execute_create.assert_not_called()

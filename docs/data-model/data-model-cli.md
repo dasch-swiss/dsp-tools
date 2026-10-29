@@ -19,6 +19,11 @@ The most frequently used options are:
 
 To see all possible options, type `dsp-tools create --help`.
 
+!!! Attention
+
+    `create` needs the credentials of a system admin.
+    The credentials of a project admin are not enough, even for a project that exists already.
+
 ### The `--exit-if-exists` flag
 
 By default, if a project with the same shortcode already exists on the server,
@@ -52,8 +57,10 @@ dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' pr
 ```
 
 On production, a DaSCH system admin runs `create`.
-For when to add the project admin account to the JSON project file,
-see [Who Creates the Account](../production-account.md#who-creates-the-account).
+On prod-like servers, `create` stops if the JSON project file does not define the project admin account
+with `":admin"`.
+`create --validate-only` runs the same check, if `-s` is set to the target server.
+For the rules, see [Who Creates the Account](../production-account.md#who-creates-the-account).
 
 The expected JSON format is [documented here](./json-project/overview.md).
 
@@ -93,7 +100,10 @@ dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my
 ```
 
 It is possible to get a project from a DSP server without giving credentials.
-But in this case, the resulting JSON file won't have a "users" section.
+In this case, the resulting JSON file has no "users" section.
+Its "default_permissions" contains a hint to give credentials instead of the permissions.
+If you give credentials, they must be the credentials of a project admin of the project or of a system admin.
+The credentials of any other user make `get` stop with a permission error.
 
 The expected JSON format is [documented here](./json-project/overview.md).
 
@@ -194,6 +204,10 @@ dsp-tools mapping update 0XXX-my-onto-mapping.yaml
 The available arguments are:
 
 - `config_file` (mandatory): path to the YAML configuration file, created with `mapping config`.
+
+!!! Attention
+
+    `mapping update` needs the credentials of a project admin of the project or of a system admin.
 
 **Replace semantics**
 

@@ -64,7 +64,7 @@ Example of the account in the JSON project file:
 
 ## Use on Production
 
-On production, a DaSCH system admin runs `create`, because `create` makes a new project.
+On production, a DaSCH system admin runs `create`, because `create` needs the credentials of a system admin.
 After `create`, DaSCH uses the project admin account for these commands:
 
 - [`xmlupload`](./data-file/data-file-commands.md#xmlupload)

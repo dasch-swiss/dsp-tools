@@ -7,7 +7,7 @@ from copy import deepcopy
 from typing import Any
 from typing import Optional
 
-import jsonpath_ng.ext
+import jsonpath_ng.ext.parser
 import jsonschema
 import pandas as pd
 import regex
@@ -287,7 +287,7 @@ def _find_validation_problem(
     if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_res_name = (
-            jsonpath_ng.ext.parse(json_path_to_resource.group(0))
+            jsonpath_ng.ext.parser.parse(json_path_to_resource.group(0))
             .find(resources_list)[0]
             .value["name"]
         )

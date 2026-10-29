@@ -1,5 +1,5 @@
-import jsonpath_ng
-import jsonpath_ng.ext
+import jsonpath_ng.ext.parser
+import jsonpath_ng.parser
 import pytest
 import regex
 from pytest_unordered import unordered
@@ -28,7 +28,7 @@ def test_names() -> None:
         "PDFDocument",
         "NoCardinalityClass",
     ]
-    res_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
+    res_names = [match.value for match in jsonpath_ng.parser.parse("$[*].name").find(output_from_method)]
     assert unordered(res_names) == expected_names
 
 
@@ -47,7 +47,7 @@ def test_supers() -> None:
         ["DocumentRepresentation"],
         ["Resource"],
     ]
-    res_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
+    res_supers = [match.value for match in jsonpath_ng.parser.parse("$[*].super").find(output_from_method)]
     assert unordered(res_supers) == expected_supers
 
 
@@ -82,14 +82,14 @@ def test_labels() -> None:
             "",
         ],
     }
-    res_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
+    res_labels_all = [match.value for match in jsonpath_ng.parser.parse("$[*].labels").find(output_from_method)]
     res_labels = {lang: [label.get(lang, "").strip() for label in res_labels_all] for lang in ["en", "rm"]}
     assert res_labels == expected_labels
 
 
 def test_image_labels() -> None:
     expected_labels_of_image = {"en": "Only English"}
-    res_labels_of_image = jsonpath_ng.ext.parse('$[?name="Image"].labels').find(output_from_method)[0].value
+    res_labels_of_image = jsonpath_ng.ext.parser.parse('$[?name="Image"].labels').find(output_from_method)[0].value
     assert res_labels_of_image == expected_labels_of_image
 
 
@@ -135,7 +135,7 @@ def test_comments() -> None:
 
 def test_image_comments() -> None:
     expected_comments_of_image = {"en": "Image", "de": "Bild"}
-    res_comments_of_image = jsonpath_ng.ext.parse('$[?name="Image"].comments').find(output_from_method)[0].value
+    res_comments_of_image = jsonpath_ng.ext.parser.parse('$[?name="Image"].comments').find(output_from_method)[0].value
     assert expected_comments_of_image == res_comments_of_image
 
 
@@ -158,7 +158,7 @@ def test_first_class_properties() -> None:
         "other-onto:hasProp",
     ]
     res_first_class_properties = [
-        match.value for match in jsonpath_ng.parse("$[0].cardinalities[*].propname").find(output_from_method)
+        match.value for match in jsonpath_ng.parser.parse("$[0].cardinalities[*].propname").find(output_from_method)
     ]
     assert unordered(res_first_class_properties) == expected_first_class_properties
 
@@ -182,7 +182,7 @@ def test_cardinalities() -> None:
         "0-1",
     ]
     res_first_class_cardinalities = [
-        match.value for match in jsonpath_ng.parse("$[0].cardinalities[*].cardinality").find(output_from_method)
+        match.value for match in jsonpath_ng.parser.parse("$[0].cardinalities[*].cardinality").find(output_from_method)
     ]
     assert unordered(res_first_class_cardinalities) == expected_first_class_cardinalities
 

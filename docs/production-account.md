@@ -21,13 +21,23 @@ If you make your own data model, agree on the username, given name and family na
 The person who sets up the data model also creates the account:
 
 - If the DaSCH Research Data Unit (RDU) sets up the project, RDU creates the account and owns it.
-- If you make your own data model, add the account to the
-  [`users`](./data-model/json-project/overview.md#users) section of the JSON project file.
-  [`dsp-tools create`](./data-model/data-model-cli.md#create) then creates the account together with the project.
-  If you use [`excel2json`](./data-model/excel2json.md#the-json_headerxlsx), add the account to the "Users" sheet
-  with the role `projectadmin`.
+- If you make your own data model, you create the account.
 
-If the project exists already, create the account in DSP-APP.
+In both cases, add the account to the
+[`users`](./data-model/json-project/overview.md#users) section of the JSON project file.
+[`dsp-tools create`](./data-model/data-model-cli.md#create) then creates the account together with the project.
+The account needs `":admin"` and `":member"` in its `projects`.
+If you use [`excel2json`](./data-model/excel2json.md#the-json_headerxlsx), add the account to the "Users" sheet
+with the role `projectadmin`.
+
+On the prod-like servers `api.dasch.swiss`, `api.rdu.dasch.swiss` and `api.stage.dasch.swiss`,
+`create` stops if the JSON project file has no such account.
+`create` stops as well if the account has no `":admin"` in its `projects`.
+On all other servers, `create` only shows a warning.
+`create --validate-only` runs the same check, if `-s` is set to the target server.
+
+If the project exists already, `create` still needs the account in the JSON project file.
+If the account exists in DSP-APP already, write its `username` and `email` exactly as they are in DSP-APP.
 
 Example of the account in the JSON project file:
 

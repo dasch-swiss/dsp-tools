@@ -150,6 +150,14 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 - The geolocation shapes in `resources/validate_data/api-shapes.ttl` mirror this table. A unit test keeps them equal
 - Used in: everywhere a geolocation is created, parsed, checked or uploaded
 
+## DaSCH Project Admin Account
+
+**`dsp_user_account_check.py`**
+
+- Build the email of the project admin account (`dsp_admin_account_email`)
+- Check that an upload uses the project admin account: an error on prod-like servers, a warning elsewhere
+- Used by: create (email builder), xmlupload and ingest-xmlupload (upload check)
+
 ## Error Handling
 
 **`exceptions.py`**

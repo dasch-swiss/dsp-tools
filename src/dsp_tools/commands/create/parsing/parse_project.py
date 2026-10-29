@@ -143,7 +143,7 @@ def _parse_users(
     users, memberships = [], []
     input_problems: list[CreateProblem] = []
     for u in found:
-        result = _parse_one_user(u)
+        result = _parse_one_user(u, project_json["shortname"])
         if isinstance(result, InputProblem):
             input_problems.append(result)
         else:
@@ -159,9 +159,11 @@ def _parse_users(
     return users, memberships, problem_collection
 
 
-def _parse_one_user(user_dict: dict[str, Any]) -> tuple[ParsedUser, ParsedUserMemberShipInfo] | InputProblem:
+def _parse_one_user(
+    user_dict: dict[str, Any], project_shortname: str
+) -> tuple[ParsedUser, ParsedUserMemberShipInfo] | InputProblem:
     projects = user_dict.get("projects", [])
-    is_admin = ":admin" in projects
+    is_admin = ":admin" in projects or f"{project_shortname}:admin" in projects
     groups = [g.removeprefix(":") for g in user_dict.get("groups", [])]
     pw = user_dict["password"]
     if not pw:

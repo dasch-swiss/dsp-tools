@@ -1,4 +1,5 @@
-import jsonpath_ng
+import jsonpath_ng.ext.parser
+import jsonpath_ng.parser
 import pytest
 import regex
 
@@ -99,7 +100,7 @@ class TestExcelToProperties:
             "hasLinkToMovingImageRepesentation",
             "hasLinkToAudioRepesentation",
         ]
-        json_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
+        json_names = [match.value for match in jsonpath_ng.parser.parse("$[*].name").find(output_from_method)]
         assert excel_names == json_names
 
     def test_supers(self) -> None:
@@ -129,7 +130,7 @@ class TestExcelToProperties:
             ["hasLinkTo"],
             ["hasLinkTo"],
         ]
-        json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
+        json_supers = [match.value for match in jsonpath_ng.parser.parse("$[*].super").find(output_from_method)]
         assert excel_supers == json_supers
 
     def test_objects(self) -> None:
@@ -159,7 +160,7 @@ class TestExcelToProperties:
             "MovingImageRepresentation",
             "AudioRepresentation",
         ]
-        json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_method)]
+        json_objects = [match.value for match in jsonpath_ng.parser.parse("$[*].object").find(output_from_method)]
         assert excel_objects == json_objects
 
     def test_labels(self) -> None:
@@ -217,7 +218,7 @@ class TestExcelToProperties:
                 "",
             ],
         }  # there are also labels in other languages, but they are not tested
-        json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
+        json_labels_all = [match.value for match in jsonpath_ng.parser.parse("$[*].labels").find(output_from_method)]
         json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["de", "it"]}
         assert excel_labels == json_labels
 
@@ -319,13 +320,15 @@ class TestExcelToProperties:
             "Searchbox",
         ]
 
-        json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_method)]
+        json_gui_elements = [
+            match.value for match in jsonpath_ng.parser.parse("$[*].gui_element").find(output_from_method)
+        ]
         assert excel_gui_elements == json_gui_elements
 
     def test_gui_attributes_hasGender(self) -> None:
         excel_gui_attributes_hasGender = {"hlist": "gender"}
         json_gui_attributes_hasGender = (
-            jsonpath_ng.ext.parse("$[?name='hasGender'].gui_attributes").find(output_from_method)[0].value
+            jsonpath_ng.ext.parser.parse("$[?name='hasGender'].gui_attributes").find(output_from_method)[0].value
         )
         assert excel_gui_attributes_hasGender == json_gui_attributes_hasGender
 

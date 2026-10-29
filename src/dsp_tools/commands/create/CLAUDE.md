@@ -21,6 +21,8 @@ This is one of the two main tasks DSP-TOOLS serves (the other being `xmlupload` 
 
 - **create.py**: Main entry point containing `create()` function and workflow orchestration
     - Calls validation/parsing
+    - Checks that the project file defines the project admin account (`admin_account_check.py`)
+      before it contacts the server
     - Executes creation in strict sequential order
     - Collects and reports problems
 
@@ -49,6 +51,13 @@ JSON file → JSON Schema validation → Parse to models → Complex validation
 - **serialisation/**: RDF/JSON-LD serialization for DSP-API (ontology.py, project.py)
 - **create_on_server/**: API calls to create entities on server (includes mappers.py for cardinality mapping)
 - **project_validate.py**: Validation orchestration (JSON Schema + complex validations)
+- **admin_account_check.py**: Checks that the project file defines the project admin account
+  (`<shortname>@admin.dasch.swiss` with project admin rights):
+  an error on prod-like servers, a warning elsewhere. Run by `create` and by `create --validate-only`.
+  It is deliberately not part of `parse_and_validate_project()` or `_complex_parsed_project_validation()`:
+  it depends on the server, and it raises (fail fast, see ADR 0001) instead of collecting a problem.
+  Every entry point that consumes a `ParsedProject` must call it: today `create()` and `validate_project_only()`.
+  `--lists-only` does not parse users, so it does not call it
 - **create.py**: Main workflow orchestration
 - **communicate_problems.py**: User-facing error reporting
 - **exceptions.py**: Custom exceptions
@@ -124,7 +133,10 @@ Main orchestrator for parsing the complete JSON project:
     - Project metadata (shortcode, shortname, longname, descriptions, keywords, licenses)
     - Permissions (default permissions + overrule settings)
     - Groups (name + multilingual descriptions)
-    - Users (credentials, project admin status, group memberships)
+    - Users (credentials, project admin status, group memberships).
+      A user is a project admin if `projects` contains `:admin` or `<shortname>:admin`
+      of the project in the file (`get` writes the second form).
+      Entries for other projects are ignored.
     - Lists (hierarchical controlled vocabularies)
     - Ontologies (classes, properties, cardinalities)
 
@@ -351,6 +363,8 @@ After successful creation:
 ### exceptions.py
 
 - **`ProjectJsonSchemaValidationError`**: JSON Schema validation failures
+- **`DspAdminAccountNotInProjectFileError`**: on prod-like servers, the project file does not define the
+  project admin account with admin rights
 
 ## Client Usage
 

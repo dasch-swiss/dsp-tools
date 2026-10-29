@@ -54,6 +54,7 @@ dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' pr
 On production, a DaSCH system admin runs `create`.
 On prod-like servers, `create` stops if the JSON project file does not define the project admin account
 with `":admin"`.
+`create --validate-only` runs the same check, if `-s` is set to the target server.
 For the rules, see [Who Creates the Account](../production-account.md#who-creates-the-account).
 
 The expected JSON format is [documented here](./json-project/overview.md).

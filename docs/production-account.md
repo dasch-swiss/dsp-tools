@@ -34,6 +34,7 @@ On the prod-like servers `api.dasch.swiss`, `api.rdu.dasch.swiss` and `api.stage
 `create` stops if the JSON project file has no such account.
 `create` stops as well if the account has no `":admin"` in its `projects`.
 On all other servers, `create` only shows a warning.
+`create --validate-only` runs the same check, if `-s` is set to the target server.
 
 If the project exists already, `create` still needs the account in the JSON project file.
 If the account exists in DSP-APP already, write its `username` and `email` exactly as they are in DSP-APP.

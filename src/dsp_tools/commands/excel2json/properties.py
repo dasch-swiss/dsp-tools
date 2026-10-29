@@ -7,7 +7,7 @@ from typing import Any
 from typing import Optional
 from typing import cast
 
-import jsonpath_ng.ext
+import jsonpath_ng.ext.parser
 import jsonschema
 import numpy as np
 import pandas as pd
@@ -335,7 +335,7 @@ def _find_validation_problem(
     if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
-            jsonpath_ng.ext.parse(json_path_to_property.group(0))
+            jsonpath_ng.ext.parser.parse(json_path_to_property.group(0))
             .find(properties_list)[0]
             .value["name"]
         )

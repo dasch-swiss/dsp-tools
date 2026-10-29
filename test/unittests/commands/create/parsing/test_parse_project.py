@@ -1,3 +1,5 @@
+import pytest
+
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import InputProblem
 from dsp_tools.commands.create.models.create_problems import InputProblemType
@@ -152,9 +154,33 @@ class TestParseUsers:
         assert len(memberships) == 0
         assert not problems
 
+    @pytest.mark.parametrize(
+        ("projects", "expected_is_admin"),
+        [
+            (["minimal:admin"], True),
+            (["minimal:member"], False),
+            (["other-project:admin"], False),
+        ],
+    )
+    def test_parse_users_is_admin(self, minimal_project_json, projects, expected_is_admin):
+        minimal_project_json["users"] = [
+            {
+                "username": "test_user",
+                "email": "test@example.com",
+                "givenName": "Test",
+                "familyName": "User",
+                "password": "pw",
+                "projects": projects,
+            }
+        ]
+        _, memberships, problems = _parse_users(minimal_project_json)
+        assert not problems
+        assert len(memberships) == 1
+        assert memberships[0].is_admin == expected_is_admin
+
     def test_only_mandatory(self, project_json_create):
         user = project_json_create["project"]["users"][0]
-        result = _parse_one_user(user)
+        result = _parse_one_user(user, "create")
         assert isinstance(result, tuple)
         parsed_u, parsed_mem = result
         assert parsed_u.username == "user_only_mandatory"
@@ -169,7 +195,7 @@ class TestParseUsers:
 
     def test_admin(self, project_json_create):
         user = project_json_create["project"]["users"][1]
-        result = _parse_one_user(user)
+        result = _parse_one_user(user, "create")
         assert isinstance(result, tuple)
         parsed_u, parsed_mem = result
         assert parsed_u.username == "User_admin"
@@ -184,7 +210,7 @@ class TestParseUsers:
 
     def test_with_group(self, project_json_create):
         user = project_json_create["project"]["users"][2]
-        result = _parse_one_user(user)
+        result = _parse_one_user(user, "create")
         assert isinstance(result, tuple)
         parsed_u, parsed_mem = result
         assert parsed_u.username == "User_member_and_group"
@@ -206,7 +232,7 @@ class TestParseUsers:
             "familyName": "User",
             "password": "dict_password",
         }
-        result = _parse_one_user(user_dict)
+        result = _parse_one_user(user_dict, "test-project")
         assert isinstance(result, tuple)
         parsed_u, parsed_mem = result
         assert isinstance(parsed_u, ParsedUser)
@@ -227,7 +253,7 @@ class TestParseUsers:
             "familyName": "User",
             "password": "",
         }
-        result = _parse_one_user(user_dict)
+        result = _parse_one_user(user_dict, "test-project")
         assert isinstance(result, tuple)
         parsed_u, parsed_mem = result
         assert isinstance(parsed_u, ParsedUser)
@@ -244,7 +270,7 @@ class TestParseUsers:
             "familyName": "User",
             "password": "",
         }
-        result = _parse_one_user(user_dict)
+        result = _parse_one_user(user_dict, "test-project")
         assert isinstance(result, InputProblem)
         assert result.problematic_object == "test_user"
         assert result.problem == InputProblemType.USER_PASSWORD_NOT_SET

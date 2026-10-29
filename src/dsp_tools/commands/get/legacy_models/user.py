@@ -428,6 +428,7 @@ class User(Model):
                 groups.append(f"{proj_shortname}:{groupname}")
         user["groups"] = groups
         user["projects"] = list()
+        # The `create` command reads these entries back: see `_parse_one_user` in `create/parsing/parse_project.py`.
         for proj, is_admin in self._in_projects.items():
             if proj == proj_iri:
                 if is_admin:

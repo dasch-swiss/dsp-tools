@@ -106,8 +106,8 @@ The rule binds every format: `.py`, CI yaml, config and `docs/` prose alike. Thr
 - **Claims about the outside world take a date, not the present tense** — another service, a third-party
   library, another team's product. No phrasing makes these checkable from this file, so give them a date
   or a link to the authority that settles them. An undated `currently` is the worst option: it looks
-  current and cannot be verified. `docs/developers/code-quality-tools/python-see-also.md`
-  ("As of mid-2023, …") is the form to copy, not to repair.
+  current and cannot be verified. A claim that opens with a date ("As of mid-2023, …")
+  is the form to copy, not to repair.
 - Flipping the tense is not a fix: `used to fail the whole run` → `fails the whole run` is simply wrong,
   because the setting being documented is what prevents it. Either state why the code has to be this way,
   as a standing fact, or cut the sentence. Where the reason genuinely **is** a past event (a compatibility

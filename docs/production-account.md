@@ -32,7 +32,7 @@ with the role `projectadmin`.
 
 On the prod-like servers `api.dasch.swiss`, `api.rdu.dasch.swiss` and `api.stage.dasch.swiss`,
 `create` stops if the JSON project file has no such account.
-`create` stops as well if the account has no `":admin"` in its `projects`.
+`create` stops as well if the account has no admin rights in its `projects`.
 On all other servers, `create` only shows a warning.
 `create --validate-only` runs the same check, if `-s` is set to the target server.
 

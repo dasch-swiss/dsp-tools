@@ -52,7 +52,7 @@ JSON file → JSON Schema validation → Parse to models → Complex validation
 - **create_on_server/**: API calls to create entities on server (includes mappers.py for cardinality mapping)
 - **project_validate.py**: Validation orchestration (JSON Schema + complex validations)
 - **admin_account_check.py**: Checks that the project file defines the project admin account
-  (`<shortname>@admin.dasch.swiss` with `:admin` in its `projects`):
+  (`<shortname>@admin.dasch.swiss` with project admin rights):
   an error on prod-like servers, a warning elsewhere. Run by `create` and by `create --validate-only`.
   It is deliberately not part of `parse_and_validate_project()` or `_complex_parsed_project_validation()`:
   it depends on the server, and it raises (fail fast, see ADR 0001) instead of collecting a problem.
@@ -133,7 +133,10 @@ Main orchestrator for parsing the complete JSON project:
     - Project metadata (shortcode, shortname, longname, descriptions, keywords, licenses)
     - Permissions (default permissions + overrule settings)
     - Groups (name + multilingual descriptions)
-    - Users (credentials, project admin status, group memberships)
+    - Users (credentials, project admin status, group memberships).
+      A user is a project admin if `projects` contains `:admin` or `<shortname>:admin`
+      of the project in the file (`get` writes the second form).
+      Entries for other projects are ignored.
     - Lists (hierarchical controlled vocabularies)
     - Ontologies (classes, properties, cardinalities)
 
@@ -361,7 +364,7 @@ After successful creation:
 
 - **`ProjectJsonSchemaValidationError`**: JSON Schema validation failures
 - **`DspAdminAccountNotInProjectFileError`**: on prod-like servers, the project file does not define the
-  project admin account with `:admin`
+  project admin account with admin rights
 
 ## Client Usage
 

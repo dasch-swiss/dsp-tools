@@ -9,6 +9,8 @@ from dsp_tools.commands.create.exceptions import DspAdminAccountNotInProjectFile
 from dsp_tools.commands.create.models.parsed_project import ParsedProject
 from dsp_tools.commands.create.models.parsed_project import ParsedUser
 from dsp_tools.commands.create.models.parsed_project import ParsedUserMemberShipInfo
+from dsp_tools.commands.create.parsing.parse_project import _parse_users
+from dsp_tools.commands.get.legacy_models.user import User
 from dsp_tools.error.custom_warnings import DspAdminAccountNotInProjectFileWarning
 
 PROD_SERVER = "https://api.dasch.swiss"
@@ -88,3 +90,25 @@ def test_check_admin_account_problem_local(
 ) -> None:
     with pytest.warns(DspAdminAccountNotInProjectFileWarning, match=re.escape(problem)):
         check_dsp_admin_account_exists(_project(users, memberships), LOCAL_SERVER)
+
+
+def test_check_admin_account_of_get_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DSP_USER_PASSWORD", "pw")
+    project_iri = "http://rdfh.ch/projects/0001"
+    admin_user = User(
+        Mock(),
+        username="admin",
+        email=ADMIN_EMAIL,
+        givenName="Given",
+        familyName="Family",
+        password="",
+        lang="en",
+        status=True,
+        in_projects={project_iri: True},
+    )
+    users_section = [admin_user.createDefinitionFileObj(Mock(), SHORTNAME, project_iri)]
+    users, memberships, problems = _parse_users({"shortname": SHORTNAME, "users": users_section})
+    assert not problems
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        check_dsp_admin_account_exists(_project(users, memberships), PROD_SERVER)

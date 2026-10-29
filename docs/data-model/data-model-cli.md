@@ -206,7 +206,6 @@ The available arguments are:
 !!! Attention
 
     `mapping update` needs the credentials of a project admin of the project or of a system admin.
-    The credentials of a project member are not enough.
 
 **Replace semantics**
 

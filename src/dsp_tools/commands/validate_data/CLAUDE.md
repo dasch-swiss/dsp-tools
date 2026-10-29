@@ -82,6 +82,9 @@ See [src/dsp_tools/clients/CLAUDE.md](../../clients/CLAUDE.md) for client archit
 
 `src/dsp_tools/resources/validate_data/` contains RDF turtle files with SHACL shapes that apply to all ontologies.
 
+A `sh:sparql` constraint must not reference `$this` inside `FILTER (NOT) EXISTS`: the engine does not bind `$this`
+there, so every focus node scans the whole data graph. Join the pattern in the main `WHERE` block instead.
+
 ### Utility Functions
 
 - **constants.py**: Defines file paths for validation artifacts and RDF property type information
@@ -132,6 +135,9 @@ The validation process follows a strict sequential pipeline:
 - **Containerized SHACL**: Uses a Docker container for SHACL validation to ensure consistency
 - **File-based Communication**: Writes RDF files to temporary directories for Docker processing
 - **Error Handling**: Robust error handling for Docker communication failures
+- **JVM Memory**: The container gets the JVM options in `shacl_cli_validator._JAVA_OPTS`.
+  An out-of-memory failure (or exit code 137) raises `ShaclValidationOutOfMemoryError`, a `UserError`
+  that tells the user to give Docker more memory
 - **Temporary File Management**: Automatic cleanup of temporary validation files
 
 ### Modular Data Processing Pipeline
@@ -205,6 +211,10 @@ The tests enforce these rules. A new SHACL shape follows all of them, whether or
 - **Local SHACL Validation**: Validation is performed locally using a Docker container, not server-side
 - **Temporary File Management**: Creates temporary files for Docker communication, automatically cleaned up
 - **Graph Saving**: Optional graph saving functionality for debugging complex validation failures  
+- **Large Graphs**: Do not merge the data graph (or any graph that holds all the data) with rdflib `+` / `+=`:
+  it copies every triple into rdflib's in-memory store. Read across graphs with
+  `rdflib.graph.ReadOnlyGraphAggregate`, as `reformat_validation_graph` does. Merging small shape, ontology
+  or result graphs with `+=` is fine, as in `sparql/` and `validation/get_validation_report.py`
 - **Production Behavior**: Production servers treat warnings as blockers, preventing upload
 - **Dual Interface**: Supports both direct XML file validation and pre-parsed resource validation (for xmlupload integration)
 - **Configuration Support**: Uses ValidateDataConfig for controlling validation behavior and output options

@@ -90,6 +90,22 @@ def test_upload_file_failure_upon_server_error_with_response_text(
     assert failure_detail.response_text == "response text"
 
 
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_upload_file_if_no_write_access(
+    ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path, status_code: int
+) -> None:
+    tmp_file.write_text("<xml></xml>")
+    requests_mock.post(_make_url(tmp_file), status_code=status_code)
+    expected = re.escape(
+        "The ingest server refused the upload to project 0001. "
+        "Either you have no write access to the project, or your login token is invalid or expired. "
+        "SystemAdmins always have write access. "
+        "By default, ProjectAdmins and all project members have it, too."
+    )
+    with pytest.raises(BadCredentialsError, match=expected):
+        ingest_client.upload_file(tmp_file)
+
+
 @pytest.mark.parametrize(
     ("filepath", "url_suffix"),
     [
@@ -175,3 +191,20 @@ def test_trigger_when_server_response_doesnt_contain_right_shortcode(
     err_msg = re.escape("Failed to trigger the ingest process. Please check the server logs, or try again later.")
     with pytest.raises(IngestFailure, match=err_msg):
         ingest_client.trigger_ingest_process()
+
+
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_retrieve_mapping_if_no_write_access(
+    ingest_client: BulkIngestClient, requests_mock: Mocker, status_code: int
+) -> None:
+    url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/mapping.csv"
+    requests_mock.get(url, status_code=status_code)
+    expected = re.escape(
+        "The ingest server refused to send the mapping CSV for project 0001. "
+        "Either you have no write access to the project, or your login token is invalid or expired. "
+        "SystemAdmins always have write access. "
+        "By default, ProjectAdmins and all project members have it, too."
+    )
+    with pytest.raises(BadCredentialsError, match=expected):
+        next(ingest_client.retrieve_mapping_generator())
+    assert len(requests_mock.request_history) == 1

@@ -226,8 +226,11 @@ It's crucial to distinguish between authentication failures (401) and authorizat
   to the project (`ensureProjectWritable` in
   [AuthorizationHandler.scala](https://github.com/dasch-swiss/dsp-api/blob/main/modules/ingest/src/main/scala/swiss/dasch/api/AuthorizationHandler.scala)).
   It also answers 401 when it rejects the token.
-  `DspIngestClientLive._ingest` and `BulkIngestClient.trigger_ingest_process` therefore map 401 and 403
-  to `BadCredentialsError`, and their messages name both causes.
+  `DspIngestClientLive._ingest` and the `BulkIngestClient` methods `upload_file`, `trigger_ingest_process`
+  and `retrieve_mapping_generator` therefore map 401 and 403 to `BadCredentialsError`,
+  and their messages name both causes.
+  `BulkIngestClient` raises on the first refusal and does not return an `UploadFailure`,
+  because every later request gets the same answer.
 
 #### 403 Forbidden - Authorization Failure
 

@@ -9,7 +9,7 @@ only enforced in review.
 
 Python 3.12+, `uv` for environments and dependencies, `just` as task runner. CLI tool that talks to the
 DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy` (strict),
-`yamllint`/`yamlfmt`, `markdownlint`, `darglint` (Google-style docstrings), `vulture`. Tests: `pytest`
+`yamllint`/`yamlfmt`, `markdownlint`, `vulture`. Tests: `pytest`
 (unit / integration / e2e with testcontainers). Line length: 120.
 
 ## Code Conventions

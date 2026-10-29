@@ -7,7 +7,7 @@ Flag anything below that a change violates.
 
 ### Build & history
 
-- [ ] `just lint` passes (ruff check + ruff format + yamllint + markdownlint + darglint + vulture)
+- [ ] `just lint` passes (ruff check + ruff format + yamllint + markdownlint + vulture)
 - [ ] `just mypy` passes; all new code is fully type-annotated
 - [ ] Relevant tests pass and cover the change (unit for logic, integration/E2E for user-facing behaviour)
 - [ ] Commits and PR title follow [Conventional Commits](https://www.conventionalcommits.org/) — style

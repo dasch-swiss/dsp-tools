@@ -139,7 +139,7 @@ Directories:
       `hasValue | object | gui_element` table, and a `#### <ValueType>` section per value type.
     - `json-project/caveats.md` — Caveats about DSP base resources/properties (Region, LinkObj, …).
 - `developers/` — Contributor/maintainer docs. **Exception to the editorial rule: these DO explain
-  mechanism.** architecture/, code-quality-tools/, index.md, mkdocs.md, packaging.md, start-stack.md,
+  mechanism.** architecture/, index.md, mkdocs.md, packaging.md, start-stack.md,
   user-data.md.
 - `adr/` — Architectural decision records (not `developers/`). **Not published** — excluded from the
   mkdocs nav via `not_in_nav`, so it needs no nav entry and no worked example above applies to it.

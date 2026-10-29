@@ -118,8 +118,14 @@ class BulkIngestClient:
         log_request(params)
         res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
         log_response(res, status_code=res.status_code)
-        if res.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
+        # As of 2026-10, DSP-INGEST answers 401, not 403, if the user lacks write access (see clients/CLAUDE.md).
+        if res.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+            raise BadCredentialsError(
+                f"The ingest server refused to start the ingest process for project {self.shortcode}. "
+                "Either you have no write access to the project, or your login token is invalid or expired. "
+                "SystemAdmins always have write access. "
+                "By default, ProjectAdmins and all project members have it, too."
+            )
         if res.status_code == HTTPStatus.NOT_FOUND:
             raise NoIngestFileFound(
                 f"No assets have been uploaded for project {self.shortcode}. "

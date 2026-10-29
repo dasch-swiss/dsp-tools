@@ -116,10 +116,17 @@ def test_trigger_if_success(ingest_client: BulkIngestClient, requests_mock: Mock
     assert req.headers["Authorization"] == "Bearer mocked_token"
 
 
-def test_trigger_if_forbidden(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_trigger_if_no_write_access(ingest_client: BulkIngestClient, requests_mock: Mocker, status_code: int) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
-    requests_mock.post(url, status_code=403)
-    with pytest.raises(BadCredentialsError):
+    requests_mock.post(url, status_code=status_code)
+    expected = re.escape(
+        "The ingest server refused to start the ingest process for project 0001. "
+        "Either you have no write access to the project, or your login token is invalid or expired. "
+        "SystemAdmins always have write access. "
+        "By default, ProjectAdmins and all project members have it, too."
+    )
+    with pytest.raises(BadCredentialsError, match=expected):
         ingest_client.trigger_ingest_process()
 
 

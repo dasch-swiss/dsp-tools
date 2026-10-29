@@ -13,6 +13,7 @@ import jsonschema
 import rustworkx as rx
 from loguru import logger
 
+from dsp_tools.commands.create.admin_account_check import check_dsp_admin_account_exists
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.exceptions import ProjectJsonSchemaValidationError
@@ -56,6 +57,7 @@ def validate_project_only(project_file: Path, server: str) -> bool:
     if not isinstance(result, ParsedProject):
         print_all_problem_collections(result)
         return False
+    check_dsp_admin_account_exists(result, server)
     print(
         BACKGROUND_BOLD_GREEN + "JSON project file is syntactically correct and passed validation." + RESET_TO_DEFAULT
     )

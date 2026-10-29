@@ -18,5 +18,9 @@ class CircularOntologyDependency(UserError):
         super().__init__(msg)
 
 
+class DspAdminAccountNotInProjectFileError(UserError):
+    """Class if the project file does not define the project admin account with admin rights."""
+
+
 class UnableToCreateProjectError(InternalError):
     """Class if a project cannot be created."""

@@ -30,6 +30,6 @@ Via Pylance, it is included in VS Code's Python extension `ms-python.python`.
 Performant type checker by Facebook, compliant with the relevant PEP conventions.
 Pyre can analyze codebases with millions of lines of code incrementally,
 providing instantaneous feedback to developers as they write code.
-Depends on [watchman](https://facebook.github.io/watchman/), 
+Depends on [watchman](https://github.com/facebook/watchman), 
 a brew-installable FOSS file watching service by Facebook.
 Pyre ships with Pysa, a security tool built on top of Pyre that reasons about data flows in Python applications. 

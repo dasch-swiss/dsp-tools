@@ -112,7 +112,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -147,7 +147,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -166,7 +166,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -185,7 +185,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -203,7 +203,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -225,7 +225,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -247,7 +247,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -270,7 +270,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -285,7 +285,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -303,7 +303,7 @@ class TestXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         xmlupload.assert_called_once_with(
@@ -330,7 +330,10 @@ class TestValidateData:
         args = f"validate-data {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -349,7 +352,10 @@ class TestValidateData:
         args = f"validate-data {ignore_duplicate_files} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -367,7 +373,10 @@ class TestValidateData:
         args = f"validate-data {DATA_XML_PATH} --save-graphs".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -388,7 +397,7 @@ class TestValidateData:
             user="root@example.com",
             password="test",
             server="https://api.dasch.swiss",
-            dsp_ingest_url="https://ingest.dasch.swiss",
+            dsp_ingest_url="https://api.dasch.swiss/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -409,7 +418,7 @@ class TestValidateData:
         args = f"validate-data {DATA_XML_PATH} --server={server} --user {user} --password={password}".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user=user, password=password, server=server, dsp_ingest_url="https://ingest.test.dasch.swiss"
+            user=user, password=password, server=server, dsp_ingest_url="https://api.test.dasch.swiss/ingest"
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -427,7 +436,10 @@ class TestValidateData:
         args = f"validate-data {DATA_XML_PATH} --skip-ontology-validation".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -445,7 +457,10 @@ class TestValidateData:
         args = f"validate-data --id2iri-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -465,7 +480,10 @@ class TestValidateData:
         args = f"validate-data {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
         entry_point.run(args)
         creds = ServerCredentials(
-            user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
+            user="root@example.com",
+            password="test",
+            server="http://0.0.0.0:3333",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         validate_data.assert_called_once_with(
             filepath=Path(DATA_XML_PATH),
@@ -487,7 +505,7 @@ class TestResumeXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
@@ -500,7 +518,7 @@ class TestResumeXmlupload:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         entry_point.run(args)
         resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=True)
@@ -516,7 +534,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
@@ -532,7 +550,7 @@ class TestIngestUploads:
             server=server,
             user=user,
             password=password,
-            dsp_ingest_url=server.replace("api", "ingest"),
+            dsp_ingest_url=server + "/ingest",
         )
         upload_files.assert_called_once_with(xml_file=Path(DATA_XML_PATH), creds=creds, imgdir=Path("."))
 
@@ -546,7 +564,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
@@ -563,7 +581,7 @@ class TestIngestUploads:
             server=server,
             user=user,
             password=password,
-            dsp_ingest_url=server.replace("api", "ingest"),
+            dsp_ingest_url=server + "/ingest",
         )
         ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
@@ -576,7 +594,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
@@ -598,7 +616,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
@@ -619,7 +637,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
@@ -643,7 +661,7 @@ class TestIngestUploads:
             server=server,
             user=user,
             password=password,
-            dsp_ingest_url=server.replace("api", "ingest"),
+            dsp_ingest_url=server + "/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
@@ -664,7 +682,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
@@ -687,7 +705,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),

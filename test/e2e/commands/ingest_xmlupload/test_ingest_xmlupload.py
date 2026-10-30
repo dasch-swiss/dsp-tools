@@ -40,7 +40,7 @@ def creds(container_metadata: ContainerMetadata) -> ServerCredentials:
         "root@example.com",
         "test",
         f"http://0.0.0.0:{container_metadata.ports.api}",
-        f"http://0.0.0.0:{container_metadata.ports.ingest}",
+        f"http://0.0.0.0:{container_metadata.ports.api}/ingest",
     )
 
 

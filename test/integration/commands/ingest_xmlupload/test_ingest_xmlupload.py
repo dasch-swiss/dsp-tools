@@ -26,7 +26,7 @@ def creds() -> ServerCredentials:
         user="root@example.com",
         password="test",
         server="http://0.0.0.0:3333",
-        dsp_ingest_url="http://0.0.0.0:3340",
+        dsp_ingest_url="http://0.0.0.0:3333/ingest",
     )
 
 

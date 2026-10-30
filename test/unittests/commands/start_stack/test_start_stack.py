@@ -96,7 +96,6 @@ class TestWriteOverrideFile:
                 "api": {"image": "daschswiss/knora-api:latest"},
                 "sipi": {"image": "daschswiss/knora-sipi:latest"},
                 "db": {"image": "daschswiss/apache-jena-fuseki:latest"},
-                "ingest": {"image": "daschswiss/dsp-ingest:latest"},
             }
         }
         (tmp_path / "docker-compose.override.yml").write_text(
@@ -110,7 +109,6 @@ class TestWriteOverrideFile:
         assert result["services"]["db"]["image"] == "daschswiss/apache-jena-fuseki:5.5.0-3"
         assert result["services"]["api"]["image"] == "daschswiss/knora-api:latest"
         assert result["services"]["sipi"]["image"] == "daschswiss/knora-sipi:latest"
-        assert result["services"]["ingest"]["image"] == "daschswiss/dsp-ingest:latest"
 
     def test_file_location(self, latest_handler: StackHandler, tmp_path: Path) -> None:
         self._write_initial_override(tmp_path)

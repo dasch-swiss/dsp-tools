@@ -88,7 +88,8 @@ class DspIngestClientLive(AssetClient):
             filepath: Path to the file to ingest, could be either absolute or relative.
 
         Raises:
-            BadCredentialsError: If the credentials are invalid.
+            BadCredentialsError: If the server refuses the upload because the user has no write access
+                to the project, or because the token is invalid.
             PermanentConnectionError: If the connection fails.
 
         Returns:
@@ -118,8 +119,14 @@ class DspIngestClientLive(AssetClient):
 
             if res.ok:
                 return IngestResponse(internal_filename=res.json()["internalFilename"])
-            elif res.status_code == HTTPStatus.FORBIDDEN:
-                raise BadCredentialsError("Only SystemAdmins and ProjectAdmins can upload assets.")
+            # As of 2026-10, DSP-INGEST answers 401, not 403, if the user lacks write access (see clients/CLAUDE.md).
+            elif res.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+                raise BadCredentialsError(
+                    f"The ingest server refused the upload to project {self.shortcode}. "
+                    "Either you have no write access to the project, or your login token is invalid or expired. "
+                    "SystemAdmins always have write access. "
+                    "By default, ProjectAdmins and all project members have it, too."
+                )
             elif res.status_code == HTTPStatus.BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
                 raise InvalidIngestFileNameError()
             else:

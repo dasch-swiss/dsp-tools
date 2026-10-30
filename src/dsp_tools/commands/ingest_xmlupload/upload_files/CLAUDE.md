@@ -32,6 +32,9 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
 - Two distinct error types: `FileProblems` for local problems before upload (missing or unsupported
   files). `UploadFailures` for files the ingest server rejects. Both expose `execute_error_protocol()`,
   which prints the list or writes a CSV past `maximum_prints`.
+- A refusal for missing write access or an invalid token is not an `UploadFailure`.
+  `BulkIngestClient.upload_file` raises `BadCredentialsError`, and the command stops at the first file.
+  This follows the fail-fast rule for this command in `docs/adr/0001-split-error-handling-fail-fast-vs-aggregate.md`.
 - `creds.server` is the DSP-API URL (passed to `get_parsed_resources`). `creds.dsp_ingest_url` is the
   ingest server (passed to `BulkIngestClient`).
 

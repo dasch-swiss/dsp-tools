@@ -222,12 +222,24 @@ It's crucial to distinguish between authentication failures (401) and authorizat
 - **Example error message**: "Please ensure that an account for this email exists and that the password is correct."
 - **Where to handle this**: Only in the authentication client. All other clients depend on the authentication client,
   so it's pointless to handle 401 there.
+- **Exception: the DSP-INGEST service.** As of 2026-10, it answers 401, not 403, when the user lacks write access
+  to the project (`ensureProjectWritable` in
+  [AuthorizationHandler.scala](https://github.com/dasch-swiss/dsp-api/blob/main/modules/ingest/src/main/scala/swiss/dasch/api/AuthorizationHandler.scala)).
+  It also answers 401 when it rejects the token.
+  `DspIngestClientLive._ingest` and the `BulkIngestClient` methods `upload_file`, `trigger_ingest_process`
+  and `retrieve_mapping_generator` therefore map 401 and 403 to `BadCredentialsError`,
+  and their messages name both causes.
+  `BulkIngestClient` raises on the first refusal and does not return an `UploadFailure`,
+  because every later request gets the same answer.
 
 #### 403 Forbidden - Authorization Failure
 
 - **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
 - **When to use**: Insufficient role/permissions, project membership required, admin-only actions
 - **Example error message**: "Only a SystemAdmin or ProjectAdmin can create new copyright holders."
+- **Naming roles**: Name a role in the message only after you read the check that DSP-API enforces for that route
+  (for example `auth.ensureSystemAdmin` or `ensureSystemAdminOrProjectAdmin`).
+  If you are not sure, write "Your permissions are insufficient for this action." and name no role.
 - **Where to handle this**: In all clients except the authentication client,
   and except the clients that only access public endpoints.
 

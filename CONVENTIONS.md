@@ -9,7 +9,7 @@ only enforced in review.
 
 Python 3.12+, `uv` for environments and dependencies, `just` as task runner. CLI tool that talks to the
 DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy` (strict),
-`yamllint`/`yamlfmt`, `markdownlint`, `darglint` (Google-style docstrings), `vulture`. Tests: `pytest`
+`yamllint`/`yamlfmt`, `markdownlint`, `vulture`. Tests: `pytest`
 (unit / integration / e2e with testcontainers). Line length: 120.
 
 ## Code Conventions
@@ -106,8 +106,7 @@ The rule binds every format: `.py`, CI yaml, config and `docs/` prose alike. Thr
 - **Claims about the outside world take a date, not the present tense** — another service, a third-party
   library, another team's product. No phrasing makes these checkable from this file, so give them a date
   or a link to the authority that settles them. An undated `currently` is the worst option: it looks
-  current and cannot be verified. `docs/developers/code-quality-tools/python-see-also.md`
-  ("As of mid-2023, …") is the form to copy, not to repair.
+  current and cannot be verified. Write such a claim in the form `As of <month year>, …`.
 - Flipping the tense is not a fix: `used to fail the whole run` → `fails the whole run` is simply wrong,
   because the setting being documented is what prevents it. Either state why the code has to be this way,
   as a standing fact, or cut the sentence. Where the reason genuinely **is** a past event (a compatibility

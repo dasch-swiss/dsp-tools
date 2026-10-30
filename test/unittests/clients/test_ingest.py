@@ -1,3 +1,4 @@
+import re
 import urllib
 from pathlib import Path
 from unittest.mock import patch
@@ -51,12 +52,24 @@ def test_ingest_failure_when_file_not_found(ingest_client: DspIngestClientLive, 
         ingest_client._ingest(tmp_file)
 
 
-def test_ingest_failure_when_authentication_error(
-    dsp_ingest_url: str, ingest_client: DspIngestClientLive, requests_mock: Mocker, shortcode: str, tmp_file: Path
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_ingest_failure_when_no_write_access(
+    dsp_ingest_url: str,
+    ingest_client: DspIngestClientLive,
+    requests_mock: Mocker,
+    shortcode: str,
+    tmp_file: Path,
+    status_code: int,
 ) -> None:
     tmp_file.write_text("<xml></xml>")
-    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=403)
-    with pytest.raises(BadCredentialsError):
+    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=status_code)
+    expected = re.escape(
+        "The ingest server refused the upload to project 0001. "
+        "Either you have no write access to the project, or your login token is invalid or expired. "
+        "SystemAdmins always have write access. "
+        "By default, ProjectAdmins and all project members have it, too."
+    )
+    with pytest.raises(BadCredentialsError, match=expected):
         ingest_client._ingest(tmp_file)
 
 

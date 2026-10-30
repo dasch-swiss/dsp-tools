@@ -70,7 +70,7 @@ class PermissionsClientLive(PermissionsClient):
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError(
                 "You don't have permission to delete default object access permissions. "
-                "Only ProjectAdmin or SystemAdmin users can delete DOAPs."
+                "Only SystemAdmins can delete DOAPs."
             )
         return ResponseCodeAndText(response.status_code, response.text)
 

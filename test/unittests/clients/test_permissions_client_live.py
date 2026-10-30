@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -116,7 +117,10 @@ class TestDeleteDoap:
         mock_response.ok = False
         mock_response.status_code = HTTPStatus.FORBIDDEN
         delete_mock.return_value = mock_response
-        with pytest.raises(BadCredentialsError):
+        expected = re.escape(
+            "You don't have permission to delete default object access permissions. Only SystemAdmins can delete DOAPs."
+        )
+        with pytest.raises(BadCredentialsError, match=expected):
             client.delete_doap("http://test.iri/doap")
 
     @patch("dsp_tools.clients.permissions_client_live.log_response")

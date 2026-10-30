@@ -9,6 +9,7 @@ import regex
 from loguru import logger
 from requests import JSONDecodeError
 from requests import RequestException
+from requests import Response
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
@@ -60,8 +61,13 @@ class BulkIngestClient:
         The load balancer on DSP servers currently has a timeout of 10m,
         so we need to use a slightly shorter timeout of 9m.
         See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
+        A refusal that applies to every file of the project is raised, not returned.
         # noqa: DAR101
         # noqa: DAR201
+
+        Raises:
+            BadCredentialsError: If the server refuses the upload because the user has no write access to the project,
+                or because the token is invalid.
         """
         logger.debug(f"Uploading file '{filepath}'")
         timeout = 9 * 60
@@ -89,6 +95,7 @@ class BulkIngestClient:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
+        _raise_if_no_write_access(res, f"The ingest server refused the upload to project {self.shortcode}.")
         if res.status_code != HTTPStatus.OK:
             logger.error(f"{err_msg}: Response {res.status_code}: {res.text}")
             return UploadFailure(filepath, res.reason, res.status_code, res.text)
@@ -118,8 +125,9 @@ class BulkIngestClient:
         log_request(params)
         res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
         log_response(res, status_code=res.status_code)
-        if res.status_code == HTTPStatus.FORBIDDEN:
-            raise BadCredentialsError("Only ProjectAdmins or SystemAdmins can start the ingest process.")
+        _raise_if_no_write_access(
+            res, f"The ingest server refused to start the ingest process for project {self.shortcode}."
+        )
         if res.status_code == HTTPStatus.NOT_FOUND:
             raise NoIngestFileFound(
                 f"No assets have been uploaded for project {self.shortcode}. "
@@ -155,6 +163,8 @@ class BulkIngestClient:
             The mapping CSV if the ingest process has completed.
 
         Raises:
+            BadCredentialsError: if the server refuses the request, because the user has no write access
+                to the project, or because the token is invalid.
             PermanentConnectionError: if there are too many server errors in a row.
         """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
@@ -165,6 +175,9 @@ class BulkIngestClient:
             log_request(params)
             res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)
             log_response(res, status_code=res.status_code)
+            _raise_if_no_write_access(
+                res, f"The ingest server refused to send the mapping CSV for project {self.shortcode}."
+            )
             if res.status_code == HTTPStatus.CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
@@ -182,3 +195,14 @@ class BulkIngestClient:
                 logger.info("Ingest process completed.")
                 break
         yield res.content.decode("utf-8")
+
+
+def _raise_if_no_write_access(res: Response, refusal: str) -> None:
+    # As of 2026-10, DSP-INGEST answers 401, not 403, if the user lacks write access (see clients/CLAUDE.md).
+    if res.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        raise BadCredentialsError(
+            f"{refusal} "
+            "Either you have no write access to the project, or your login token is invalid or expired. "
+            "SystemAdmins always have write access. "
+            "By default, ProjectAdmins and all project members have it, too."
+        )

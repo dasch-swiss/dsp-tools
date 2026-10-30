@@ -1,5 +1,40 @@
 # Changelog
 
+## [19.3.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.0...v19.3.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **clients:** name the roles that the server enforces in permission errors ([#2475](https://github.com/dasch-swiss/dsp-tools/issues/2475)) ([6a57c34](https://github.com/dasch-swiss/dsp-tools/commit/6a57c34c4f336b9aef174f1750d1e11436d7087f))
+* **create:** read the "&lt;shortname&gt;:admin" entry of a user as project admin ([#2476](https://github.com/dasch-swiss/dsp-tools/issues/2476)) ([99b8a8a](https://github.com/dasch-swiss/dsp-tools/commit/99b8a8a83b6abf129d57cdb6cfe4a3eb36fe414b))
+* **create:** require the project admin account with admin rights and explain the rule ([#2473](https://github.com/dasch-swiss/dsp-tools/issues/2473)) ([7f74507](https://github.com/dasch-swiss/dsp-tools/commit/7f74507690e876b3f63f735d9c335917d2a3c2d2))
+* **create:** reuse existing server users that match username and email (DEV-7529) ([#2465](https://github.com/dasch-swiss/dsp-tools/issues/2465)) ([40bd54c](https://github.com/dasch-swiss/dsp-tools/commit/40bd54c904f52f33a9e9467008f0e3c17b672458))
+* show the admin account rule in the warning on test environments ([#2466](https://github.com/dasch-swiss/dsp-tools/issues/2466)) ([68cd144](https://github.com/dasch-swiss/dsp-tools/commit/68cd144e5307c08d21c9b4678505cdf4f2bfde01))
+* **validate-data:** faster report processing and an actionable out-of-memory error ([#2469](https://github.com/dasch-swiss/dsp-tools/issues/2469)) ([c0e6aae](https://github.com/dasch-swiss/dsp-tools/commit/c0e6aaebe2a1989ec33c342a9a443ab364180e53))
+* **validate-data:** speed up the check for values missing an order ([#2468](https://github.com/dasch-swiss/dsp-tools/issues/2468)) ([7fb073e](https://github.com/dasch-swiss/dsp-tools/commit/7fb073ebff55dc0af4ac0e567b36b3f23a83d18c))
+
+
+### Maintenance
+
+* **ci:** add the readiness regression check ([#2467](https://github.com/dasch-swiss/dsp-tools/issues/2467)) ([cdef7e6](https://github.com/dasch-swiss/dsp-tools/commit/cdef7e636a6b4fe110b2070657667d136941a6f5))
+* **ci:** update a release-train PR that falls behind main ([#2460](https://github.com/dasch-swiss/dsp-tools/issues/2460)) ([4187218](https://github.com/dasch-swiss/dsp-tools/commit/4187218396fb5d23d3a2788402372727968a6948))
+* **dependabot:** add cooldown, monthly schedule and security-update group ([#2457](https://github.com/dasch-swiss/dsp-tools/issues/2457)) ([30fec14](https://github.com/dasch-swiss/dsp-tools/commit/30fec1491b4c52873bb8442f97435d5128dc06dd))
+* **deps:** bump the all-dependencies group across 1 directory with 11 updates ([#2458](https://github.com/dasch-swiss/dsp-tools/issues/2458)) ([d096390](https://github.com/dasch-swiss/dsp-tools/commit/d0963902708168d26d3209d1d425835f98baf279))
+* **deps:** bump the all-dependencies group across 1 directory with 8 updates ([#2478](https://github.com/dasch-swiss/dsp-tools/issues/2478)) ([e252c6c](https://github.com/dasch-swiss/dsp-tools/commit/e252c6c35774f25c92c4f5b926c124860cc142a8))
+* **deps:** bump the all-security-updates group across 1 directory with 2 updates ([#2471](https://github.com/dasch-swiss/dsp-tools/issues/2471)) ([0b2b040](https://github.com/dasch-swiss/dsp-tools/commit/0b2b0409b453ca4da8f3adfeebc0da7cba064f54))
+* **deps:** bump the all-security-updates group across 1 directory with 2 updates ([#2477](https://github.com/dasch-swiss/dsp-tools/issues/2477)) ([3c43979](https://github.com/dasch-swiss/dsp-tools/commit/3c43979dd861d4999a14409c231234682d11b0e2))
+* **deps:** bump urllib3 from 2.7.0 to 2.8.0 ([#2447](https://github.com/dasch-swiss/dsp-tools/issues/2447)) ([ef90eb2](https://github.com/dasch-swiss/dsp-tools/commit/ef90eb27ebd68d5b0c04a5d1ad8a8c29ba6092ea))
+* **deps:** bump virtualenv from 21.7.0 to 21.7.13 ([#2452](https://github.com/dasch-swiss/dsp-tools/issues/2452)) ([f3072fb](https://github.com/dasch-swiss/dsp-tools/commit/f3072fbbda43a56248c032c84fd2bd179e697dcc))
+* **xmlupload:** remove Fuseki disk-space check (DEV-7515) ([#2463](https://github.com/dasch-swiss/dsp-tools/issues/2463)) ([599c545](https://github.com/dasch-swiss/dsp-tools/commit/599c54565487e69352c2d492c8899c0f2236a8ef))
+
+
+### Documentation
+
+* document the project admin account for production uploads ([#2462](https://github.com/dasch-swiss/dsp-tools/issues/2462)) ([ecf2efd](https://github.com/dasch-swiss/dsp-tools/commit/ecf2efd4c95c074cea65aeb745f0afa091c2ea4e))
+* fix stale facts and dated wording in Claude config ([#2464](https://github.com/dasch-swiss/dsp-tools/issues/2464)) ([5771a08](https://github.com/dasch-swiss/dsp-tools/commit/5771a08ee2a5235a3d1ce82cbb1407f565e6c392))
+* remove descriptions of the Python ecosystem ([#2479](https://github.com/dasch-swiss/dsp-tools/issues/2479)) ([8cf0cc6](https://github.com/dasch-swiss/dsp-tools/commit/8cf0cc6482e45124568b2f0cebb52b5fa4b0b3a1))
+* state which credentials create, get, xmlupload and mapping update need ([#2474](https://github.com/dasch-swiss/dsp-tools/issues/2474)) ([87ff5b2](https://github.com/dasch-swiss/dsp-tools/commit/87ff5b2f558c5a3321c1479e38ca440086988b88))
+
 ## [19.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.2.1...v19.3.0) (2026-10-14)
 
 

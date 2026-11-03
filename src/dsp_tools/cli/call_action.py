@@ -89,7 +89,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
         case "mapping":
             raise CliCommandNotInvokableError(
                 "The command `mapping` cannot be used as a stand-alone command. "
-                "Use `dsp-tools mapping --help` for available sub-commands."
+                "Use `uvx dsp-tools mapping --help` for available sub-commands."
             )
         case "mapping config":
             result = call_mapping_config(args)
@@ -99,7 +99,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             raise CliCommandNotInvokableError(
                 "The command `migration` cannot be used as a stand-alone command. "
                 "It can only be used with one of its subcommands. "
-                "Type `dsp-tools migration --help` for a list of options."
+                "Type `uvx dsp-tools migration --help` for a list of options."
             )
         case "migration config":
             result = call_migration_config(args)

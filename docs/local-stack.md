@@ -18,7 +18,7 @@ This command runs a local instance of DSP-API and DSP-APP.
 
 
 ```bash
-dsp-tools start-stack
+uvx dsp-tools start-stack
 ```
 
 DSP-TOOLS will ask you for permission to clean Docker with a `docker system prune`.
@@ -34,7 +34,7 @@ The most frequently used options are:
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 
-To see all possible options, type `dsp-tools start-stack --help`.
+To see all possible options, type `uvx dsp-tools start-stack --help`.
 
 More help for this command can be found [here](./developers/start-stack.md).
 
@@ -44,9 +44,9 @@ More help for this command can be found [here](./developers/start-stack.md).
 When your work is done, shut down DSP-API and DSP-APP with
 
 ```bash
-dsp-tools stop-stack
+uvx dsp-tools stop-stack
 ```
 
-To see all possible options, type `dsp-tools stop-stack --help`.
+To see all possible options, type `uvx dsp-tools stop-stack --help`.
 
 This deletes all Docker volumes, and removes all data that was in the database.

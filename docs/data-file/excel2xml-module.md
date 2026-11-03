@@ -80,7 +80,7 @@ here](../data-file/xml-data-file.md#defining-permissions-with-the-permissions-el
 
 Let's assume that your data source has a column
 containing list values named after the "label" of the JSON project list, 
-instead of the "name" which is needed for the `dsp-tools xmlupload`. 
+instead of the "name" which is needed for the `uvx dsp-tools xmlupload`. 
 You need a way to get the names from the labels.
 If your data source uses the labels correctly, 
 this is an easy task: 

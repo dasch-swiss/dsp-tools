@@ -72,6 +72,9 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - "Default" does **not** imply auto-application. If a `default_*` value is only a suggestion in some flows
   (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every feature that touches it.
 
+- **User-facing command hints** (docs, CLI messages, exception messages) write `uvx dsp-tools <command>`,
+  because users run DSP-TOOLS with `uvx`, not from an activated environment.
+
 ### Comments
 
 - A comment states what the reader must not break, never what the session discovered. Test: would it

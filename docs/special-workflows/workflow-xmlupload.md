@@ -18,7 +18,7 @@ This command uploads all files referenced in the `<bitstream>` tags of an XML fi
 (without any processing/ingesting).
 
 ```bash
-dsp-tools upload-files [options] xml_data_file.xml
+uvx dsp-tools upload-files [options] xml_data_file.xml
 ```
 
 The following options are available:
@@ -33,7 +33,7 @@ The following options are available:
 The defaults are intended for local testing: 
 
 ```bash
-dsp-tools upload-files xml_data_file.xml
+uvx dsp-tools upload-files xml_data_file.xml
 ```
 
 will upload the files referenced in the `<bitstream>` tags of `xml_data_file.xml` onto `localhost`, for local viewing.
@@ -42,7 +42,7 @@ In order to upload the same data to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools upload-files -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
+uvx dsp-tools upload-files -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
 
 On production, use the [project admin account](../production-account.md) of the project.
@@ -66,7 +66,7 @@ must first be uploaded with [`upload-files`](#upload-files).
 **Instead of waiting, you might also kill this process, and execute it again later.**
 
 ```bash
-dsp-tools ingest-files [options] <shortcode>
+uvx dsp-tools ingest-files [options] <shortcode>
 ```
 
 The following options are available:
@@ -80,7 +80,7 @@ The following options are available:
 The defaults are intended for local testing: 
 
 ```bash
-dsp-tools ingest-files 082E
+uvx dsp-tools ingest-files 082E
 ```
 
 will ingest the files of the project `082E` on `localhost` for local viewing.
@@ -89,7 +89,7 @@ In order to ingest the same data on the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools ingest-files -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' 082E
+uvx dsp-tools ingest-files -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' 082E
 ```
 
 On production, use the [project admin account](../production-account.md) of the project.
@@ -106,7 +106,7 @@ The mapping CSV file that was created by [`ingest-files`](#ingest-files)
 must be present in the current working directory.
 
 ```bash
-dsp-tools ingest-xmlupload [options] xml_data_file.xml
+uvx dsp-tools ingest-xmlupload [options] xml_data_file.xml
 ```
 
 
@@ -119,13 +119,13 @@ The most frequently used options are:
   The command then exits with code `0` and saves its state, 
   so that the upload can be continued with [`resume-xmlupload`](../data-file/data-file-commands.md#resume-xmlupload).
 
-To see all possible options, type `dsp-tools ingest-xmlupload --help`.
+To see all possible options, type `uvx dsp-tools ingest-xmlupload --help`.
 
 
 The defaults are intended for local testing: 
 
 ```bash
-dsp-tools ingest-xmlupload xml_data_file.xml
+uvx dsp-tools ingest-xmlupload xml_data_file.xml
 ```
 
 will create the resources contained in `xml_data_file.xml` on `localhost` for local viewing.
@@ -140,7 +140,7 @@ In order to create the same resources on the DSP server `https://app.dasch.swiss
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
+uvx dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
 
 On production, use the [project admin account](../production-account.md) of the project.
@@ -175,7 +175,7 @@ The first case is the simplest one:
 No mapping is required, and the additional data can be uploaded with:
 
 ```bash
-dsp-tools xmlupload additional_data.xml
+uvx dsp-tools xmlupload additional_data.xml
 ```
 
 
@@ -187,7 +187,7 @@ The file `additional_data.xml` contains references like `<resptr>http://rdfh.ch/
 Such a file can be uploaded with:
 
 ```bash
-dsp-tools xmlupload additional_data.xml
+uvx dsp-tools xmlupload additional_data.xml
 ```
 
 
@@ -209,13 +209,13 @@ a new file must be generated
 with the [`id2iri` command](../data-file/data-file-commands.md#id2iri):
 
 ```bash
-dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json
+uvx dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json
 ```
 
 In a second step, the newly generated XML file can be uploaded to DSP:
 
 ```bash
-dsp-tools xmlupload additional_data_replaced_[timestamp].xml
+uvx dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 ```
 
 
@@ -232,12 +232,12 @@ Otherwise, they would be created a second time.
 
 In such a case, proceed as follows:
 
-1. Initial xmlupload: `dsp-tools xmlupload data.xml`
+1. Initial xmlupload: `uvx dsp-tools xmlupload data.xml`
 2. A crash happens. Some resources have been uploaded, and a `id2iri_mapping_[timestamp].json` file has been written
 3. Fix the reason for the crash
 4. Replace the internal IDs and remove the created resources with: 
-   `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json`
-5. Upload the outputted XML file with `dsp-tools xmlupload data_replaced_[timestamp].xml`
+   `uvx dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json`
+5. Upload the outputted XML file with `uvx dsp-tools xmlupload data_replaced_[timestamp].xml`
 
 
 

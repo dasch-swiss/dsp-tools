@@ -103,7 +103,7 @@ def _check_version() -> None:
 
     msg = (
         f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
-        "Consider upgrading via 'pip3 install --upgrade dsp-tools'.\n"
+        "Consider upgrading by running 'uvx dsp-tools@latest --version' once.\n"
     )
     if latest.base_version == installed.base_version:
         print(BOLD_RED + msg + RESET_TO_DEFAULT)

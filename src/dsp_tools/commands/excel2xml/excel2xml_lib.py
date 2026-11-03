@@ -1750,7 +1750,7 @@ def create_json_excel_list_mapping(
 ) -> dict[str, str]:
     """
     Often, data sources contain list values that aren't identical to the name of the node in the list of the JSON
-    project file (colloquially: ontology). In order to create a correct XML for the `dsp-tools xmlupload`, a mapping is
+    project file (colloquially: ontology). In order to create a correct XML for the `uvx dsp-tools xmlupload`, a mapping is
     necessary. This function takes a JSON list and an Excel column containing list-values, and tries to match them
     automatically based on similarity. The result is a dict of the form {excel_value: list_node_name}.
 
@@ -1861,7 +1861,7 @@ def create_json_list_mapping(
 ) -> dict[str, str]:
     """
     Often, data sources contain list values named after the "label" of the JSON project list node, instead of the "name"
-    which is needed for the `dsp-tools xmlupload`. In order to create a correct XML, you need a dictionary that maps the
+    which is needed for the `uvx dsp-tools xmlupload`. In order to create a correct XML, you need a dictionary that maps the
     "labels" to their correct "names".
 
     Alternatively, consider using the method create_json_excel_list_mapping(), which also creates a dictionary, but maps

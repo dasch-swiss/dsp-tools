@@ -37,7 +37,7 @@ Let's consider this example:
 In this case, you need to run the command like this:
 
 ```bash
-dsp-tools update-legal \
+uvx dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
@@ -73,7 +73,7 @@ To prevent this, you can provide default values that will be filled in if a prop
 Run the command with the following flags:
 
 ```bash
-dsp-tools update-legal \
+uvx dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --authorship_default="Project Member" \
 --copyright_prop=":hasCopyright" \
@@ -91,7 +91,7 @@ you can use the `--treat-invalid-licenses-as-unknown` flag to automatically conv
 instead of generating FIXME entries:
 
 ```bash
-dsp-tools update-legal \
+uvx dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \
@@ -185,7 +185,7 @@ In this case, you don't really have a license, hence you have to set it to `unkn
 Run the command again, this time with the partially updated XML file and a reference to the fixed errors file:
 
 ```bash
-dsp-tools update-legal \
+uvx dsp-tools update-legal \
 --authorship_prop=":hasAuthor" \
 --copyright_prop=":hasCopyright" \
 --license_prop=":hasLicense" \

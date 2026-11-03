@@ -349,8 +349,9 @@ Notes:
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
 - If a resource has a `<bitstream>` element, it cannot have a `<iiif-uri>` element.
-- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
-  can be modified with the flag [`--imgdir`](data-file-commands.md#xmlupload). If you keep the default,
+- By default, the path is relative to the working directory where `uvx dsp-tools xmlupload` is executed in.
+  This behavior can be modified with the flag [`--imgdir`](data-file-commands.md#xmlupload).
+  If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
 ```text
@@ -364,7 +365,7 @@ my_project
 ```
 
 ```bash
-my_project % dsp-tools xmlupload files/data_file.xml
+my_project % uvx dsp-tools xmlupload files/data_file.xml
 ```
 
 Supported file extensions:

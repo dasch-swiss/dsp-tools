@@ -44,7 +44,7 @@ RERUN_ADVICE = (
     "If a deletion succeeded but the subsequent addition failed, "
     "that class or property currently has no external mappings.\n"
     "The command is re-runnable: fix the problems above "
-    "and run `dsp-tools mapping update` again with the same config file."
+    "and run `uvx dsp-tools mapping update` again with the same config file."
 )
 
 

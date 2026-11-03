@@ -32,7 +32,7 @@ class DspApiNotReachableError(UserError):
             base_msg = (
                 "Cannot connect to the local DSP-API. "
                 "Please check if your stack is healthy "
-                "or start a stack with 'dsp-tools start-stack' if none is running."
+                "or start a stack with 'uvx dsp-tools start-stack' if none is running."
             )
         else:
             base_msg = "Cannot connect to the remote DSP-API. Please contact the DaSCH engineering team for help."
@@ -65,7 +65,7 @@ class IngestNotReachableError(UserError):
             base_msg = (
                 "Cannot connect to the local DSP Ingest service. "
                 "Please check in Docker Desktop if the ingest container is healthy "
-                "or start a stack with 'dsp-tools start-stack' if no stack is running."
+                "or start a stack with 'uvx dsp-tools start-stack' if no stack is running."
             )
         else:
             base_msg = (

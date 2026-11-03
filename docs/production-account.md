@@ -25,7 +25,7 @@ The person who sets up the data model also creates the account:
 
 In both cases, add the account to the
 [`users`](./data-model/json-project/overview.md#users) section of the JSON project file.
-[`dsp-tools create`](./data-model/data-model-cli.md#create) then creates the account together with the project.
+[`uvx dsp-tools create`](./data-model/data-model-cli.md#create) then creates the account together with the project.
 The account needs `":admin"` and `":member"` in its `projects`.
 If you use [`excel2json`](./data-model/excel2json.md#the-json_headerxlsx), add the account to the "Users" sheet
 with the role `projectadmin`.

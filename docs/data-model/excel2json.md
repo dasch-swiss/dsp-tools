@@ -9,7 +9,7 @@ This command creates a JSON project definition file from a nested folder structu
 The Excel format for the `lists` section has been adapted compared to the previous [`old-excel2json`](#old-excel2json) command.
 
 ```bash
-dsp-tools excel2json excelfolder project_definition.json
+uvx dsp-tools excel2json excelfolder project_definition.json
 ```
 
 The following options are available:
@@ -28,7 +28,7 @@ This command creates the "lists" section of a JSON project file from Excel files
 The Excel format for the `lists` section has been adapted compared to the previous `old-excel2lists` command.
 
 ```bash
-dsp-tools excel2lists [options] excelfolder lists_section.json
+uvx dsp-tools excel2lists [options] excelfolder lists_section.json
 ```
 
 The following options are available:
@@ -46,7 +46,7 @@ The expected Excel file format and the folder structure are documented
 This command creates the "resources" section of a JSON project file from an Excel file.
 
 ```bash
-dsp-tools excel2resources resources.xlsx resources_section.json
+uvx dsp-tools excel2resources resources.xlsx resources_section.json
 ```
 
 The following options are available:
@@ -63,7 +63,7 @@ The expected Excel format is [documented here](#the-resources-section).
 This command creates the "properties" section of a JSON project file from an Excel file.
 
 ```bash
-dsp-tools excel2properties properties.xlsx properties_section.json
+uvx dsp-tools excel2properties properties.xlsx properties_section.json
 ```
 
 The following options are available:
@@ -81,7 +81,7 @@ This command creates a JSON project definition file from a nested folder structu
 It will be deprecated in favor of [`excel2json`](#excel2json) in the future.
 
 ```bash
-dsp-tools old-excel2json excelfolder project_definition.json
+uvx dsp-tools old-excel2json excelfolder project_definition.json
 ```
 
 The following options are available:
@@ -97,7 +97,7 @@ This command creates the "lists" section of a JSON project file from Excel files
 It will be deprecated in favor of `excel2lists` in the future.
 
 ```bash
-dsp-tools old-excel2lists [options] excelfolder lists_section.json
+uvx dsp-tools old-excel2lists [options] excelfolder lists_section.json
 ```
 
 The following options are available:
@@ -156,7 +156,7 @@ Conventions for the names:
 Then, use the following command:
 
 ```bash
-dsp-tools excel2json data_model_files project.json
+uvx dsp-tools excel2json data_model_files project.json
 ```
 
 This will create a file `project.json` with the lists, properties, and resources from the Excel files. 
@@ -188,7 +188,7 @@ data_model_files
 Then, use the following command:
 
 ```bash
-dsp-tools old-excel2json data_model_files project.json
+uvx dsp-tools old-excel2json data_model_files project.json
 ```
 
 ## The `json_header.xlsx`
@@ -379,7 +379,7 @@ Files that do not contain that word will not be considered.
 
 
 ```bash
-dsp-tools excel2lists listfolder lists.json
+uvx dsp-tools excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:
@@ -475,7 +475,7 @@ from the two Excel files `de.xlsx` and `en.xlsx`
 which are located in a directory called `listfolder`:
 
 ```bash
-dsp-tools old-excel2lists listfolder lists.json
+uvx dsp-tools old-excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:  

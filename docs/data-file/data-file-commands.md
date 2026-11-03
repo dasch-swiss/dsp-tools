@@ -10,7 +10,7 @@ CLI-Commands for validating and uploading your data.
 This command validates an XML data file according to the data model previously uploaded on the server. 
 
 ```bash
-dsp-tools validate-data [options] xml_data_file.xml
+uvx dsp-tools validate-data [options] xml_data_file.xml
 ```
 
 The most frequently used options are:
@@ -19,7 +19,7 @@ The most frequently used options are:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 
-To see all possible options, type `dsp-tools validate-data --help`.
+To see all possible options, type `uvx dsp-tools validate-data --help`.
 
 
 Output:
@@ -43,7 +43,7 @@ Output:
 The defaults are intended for local testing: 
 
 ```bash
-dsp-tools validate-data xml_data_file.xml
+uvx dsp-tools validate-data xml_data_file.xml
 ```
 
 will validate the data defined in `xml_data_file.xml` on `localhost`.
@@ -53,7 +53,7 @@ it is necessary to specify the server and provide login credentials.
 
 
 ```bash
-dsp-tools validate-data -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+uvx dsp-tools validate-data -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
 
 
@@ -62,7 +62,7 @@ dsp-tools validate-data -s https://api.dasch.swiss -u 'your@email.com' -p 'passw
 This command uploads data defined in an XML file to a DSP server. 
 
 ```bash
-dsp-tools xmlupload [options] xml_data_file.xml
+uvx dsp-tools xmlupload [options] xml_data_file.xml
 ```
 
 The most frequently used options are:
@@ -73,7 +73,7 @@ The most frequently used options are:
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 
-To see all possible options, type `dsp-tools xmlupload --help`.
+To see all possible options, type `uvx dsp-tools xmlupload --help`.
 
 Output:
 
@@ -84,7 +84,7 @@ Output:
 The defaults are intended for local testing: 
 
 ```bash
-dsp-tools xmlupload xml_data_file.xml
+uvx dsp-tools xmlupload xml_data_file.xml
 ```
 
 will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
@@ -94,7 +94,7 @@ to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
+uvx dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
 
 !!! Attention
@@ -126,12 +126,12 @@ and an upload that stops because of a failure (e.g. the server became unreachabl
 !!! warning 
 
     We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`.
-    We only guarantee this for `dsp-tools xmlupload --interrupt-after`.
+    We only guarantee this for `uvx dsp-tools xmlupload --interrupt-after`.
 
 This command resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
 
 ```bash
-dsp-tools resume-xmlupload [options]
+uvx dsp-tools resume-xmlupload [options]
 ```
 
 The following options are available:
@@ -160,7 +160,7 @@ This command replaces internal IDs of an XML file
 by IRIs provided in a mapping file.
 
 ```bash
-dsp-tools id2iri xmlfile.xml mapping.json
+uvx dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
 The following options are available:

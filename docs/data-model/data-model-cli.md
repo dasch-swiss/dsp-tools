@@ -8,7 +8,7 @@ This command reads a JSON project definition (containing one or more data models
 and creates it on a DSP server.
 
 ```bash
-dsp-tools create [options] project_definition.json
+uvx dsp-tools create [options] project_definition.json
 ```
 
 The most frequently used options are:
@@ -17,7 +17,7 @@ The most frequently used options are:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 
-To see all possible options, type `dsp-tools create --help`.
+To see all possible options, type `uvx dsp-tools create --help`.
 
 !!! Attention
 
@@ -43,7 +43,7 @@ A calling script can check for exit code `3` to skip subsequent steps (such as a
 The defaults are intended for local testing:
 
 ```bash
-dsp-tools create project_definition.json
+uvx dsp-tools create project_definition.json
 ```
 
 This will create the project defined in `project_definition.json` on `localhost` for local viewing.
@@ -53,7 +53,7 @@ on the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' project_definition.json
+uvx dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' project_definition.json
 ```
 
 On production, a DaSCH system admin runs `create`.
@@ -72,7 +72,7 @@ This JSON file can then be used
 to create the same project on another DSP server.
 
 ```bash
-dsp-tools get [options] project_definition.json
+uvx dsp-tools get [options] project_definition.json
 ```
 
 The most frequently used options are:
@@ -82,12 +82,12 @@ The most frequently used options are:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 
-To see all possible options, type `dsp-tools get --help`.
+To see all possible options, type `uvx dsp-tools get --help`.
 
 The defaults are intended for local testing:
 
 ```bash
-dsp-tools get -P my_project project_definition.json
+uvx dsp-tools get -P my_project project_definition.json
 ```
 
 will get `my_project` from `localhost`.
@@ -96,7 +96,7 @@ In order to get a project from the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
+uvx dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
 ```
 
 It is possible to get a project from a DSP server without giving credentials.
@@ -163,7 +163,7 @@ Required columns: `property`, `mapping`.
 Generates a YAML configuration template for the `mapping update` command.
 
 ```bash
-dsp-tools mapping config [--project-shortcode SHORTCODE] [--ontology NAME]
+uvx dsp-tools mapping config [--project-shortcode SHORTCODE] [--ontology NAME]
 ```
 
 The available options are:
@@ -198,7 +198,7 @@ On production, use the [project admin account](../production-account.md) of the 
 Reads an Excel file and replaces the external mappings of the ontology on a DSP server with the ones it defines.
 
 ```bash
-dsp-tools mapping update 0XXX-my-onto-mapping.yaml
+uvx dsp-tools mapping update 0XXX-my-onto-mapping.yaml
 ```
 
 The available arguments are:

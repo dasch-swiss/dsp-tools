@@ -9,7 +9,7 @@ It's a server application, too.
 For testing purposes, it is sometimes necessary to run DSP-API and DSP-APP on a local machine. 
 There are two ways to do this:
 
-- simple: run [`dsp-tools start-stack`](../local-stack.md#start-stack)
+- simple: run [`uvx dsp-tools start-stack`](../local-stack.md#start-stack)
 - advanced: execute commands from within the DSP-API/DSP-APP repositories
 
 Here's an overview of the two ways:
@@ -17,7 +17,7 @@ Here's an overview of the two ways:
 |                             | simple                                    | advanced                                                                 |
 | --------------------------- | ----------------------------------------- | ------------------------------------------------------------------------ |
 | target group                | researchers, RDU employees                | developers of DSP-API or DSP-APP                                         |
-| how it works                | run `dsp-tools start-stack`               | execute commands from within locally cloned DSP-API/DSP-APP repositories |
+| how it works                | run `uvx dsp-tools start-stack`           | execute commands from within locally cloned DSP-API/DSP-APP repositories |
 | software dependencies       | Docker, Python, DSP-TOOLS                 | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
 | mechanism in the background | run pre-built Docker images               | build DSP-API and DSP-APP from a branch in the repository                |
 | available versions          | latest released version, or `main` branch | any branch, or locally modified working tree                             |
@@ -29,7 +29,7 @@ Here's an overview of the two ways:
     login with username `root@example.com` and password `test`.
 
 
-## The Simple Way: `dsp-tools start-stack`
+## The Simple Way: `uvx dsp-tools start-stack`
 
 The [`start-stack`](../local-stack.md#start-stack) command runs Docker images 
 with the latest released versions of DSP-API and DSP-APP, 
@@ -41,7 +41,7 @@ and that you have Python and DSP-TOOLS installed.
 
 Some notes:
 
-- As long as you want to keep the data in the database, don't execute `dsp-tools stop-stack`. 
+- As long as you want to keep the data in the database, don't execute `uvx dsp-tools stop-stack`. 
 - It is possible to leave DSP-API up for a long time. 
   If you want to save power, you can pause Docker. 
   When you resume it, DSP-API will still be running, in the state how you left it.
@@ -96,7 +96,7 @@ on the domain `dasch.swiss`,
 you have to type the following:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+uvx dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
 
 If the user input is not correct,

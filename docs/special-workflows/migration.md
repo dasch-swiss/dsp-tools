@@ -44,7 +44,7 @@ The following conditions can cause the migration to stop:
 Run the following command to generate a config file for your project:
 
 ```bash
-dsp-tools migration config --project-shortcode 0806
+uvx dsp-tools migration config --project-shortcode 0806
 ```
 
 This creates a file called `migration-0806.yaml` in your current directory.
@@ -107,7 +107,7 @@ Unless you specified to keep the files after the import, both of these will be r
 To run the entire migration in one step:
 
 ```bash
-dsp-tools migration complete migration-0806.yaml
+uvx dsp-tools migration complete migration-0806.yaml
 ```
 
 This exports the project from the source server, downloads it locally,
@@ -121,13 +121,13 @@ multiple target servers, or to keep the local export for archiving.
 **Export from the source server and download locally:**
 
 ```bash
-dsp-tools migration export migration-0806.yaml
+uvx dsp-tools migration export migration-0806.yaml
 ```
 
 **Import into the target server:**
 
 ```bash
-dsp-tools migration import migration-0806.yaml
+uvx dsp-tools migration import migration-0806.yaml
 ```
 
 You can run the import command multiple times with different `target-server` credentials
@@ -136,7 +136,7 @@ to import the same export into multiple servers.
 **Clean up leftovers on both servers and locally:**
 
 ```bash
-dsp-tools migration clean-up migration-0806.yaml
+uvx dsp-tools migration clean-up migration-0806.yaml
 ```
 
 Run this once you are done with all imports.

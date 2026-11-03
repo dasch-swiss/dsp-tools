@@ -9,20 +9,57 @@
 
 ## Installing `dsp-tools`
 
-To install the latest version, run:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+On macOS and Linux, run:
 
 ```bash
-pip3 install dsp-tools
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-To update to the latest version run:
+On Windows, run:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then run DSP-TOOLS with `uvx`:
 
 ```bash
-pip3 install --upgrade dsp-tools
+uvx dsp-tools --version
 ```
 
-> 🚨 If your Python version is older than ours,
-> pip will silently install an outdated version of DSP-TOOLS.  
+uv downloads the Python version that DSP-TOOLS requires, if your computer does not have it.
+
+`uvx` keeps using the version of DSP-TOOLS that it downloaded first.
+To update to the latest version, run:
+
+```bash
+uvx dsp-tools@latest --version
+```
+
+To use the `xmllib` in your own scripts, create a uv project in the folder of your scripts
+and add `dsp-tools` to it:
+
+```bash
+uv init
+uv add dsp-tools
+```
+
+To update `dsp-tools` in this project, run:
+
+```bash
+uv lock --upgrade-package dsp-tools
+```
+
+Then run your scripts with `uv run`:
+
+```bash
+uv run my_script.py
+```
+
+> 🚨 If you do not use uv,
+> make sure that your Python version is not older than the version that DSP-TOOLS requires.
+> Otherwise, the installation can silently give you an outdated version of DSP-TOOLS.  
 > DSP-TOOLS requires one of these Python versions:
 > [![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/)  
 > The most recent version of DSP-TOOLS is
@@ -58,30 +95,30 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
 
 The following CLI Commands are available, listed here in alphabetical order.
 
-| Command                  | Description                                                                                                      | Documentation                                                     |
-|--------------------------|------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| **`create`**             | Create a project on a server from a JSON file<br>`dsp-tools create project.json`                                 | [→](./data-model/data-model-cli.md#create)                        |
-| **`excel2json`**         | Create the project definition JSON from Excel files<br>`dsp-tools excel2json excelfolder project.json`           | [→](./data-model/excel2json.md#excel2json)                        |
-| **`excel2lists`**        | Create the list section of the project JSON<br>`dsp-tools excel2lists excelfolder lists.json`                    | [→](./data-model/excel2json.md#excel2lists)                       |
-| **`excel2properties`**   | Create the properties section of the JSON<br>`dsp-tools excel2properties properties.xlsx properties.json`        | [→](./data-model/excel2json.md#excel2properties)                  |
-| **`excel2resources`**    | Create the resource section of the JSON<br>`dsp-tools excel2resources resources.xlsx resources.json`             | [→](./data-model/excel2json.md#excel2resources)                   |
-| **`get`**                | Retrieve a project definition JSON from a server<br>`dsp-tools get -P 0XXX project.json`                         | [→](./data-model/data-model-cli.md#get)                           |
-| **`id2iri`**             | Replace internal IDs with IRIs in an XML file<br>`dsp-tools id2iri new_data.xml id2iri_mapping.json`             | [→](./data-file/data-file-commands.md#id2iri)                     |
-| **`ingest-files`**       | Kick off the ingest process and save the mapping CSV<br>`dsp-tools ingest-files 0XXX`                            | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
-| **`ingest-xmlupload`**   | Create resources from XML after files are ingested<br>`dsp-tools ingest-xmlupload data.xml`                      | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
-| **`mapping config`**     | Create a mapping YAML config file<br>`dsp-tools mapping config -P 0XXX --ontology my-onto`                       | [→](./data-model/data-model-cli.md#mapping-config)                |
-| **`mapping update`**     | Replace external ontology mappings from an Excel file<br>`dsp-tools mapping update 0XXX-my-onto-mapping.yaml`    | [→](./data-model/data-model-cli.md#mapping-update)                |
-| **`migration config`**   | Create a migration config YAML file<br>`dsp-tools migration config -P 0XXX`                                      | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
-| **`migration complete`** | Execute a complete migration<br>`dsp-tools migration complete migration-0XXX.yaml`                               | [→](./special-workflows/migration.md#all-in-one)                  |
-| **`migration export`**   | Download project data from the source server<br>`dsp-tools migration export migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
-| **`migration import`**   | Import a downloaded export to another server<br>`dsp-tools migration import migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
-| **`migration clean-up`** | Clean up local files and server references<br>`dsp-tools migration clean-up migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
-| **`old-excel2json`**     | Create project definition JSON using the old Excel format<br>`dsp-tools old-excel2json excelfolder project.json` | [→](./data-model/excel2json.md#old-excel2json)                    |
-| **`old-excel2lists`**    | Create the list section using the old Excel format<br>`dsp-tools old-excel2lists excelfolder lists.json`         | [→](./data-model/excel2json.md#old-excel2lists)                   |
-| **`resume-xmlupload`**   | Resume a previously interrupted xmlupload<br>`dsp-tools resume-xmlupload`                                        | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
-| **`start-stack`**        | Start a local DSP stack<br>`dsp-tools start-stack`                                                               | [→](./local-stack.md#start-stack)                                 |
-| **`stop-stack`**         | Stop the local DSP stack<br>`dsp-tools stop-stack`                                                               | [→](./local-stack.md#stop-stack)                                  |
-| **`update-legal`**       | Move legal metadata onto `<bitstream>` attributes<br>`dsp-tools update-legal [mandatory options] data.xml`       | [→](./special-workflows/update-legal.md)                          |
-| **`upload-files`**       | Upload multimedia files referenced in an XML file<br>`dsp-tools upload-files data.xml`                           | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
-| **`validate-data`**      | Validate XML data against a data model on a server<br>`dsp-tools validate-data data.xml`                         | [→](./data-file/data-file-commands.md#validate-data)              |
-| **`xmlupload`**          | Create resources from an XML file on a server<br>`dsp-tools xmlupload data.xml`                                  | [→](./data-file/data-file-commands.md#xmlupload)                  |
+| Command                  | Description                                                                                                          | Documentation                                                     |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| **`create`**             | Create a project on a server from a JSON file<br>`uvx dsp-tools create project.json`                                 | [→](./data-model/data-model-cli.md#create)                        |
+| **`excel2json`**         | Create the project definition JSON from Excel files<br>`uvx dsp-tools excel2json excelfolder project.json`           | [→](./data-model/excel2json.md#excel2json)                        |
+| **`excel2lists`**        | Create the list section of the project JSON<br>`uvx dsp-tools excel2lists excelfolder lists.json`                    | [→](./data-model/excel2json.md#excel2lists)                       |
+| **`excel2properties`**   | Create the properties section of the JSON<br>`uvx dsp-tools excel2properties properties.xlsx properties.json`        | [→](./data-model/excel2json.md#excel2properties)                  |
+| **`excel2resources`**    | Create the resource section of the JSON<br>`uvx dsp-tools excel2resources resources.xlsx resources.json`             | [→](./data-model/excel2json.md#excel2resources)                   |
+| **`get`**                | Retrieve a project definition JSON from a server<br>`uvx dsp-tools get -P 0XXX project.json`                         | [→](./data-model/data-model-cli.md#get)                           |
+| **`id2iri`**             | Replace internal IDs with IRIs in an XML file<br>`uvx dsp-tools id2iri new_data.xml id2iri_mapping.json`             | [→](./data-file/data-file-commands.md#id2iri)                     |
+| **`ingest-files`**       | Kick off the ingest process and save the mapping CSV<br>`uvx dsp-tools ingest-files 0XXX`                            | [→](./special-workflows/workflow-xmlupload.md#ingest-files)       |
+| **`ingest-xmlupload`**   | Create resources from XML after files are ingested<br>`uvx dsp-tools ingest-xmlupload data.xml`                      | [→](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)   |
+| **`mapping config`**     | Create a mapping YAML config file<br>`uvx dsp-tools mapping config -P 0XXX --ontology my-onto`                       | [→](./data-model/data-model-cli.md#mapping-config)                |
+| **`mapping update`**     | Replace external ontology mappings from an Excel file<br>`uvx dsp-tools mapping update 0XXX-my-onto-mapping.yaml`    | [→](./data-model/data-model-cli.md#mapping-update)                |
+| **`migration config`**   | Create a migration config YAML file<br>`uvx dsp-tools migration config -P 0XXX`                                      | [→](./special-workflows/migration.md#step-1-create-a-config-file) |
+| **`migration complete`** | Execute a complete migration<br>`uvx dsp-tools migration complete migration-0XXX.yaml`                               | [→](./special-workflows/migration.md#all-in-one)                  |
+| **`migration export`**   | Download project data from the source server<br>`uvx dsp-tools migration export migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| **`migration import`**   | Import a downloaded export to another server<br>`uvx dsp-tools migration import migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| **`migration clean-up`** | Clean up local files and server references<br>`uvx dsp-tools migration clean-up migration-0XXX.yaml`                 | [→](./special-workflows/migration.md#step-by-step)                |
+| **`old-excel2json`**     | Create project definition JSON using the old Excel format<br>`uvx dsp-tools old-excel2json excelfolder project.json` | [→](./data-model/excel2json.md#old-excel2json)                    |
+| **`old-excel2lists`**    | Create the list section using the old Excel format<br>`uvx dsp-tools old-excel2lists excelfolder lists.json`         | [→](./data-model/excel2json.md#old-excel2lists)                   |
+| **`resume-xmlupload`**   | Resume a previously interrupted xmlupload<br>`uvx dsp-tools resume-xmlupload`                                        | [→](./data-file/data-file-commands.md#resume-xmlupload)           |
+| **`start-stack`**        | Start a local DSP stack<br>`uvx dsp-tools start-stack`                                                               | [→](./local-stack.md#start-stack)                                 |
+| **`stop-stack`**         | Stop the local DSP stack<br>`uvx dsp-tools stop-stack`                                                               | [→](./local-stack.md#stop-stack)                                  |
+| **`update-legal`**       | Move legal metadata onto `<bitstream>` attributes<br>`uvx dsp-tools update-legal [mandatory options] data.xml`       | [→](./special-workflows/update-legal.md)                          |
+| **`upload-files`**       | Upload multimedia files referenced in an XML file<br>`uvx dsp-tools upload-files data.xml`                           | [→](./special-workflows/workflow-xmlupload.md#upload-files)       |
+| **`validate-data`**      | Validate XML data against a data model on a server<br>`uvx dsp-tools validate-data data.xml`                         | [→](./data-file/data-file-commands.md#validate-data)              |
+| **`xmlupload`**          | Create resources from an XML file on a server<br>`uvx dsp-tools xmlupload data.xml`                                  | [→](./data-file/data-file-commands.md#xmlupload)                  |

@@ -22,12 +22,8 @@ LOGGER_SAVEPATH = (_make_and_get_logs_directory() / f"{timestamp}_logging.log").
 WARNINGS_SAVEPATH = Path("warnings.log")
 
 
-def _log_variable_values() -> bool:
-    """
-    Tracebacks only contain the values of the variables if the developer opts in with an env var.
-    The values can contain passwords, tokens and research data.
-    """
-    return str(os.getenv("DSP_TOOLS_LOG_VARIABLE_VALUES")).lower() == "true"
+def _env_var_is_true(name: str) -> bool:
+    return str(os.getenv(name)).lower() == "true"
 
 
 def logger_config() -> None:
@@ -40,7 +36,8 @@ def logger_config() -> None:
     - print output on the terminal, formatted the same as the warnings.log
 
     The stack-traces contain the values of the variables
-    only if DSP_TOOLS_LOG_VARIABLE_VALUES=true is configured in the .env.
+    only if DSP_TOOLS_LOG_VARIABLE_VALUES=true is configured in the .env,
+    because the values can contain passwords, tokens and research data.
     """
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
@@ -49,7 +46,7 @@ def logger_config() -> None:
     rotation_size = "100 MB"
 
     rotation_size_main_log = "1 GB"
-    diagnose = _log_variable_values()
+    diagnose = _env_var_is_true("DSP_TOOLS_LOG_VARIABLE_VALUES")
 
     logger.add(
         sink=LOGGER_SAVEPATH,
@@ -60,8 +57,7 @@ def logger_config() -> None:
         rotation=rotation_size_main_log,
     )
 
-    additional_log = str(os.getenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"))
-    if additional_log.lower() == "true":
+    if _env_var_is_true("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD"):
         logger.add(
             sink=Path("logging.log"),
             format=text_format,

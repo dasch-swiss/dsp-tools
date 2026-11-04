@@ -16,6 +16,7 @@ def log_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD", raising=False)
     yield log_path
+    # The logger is global: restore the sinks that the other tests expect
     monkeypatch.undo()
     logger_config_module.logger_config()
 

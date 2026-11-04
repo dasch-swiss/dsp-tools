@@ -487,7 +487,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     config `lychee.toml`), deliberately not a required check. (enforcement: static-analysis, non-gating)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `96ab20a338ff`
+- **Fingerprint**: `73541aa55265`
 
 ### tests
 

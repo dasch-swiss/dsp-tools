@@ -20,3 +20,15 @@ then set the following variable in an `.env` file:
   ```env
   DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true
   ```
+
+## Variable Values in Tracebacks
+
+The tracebacks in the log files do not contain the values of the variables.
+If you need these values to debug a problem, then set the following variable in an `.env` file:
+
+  ```env
+  DSP_TOOLS_LOG_VARIABLE_VALUES=true
+  ```
+
+The log files then can contain passwords, tokens and research data.
+Remove the variable after debugging, and delete the log files that you do not need.

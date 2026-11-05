@@ -124,17 +124,17 @@ Please go through the CSV and fix the errors directly in the CSV.
 
 CSV Output:
 
-| file    | resource_id | license | copyright                                                   | authorship_1  | authorship_2    |
-| ------- | ----------- | ------- | ----------------------------------------------------------- | ------------- | --------------- |
-| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                    | Jane Doe | Alice Jenkins |
-| cat.jpg | res_2       | CC BY   | FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre | Jane Doe | Alice Jenkins |
+| file    | resource_id | license | copyright                                                   | authorship_1 | authorship_2  |
+| ------- | ----------- | ------- | ----------------------------------------------------------- | ------------ | ------------- |
+| dog.jpg | res_1       | CC BY   | FIXME: Copyright missing                                    | Jane Doe     | Alice Jenkins |
+| cat.jpg | res_2       | CC BY   | FIXME: Multiple copyrights found. Choose one: DaSCH, Louvre | Jane Doe     | Alice Jenkins |
 
 Please add a copyright holder to the CSV:
 
-| file    | resource_id | license | copyright | authorship_1  | authorship_2    |
-| ------- | ----------- | ------- | --------- | ------------- | --------------- |
-| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe | Alice Jenkins |
-| cat.jpg | res_2       | CC BY   | Louvre    | Jane Doe | Alice Jenkins |
+| file    | resource_id | license | copyright | authorship_1 | authorship_2  |
+| ------- | ----------- | ------- | --------- | ------------ | ------------- |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe     | Alice Jenkins |
+| cat.jpg | res_2       | CC BY   | Louvre    | Jane Doe     | Alice Jenkins |
 
 
 ### 2. Problem: Authorship Absent
@@ -147,30 +147,30 @@ CSV Output:
 
 Please add at least one authorship to the CSV:
 
-| file    | resource_id | license | copyright | authorship_1  | authorship_2 |
-| ------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe |              |
+| file    | resource_id | license | copyright | authorship_1 | authorship_2 |
+| ------- | ----------- | ------- | --------- | ------------ | ------------ |
+| dog.jpg | res_1       | CC BY   | DaSCH     | Jane Doe     |              |
 
 
 ### 3. Problem: License Absent, Not Parseable, or Multiple Licenses Found
 
 CSV Output:
 
-| file     | resource_id | license                                                     | copyright | authorship_1  | authorship_2 |
-| -------- | ----------- | ----------------------------------------------------------- | --------- | ------------- | ------------ |
-| dog.jpg  | res_1       | FIXME: License missing                                      | DaSCH     | Jane Doe |              |
-| cat.jpg  | res_2       | FIXME: Invalid license: Courtesy of DaSCH                   | DaSCH     | Jane Doe |              |
-| bird.jpg | res_3       | FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA | DaSCH     | Jane Doe |              |
+| file     | resource_id | license                                                     | copyright | authorship_1 | authorship_2 |
+| -------- | ----------- | ----------------------------------------------------------- | --------- | ------------ | ------------ |
+| dog.jpg  | res_1       | FIXME: License missing                                      | DaSCH     | Jane Doe     |              |
+| cat.jpg  | res_2       | FIXME: Invalid license: Courtesy of DaSCH                   | DaSCH     | Jane Doe     |              |
+| bird.jpg | res_3       | FIXME: Multiple licenses found. Choose one: CC-BY, CC-BY-SA | DaSCH     | Jane Doe     |              |
 
 Please add a valid license to the CSV, either as IRI or in one of the formats understood by 
 [`xmllib.find_license_in_string()`](
 https://docs.dasch.swiss/DSP-TOOLS/xmllib-docs/general-functions/#xmllib.general_functions.find_license_in_string):
 
-| file     | resource_id | license | copyright | authorship_1  | authorship_2 |
-| -------- | ----------- | ------- | --------- | ------------- | ------------ |
-| dog.jpg  | res_1       | CC BY   | DaSCH     | Jane Doe |              |
-| cat.jpg  | res_2       | unknown | DaSCH     | Jane Doe |              |
-| bird.jpg | res_3       | CC BY   | DaSCH     | Jane Doe |              |
+| file     | resource_id | license | copyright | authorship_1 | authorship_2 |
+| -------- | ----------- | ------- | --------- | ------------ | ------------ |
+| dog.jpg  | res_1       | CC BY   | DaSCH     | Jane Doe     |              |
+| cat.jpg  | res_2       | unknown | DaSCH     | Jane Doe     |              |
+| bird.jpg | res_3       | CC BY   | DaSCH     | Jane Doe     |              |
 
 
 #### "Courtesy" Is Not A License

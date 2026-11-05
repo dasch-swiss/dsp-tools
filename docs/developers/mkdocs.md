@@ -11,10 +11,10 @@ Please consider the following caveats:
 
 Two separate mechanisms check the links in `docs/`, and they are deliberately not interchangeable:
 
-| Mechanism | Checks | Runs |
-|---|---|---|
-| `mkdocs build --strict` | internal links between docs, `#heading` anchors, `nav` completeness | on every PR, as the required `check-docs` status check |
-| [lychee](https://github.com/lycheeverse/lychee) (`just check-links`) | external `http(s)` links | weekly, in `check-external-links.yml`, and on demand |
+| Mechanism                                                            | Checks                                                              | Runs                                                                       |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `mkdocs build --strict`                                              | internal links between docs, `#heading` anchors, `nav` completeness | on every PR, as the required `check-docs` status check                     |
+| [lychee](https://github.com/lycheeverse/lychee) (`just check-links`) | external `http(s)` links                                            | on every PR, as the non-required `check-external-links.yml`, and on demand |
 
 Internal links and anchors are validated offline by MkDocs itself,
 via the `validation:` block in `mkdocs.yml`.
@@ -25,7 +25,10 @@ External links are *not* a required check.
 They depend on roughly forty third-party hosts staying reachable
 and not rate-limiting the GitHub runners,
 so as a merge gate they fail for reasons that have nothing to do with the pull request under test.
-A weekly run catches link rot just as well, since links rot with time rather than with commits.
+A dead link shows as a red ✗ on the pull request.
+The author sees it and can fix a link that they just added,
+but the merge stays available.
+Release pull requests from bots skip the check, because they do not change the documentation.
 
 
 

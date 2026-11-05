@@ -6,6 +6,7 @@ import logging
 import pytest
 
 from dsp_tools.cli.entry_point import _derive_dsp_ingest_url
+from dsp_tools.cli.entry_point import _log_cli_arguments
 from dsp_tools.cli.exceptions import CliUserError
 from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
 
@@ -139,6 +140,15 @@ def test_unsupported_cases(unsupported_url: str, caplog: pytest.LogCaptureFixtur
                 default_dsp_ingest_url=DEFAULT_DSP_INGEST_URL,
             )
     assert not caplog.records
+
+
+@pytest.mark.parametrize("password", ["short", "a-much-longer-password-with-many-characters"])
+def test_log_cli_arguments_masks_password_with_fixed_length(password: str, caplog: pytest.LogCaptureFixture) -> None:
+    parsed_args = argparse.Namespace(action="create", user="root@example.com", password=password)
+    with caplog.at_level(logging.INFO):
+        _log_cli_arguments(parsed_args)
+    password_lines = [record.getMessage() for record in caplog.records if "password" in record.getMessage()]
+    assert password_lines == ["***   password = ********"]
 
 
 if __name__ == "__main__":

@@ -47,7 +47,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     inverted dependency (the callee layer reaching into the caller layer); tolerated today, not to be
     extended. (enforcement: docs-only; an import-linter contract could make it static-analysis)
 - **Durable state**: none — validates paths, then delegates writes to `commands/*`.
-- **Fingerprint**: `e36e518124ba`
+- **Fingerprint**: `eb5639dbcd69`
 
 ### clients
 
@@ -487,7 +487,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     config `lychee.toml`), deliberately not a required check. (enforcement: static-analysis, non-gating)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `cccb20fa4988`
+- **Fingerprint**: `9819acf63d34`
 
 ### tests
 
@@ -518,7 +518,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: `testdata/USED_SHORTCODE_SHORTNAMES.md` is a human-maintained register (single writer:
   whoever adds a shortcode, reviewed via PR diff); the e2e testcontainers and the distribution tier's
   `start-stack` spin up ephemeral Docker state, discarded after the run.
-- **Fingerprint**: `c1e12a0a6c55`
+- **Fingerprint**: `ae188d69bf53`
 
 ### repo-tooling
 
@@ -560,7 +560,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `a5773a75c06e`
+- **Fingerprint**: `8625bc431fbc`
 
 ## Cross-cutting concerns
 
@@ -584,11 +584,15 @@ No durable state.
 
 Process-startup wiring, not a component with request-level dependents: `logger_config()` (loguru sinks) and
 `initialize_warnings()` (routes `DspToolsWarning` through custom formatting) are each called once, in
-`cli/entry_point.py` (and once per session in `test/conftest.py`'s `pytest_sessionstart`). `dotenv.py` loads
-a local `.env`; `ansi_colors.py` is terminal color constants. Imported by 36 files. Durable state is the
-one-shot loguru sink registry, written once at process start.
+`cli/entry_point.py` (and once per session in `test/conftest.py`'s `pytest_sessionstart`;
+`test/unittests/setup/test_logger_config.py` calls `logger_config()` again and restores the sinks after each
+test). The log sinks write variable values into tracebacks (loguru `diagnose`) only if
+`DSP_TOOLS_LOG_VARIABLE_VALUES=true` is set in the `.env`, because the values can contain passwords, tokens
+and research data. `dotenv.py` loads a local `.env`; `ansi_colors.py` is terminal color constants. Imported
+by 38 files outside `setup/`. Durable state is the one-shot loguru sink registry, written once at process
+start.
 
-- **Fingerprint**: `14a3a91c42d8`
+- **Fingerprint**: `94ac21275ecc`
 
 ### legacy_models/ (`src/dsp_tools/legacy_models/**` — top-level; distinct from `commands/get/legacy_models/`)
 

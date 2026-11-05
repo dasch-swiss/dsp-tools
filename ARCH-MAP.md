@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-04
+date: 2026-11-05
 ---
 
 # ARCH-MAP.md
@@ -450,7 +450,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     templates need explicit render logic). (enforcement: review)
 - **Durable state**: these files ARE the durable state; no runtime writer (`versions.env` is bot-written, see
   Boundary rules).
-- **Fingerprint**: `3267eab72200`
+- **Fingerprint**: `d842f3a4edd9`
 
 ### docs
 
@@ -487,7 +487,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     config `lychee.toml`), deliberately not a required check. (enforcement: static-analysis, non-gating)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `73541aa55265`
+- **Fingerprint**: `cccb20fa4988`
 
 ### tests
 
@@ -560,7 +560,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `6c870c4e5a2a`
+- **Fingerprint**: `a5773a75c06e`
 
 ## Cross-cutting concerns
 

@@ -11,10 +11,10 @@ Please consider the following caveats:
 
 Two separate mechanisms check the links in `docs/`, and they are deliberately not interchangeable:
 
-| Mechanism | Checks | Runs |
-|---|---|---|
-| `mkdocs build --strict` | internal links between docs, `#heading` anchors, `nav` completeness | on every PR, as the required `check-docs` status check |
-| [lychee](https://github.com/lycheeverse/lychee) (`just check-links`) | external `http(s)` links | weekly, in `check-external-links.yml`, and on demand |
+| Mechanism                                                            | Checks                                                              | Runs                                                   |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| `mkdocs build --strict`                                              | internal links between docs, `#heading` anchors, `nav` completeness | on every PR, as the required `check-docs` status check |
+| [lychee](https://github.com/lycheeverse/lychee) (`just check-links`) | external `http(s)` links                                            | weekly, in `check-external-links.yml`, and on demand   |
 
 Internal links and anchors are validated offline by MkDocs itself,
 via the `validation:` block in `mkdocs.yml`.

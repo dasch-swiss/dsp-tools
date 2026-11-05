@@ -81,15 +81,17 @@ Some subclasses that are used by several commands also live there.
 Each command module has its own `exceptions.py` with command-specific subclasses.
 
 ```text
-BaseError                               # Root. Dataclass with message: str attribute.
-├── UserError                           # User can fix this themselves.
-│   ├── UserFilepathNotFoundError       # Generic: file does not exist.
-│   ├── UserFilepathMustNotExistError   # Generic: file must not already exist.
-│   ├── UserDirectoryNotFoundError      # Generic: directory does not exist.
-│   └── BadCredentialsError             # DSP-API rejected credentials.
-└── InternalError                       # Requires developer assistance. Prints contact info + log file path.
-    ├── UnreachableCodeError            # Code path that must never execute.
-    └── PermanentConnectionError        # All reconnection attempts failed.
+BaseError                                     # Root. Dataclass with message: str attribute.
+├── UserError                                 # User can fix this themselves.
+│   ├── UserFilepathNotFoundError             # Generic: file does not exist.
+│   ├── UserFilepathMustNotExistError         # Generic: file must not already exist.
+│   ├── UserDirectoryNotFoundError            # Generic: directory does not exist.
+│   ├── BadCredentialsError                   # DSP-API rejected credentials.
+│   ├── NonInteractiveContextCliError         # Input is missing, and no terminal can ask for it.
+│   └── DspAdminAccountNotUsedForUploadError  # Upload to a prod-like server without the project admin account.
+└── InternalError                             # Requires developer assistance. Prints contact info + log file path.
+    ├── UnreachableCodeError                  # Code path that must never execute.
+    └── PermanentConnectionError              # All reconnection attempts failed.
 ```
 
 **Choosing the right class:**

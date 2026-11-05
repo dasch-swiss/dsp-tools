@@ -81,15 +81,17 @@ Some subclasses that are used by several commands also live there.
 Each command module has its own `exceptions.py` with command-specific subclasses.
 
 ```text
-BaseError                               # Root. Dataclass with message: str attribute.
-├── UserError                           # User can fix this themselves.
-│   ├── UserFilepathNotFoundError       # Generic: file does not exist.
-│   ├── UserFilepathMustNotExistError   # Generic: file must not already exist.
-│   ├── UserDirectoryNotFoundError      # Generic: directory does not exist.
-│   └── BadCredentialsError             # DSP-API rejected credentials.
-└── InternalError                       # Requires developer assistance. Prints contact info + log file path.
-    ├── UnreachableCodeError            # Code path that must never execute.
-    └── PermanentConnectionError        # All reconnection attempts failed.
+BaseError                                     # Root. Dataclass with message: str attribute.
+├── UserError                                 # User can fix this themselves.
+│   ├── UserFilepathNotFoundError             # Generic: file does not exist.
+│   ├── UserFilepathMustNotExistError         # Generic: file must not already exist.
+│   ├── UserDirectoryNotFoundError            # Generic: directory does not exist.
+│   ├── BadCredentialsError                   # DSP-API rejected credentials.
+│   ├── NonInteractiveContextCliError         # Input is missing, and no terminal can ask for it.
+│   └── DspAdminAccountNotUsedForUploadError  # Upload to a prod-like server without the project admin account.
+└── InternalError                             # Requires developer assistance. Prints contact info + log file path.
+    ├── UnreachableCodeError                  # Code path that must never execute.
+    └── PermanentConnectionError              # All reconnection attempts failed.
 ```
 
 **Choosing the right class:**
@@ -107,13 +109,13 @@ BaseError                               # Root. Dataclass with message: str attr
 
 The process exit code communicates the outcome to shells and CI jobs. The convention is:
 
-| Code  | Meaning                                                                                                                                                   |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `0`   | Success.                                                                                                                                                   |
-| `1`   | General failure: a command returned `False`, or a `UserError` / `InternalError` (or any other exception) escaped to the top-level handler in `entry_point.py`. |
-| `2`   | Invalid command-line arguments (emitted by `argparse`).                                                                                                    |
+| Code  | Meaning                                                                                                                                                                                                                             |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Success.                                                                                                                                                                                                                            |
+| `1`   | General failure: a command returned `False`, or a `UserError` / `InternalError` (or any other exception) escaped to the top-level handler in `entry_point.py`.                                                                      |
+| `2`   | Invalid command-line arguments (emitted by `argparse`).                                                                                                                                                                             |
 | `3`   | `create --exit-if-exists`: the project already exists on the server, so the command aborted without further uploads. Lets a caller distinguish "already exists" from both success and failure and skip subsequent steps gracefully. |
-| `130` | Interrupted by the user (`KeyboardInterrupt`, i.e. Ctrl-C).                                                                                                 |
+| `130` | Interrupted by the user (`KeyboardInterrupt`, i.e. Ctrl-C).                                                                                                                                                                         |
 
 Codes other than `0` and `1` are used sparingly — only where a caller needs to react differently to a
 specific, machine-readable outcome. Most failures should surface as `1` via the `entry_point.py` handler;
@@ -124,12 +126,12 @@ introduce a dedicated code only when it is genuinely required.
 An `xmlupload` can end before all resources are created. The exit code distinguishes the reason,
 so that a script driving a chunked upload can react to it:
 
-| Reason                                                            | Code  |
-| ----------------------------------------------------------------- | ----- |
-| The number of resources requested with `--interrupt-after` is done | `0`   |
-| Ctrl-C                                                            | `130` |
-| The connection to the server was permanently lost, or a request permanently timed out | `1` |
-| The server rejected the credentials                               | `1`   |
+| Reason                                                                                | Code  |
+| ------------------------------------------------------------------------------------- | ----- |
+| The number of resources requested with `--interrupt-after` is done                    | `0`   |
+| Ctrl-C                                                                                | `130` |
+| The connection to the server was permanently lost, or a request permanently timed out | `1`   |
+| The server rejected the credentials                                                   | `1`   |
 
 In all four cases the upload attempts to save its state, so the upload can be continued with
 `resume-xmlupload`. Only `--interrupt-after` guarantees this save happens at a clean boundary
@@ -258,7 +260,7 @@ this causes duplicate log entries.
 | `logger.error(e)` then re-raise                          | The same error gets logged again by `entry_point.py`     | Remove the intermediate log                                                                               |
 | `logger.error()` instead of `logger.exception()`         | Loses the stack trace                                    | Replace with `logger.exception()`                                                                         |
 | Exceptions for expected control flow                     | Expected outcomes should not be exceptions               | Return a result type instead                                                                              |
-| `except Exception` in an intermediate handler            | Masks bugs; catches more than intended                   | Let it escalate; only use `except Exception` at top-level boundaries, tagged `# noqa: BLE001`            |
+| `except Exception` in an intermediate handler            | Masks bugs; catches more than intended                   | Let it escalate; only use `except Exception` at top-level boundaries, tagged `# noqa: BLE001`             |
 
 ## Applying this guideline to the codebase
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## [19.3.2](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.1...v19.3.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **logging:** stop writing variable values into log tracebacks (DEV-7542) ([#2482](https://github.com/dasch-swiss/dsp-tools/issues/2482)) ([614ac32](https://github.com/dasch-swiss/dsp-tools/commit/614ac32862104cdf0220b09f0982907cd0839b7e))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group across 1 directory with 8 updates ([#2486](https://github.com/dasch-swiss/dsp-tools/issues/2486)) ([81ef017](https://github.com/dasch-swiss/dsp-tools/commit/81ef0172d206874961121d1d7d493e602e3102af))
+* **lint:** bump markdownlint-cli to v0.49.1 and align the tables that MD060 flags ([#2484](https://github.com/dasch-swiss/dsp-tools/issues/2484)) ([5bec19a](https://github.com/dasch-swiss/dsp-tools/commit/5bec19aea6c339389811c2a15f3cce743bea5a4e))
+* **start-stack:** bump versions to 2026.11.02 ([#2488](https://github.com/dasch-swiss/dsp-tools/issues/2488)) ([2d24a93](https://github.com/dasch-swiss/dsp-tools/commit/2d24a93c8ae508838fee193bdab97ca12a6e476a))
+
+
+### Documentation
+
+* refresh ARCH-MAP.md and migrate it to content fingerprints ([#2483](https://github.com/dasch-swiss/dsp-tools/issues/2483)) ([167987c](https://github.com/dasch-swiss/dsp-tools/commit/167987cb3f7d960d74bad40dab74bf1f96249630))
+
 ## [19.3.1](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.0...v19.3.1) (2026-11-05)
 
 

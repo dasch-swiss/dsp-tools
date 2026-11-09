@@ -45,25 +45,25 @@ Sources:
 
 The column "dsp-tools" marks the capabilities that dsp-tools needs.
 
-| Domain       | Capabilities                                                                   | dsp-tools |
-|--------------|--------------------------------------------------------------------------------|-----------|
-| Connection   | Connect to a server with credentials                                           | x         |
-| Projects     | Project with metadata                                                          | x         |
-|              | Legal info: licenses, copyright holders, default authorship                    | x         |
-|              | Embargo                                                                        |           |
-| Access       | Users, groups and memberships                                                  | x         |
-|              | Default permissions of the project                                             | x         |
-|              | Admin permissions of users                                                     |           |
-| Data model   | Ontologies, classes, properties, cardinalities                                 | x         |
-|              | External mappings of classes and properties                                    | x         |
-|              | Default permissions per class and property                                     |           |
-| Vocabularies | Lists and nodes                                                                | x         |
-|              | Reorder nodes, change labels and comments                                      |           |
-| Data         | Create data: resources, values and files as one unit                           | x         |
-|              | Add values to existing resources                                               |           |
-|              | Change permissions of resources and values                                     |           |
-| Validation   | Validate data against the server data model, incl. files and existing data     | x         |
-| Migration    | Export a project from one server and import it into another                    | x         |
+| Domain       | Capabilities                                                               | dsp-tools |
+|--------------|----------------------------------------------------------------------------|-----------|
+| Connection   | Connect to a server with credentials                                       | x         |
+| Projects     | Project with metadata                                                      | x         |
+|              | Legal info: licenses, copyright holders, default authorship                | x         |
+|              | Embargo                                                                    |           |
+| Access       | Users, groups and memberships                                              | x         |
+|              | Default permissions of the project                                         | x         |
+|              | Admin permissions of users                                                 |           |
+| Data model   | Ontologies, classes, properties, cardinalities                             | x         |
+|              | External mappings of classes and properties                                | x         |
+|              | Default permissions per class and property                                 |           |
+| Vocabularies | Lists and nodes                                                            | x         |
+|              | Reorder nodes, change labels and comments                                  |           |
+| Data         | Create data: resources, values and files as one unit                       | x         |
+|              | Add values to existing resources                                           |           |
+|              | Change permissions of resources and values                                 |           |
+| Validation   | Validate data against the server data model, incl. files and existing data | x         |
+| Migration    | Export a project from one server and import it into another                | x         |
 
 Notes:
 

@@ -8,23 +8,31 @@ For all functionalities there should be create, retrieval, modify and delete opt
 
 - Entire project data with existing data on server or new, does not matter
 
-| Functionality | Description | Required by dsp-tools |
-|---------------|-------------|-----------------------|
-|               |             |                       |
+| Functionality           | Description     | dsp-tools | Credentials |
+|-------------------------|-----------------|-----------|-------------|
+| Validate without upload | Including files | x         | Proj Member |
 
-### Creation
+### Creation & Update
 
 - Resource with or without values
 - Values to existing resource
 
-| Functionality | Description | Required by dsp-tools |
-|---------------|-------------|-----------------------|
-|               |             |                       |
+| Functionality     | Description           | dsp-tools | Credentials |
+|-------------------|-----------------------|-----------|-------------|
+| Create new (bulk) | Creation of Data      | x         | Proj Member |
+| Bulk Addition     | Bulk addition of data |           | Proj Member |
+|                   |                       |           |             |
+|                   |                       |           |             |
+|                   |                       |           |             |
 
 ### Permissions
 
 - Change permissions of individual resource or values
 
-| Functionality | Description | Required by dsp-tools |
-|---------------|-------------|-----------------------|
-|               |             |                       |
+| Functionality      | Description                                  | dsp-tools | Credentials |
+|--------------------|----------------------------------------------|-----------|-------------|
+| Change Permissions | Change permission without versioning of data |           | Proj Admin  |
+|                    |                                              |           |             |
+|                    |                                              |           |             |
+|                    |                                              |           |             |
+|                    |                                              |           |             |

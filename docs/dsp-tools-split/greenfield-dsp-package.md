@@ -39,9 +39,9 @@ Sources:
 7. **Same verbs in every domain.**
    Each domain has create, read, update and delete.
    Domain actions add to these verbs where necessary.
-   - Create is only for new items. Create of an item that exists fails.
-   - Update changes or adds to an item that exists.
-   - Delete is possible for all items. Delete marks an item as deleted and does not erase it.
+    - Create is only for new items. Create of an item that exists fails.
+    - Update changes or adds to an item that exists.
+    - Delete is possible for all items. Delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
 9. **Full permission model.**
@@ -54,28 +54,28 @@ Sources:
 
 The column "dsp-tools" marks the capabilities that dsp-tools needs.
 
-| Domain       | Capabilities                                                                              | dsp-tools |
-|--------------|-------------------------------------------------------------------------------------------|-----------|
-| Connection   | Connect to a server with credentials                                                      | x         |
-| Projects     | Project with metadata                                                                     | x         |
-|              | Legal info: licenses, copyright holders, default authorship                               | x         |
-|              | Embargo                                                                                   |           |
-| Access       | Users, groups and memberships                                                             | x         |
-|              | Default permissions of the project                                                        | x         |
-|              | Admin permissions of users                                                                |           |
-|              | Operations that the current user can do                                                   | x         |
-| Data model   | Ontologies, classes, properties, cardinalities                                            | x         |
-|              | External mappings of classes and properties                                               | x         |
-|              | Default permissions per class and property                                                |           |
-| Vocabularies | Lists and nodes                                                                           | x         |
-|              | Reorder nodes, change labels and comments                                                 |           |
-| Data         | Create data: resources, values and files as one unit                                      | x         |
-|              | Add values to existing resources                                                          |           |
-|              | Replace existing values and files                                                         |           |
-|              | Change permissions of resources and values                                                |           |
-|              | Export data, for example by class, as Python objects                                      |           |
-| Validation   | Validate data against the server data model, incl. files and existing data without upload | x         |
-| Migration    | Export a project from one server and import it into another                               | x         |
+| Domain       | Capabilities                                                                                     | dsp-tools |
+|--------------|--------------------------------------------------------------------------------------------------|-----------|
+| Connection   | Connect to a server with credentials                                                             | x         |
+| Projects     | Project with metadata                                                                            | x         |
+|              | Legal info: licenses, copyright holders, default authorship                                      | x         |
+|              | Embargo, state that a project is under embargo and also lift it                                  |           |
+| Access       | Users, groups and memberships                                                                    | x         |
+|              | Default permissions of the project                                                               | x         |
+|              | Admin permissions of users                                                                       |           |
+|              | Operations that the current user can do                                                          | x         |
+| Data model   | Ontologies, classes, properties, cardinalities                                                   | x         |
+|              | External mappings of classes and properties                                                      | x         |
+|              | Default permissions per class and property, separately                                           |           |
+| Vocabularies | Lists and nodes                                                                                  | x         |
+|              | Reorder nodes, change labels and comments                                                        |           |
+| Data         | Create data: resources, values and files as one unit                                             | x         |
+|              | Add values to existing resources                                                                 |           |
+|              | Replace existing values and files                                                                |           |
+|              | Change permissions of resources and values                                                       |           |
+|              | Export data, for example by class, as Python objects                                             |           |
+| Validation   | Validate data against the server data model, incl. files and existing data without upload        | x         |
+| Migration    | Export a project from one server and import it into another (including ontologie and admin data) | x         |
 
 Notes:
 
@@ -96,11 +96,11 @@ Notes:
 
 Three proposals. All names are free on PyPI (checked on 2026-11-09):
 
-| PyPI name      | Import name    | Note                                          |
-|----------------|----------------|-----------------------------------------------|
-| `dsp-client`   | `dsp_client`   | Short and plain                               |
-| `dsp-connect`  | `dsp_connect`  | Shows the purpose: connect to DSP             |
-| `dasch-client` | `dasch_client` | Organisation name, independent of "DSP"       |
+| PyPI name      | Import name    | Note                                    |
+|----------------|----------------|-----------------------------------------|
+| `dsp-client`   | `dsp_client`   | Short and plain                         |
+| `dsp-connect`  | `dsp_connect`  | Shows the purpose: connect to DSP       |
+| `dasch-client` | `dasch_client` | Organisation name, independent of "DSP" |
 
 Do not use `dsp-py`: the name is similar to the Python library DSPy.
 

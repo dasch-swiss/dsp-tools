@@ -139,3 +139,5 @@ Recommendation: a callback and standard logging for progress, and a continuation
 - The state is a dataclass. The package gives functions to save it to a file and read it from a file.
 - The user gives the state back to the same operation to continue. The operation does not create done items again.
 - dsp-tools uses the state for `resume-xmlupload`.
+- A long term more better option would be to solve this with a streaming service on the API side so that a continuation
+  state never needs to reach the client. However, this is more of an async design.

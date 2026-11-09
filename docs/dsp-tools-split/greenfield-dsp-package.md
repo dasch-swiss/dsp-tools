@@ -3,11 +3,11 @@
 ## Purpose
 
 This document proposes the public interface of a Python package for the DSP server.
-It is a basis for discussion. Internals are out of scope.
+It is a basis for discussion about the interface. Internals are out of scope.
 
 The package has two user groups:
 
-- dsp-tools, which uses the package for all server interaction.
+- dsp-tools, which uses the package for all server interaction, and by implication RDU.
 - External researchers, who use the package in scripts and notebooks.
 
 The interface must cover all server capabilities that dsp-tools uses today.
@@ -40,11 +40,11 @@ Sources:
    Domain actions add to these verbs where necessary.
     - Create is only for new items. Create of an item that exists fails.
     - Update changes or adds to an item that exists.
-    - Delete is possible for all items. Delete marks an item as deleted and does not erase it.
+    - Delete is possible for all items. On Data, delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
 9. **Full permission model.**
-   The interface shows the full permission model, not only presets.
+   The interface shows the full permission model, not only pre-sets.
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, dsp-tools can check the rights before it starts a planned operation.

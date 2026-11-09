@@ -11,7 +11,7 @@ The package has two user groups:
 - External researchers, who use the package in scripts and notebooks.
 
 The interface must cover all server capabilities that dsp-tools uses today.
-And contains outlines for functionalities that are needed by researchers and RDU members.
+It also outlines capabilities that researchers and RDU members need.
 Sources:
 
 - Wanted features: [Admin](1_admin.md), [Ontology](2_ontology.md), [Data](3_data.md).
@@ -39,8 +39,16 @@ Sources:
 7. **Same verbs in every domain.**
    Each domain has create, read, update and delete.
    Domain actions add to these verbs where necessary.
+   - Create is only for new items. Create of an item that exists fails.
+   - Update changes or adds to an item that exists.
+   - Delete is possible for all items. Delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
+9. **Full permission model.**
+   The interface shows the full permission model, not only presets.
+10. **Rights are known before an operation.**
+    A helper function returns an enum of the operations that the current user can do.
+    As a result, dsp-tools can check the rights before it starts a planned operation.
 
 ## Domains
 
@@ -55,6 +63,7 @@ The column "dsp-tools" marks the capabilities that dsp-tools needs.
 | Access       | Users, groups and memberships                                                             | x         |
 |              | Default permissions of the project                                                        | x         |
 |              | Admin permissions of users                                                                |           |
+|              | Operations that the current user can do                                                   | x         |
 | Data model   | Ontologies, classes, properties, cardinalities                                            | x         |
 |              | External mappings of classes and properties                                               | x         |
 |              | Default permissions per class and property                                                |           |
@@ -64,6 +73,7 @@ The column "dsp-tools" marks the capabilities that dsp-tools needs.
 |              | Add values to existing resources                                                          |           |
 |              | Replace existing values and files                                                         |           |
 |              | Change permissions of resources and values                                                |           |
+|              | Export data, for example by class, as Python objects                                      |           |
 | Validation   | Validate data against the server data model, incl. files and existing data without upload | x         |
 | Migration    | Export a project from one server and import it into another                               | x         |
 
@@ -75,21 +85,8 @@ Notes:
 
 ## Open Questions
 
-- Name and repository of the package.
+- Name of the package.
+- Repository: the long-term plan is to move the package into the dsp-api repository.
+  Package and server versions then stay aligned. Where does the package live before the move?
 - Synchronous or asynchronous interface.
-- Representation of permissions: presets, full model, or both.
-  - Full model
-- Does create of a project definition also update items that exist?
-  - Create new implies that it does not exist yet, so if it does exist then it should throw an error
-  - If we want to add something, then it should be update
-- Delete: which items allow delete, and is delete permanent?
-  - It is not erase but marked as deleted.
-  - Everything should be possible to delete.
 - Progress reporting and continuation of long operations.
-- How the package reports missing rights (system admin, project admin, project member).
-  - Helper function that returns an enum of the operations that a user is allowed to do.
-  - So dsp-tools can verify that the user is sufficient for the planned operation
-- Compatibility between package versions and DSP server versions.
-  - long term plan to move the package to the dsp-api repository, so there it is a non-issue
-- Do researchers need search and query, which dsp-tools does not use?
-  - Yes exporting data is also someting that is required. For example, by class, it then also should give the python objects

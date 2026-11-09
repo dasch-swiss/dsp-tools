@@ -11,6 +11,7 @@ The package has two user groups:
 - External researchers, who use the package in scripts and notebooks.
 
 The interface must cover all server capabilities that dsp-tools uses today.
+And contains outlines for functionalities that are needed by researchers and RDU members.
 Sources:
 
 - Wanted features: [Admin](1_admin.md), [Ontology](2_ontology.md), [Data](3_data.md).
@@ -45,25 +46,26 @@ Sources:
 
 The column "dsp-tools" marks the capabilities that dsp-tools needs.
 
-| Domain       | Capabilities                                                               | dsp-tools |
-|--------------|----------------------------------------------------------------------------|-----------|
-| Connection   | Connect to a server with credentials                                       | x         |
-| Projects     | Project with metadata                                                      | x         |
-|              | Legal info: licenses, copyright holders, default authorship                | x         |
-|              | Embargo                                                                    |           |
-| Access       | Users, groups and memberships                                              | x         |
-|              | Default permissions of the project                                         | x         |
-|              | Admin permissions of users                                                 |           |
-| Data model   | Ontologies, classes, properties, cardinalities                             | x         |
-|              | External mappings of classes and properties                                | x         |
-|              | Default permissions per class and property                                 |           |
-| Vocabularies | Lists and nodes                                                            | x         |
-|              | Reorder nodes, change labels and comments                                  |           |
-| Data         | Create data: resources, values and files as one unit                       | x         |
-|              | Add values to existing resources                                           |           |
-|              | Change permissions of resources and values                                 |           |
-| Validation   | Validate data against the server data model, incl. files and existing data | x         |
-| Migration    | Export a project from one server and import it into another                | x         |
+| Domain       | Capabilities                                                                              | dsp-tools |
+|--------------|-------------------------------------------------------------------------------------------|-----------|
+| Connection   | Connect to a server with credentials                                                      | x         |
+| Projects     | Project with metadata                                                                     | x         |
+|              | Legal info: licenses, copyright holders, default authorship                               | x         |
+|              | Embargo                                                                                   |           |
+| Access       | Users, groups and memberships                                                             | x         |
+|              | Default permissions of the project                                                        | x         |
+|              | Admin permissions of users                                                                |           |
+| Data model   | Ontologies, classes, properties, cardinalities                                            | x         |
+|              | External mappings of classes and properties                                               | x         |
+|              | Default permissions per class and property                                                |           |
+| Vocabularies | Lists and nodes                                                                           | x         |
+|              | Reorder nodes, change labels and comments                                                 |           |
+| Data         | Create data: resources, values and files as one unit                                      | x         |
+|              | Add values to existing resources                                                          |           |
+|              | Replace existing values and files                                                         |           |
+|              | Change permissions of resources and values                                                |           |
+| Validation   | Validate data against the server data model, incl. files and existing data without upload | x         |
+| Migration    | Export a project from one server and import it into another                               | x         |
 
 Notes:
 
@@ -76,9 +78,18 @@ Notes:
 - Name and repository of the package.
 - Synchronous or asynchronous interface.
 - Representation of permissions: presets, full model, or both.
+  - Full model
 - Does create of a project definition also update items that exist?
+  - Create new implies that it does not exist yet, so if it does exist then it should throw an error
+  - If we want to add something, then it should be update
 - Delete: which items allow delete, and is delete permanent?
+  - It is not erase but marked as deleted.
+  - Everything should be possible to delete.
 - Progress reporting and continuation of long operations.
 - How the package reports missing rights (system admin, project admin, project member).
+  - Helper function that returns an enum of the operations that a user is allowed to do.
+  - So dsp-tools can verify that the user is sufficient for the planned operation
 - Compatibility between package versions and DSP server versions.
+  - long term plan to move the package to the dsp-api repository, so there it is a non-issue
 - Do researchers need search and query, which dsp-tools does not use?
+  - Yes exporting data is also someting that is required. For example, by class, it then also should give the python objects

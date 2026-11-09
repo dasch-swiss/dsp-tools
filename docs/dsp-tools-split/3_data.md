@@ -36,3 +36,9 @@ For all functionalities there should be create, retrieval, modify and delete opt
 |                    |                                              |           |             |
 |                    |                                              |           |             |
 |                    |                                              |           |             |
+
+### Bulk Migration of Graphs
+
+| Functionality   | Description              | dsp-tools | Credentials |
+|-----------------|--------------------------|-----------|-------------|
+| Migrate Project | Migrate Project and data |           | Sys Admin   |

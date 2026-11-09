@@ -83,10 +83,53 @@ Notes:
   and `ingest-xmlupload`. The package selects the ingest strategy.
 - Validation runs in the package. It does not change the server.
 
+## Repository and Release
+
+- The package lives in the dsp-tools repository.
+- It has its own release on PyPI and is part of the deployment.
+- The long-term plan is to move the package into the dsp-api repository.
+  Package and server versions then stay aligned.
+
 ## Open Questions
 
-- Name of the package.
-- Repository: the long-term plan is to move the package into the dsp-api repository.
-  Package and server versions then stay aligned. Where does the package live before the move?
-- Synchronous or asynchronous interface.
-- Progress reporting and continuation of long operations.
+### Package Name
+
+Five proposals. All names are free on PyPI (checked on 2026-11-09):
+
+| PyPI name      | Import name    | Note                                          |
+|----------------|----------------|-----------------------------------------------|
+| `dsp-client`   | `dsp_client`   | Short and plain                               |
+| `dsp-sdk`      | `dsp_sdk`      | Shows that it is a toolkit, not only a client |
+| `dsp-connect`  | `dsp_connect`  | Shows the purpose: connect to DSP             |
+| `dasch-dsp`    | `dasch_dsp`    | Contains the organisation name                |
+| `dasch-client` | `dasch_client` | Organisation name, independent of "DSP"       |
+
+Do not use `dsp-py`: the name is similar to the Python library DSPy.
+
+### Synchronous or Asynchronous Interface
+
+Recommendation: a synchronous interface only.
+
+- Researchers use scripts and notebooks. Notebooks run their own event loop,
+  thus an asynchronous interface is difficult to use there.
+- dsp-tools is synchronous today.
+- Speed comes from parallel work inside the package (principle 1), not from the interface.
+- An asynchronous interface can come later as a separate module, if a user needs it.
+
+### Progress Reporting and Continuation
+
+Five examples:
+
+1. **Callback.** The user gives a function, for example `on_progress`.
+   The package calls it with an event: items done, items total, current item.
+2. **Standard logging.** The package writes progress to a Python logger.
+   dsp-tools and researchers configure the output.
+3. **Event iterator.** The operation returns an iterator.
+   Each step gives one progress event, and the last step gives the result.
+4. **Job handle.** The operation returns a job with `status()`, `wait()` and `result()`.
+   This fits server-side jobs, for example migration.
+5. **Continuation state.** The result of an interrupted operation contains a state.
+   The user saves the state to a file and gives it back to the same operation to continue.
+
+Recommendation: a callback (1) and standard logging (2) for progress.
+A continuation state (5) for interrupted operations.

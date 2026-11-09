@@ -25,3 +25,11 @@ For all functionalities there should be create, retrieval, modify and delete opt
 |                       |                                           |           |             |
 |                       |                                           |           |             |
 |                       |                                           |           |             |
+
+## Lists (Controlled Vocabulary)
+
+| Functionality               | Description                                | dsp-tools | Credentials |
+|-----------------------------|--------------------------------------------|-----------|-------------|
+| Create                      | Individual exposure of each creation path  | x         | Proj Admin  |
+| Reorder the list nodes      | Reorder the list nodes of an existing list |           | Proj Admin  |
+| Add new labels and comments | Reorder the list nodes of an existing list |           | Proj Admin  |

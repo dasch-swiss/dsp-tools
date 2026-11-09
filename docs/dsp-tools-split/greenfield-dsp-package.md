@@ -94,14 +94,12 @@ Notes:
 
 ### Package Name
 
-Five proposals. All names are free on PyPI (checked on 2026-11-09):
+Three proposals. All names are free on PyPI (checked on 2026-11-09):
 
 | PyPI name      | Import name    | Note                                          |
 |----------------|----------------|-----------------------------------------------|
 | `dsp-client`   | `dsp_client`   | Short and plain                               |
-| `dsp-sdk`      | `dsp_sdk`      | Shows that it is a toolkit, not only a client |
 | `dsp-connect`  | `dsp_connect`  | Shows the purpose: connect to DSP             |
-| `dasch-dsp`    | `dasch_dsp`    | Contains the organisation name                |
 | `dasch-client` | `dasch_client` | Organisation name, independent of "DSP"       |
 
 Do not use `dsp-py`: the name is similar to the Python library DSPy.
@@ -118,18 +116,27 @@ Recommendation: a synchronous interface only.
 
 ### Progress Reporting and Continuation
 
-Five examples:
+Recommendation: a callback and standard logging for progress, and a continuation state for interrupted operations.
 
-1. **Callback.** The user gives a function, for example `on_progress`.
-   The package calls it with an event: items done, items total, current item.
-2. **Standard logging.** The package writes progress to a Python logger.
-   dsp-tools and researchers configure the output.
-3. **Event iterator.** The operation returns an iterator.
-   Each step gives one progress event, and the last step gives the result.
-4. **Job handle.** The operation returns a job with `status()`, `wait()` and `result()`.
-   This fits server-side jobs, for example migration.
-5. **Continuation state.** The result of an interrupted operation contains a state.
-   The user saves the state to a file and gives it back to the same operation to continue.
+#### Callback
 
-Recommendation: a callback (1) and standard logging (2) for progress.
-A continuation state (5) for interrupted operations.
+- The user gives a function to a long operation, for example `on_progress`.
+- The package calls the function after each item.
+- The function receives one progress event: items done, items total, current item, and failures so far.
+- dsp-tools uses the callback for its progress bar. A researcher can print the event or ignore it.
+- The callback is optional. Without a callback, the operation runs without progress output.
+
+#### Standard Logging
+
+- The package writes to a Python logger with a fixed name, for example `dsp_client`.
+- The package does not configure handlers, formats or files. The caller does this.
+- Levels: `INFO` for start, end and summary of an operation. `DEBUG` for each item. `WARNING` for failed items.
+- dsp-tools sends the log to its log file. A researcher sees the log in the notebook, if they set a handler.
+
+#### Continuation State
+
+- An interrupted bulk operation returns a result that contains a continuation state.
+- The state holds the items that are not done and the ID-to-IRI map of the items that are done.
+- The state is a dataclass. The package gives functions to save it to a file and read it from a file.
+- The user gives the state back to the same operation to continue. The operation does not create done items again.
+- dsp-tools uses the state for `resume-xmlupload`.

@@ -14,7 +14,6 @@ The interface must cover all server capabilities that dsp-tools uses today.
 It also outlines capabilities that researchers and RDU members need.
 Sources:
 
-- Wanted features: [Admin](1_admin.md), [Ontology](2_ontology.md), [Data](3_data.md).
 - Server interaction of dsp-tools today: [dsp-tools Server Flows](https://claude.ai/artifact/BmDEynb57FEtmjt3uhFFQT).
 
 ## Principles

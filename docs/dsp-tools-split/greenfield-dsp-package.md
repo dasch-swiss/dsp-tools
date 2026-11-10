@@ -53,28 +53,28 @@ Sources:
 
 The column "dsp-tools" marks the capabilities that dsp-tools needs.
 
-| Domain       | Capabilities                                                                                     | dsp-tools |
-|--------------|--------------------------------------------------------------------------------------------------|-----------|
-| Connection   | Connect to a server with credentials                                                             | x         |
-| Projects     | Project with metadata                                                                            | x         |
-|              | Legal info: licenses, copyright holders, default authorship                                      | x         |
-|              | Embargo, state that a project is under embargo and also lift it                                  |           |
-| Access       | Users, groups and memberships                                                                    | x         |
-|              | Default permissions of the project                                                               | x         |
-|              | Admin permissions of users                                                                       |           |
-|              | Operations that the current user can do                                                          | x         |
-| Data model   | Ontologies, classes, properties, cardinalities                                                   | x         |
-|              | External mappings of classes and properties                                                      | x         |
-|              | Default permissions per class and property, separately                                           |           |
-| Vocabularies | Lists and nodes                                                                                  | x         |
-|              | Reorder nodes, change labels and comments                                                        |           |
-| Data         | Create data: resources, values and files as one unit                                             | x         |
-|              | Add values to existing resources                                                                 |           |
-|              | Replace existing values and files                                                                |           |
-|              | Change permissions of resources and values                                                       |           |
-|              | Export data, for example by class, as Python objects                                             |           |
-| Validation   | Validate data against the server data model, incl. files and existing data without upload        | x         |
-| Migration    | Export a project from one server and import it into another (including ontologie and admin data) | x         |
+| Domain            | Capabilities                                                                                     | dsp-tools |
+|-------------------|--------------------------------------------------------------------------------------------------|-----------|
+| Connection        | Connect to a server with credentials                                                             | x         |
+| Projects          | Project with metadata                                                                            | x         |
+|                   | Legal info: licenses, copyright holders, default authorship                                      | x         |
+|                   | Embargo, state that a project is under embargo and also lift it                                  |           |
+| Access            | Users, groups and memberships                                                                    | x         |
+|                   | Default permissions of the project                                                               | x         |
+|                   | Admin permissions of users                                                                       |           |
+|                   | Operations that the current user can do                                                          | x         |
+| Data model        | Ontologies, classes, properties, cardinalities                                                   | x         |
+|                   | External mappings of classes and properties                                                      | x         |
+|                   | Default permissions per class and property, separately                                           |           |
+| Vocabularies      | Lists and nodes                                                                                  | x         |
+|                   | Reorder nodes, change labels and comments                                                        |           |
+| Data              | Create data: resources, values and files as one unit                                             | x         |
+|                   | Add values to existing resources                                                                 |           |
+|                   | Replace existing values and files                                                                |           |
+|                   | Change permissions of resources and values                                                       |           |
+|                   | Export data, for example by class, as Python objects                                             |           |
+| Data (Validation) | Validate data against the server data model, incl. files and existing data without upload        | x         |
+| Data (Migration)  | Export a project from one server and import it into another (including ontologie and admin data) | x         |
 
 Notes:
 

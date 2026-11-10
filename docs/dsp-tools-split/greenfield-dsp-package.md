@@ -103,6 +103,8 @@ Three proposals. All names are free on PyPI (checked on 2026-11-09):
 
 Do not use `dsp-py`: the name is similar to the Python library DSPy.
 
+`dsp-vre`
+
 ### Synchronous or Asynchronous Interface
 
 Recommendation: a synchronous interface only.

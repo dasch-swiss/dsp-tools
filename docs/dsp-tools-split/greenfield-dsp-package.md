@@ -74,7 +74,7 @@ The column "dsp-tools" marks the capabilities that dsp-tools needs.
 |                   | Change permissions of resources and values                                                       |           |
 |                   | Export data, for example by class, as Python objects                                             |           |
 | Data (Validation) | Validate data against the server data model, incl. files and existing data without upload        | x         |
-| Data (Migration)  | Export a project from one server and import it into another (including ontologie and admin data) | x         |
+| Migration (TBD)   | Export a project from one server and import it into another (including ontologie and admin data) | x         |
 
 Notes:
 

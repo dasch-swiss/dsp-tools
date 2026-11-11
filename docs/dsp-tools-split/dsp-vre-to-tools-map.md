@@ -59,10 +59,11 @@ The command reads the JSON project file, converts it into `dsp-vre` dataclasses,
 
 1. Connect to the server (Connection).
 2. Check that the current user can create a project (Access).
-3. Create the project with its metadata and legal info, and sets embargo state (Projects).
+3. Create the project with its metadata and legal info, and set the embargo state (Projects).
 4. Create the lists (Vocabularies).
 5. Create the users and their project roles (Access).
-6. Create the ontologies with classes, properties and cardinalities and permissions (if not embargo) (Data model).
+6. Create the ontologies with classes, properties and cardinalities (Data model).
+7. Create the access restrictions (Data model). During the mocked embargo, `dsp-vre` ignores them.
 
 Each step returns created items and failures (principle 6).
 The progress options get compared on these questions:

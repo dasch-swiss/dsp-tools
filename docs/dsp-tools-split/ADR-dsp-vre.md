@@ -53,7 +53,8 @@ The package has two user groups:
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
 9. **Full permission model.**
-   The interface shows the full permission model, not only pre-sets.
+   The desired option is a feature-complete pre-set, for example project roles.
+   If a pre-set cannot be feature-complete, the interface shows the full permission set and groups.
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, a client can check the rights before it starts an operation.

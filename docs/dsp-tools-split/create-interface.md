@@ -22,7 +22,12 @@ The dataclasses follow these rules:
 3. The names do not use `dsp-tools` terms or old `knora` terms.
 4. The names describe the intent, for example they do not refer to the GUI ontology.
 
-All dataclasses are frozen.
+All dataclasses are frozen. Collections are tuples, thus the objects are immutable.
+All enums are `StrEnum`.
+
+The types cannot express all rules of rule 2, for example "each language occurs one time".
+`dsp-vre` enforces these rules in the background. The mechanism is not decided.
+Pydantic is not a good choice, because `dsp-vre` collects all errors and does not raise (ADR principle 11).
 
 ## Scope
 
@@ -44,11 +49,12 @@ Not in this document:
 `LabelComments` holds the label and the comment for one language.
 The intent is that each language has a label and a comment.
 A label without a comment is not possible.
+`dsp-vre` enforces this rule. It is a breaking change for JSON project files without comments, but necessary.
 
-Classes, properties and vocabulary nodes use a `list[LabelComments]`, with one item for each language.
+Classes, properties and vocabulary nodes use a `tuple[LabelComments, ...]`, with one item for each language.
 
 ```python
-class Language(Enum):
+class Language(StrEnum):
     EN = "en"
     DE = "de"
     FR = "fr"
@@ -63,10 +69,10 @@ class LabelComments:
     language: Language
 ```
 
-| JSON project file                                                 | Proposed field                                |
-|-------------------------------------------------------------------|-----------------------------------------------|
-| `labels: {"en": "..."}` and `comments: {"en": "..."}` (two dicts) | `list[LabelComments]` (one item per language) |
-| Language code as a free string                                    | `Language`                                    |
+| JSON project file                                                 | Proposed field                                      |
+|-------------------------------------------------------------------|-----------------------------------------------------|
+| `labels: {"en": "..."}` and `comments: {"en": "..."}` (two dicts) | `tuple[LabelComments, ...]` (one item per language) |
+| Language code as a free string                                    | `Language`                                          |
 
 ### References
 
@@ -90,11 +96,14 @@ A system admin creates the project.
 `embargo` sets the embargo state at creation. The default is no embargo.
 
 The first release mocks the embargo.
-If `embargo` is true, `dsp-vre` creates the restricted permissions and sets all other permissions to private.
+If `embargo` is true, the mock ignores all permissions that are set.
+The user can still set access restrictions in the dataclasses.
 When the server implements the embargo, only the code changes, not the interface.
 Thus, the JSON project file can record the necessary final state now.
 
 A private project uses the embargo. There is no other project-level private default.
+
+`descriptions` is a mapping and not `LabelComments`, because a project description has no label.
 
 ```python
 @dataclass(frozen=True)
@@ -102,8 +111,8 @@ class Project:
     shortcode: str
     shortname: str
     longname: str
-    descriptions: dict[Language, str]
-    keywords: list[str]
+    descriptions: Mapping[Language, str]
+    keywords: tuple[str, ...]
     embargo: bool = False
 ```
 
@@ -112,21 +121,31 @@ class Project:
 A project admin sets the legal information.
 `ProjectLegalSettings` is separate from `Project`.
 
+`License` is the closed set of licenses that the server supports.
+`License` needs an update with each API version that changes the licenses.
+
 ```python
+class License(StrEnum):
+    CC_BY_4_0 = "http://rdfh.ch/licenses/cc-by-4.0"
+    CC_BY_SA_4_0 = "http://rdfh.ch/licenses/cc-by-sa-4.0"
+    # ... one member for each license of the server
+
+
 @dataclass(frozen=True)
 class ProjectLegalSettings:
-    enabled_licenses: list[str]
-    data_license: str | None
+    enabled_licenses: tuple[License, ...]
+    data_license: License | None
     data_copyright_holder: str | None
-    default_data_authorship: list[str]
+    default_data_authorship: tuple[str, ...]
 ```
 
-| JSON project file (`project`)                                                          | Proposed field                              |
-|----------------------------------------------------------------------------------------|---------------------------------------------|
-| `shortcode`, `shortname`, `longname`, `keywords`                                       | `Project`: same names                       |
-| `descriptions: {"en": "..."}`                                                          | `Project.descriptions: dict[Language, str]` |
-| Not available                                                                          | `Project.embargo`                           |
-| `enabled_licenses`, `data_license`, `data_copyright_holder`, `default_data_authorship` | `ProjectLegalSettings`: same names          |
+| JSON project file (`project`)                                                          | Proposed field                                 |
+|----------------------------------------------------------------------------------------|------------------------------------------------|
+| `shortcode`, `shortname`, `longname`, `keywords`                                       | `Project`: same names                          |
+| `descriptions: {"en": "..."}`                                                          | `Project.descriptions: Mapping[Language, str]` |
+| Not available                                                                          | `Project.embargo`                              |
+| `enabled_licenses`, `data_license`, `data_copyright_holder`, `default_data_authorship` | `ProjectLegalSettings`: same names             |
+| License as a free string                                                               | `License`                                      |
 
 ## Access
 
@@ -152,16 +171,17 @@ class User:
 `ProjectMembership` connects a user to the project and sets the role of the user.
 A user has one role in a project.
 It is separate from `User`, because a user can exist before the project and be a member of many projects.
+The project is an argument of the function, not a field of the dataclass.
 
 The user does not see groups. The role states the intent, for example "this person can edit the data".
 `dsp-vre` then sets the necessary rights on the server.
 
 ```python
-class ProjectUserRole(Enum):
-    ADMIN = auto()
-    EDITOR = auto()
-    WRITER = auto()
-    READER = auto()
+class ProjectUserRole(StrEnum):
+    ADMIN = "admin"
+    EDITOR = "editor"
+    WRITER = "writer"
+    READER = "reader"
 
 
 @dataclass(frozen=True)
@@ -198,32 +218,33 @@ Roles are the design for `dsp-vre`. There are two ways to implement them:
 ### Fallback: Groups
 
 If A and B are both rejected, `dsp-vre` uses the classical groups of DSP-API.
-Then the interface has a `Group`, and `ProjectMembership` has the groups of the user:
+Then the interface has a `Group`, and `GroupMembership` has the groups of the user:
 
 ```python
 @dataclass(frozen=True)
 class Group:
     name: str
-    descriptions: dict[Language, str]
+    descriptions: Mapping[Language, str]
 
 
 @dataclass(frozen=True)
-class ProjectMembership:
+class GroupMembership:
     username: str
     is_project_admin: bool
-    groups: set[str]
+    groups: tuple[str, ...]
 ```
 
-| JSON project file (`project`)        | Proposed field                       |
-|--------------------------------------|--------------------------------------|
-| `users[].username`, `email`          | `User`: same names                   |
-| `users[].givenName`, `familyName`    | `User.given_name`, `family_name`     |
-| `users[].password`                   | `User.password`                      |
-| `users[].password: null`             | `User.password` from the environment |
-| `users[].lang`                       | `User.language`                      |
-| `users[].projects: [":admin"]`       | `ProjectUserRole.ADMIN`              |
-| `users[].projects: [":member"]`      | Open decision                        |
-| `groups[]`, `users[].groups`         | No field (fallback only)             |
+| JSON project file (`project`)     | Proposed field                       |
+|-----------------------------------|--------------------------------------|
+| `users[].username`, `email`       | `User`: same names                   |
+| `users[].givenName`, `familyName` | `User.given_name`, `family_name`     |
+| `users[].password`                | `User.password`                      |
+| `users[].password: null`          | `User.password` from the environment |
+| `users[].lang`                    | `User.language`                      |
+| `users[].projects: [":admin"]`    | `ProjectUserRole.ADMIN`              |
+| `users[].projects: [":member"]`   | Open decision                        |
+| `users[].projects: ["other:..."]` | Not supported in `dsp-vre`           |
+| `groups[]`, `users[].groups`      | No field (fallback only)             |
 
 Open decisions:
 
@@ -236,7 +257,8 @@ Open decisions:
 ### Ontology
 
 `Ontology` holds the classes and the properties of one data model.
-The label is one string and the comment is optional. They do not have a language.
+The label is one string and the comment is optional.
+They are not `LabelComments`, because the server supports only one language for an ontology.
 
 ```python
 @dataclass(frozen=True)
@@ -244,8 +266,8 @@ class Ontology:
     name: str
     label: str
     comment: str | None
-    classes: list[Class]
-    properties: list[Property]
+    classes: tuple[Class, ...]
+    properties: tuple[Property, ...]
 ```
 
 ### Class
@@ -257,16 +279,16 @@ The intent is to separate two kinds of super-classes:
 - `ontology_super_classes`: classes of the same project. They give inheritance, which is visible in DSP.
 - `external_mapping`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
 
-An empty set means that the class has no super-class of that kind.
+An empty tuple means that the class has no super-class of that kind.
 
 ```python
 @dataclass(frozen=True)
 class Class:
     name: str
-    label_comments: list[LabelComments]
-    ontology_super_classes: set[str]
-    external_mapping: set[str]
-    cardinalities: list[Cardinality]
+    label_comments: tuple[LabelComments, ...]
+    ontology_super_classes: tuple[str, ...]
+    external_mapping: tuple[str, ...]
+    cardinalities: tuple[Cardinality, ...]
 ```
 
 ### Class with File
@@ -275,28 +297,28 @@ class Class:
 The user selects the file type. The user does not select the `knora-api` super-class.
 
 ```python
-class DspFileTypes(Enum):
-    ARCHIVE = auto()
-    AUDIO = auto()
-    DOCUMENT = auto()
-    VIDEO = auto()
-    STILL_IMAGE = auto()
-    TEXT = auto()
+class FileType(StrEnum):
+    ARCHIVE = "archive"
+    AUDIO = "audio"
+    DOCUMENT = "document"
+    VIDEO = "video"
+    STILL_IMAGE = "still_image"
+    TEXT = "text"
 
 
 @dataclass(frozen=True)
 class ClassWithFile(Class):
-    file_type: DspFileTypes
+    file_type: FileType
 ```
 
-| `DspFileTypes` | `knora-api` super-class     |
-|----------------|-----------------------------|
-| `ARCHIVE`      | `ArchiveRepresentation`     |
-| `AUDIO`        | `AudioRepresentation`       |
-| `DOCUMENT`     | `DocumentRepresentation`    |
-| `VIDEO`        | `MovingImageRepresentation` |
-| `STILL_IMAGE`  | `StillImageRepresentation`  |
-| `TEXT`         | `TextRepresentation`        |
+| `FileType`    | `knora-api` super-class     |
+|---------------|-----------------------------|
+| `ARCHIVE`     | `ArchiveRepresentation`     |
+| `AUDIO`       | `AudioRepresentation`       |
+| `DOCUMENT`    | `DocumentRepresentation`    |
+| `VIDEO`       | `MovingImageRepresentation` |
+| `STILL_IMAGE` | `StillImageRepresentation`  |
+| `TEXT`        | `TextRepresentation`        |
 
 ### Cardinality
 
@@ -304,7 +326,7 @@ class ClassWithFile(Class):
 `property_display_order` sets the position of the property in the user interface.
 
 ```python
-class CardinalityNumber(Enum):
+class CardinalityNumber(StrEnum):
     C_0_1 = "0-1"
     C_1 = "1"
     C_0_N = "0-n"
@@ -313,7 +335,7 @@ class CardinalityNumber(Enum):
 
 @dataclass(frozen=True)
 class Cardinality:
-    property: str
+    property_name: str
     cardinality: CardinalityNumber
     property_display_order: int | None
 ```
@@ -334,54 +356,55 @@ The user states the intent, for example `TEXT_MULTI_LINE`.
 `dsp-vre` then selects the correct `knora-api` super-property, value type and GUI element.
 
 As with classes, `ontology_super_properties` gives inheritance and `external_mapping` gives meaning only.
-An empty set means that the property has no super-property of that kind.
+An empty tuple means that the property has no super-property of that kind.
 
-`ObjectProperty.object_class` is the class that the link points to.
-For `HAS_REPRESENTATION`, it is a `ClassWithFile` of the project.
+`ObjectProperty.object_class_restriction` is the class that the link points to.
+`None` means that the link can point to any resource.
+For `HAS_REPRESENTATION` only, it must be a `ClassWithFile` of the project.
 
 ```python
-class DspDatatypePropertyTypes(Enum):
-    BOOLEAN = auto()
-    COLOR = auto()
-    DATE = auto()
-    DECIMAL = auto()
-    GEOLOCATION = auto()
-    GEONAME = auto()
-    INT = auto()
-    REGION_PREVIEW = auto()
-    TEXT_ONE_LINE = auto()
-    TEXT_MULTI_LINE = auto()
-    TEXT_FORMATTED = auto()
-    TIME = auto()
-    URI = auto()
-    HAS_COMMENT = auto()
-    SEQNUM = auto()
+class DatatypePropertyType(StrEnum):
+    BOOLEAN = "boolean"
+    COLOR = "color"
+    DATE = "date"
+    DECIMAL = "decimal"
+    GEOLOCATION = "geolocation"
+    GEONAME = "geoname"
+    INT = "int"
+    REGION_PREVIEW = "region_preview"
+    TEXT_ONE_LINE = "text_one_line"
+    TEXT_MULTI_LINE = "text_multi_line"
+    TEXT_FORMATTED = "text_formatted"
+    TIME = "time"
+    URI = "uri"
+    HAS_COMMENT = "has_comment"
+    SEQNUM = "seqnum"
 
 
-class DspObjectPropertyTypes(Enum):
-    LINK_TO_CLASS = auto()
-    IS_PART_OF_COLLECTION = auto()
-    HAS_REPRESENTATION = auto()
+class ObjectPropertyType(StrEnum):
+    LINK_TO_CLASS = "link_to_class"
+    IS_PART_OF_COLLECTION = "is_part_of_collection"
+    HAS_REPRESENTATION = "has_representation"
 
 
 @dataclass(frozen=True)
 class Property(ABC):
     name: str
-    label_comments: list[LabelComments]
-    ontology_super_properties: set[str]
-    external_mapping: set[str]
+    label_comments: tuple[LabelComments, ...]
+    ontology_super_properties: tuple[str, ...]
+    external_mapping: tuple[str, ...]
     subject_class: str | None
 
 
 @dataclass(frozen=True)
 class DatatypeProperty(Property):
-    dsp_type: DspDatatypePropertyTypes
+    dsp_type: DatatypePropertyType
 
 
 @dataclass(frozen=True)
 class ObjectProperty(Property):
-    dsp_type: DspObjectPropertyTypes
-    object_class: str
+    dsp_type: ObjectPropertyType
+    object_class_restriction: str | None
 
 
 @dataclass(frozen=True)
@@ -391,46 +414,47 @@ class ControlledVocabularyProperty(Property):
 
 The table shows which property type replaces which combination in the JSON project file.
 
-| Property type                  | `super`             | `object`             | `gui_element`           |
-|--------------------------------|---------------------|----------------------|-------------------------|
-| `BOOLEAN`                      | `hasValue`          | `BooleanValue`       | `Checkbox`              |
-| `COLOR`                        | `hasColor`          | `ColorValue`         | `Colorpicker`           |
-| `DATE`                         | `hasValue`          | `DateValue`          | `Date`                  |
-| `DECIMAL`                      | `hasValue`          | `DecimalValue`       | `Spinbox`, `SimpleText` |
-| `GEOLOCATION`                  | `hasValue`          | `GeolocationValue`   | `Geolocation`           |
-| `GEONAME`                      | `hasValue`          | `GeonameValue`       | `Geonames`              |
-| `INT`                          | `hasValue`          | `IntValue`           | `Spinbox`, `SimpleText` |
-| `REGION_PREVIEW`               | `hasRegionPreview`  | `RegionPreviewValue` | `RegionPreview`         |
-| `TEXT_ONE_LINE`                | `hasValue`          | `TextValue`          | `SimpleText`            |
-| `TEXT_MULTI_LINE`              | `hasValue`          | `TextValue`          | `Textarea`              |
-| `TEXT_FORMATTED`               | `hasValue`          | `TextValue`          | `Richtext`              |
-| `TIME`                         | `hasValue`          | `TimeValue`          | `TimeStamp`             |
-| `URI`                          | `hasValue`          | `UriValue`           | `SimpleText`            |
-| `HAS_COMMENT`                  | `hasComment`        | `TextValue`          | `Richtext`              |
-| `SEQNUM`                       | `seqnum`            | `IntValue`           | `Spinbox`, `SimpleText` |
-| `LINK_TO_CLASS`                | `hasLinkTo`         | a class              | `Searchbox`             |
-| `IS_PART_OF_COLLECTION`        | `isPartOf`          | a class              | `Searchbox`             |
-| `HAS_REPRESENTATION`           | `hasRepresentation` | `Representation`     | `Searchbox`             |
-| `ControlledVocabularyProperty` | `hasValue`          | `ListValue`          | `List`                  |
+| Property type                  | `super`             | `object`                               | `gui_element`           |
+|--------------------------------|---------------------|----------------------------------------|-------------------------|
+| `BOOLEAN`                      | `hasValue`          | `BooleanValue`                         | `Checkbox`              |
+| `COLOR`                        | `hasColor`          | `ColorValue`                           | `Colorpicker`           |
+| `DATE`                         | `hasValue`          | `DateValue`                            | `Date`                  |
+| `DECIMAL`                      | `hasValue`          | `DecimalValue`                         | `Spinbox`, `SimpleText` |
+| `GEOLOCATION`                  | `hasValue`          | `GeolocationValue`                     | `Geolocation`           |
+| `GEONAME`                      | `hasValue`          | `GeonameValue`                         | `Geonames`              |
+| `INT`                          | `hasValue`          | `IntValue`                             | `Spinbox`, `SimpleText` |
+| `REGION_PREVIEW`               | `hasRegionPreview`  | `RegionPreviewValue`                   | `RegionPreview`         |
+| `TEXT_ONE_LINE`                | `hasValue`          | `TextValue`                            | `SimpleText`            |
+| `TEXT_MULTI_LINE`              | `hasValue`          | `TextValue`                            | `Textarea`              |
+| `TEXT_FORMATTED`               | `hasValue`          | `TextValue`                            | `Richtext`              |
+| `TIME`                         | `hasValue`          | `TimeValue`                            | `TimeStamp`             |
+| `URI`                          | `hasValue`          | `UriValue`                             | `SimpleText`            |
+| `HAS_COMMENT`                  | `hasComment`        | `TextValue`                            | `Richtext`              |
+| `SEQNUM`                       | `seqnum`            | `IntValue`                             | `Spinbox`, `SimpleText` |
+| `LINK_TO_CLASS`                | `hasLinkTo`         | a class, or `Resource`                 | `Searchbox`             |
+| `IS_PART_OF_COLLECTION`        | `isPartOf`          | a class                                | `Searchbox`             |
+| `HAS_REPRESENTATION`           | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`             |
+| `ControlledVocabularyProperty` | `hasValue`          | `ListValue`                            | `List`                  |
 
 For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` selects the GUI element.
 
-| JSON project file                                               | Proposed field                                 |
-|-----------------------------------------------------------------|------------------------------------------------|
-| `ontologies[].name`, `label`, `comment`                         | `Ontology`: same names                         |
-| `resources[].labels`, `comments`                                | `Class.label_comments`                         |
-| `resources[].super` (project class)                             | `Class.ontology_super_classes`                 |
-| `resources[].super` (external class)                            | `Class.external_mapping`                       |
-| `resources[].super: StillImageRepresentation` (and other files) | `ClassWithFile.file_type`                      |
-| `cardinalities[].propname`, `cardinality`                       | `Cardinality.property`, `cardinality`          |
-| `cardinalities[].gui_order`                                     | `Cardinality.property_display_order`           |
-| `properties[].labels`, `comments`                               | `Property.label_comments`                      |
-| `properties[].super` (project property)                         | `Property.ontology_super_properties`           |
-| `properties[].super` (external property)                        | `Property.external_mapping`                    |
-| `properties[].subject`                                          | `Property.subject_class`                       |
-| `properties[].super`, `object`, `gui_element`                   | `dsp_type`                                     |
-| `properties[].object` (class name)                              | `ObjectProperty.object_class`                  |
-| `properties[].gui_attributes: {"hlist": ...}`                   | `ControlledVocabularyProperty.vocabulary_name` |
+| JSON project file                                               | Proposed field                                   |
+|-----------------------------------------------------------------|--------------------------------------------------|
+| `ontologies[].name`, `label`, `comment`                         | `Ontology`: same names                           |
+| `resources[].labels`, `comments`                                | `Class.label_comments`                           |
+| `resources[].super` (project class)                             | `Class.ontology_super_classes`                   |
+| `resources[].super` (external class)                            | `Class.external_mapping`                         |
+| `resources[].super: StillImageRepresentation` (and other files) | `ClassWithFile.file_type`                        |
+| `cardinalities[].propname`, `cardinality`                       | `Cardinality.property_name`, `cardinality`       |
+| `cardinalities[].gui_order`                                     | `Cardinality.property_display_order`             |
+| `properties[].labels`, `comments`                               | `Property.label_comments`                        |
+| `properties[].super` (project property)                         | `Property.ontology_super_properties`             |
+| `properties[].super` (external property)                        | `Property.external_mapping`                      |
+| `properties[].subject`                                          | `Property.subject_class`                         |
+| `properties[].super`, `object`, `gui_element`                   | `dsp_type`                                       |
+| `properties[].object` (class name)                              | `ObjectProperty.object_class_restriction`        |
+| `properties[].object: Resource`, `Representation`               | `ObjectProperty.object_class_restriction = None` |
+| `properties[].gui_attributes: {"hlist": ...}`                   | `ControlledVocabularyProperty.vocabulary_name`   |
 
 ### Access Restrictions
 
@@ -460,9 +484,9 @@ A restriction applies to one of these targets:
   The resource stays public. Only the file is private or has a limited view.
 
 ```python
-class FileRestrictionType(Enum):
-    PRIVATE = auto()
-    LIMITED_VIEW = auto()
+class FileRestrictionType(StrEnum):
+    PRIVATE = "private"
+    LIMITED_VIEW = "limited_view"
 
 
 @dataclass(frozen=True)
@@ -479,10 +503,10 @@ class ClassProperty:
 
 @dataclass(frozen=True)
 class AccessRestrictions:
-    private_classes: set[str]
-    private_properties: set[str]
-    private_class_properties: set[ClassProperty]
-    file_restrictions: set[FileRestriction]
+    private_classes: tuple[str, ...]
+    private_properties: tuple[str, ...]
+    private_class_properties: tuple[ClassProperty, ...]
+    file_restrictions: tuple[FileRestriction, ...]
 ```
 
 `dsp-vre` checks these rules and returns a failure for each item that does not obey them:
@@ -495,7 +519,7 @@ class AccessRestrictions:
 The Data model domain has three operations for restrictions:
 
 - `create`: sets the restrictions of a project that has none.
-- `update`: adds restrictions.
+- `update`: replaces the restrictions of the named items.
 - `delete`: removes the named restrictions.
 
 The restrictions are a separate input, and not fields of `Class` and `Property`. The reasons are:
@@ -508,6 +532,9 @@ The cost of this decision:
 
 - `dsp-vre` must check that each name exists, because the restriction is not part of the class.
 - A read of the data model returns the ontologies and the restrictions as two objects.
+
+`default_permissions: "private"` maps to the embargo.
+This is not a contradiction, because a permanently private project does not exist.
 
 | JSON project file (`project`)                      | Proposed field                                           |
 |----------------------------------------------------|----------------------------------------------------------|
@@ -538,15 +565,15 @@ Each node has a label and a comment in each language.
 @dataclass(frozen=True)
 class ControlledVocabulary:
     vocabulary_name: str
-    vocabulary_information: list[LabelComments]
-    vocabulary_nodes: list[VocabularyNode]
+    vocabulary_information: tuple[LabelComments, ...]
+    vocabulary_nodes: tuple[VocabularyNode, ...]
 
 
 @dataclass(frozen=True)
 class VocabularyNode:
     node_name: str
-    node_information: list[LabelComments]
-    vocabulary_sub_nodes: list[VocabularyNode]
+    node_information: tuple[LabelComments, ...]
+    vocabulary_sub_nodes: tuple[VocabularyNode, ...]
 ```
 
 | JSON project file (`lists`)  | Proposed field                                |
@@ -570,4 +597,5 @@ class VocabularyNode:
 | `resources[].super`: `Resource`                                      | `Class` is always a sub-class of `Resource`.               |
 | `resources[].super`: `Representation`, `DDDRepresentation`, `Region` | Out of scope for the first release. No file ingest for 3D. |
 | A label without a comment                                            | Each language has a label and a comment (`LabelComments`). |
-| `groups`, `users[].groups`                                           | Replaced by project roles.                                 |
+| `users[].projects` of other projects                                 | The project is an argument of the function.                |
+| `groups`, `users[].groups`                                           | Replaced by project roles (unless the fallback applies).   |

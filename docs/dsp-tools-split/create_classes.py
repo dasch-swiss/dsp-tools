@@ -76,7 +76,7 @@ class User:
 # The user does not see groups. dsp-vre sets the rights for each role.
 class ProjectUserRole(Enum):
     ADMIN = auto()  # CR on project data, data model, users, legal info, restrictions
-    EDITOR = auto()  # CR on project data, create resources
+    EDITOR = auto()  # D on project data, create resources, no change of permissions
     WRITER = auto()  # M on project data, create resources
     READER = auto()  # V on project data, also private data
 

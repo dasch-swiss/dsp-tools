@@ -175,11 +175,12 @@ The roles give these rights:
 | Role     | Project data | Create resources | Data model, users, legal info, restrictions |
 |----------|--------------|------------------|---------------------------------------------|
 | `ADMIN`  | `CR`         | Yes              | Yes                                         |
-| `EDITOR` | `CR`         | Yes              | No                                          |
+| `EDITOR` | `D`          | Yes              | No                                          |
 | `WRITER` | `M`          | Yes              | No                                          |
 | `READER` | `V`          | No               | No                                          |
 
-`CR` includes delete and the change of permissions. `M` does not include delete.
+`CR` includes delete and the change of permissions. `D` includes delete, but not the change of permissions.
+`M` does not include delete.
 A `READER` can see private data of the project.
 
 ### Implementation of Roles
@@ -227,7 +228,7 @@ class ProjectMembership:
 Open decisions:
 
 - Mapping of `:member`: today, a member gets `D` (delete) on the project data.
-  `EDITOR`: no member loses a right, but each member can change permissions.
+  `EDITOR`: the rights stay the same, because `EDITOR` also has `D`.
   `WRITER`: no member gets a new right, but each member loses the right to delete.
 
 ## Data Model
@@ -446,9 +447,9 @@ The levels give these rights:
 
 | Level        | `ADMIN` | `EDITOR` | `WRITER` | `READER` | Known and unknown users |
 |--------------|---------|----------|----------|----------|-------------------------|
-| Public       | `CR`    | `CR`     | `M`      | `V`      | `V`                     |
-| Private      | `CR`    | `CR`     | `M`      | `V`      | None                    |
-| Limited view | `CR`    | `CR`     | `M`      | `V`      | `RV`                    |
+| Public       | `CR`    | `D`      | `M`      | `V`      | `V`                     |
+| Private      | `CR`    | `D`      | `M`      | `V`      | None                    |
+| Limited view | `CR`    | `D`      | `M`      | `V`      | `RV`                    |
 
 A restriction applies to one of these targets:
 

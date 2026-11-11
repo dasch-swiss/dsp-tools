@@ -164,7 +164,7 @@ Future work:
 
 #### Data Model
 
-- Ontologies, classes, properties, cardinalities and specific permissions.
+- Ontologies, classes, properties, cardinalities and access restrictions.
 - External mappings of classes and properties.
 
 #### Vocabularies

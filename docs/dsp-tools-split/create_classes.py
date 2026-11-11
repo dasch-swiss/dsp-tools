@@ -195,6 +195,32 @@ class ControlledVocabularyProperty(Property):
     vocabulary_name: str
 
 
+# A restriction can only make an item more restricted. The default is public.
+class FileRestrictionType(Enum):
+    PRIVATE = auto()
+    LIMITED_VIEW = auto()
+
+
+@dataclass(frozen=True)
+class FileRestriction:
+    class_name: str
+    restriction: FileRestrictionType
+
+
+@dataclass(frozen=True)
+class ClassProperty:
+    class_name: str
+    property_name: str
+
+
+@dataclass(frozen=True)
+class AccessRestrictions:
+    private_classes: set[str]
+    private_properties: set[str]
+    private_class_properties: set[ClassProperty]
+    file_restrictions: set[FileRestriction]
+
+
 # ---------------------------------------------------------------------------
 # Vocabularies
 # ---------------------------------------------------------------------------

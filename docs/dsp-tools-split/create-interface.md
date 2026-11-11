@@ -34,9 +34,6 @@ Not in this document:
 
 - Connection: it has no `create` input.
 - Data: `xmlupload` creates data, not `create`.
-- Permissions: a later document describes them.
-  The plan is typed pre-sets, as in the JSON project file:
-  a project default (`public` or `private`) and exceptions (`private`, `limited_view`).
 
 ## Shared Types
 
@@ -96,6 +93,8 @@ The first release mocks the embargo.
 If `embargo` is true, `dsp-vre` creates the restricted permissions and sets all other permissions to private.
 When the server implements the embargo, only the code changes, not the interface.
 Thus, the JSON project file can record the necessary final state now.
+
+A private project uses the embargo. There is no other project-level private default.
 
 ```python
 @dataclass(frozen=True)
@@ -387,6 +386,102 @@ For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` selects the GUI element.
 | `properties[].object` (class name)                              | `ObjectProperty.object_class`                  |
 | `properties[].gui_attributes: {"hlist": ...}`                   | `ControlledVocabularyProperty.vocabulary_name` |
 
+### Access Restrictions
+
+An access restriction hides data from users outside the project.
+The default is public. Thus, the user names only the items that have a restriction.
+A restriction can only make an item more restricted than its parent.
+For example, a public property on a private class is not possible.
+
+On the server, a restriction is a default object access permission (DOAP).
+The server applies a DOAP only to data that it creates after the DOAP.
+A restriction does not change data that exists.
+
+The levels give these rights:
+
+| Level        | Project admin | Project member | Known and unknown users |
+|--------------|---------------|----------------|-------------------------|
+| Public       | `CR`          | `D`            | `V`                     |
+| Private      | `CR`          | `D`            | None                    |
+| Limited view | `CR`          | `D`            | `RV`                    |
+
+A restriction applies to one of these targets:
+
+- A class: `private_classes`.
+- A property, on all classes: `private_properties`.
+- A property on one class: `private_class_properties`.
+- The file of a `ClassWithFile`: `file_restrictions`.
+  The resource stays public. Only the file is private or has a limited view.
+
+```python
+class FileRestrictionType(Enum):
+    PRIVATE = auto()
+    LIMITED_VIEW = auto()
+
+
+@dataclass(frozen=True)
+class FileRestriction:
+    class_name: str
+    restriction: FileRestrictionType
+
+
+@dataclass(frozen=True)
+class ClassProperty:
+    class_name: str
+    property_name: str
+
+
+@dataclass(frozen=True)
+class AccessRestrictions:
+    private_classes: set[str]
+    private_properties: set[str]
+    private_class_properties: set[ClassProperty]
+    file_restrictions: set[FileRestriction]
+```
+
+`dsp-vre` checks these rules and returns a failure for each item that does not obey them:
+
+- Each class and property name exists in the project.
+- `FileRestriction.class_name` is a `ClassWithFile`.
+- `LIMITED_VIEW` is only on a `ClassWithFile` of the type `STILL_IMAGE`, `VIDEO` or `AUDIO`.
+- Each class has a maximum of one `FileRestriction`.
+
+The Data model domain has three operations for restrictions:
+
+- `create`: sets the restrictions of a project that has none.
+- `update`: adds restrictions.
+- `delete`: removes the named restrictions.
+
+The restrictions are a separate input, and not fields of `Class` and `Property`. The reasons are:
+
+- A DOAP belongs to the project, not to the ontology.
+  A field on the class suggests that a change also hides the resources that exist.
+- The user can set restrictions on an existing ontology without an update of the data model.
+- Few items have a restriction. Fields on each class and property add noise for all other items.
+
+The cost of this decision:
+
+- `dsp-vre` must check that each name exists, because the restriction is not part of the class.
+- A read of the data model returns the ontologies and the restrictions as two objects.
+
+| JSON project file (`project`)                      | Proposed field                                           |
+|----------------------------------------------------|----------------------------------------------------------|
+| `default_permissions: "public"`                    | No restriction                                           |
+| `default_permissions: "private"`                   | `Project.embargo = True`                                 |
+| `default_permissions_overrule.private` (class)     | `AccessRestrictions.private_classes`                     |
+| `default_permissions_overrule.private` (property)  | `AccessRestrictions.private_properties`                  |
+| `default_permissions_overrule.limited_view: [...]` | `FileRestriction(..., FileRestrictionType.LIMITED_VIEW)` |
+| `default_permissions_overrule.limited_view: "all"` | `dsp-tools` adds each image, video and audio class       |
+| Not available                                      | `private_class_properties`                               |
+| Not available                                      | `FileRestrictionType.PRIVATE`                            |
+
+Open decisions:
+
+- Embargo: during the mocked embargo, all data is private.
+  The place that keeps the restrictions until the embargo ends depends on the server design of the embargo.
+- Custom groups: a restriction does not refer to a custom group.
+  The full permission model (ADR principle 9) is future work.
+
 ## Vocabularies
 
 `ControlledVocabulary` is a tree of nodes. The JSON project file calls it a list.
@@ -430,4 +525,3 @@ class VocabularyNode:
 | `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Out of scope for the first release. No file ingest for 3D. |
 | A label without a comment                                               | Each language has a label and a comment (`LabelComments`). |
 | `groups[].status`, `selfjoin`                                           | `dsp-vre` sets them: active, no self-join.                 |
-| `default_permissions`, `default_permissions_overrule`                   | A later document describes permissions.                    |

@@ -427,7 +427,7 @@ class VocabularyNode:
 | `gui_attributes` other than `hlist`                                     | `dsp-tools create` ignores them today.                     |
 | `gui_element`: `Radio`, `Pulldown`                                      | `dsp-tools create` does not support them today.            |
 | `resources[].super`: `Resource`                                         | `Class` is always a sub-class of `Resource`.               |
-| `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Not used. The server does not support `DDDRepresentation`. |
+| `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Out of scope for the first release. No file ingest for 3D. |
 | A label without a comment                                               | Each language has a label and a comment (`LabelComments`). |
 | `groups[].status`, `selfjoin`                                           | `dsp-vre` sets them: active, no self-join.                 |
 | `default_permissions`, `default_permissions_overrule`                   | A later document describes permissions.                    |

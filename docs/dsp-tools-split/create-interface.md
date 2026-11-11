@@ -79,8 +79,8 @@ class LabelComments:
 The user refers to items by their local names (ADR principle 4).
 A reference has one of these forms:
 
-- An item of the same ontology: the name only, for example `Book`.
-- An item of another ontology of the same project: `<ontology>:<name>`, for example `biblio:Book`.
+- An item of the same ontology or another ontology of the same project: `<ontology>:<name>`, for example `biblio:Book`.
+  This makes the implementation logic eaiser.
 - A class or property of an external ontology: the full IRI, for example `http://www.cidoc-crm.org/cidoc-crm/E22`.
 - A user: the username only.
 
@@ -298,12 +298,12 @@ The user selects the file type. The user does not select the `knora-api` super-c
 
 ```python
 class FileType(StrEnum):
-    ARCHIVE = "archive"
-    AUDIO = "audio"
-    DOCUMENT = "document"
-    VIDEO = "video"
-    STILL_IMAGE = "still_image"
-    TEXT = "text"
+    ARCHIVE = "ArchiveRepresentation"
+    AUDIO = "AudioRepresentation"
+    DOCUMENT = "DocumentRepresentation"
+    VIDEO = "MovingImageRepresentation"
+    STILL_IMAGE = "StillImageRepresentation"
+    TEXT = "TextRepresentation"
 
 
 @dataclass(frozen=True)
@@ -436,7 +436,9 @@ The table shows which property type replaces which combination in the JSON proje
 | `HAS_REPRESENTATION`           | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`             |
 | `ControlledVocabularyProperty` | `hasValue`          | `ListValue`                            | `List`                  |
 
-For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` selects the GUI element.
+To be decided:
+For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` there are to options Spinbox or SimpleText,
+this changed interface would disallow a selection of either. Is this an acceptable breaking change?
 
 | JSON project file                                               | Proposed field                                   |
 |-----------------------------------------------------------------|--------------------------------------------------|

@@ -46,6 +46,10 @@ The package has two user groups:
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, a client can check the rights before it starts an operation.
+11. **Functional Error Model.**
+    The package does not raise errors, rather it follows the Functional Error handling model, which represents error
+    states (success, partial success and failure) by typed objects.
+    As this is not Python native, it will be done through enums.
 
 ## Decisions
 
@@ -77,15 +81,18 @@ Future work: none at this time.
 
 - Project with metadata.
 - Legal info: licenses, copyright holders, default authorship.
+- Embargo state of the project (this is mocked, by ignoring the set permissions in code, to be changed once embargo is
+  implemented)
+- Migration: Export a project from one server and import it into another server. The export includes the data model and
+  the admin data.
 
 Future work:
 
-- Embargo: mark a project as under embargo, and lift the embargo.
+- Embargo: mark a project as under embargo, and lift the embargo in the database.
 
 ### Access
 
 - Users, groups and memberships.
-- Default permissions of the project.
 - Operations that the current user can do (principle 10).
 
 Future work:
@@ -94,12 +101,8 @@ Future work:
 
 ### Data Model
 
-- Ontologies, classes, properties and cardinalities.
+- Ontologies, classes, properties, cardinalities and specific permissions.
 - External mappings of classes and properties.
-
-Future work:
-
-- Default permissions per class and per property, separately.
 
 ### Vocabularies
 
@@ -122,15 +125,8 @@ Future work:
 
 - Add values to existing resources.
 - Replace existing values and files.
-- Change permissions of resources and values.
+- Change permissions of resources and values without versioning of the data.
 - Export data as Python objects, for example by class.
-
-### Migration (to be defined)
-
-- Export a project from one server and import it into another server.
-  The export includes the data model and the admin data.
-
-Future work: to be defined.
 
 ## Progress & Reporting
 

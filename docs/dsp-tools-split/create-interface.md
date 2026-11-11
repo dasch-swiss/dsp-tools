@@ -173,17 +173,17 @@ class ProjectMembership:
     groups: set[str]
 ```
 
-| JSON project file (`project`)                              | Proposed field                         |
-|------------------------------------------------------------|----------------------------------------|
-| `groups[].name`                                            | `Group.name`                           |
-| `groups[].descriptions: {"en": "..."}`                     | `Group.descriptions`                   |
-| `users[].username`, `email`                                | `User`: same names                     |
-| `users[].givenName`, `familyName`                          | `User.given_name`, `family_name`       |
-| `users[].password`                                         | `User.password`                        |
-| `users[].password: null`                                   | `User.password` from the environment   |
-| `users[].lang`                                             | `User.language`                        |
-| `users[].projects: [":admin"]` or `[":member"]`            | `ProjectMembership.is_project_admin`   |
-| `users[].groups: [":editors"]`                             | `ProjectMembership.groups`             |
+| JSON project file (`project`)                   | Proposed field                       |
+|-------------------------------------------------|--------------------------------------|
+| `groups[].name`                                 | `Group.name`                         |
+| `groups[].descriptions: {"en": "..."}`          | `Group.descriptions`                 |
+| `users[].username`, `email`                     | `User`: same names                   |
+| `users[].givenName`, `familyName`               | `User.given_name`, `family_name`     |
+| `users[].password`                              | `User.password`                      |
+| `users[].password: null`                        | `User.password` from the environment |
+| `users[].lang`                                  | `User.language`                      |
+| `users[].projects: [":admin"]` or `[":member"]` | `ProjectMembership.is_project_admin` |
+| `users[].groups: [":editors"]`                  | `ProjectMembership.groups`           |
 
 ## Data Model
 
@@ -345,27 +345,27 @@ class ControlledVocabularyProperty(Property):
 
 The table shows which property type replaces which combination in the JSON project file.
 
-| Property type                       | `super`             | `object`             | `gui_element`           |
-|-------------------------------------|---------------------|----------------------|-------------------------|
-| `BOOLEAN`                           | `hasValue`          | `BooleanValue`       | `Checkbox`              |
-| `COLOR`                             | `hasColor`          | `ColorValue`         | `Colorpicker`           |
-| `DATE`                              | `hasValue`          | `DateValue`          | `Date`                  |
-| `DECIMAL`                           | `hasValue`          | `DecimalValue`       | `Spinbox`, `SimpleText` |
-| `GEOLOCATION`                       | `hasValue`          | `GeolocationValue`   | `Geolocation`           |
-| `GEONAME`                           | `hasValue`          | `GeonameValue`       | `Geonames`              |
-| `INT`                               | `hasValue`          | `IntValue`           | `Spinbox`, `SimpleText` |
-| `REGION_PREVIEW`                    | `hasRegionPreview`  | `RegionPreviewValue` | `RegionPreview`         |
-| `TEXT_ONE_LINE`                     | `hasValue`          | `TextValue`          | `SimpleText`            |
-| `TEXT_MULTI_LINE`                   | `hasValue`          | `TextValue`          | `Textarea`              |
-| `TEXT_FORMATTED`                    | `hasValue`          | `TextValue`          | `Richtext`              |
-| `TIME`                              | `hasValue`          | `TimeValue`          | `TimeStamp`             |
-| `URI`                               | `hasValue`          | `UriValue`           | `SimpleText`            |
-| `HAS_COMMENT`                       | `hasComment`        | `TextValue`          | `Richtext`              |
-| `SEQNUM`                            | `seqnum`            | `IntValue`           | `Spinbox`, `SimpleText` |
-| `LINK_TO_CLASS`                     | `hasLinkTo`         | a class              | `Searchbox`             |
-| `IS_PART_OF_COLLECTION`             | `isPartOf`          | a class              | `Searchbox`             |
-| `HAS_REPRESENTATION`                | `hasRepresentation` | `Representation`     | `Searchbox`             |
-| `ControlledVocabularyProperty`      | `hasValue`          | `ListValue`          | `List`                  |
+| Property type                  | `super`             | `object`             | `gui_element`           |
+|--------------------------------|---------------------|----------------------|-------------------------|
+| `BOOLEAN`                      | `hasValue`          | `BooleanValue`       | `Checkbox`              |
+| `COLOR`                        | `hasColor`          | `ColorValue`         | `Colorpicker`           |
+| `DATE`                         | `hasValue`          | `DateValue`          | `Date`                  |
+| `DECIMAL`                      | `hasValue`          | `DecimalValue`       | `Spinbox`, `SimpleText` |
+| `GEOLOCATION`                  | `hasValue`          | `GeolocationValue`   | `Geolocation`           |
+| `GEONAME`                      | `hasValue`          | `GeonameValue`       | `Geonames`              |
+| `INT`                          | `hasValue`          | `IntValue`           | `Spinbox`, `SimpleText` |
+| `REGION_PREVIEW`               | `hasRegionPreview`  | `RegionPreviewValue` | `RegionPreview`         |
+| `TEXT_ONE_LINE`                | `hasValue`          | `TextValue`          | `SimpleText`            |
+| `TEXT_MULTI_LINE`              | `hasValue`          | `TextValue`          | `Textarea`              |
+| `TEXT_FORMATTED`               | `hasValue`          | `TextValue`          | `Richtext`              |
+| `TIME`                         | `hasValue`          | `TimeValue`          | `TimeStamp`             |
+| `URI`                          | `hasValue`          | `UriValue`           | `SimpleText`            |
+| `HAS_COMMENT`                  | `hasComment`        | `TextValue`          | `Richtext`              |
+| `SEQNUM`                       | `seqnum`            | `IntValue`           | `Spinbox`, `SimpleText` |
+| `LINK_TO_CLASS`                | `hasLinkTo`         | a class              | `Searchbox`             |
+| `IS_PART_OF_COLLECTION`        | `isPartOf`          | a class              | `Searchbox`             |
+| `HAS_REPRESENTATION`           | `hasRepresentation` | `Representation`     | `Searchbox`             |
+| `ControlledVocabularyProperty` | `hasValue`          | `ListValue`          | `List`                  |
 
 For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` selects the GUI element.
 
@@ -449,15 +449,12 @@ class AccessRestrictions:
 The Data model domain has three operations for restrictions:
 
 - `create`: sets the restrictions of a project that has none.
-- `update`: adds restrictions, and replaces the restriction of a target that has one.
-  For example, it changes a `FileRestriction` from `PRIVATE` to `LIMITED_VIEW`.
-  Restrictions of targets that are not in the input do not change.
-- `delete`: removes the restrictions of the named targets. The targets then become public.
+- `update`: adds restrictions.
+- `delete`: removes the named restrictions.
 
 The restrictions are a separate input, and not fields of `Class` and `Property`. The reasons are:
 
 - A DOAP belongs to the project, not to the ontology.
-  A field on the class suggests that a change also hides the resources that exist.
 - The user can set restrictions on an existing ontology without an update of the data model.
 - Few items have a restriction. Fields on each class and property add noise for all other items.
 
@@ -468,7 +465,7 @@ The cost of this decision:
 
 | JSON project file (`project`)                      | Proposed field                                           |
 |----------------------------------------------------|----------------------------------------------------------|
-| `default_permissions: "public"`                    | No restriction                                           |
+| `default_permissions: "public"`                    | `Project.embargo = False` (Default)                      |
 | `default_permissions: "private"`                   | `Project.embargo = True`                                 |
 | `default_permissions_overrule.private` (class)     | `AccessRestrictions.private_classes`                     |
 | `default_permissions_overrule.private` (property)  | `AccessRestrictions.private_properties`                  |
@@ -481,6 +478,7 @@ Open decisions:
 
 - Embargo: during the mocked embargo, all data is private.
   The place that keeps the restrictions until the embargo ends depends on the server design of the embargo.
+  For the moment the only record stays the project json file.
 - Custom groups: a restriction does not refer to a custom group.
   The full permission model (ADR principle 9) is future work.
 
@@ -518,12 +516,12 @@ class VocabularyNode:
 
 `dsp-vre` does not support these parts of the JSON project file:
 
-| JSON project file                                                       | Reason                                                     |
-|-------------------------------------------------------------------------|------------------------------------------------------------|
-| `prefixes`                                                              | Replaced by the [References](#references) rule.            |
-| `gui_attributes` other than `hlist`                                     | `dsp-tools create` ignores them today.                     |
-| `gui_element`: `Radio`, `Pulldown`                                      | `dsp-tools create` does not support them today.            |
-| `resources[].super`: `Resource`                                         | `Class` is always a sub-class of `Resource`.               |
-| `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Out of scope for the first release. No file ingest for 3D. |
-| A label without a comment                                               | Each language has a label and a comment (`LabelComments`). |
-| `groups[].status`, `selfjoin`                                           | `dsp-vre` sets them: active, no self-join.                 |
+| JSON project file                                                    | Reason                                                     |
+|----------------------------------------------------------------------|------------------------------------------------------------|
+| `prefixes`                                                           | Replaced by the [References](#references) rule.            |
+| `gui_attributes` other than `hlist`                                  | `dsp-tools create` ignores them today.                     |
+| `gui_element`: `Radio`, `Pulldown`                                   | `dsp-tools create` does not support them today.            |
+| `resources[].super`: `Resource`                                      | `Class` is always a sub-class of `Resource`.               |
+| `resources[].super`: `Representation`, `DDDRepresentation`, `Region` | Out of scope for the first release. No file ingest for 3D. |
+| A label without a comment                                            | Each language has a label and a comment (`LabelComments`). |
+| `groups[].status`, `selfjoin`                                        | `dsp-vre` sets them: active, no self-join.                 |

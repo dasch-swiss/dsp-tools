@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
@@ -78,3 +79,20 @@ def test_several_failures_with_file_writing() -> None:
     assert df["Filepath"].tolist() == ["path1", "path2", "path3"]
     assert df["Reason"].tolist() == ["reason1", "reason2", "reason3"]
     expected_output_path.unlink()
+
+
+def test_several_failures_with_file_writing_for_url_with_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    dsp_ingest_url = "https://api.dasch.swiss/ingest"
+    failures = [
+        UploadFailure(Path("path1"), "reason1"),
+        UploadFailure(Path("path2"), "reason2"),
+        UploadFailure(Path("path3"), "reason3"),
+    ]
+    aggregated_failures = UploadFailures(failures, 5, SHORTCODE, dsp_ingest_url, maximum_prints=2)
+    msg = aggregated_failures.execute_error_protocol()
+    expected_output_path = Path(f"upload_failures_{SHORTCODE}_api.dasch.swiss_ingest.csv")
+    assert msg.endswith(f"The full list of failed files has been saved to '{expected_output_path}'.")
+    assert list(tmp_path.iterdir()) == [tmp_path / expected_output_path]
+    df = pd.read_csv(expected_output_path)
+    assert df["Filepath"].tolist() == ["path1", "path2", "path3"]

@@ -137,8 +137,8 @@ def test_check_ingest_health_success(mock_get: Mock) -> None:
     mock_response.ok = True
     mock_get.return_value = mock_response
 
-    _check_ingest_health("http://0.0.0.0:3340")
-    mock_get.assert_called_once_with("http://0.0.0.0:3340/health", timeout=2)
+    _check_ingest_health("http://0.0.0.0:3333/ingest")
+    mock_get.assert_called_once_with("http://0.0.0.0:3333/ingest/health", timeout=2)
 
 
 @patch("requests.get")
@@ -151,12 +151,12 @@ def test_check_ingest_health_not_healthy_local(mock_get: Mock, caplog: pytest.Lo
 
     with caplog.at_level(logging.ERROR):
         with pytest.raises(IngestNotReachableError) as exc_info:
-            _check_ingest_health("http://0.0.0.0:3340")
+            _check_ingest_health("http://0.0.0.0:3333/ingest")
 
     assert exc_info.value.is_localhost is True
     assert exc_info.value.status_code == 503
     assert exc_info.value.response_text == "Service temporarily unavailable"
-    mock_get.assert_called_once_with("http://0.0.0.0:3340/health", timeout=2)
+    mock_get.assert_called_once_with("http://0.0.0.0:3333/ingest/health", timeout=2)
     assert not caplog.records
 
 
@@ -169,12 +169,12 @@ def test_check_ingest_health_not_healthy_server(mock_get: Mock) -> None:
     mock_get.return_value = mock_response
 
     with pytest.raises(IngestNotReachableError) as exc_info:
-        _check_ingest_health("https://ingest.dasch.swiss")
+        _check_ingest_health("https://api.dasch.swiss/ingest")
 
     assert exc_info.value.is_localhost is False
     assert exc_info.value.status_code == 400
     assert exc_info.value.response_text == "Bad Request"
-    mock_get.assert_called_once_with("https://ingest.dasch.swiss/health", timeout=2)
+    mock_get.assert_called_once_with("https://api.dasch.swiss/ingest/health", timeout=2)
 
 
 @patch("requests.get")
@@ -183,12 +183,12 @@ def test_check_ingest_health_connection_error(mock_get: Mock, caplog: pytest.Log
 
     with caplog.at_level(logging.ERROR):
         with pytest.raises(IngestNotReachableError) as exc_info:
-            _check_ingest_health("http://0.0.0.0:3340")
+            _check_ingest_health("http://0.0.0.0:3333/ingest")
 
     assert exc_info.value.is_localhost is True
     assert exc_info.value.status_code is None
     assert exc_info.value.response_text is None
-    mock_get.assert_called_once_with("http://0.0.0.0:3340/health", timeout=2)
+    mock_get.assert_called_once_with("http://0.0.0.0:3333/ingest/health", timeout=2)
     assert len(caplog.records) == 1
 
 
@@ -198,12 +198,12 @@ def test_check_ingest_health_timeout(mock_get: Mock, caplog: pytest.LogCaptureFi
 
     with caplog.at_level(logging.ERROR):
         with pytest.raises(IngestNotReachableError) as exc_info:
-            _check_ingest_health("http://0.0.0.0:3340")
+            _check_ingest_health("http://0.0.0.0:3333/ingest")
 
     assert exc_info.value.is_localhost is True
     assert exc_info.value.status_code is None
     assert exc_info.value.response_text is None
-    mock_get.assert_called_once_with("http://0.0.0.0:3340/health", timeout=2)
+    mock_get.assert_called_once_with("http://0.0.0.0:3333/ingest/health", timeout=2)
     assert len(caplog.records) == 1
 
 

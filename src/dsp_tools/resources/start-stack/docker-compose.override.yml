@@ -10,5 +10,3 @@ services:
     # by the latest published version of the api.
     # This is a fallback if the version cannot be retrieved.
     image: daschswiss/apache-jena-fuseki:latest
-  ingest:
-    image: daschswiss/dsp-ingest:latest

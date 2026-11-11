@@ -85,11 +85,12 @@ If you want to run a specific branch of DSP-API / DSP-APP, or to modify them you
 DaSCH follows some conventions when setting up DSP servers. 
 Most of the commands documented on this page
 assume that you know how to address the subdomains of a DSP server.
-There are three relevant URLs you should know about:
+There are two relevant URLs you should know about:
 
 - Subdomains `admin`/`app` stand for the DSP-APP frontend that you look at in your browser
-- Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
-- Subdomain `ingest` stands for the ingest server interface (where DSP-TOOLS uploads multimedia files to)
+- Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to).
+  DSP-API also serves the ingest interface under the path `/ingest`
+  (`https://api.dasch.swiss/ingest`, where DSP-TOOLS uploads multimedia files to).
 
 This means that for uploading data to the DSP server 
 on the domain `dasch.swiss`, 
@@ -113,7 +114,8 @@ dasch.swiss
 ```
 
 then DSP-TOOLS will treat it as `https://api.dasch.swiss`,
-and derive the ingest server URL `https://ingest.dasch.swiss` from it.
+and derive the ingest URL `https://api.dasch.swiss/ingest` from it.
+The subdomain `ingest` is still accepted as input, but ingest is always reached through the `api` subdomain.
 
 This guessing feature comes with a price, though:
 

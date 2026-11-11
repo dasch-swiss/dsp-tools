@@ -449,8 +449,10 @@ class AccessRestrictions:
 The Data model domain has three operations for restrictions:
 
 - `create`: sets the restrictions of a project that has none.
-- `update`: adds restrictions.
-- `delete`: removes the named restrictions.
+- `update`: adds restrictions, and replaces the restriction of a target that has one.
+  For example, it changes a `FileRestriction` from `PRIVATE` to `LIMITED_VIEW`.
+  Restrictions of targets that are not in the input do not change.
+- `delete`: removes the restrictions of the named targets. The targets then become public.
 
 The restrictions are a separate input, and not fields of `Class` and `Property`. The reasons are:
 

@@ -88,6 +88,5 @@ The layout gives space for more packages later.
 - CI: one shared test job or one job per package?
 - Do the tests that need a DSP stack (testcontainers) move with `dsp-vre`?
 - Step two: how does the Python build fit into the Bazel and sbt build of `dsp-api`?
-- Step two: which team owns the CI and the release of `dsp-vre`?
 - Step two: do we keep the git history of `packages/dsp-vre/` when it moves?
 - Step two: which first version does `dsp-vre` get in lockstep, and how do we map the step-one versions?

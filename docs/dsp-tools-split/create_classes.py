@@ -158,7 +158,7 @@ class DatatypeProperty(Property):
 @dataclass(frozen=True)
 class ObjectProperty(Property):
     dsp_type: DspObjectPropertyTypes
-    object_class: str
+    object_class: str | None
 
 
 @dataclass(frozen=True)

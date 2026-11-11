@@ -11,7 +11,6 @@ This document proposes the input dataclasses for the `create` operation in `dsp-
 For each dataclass, it gives the intent, the code and the related keys of the JSON project file.
 The principles come from [ADR-dsp-vre.md](ADR-dsp-vre.md).
 The steps of `create` are in [dsp-vre-to-tools-map.md](dsp-vre-to-tools-map.md).
-The code is also in [create_classes.py](create_classes.py).
 
 ## Design Rules
 
@@ -67,6 +66,12 @@ A system admin creates the project.
 `Project` holds the identity and the description of the project.
 `embargo` sets the embargo state at creation. The default is no embargo.
 
+Note:
+    Currently the embargo is mocked by the code,
+    meaning that while restricted permissions can be created if the embargo is true then all other permission settings are
+    ingored and are set to private. Once DSP implements the embargo properly this can eaisly be reverted in code.
+    The advantage of this modelling is that already now in the json project file we are able to record the desired end status.
+
 ```python
 @dataclass(frozen=True)
 class Project:
@@ -81,7 +86,7 @@ class Project:
 ### Legal Information
 
 A project admin sets the legal information.
-`ProjectLegalSettings` is separate from `Project`, because a different role owns it.
+`ProjectLegalSettings` is separate from `Project`.
 
 ```python
 @dataclass(frozen=True)
@@ -122,7 +127,7 @@ class Ontology:
 
 The intent is to separate two kinds of super-classes:
 
-- `ontology_super_classes`: classes of the same project. They give inheritance.
+- `ontology_super_classes`: classes of the same project. They give inheritance, which is visible in DSP.
 - `external_mapping`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
 
 ```python
@@ -158,7 +163,7 @@ class ClassWithFile(Class):
 ### Cardinality
 
 `Cardinality` connects a property to a class.
-`property_display_order` sets the position of the property in the user interface.
+`property_display_order` sets the position of the property in the user interface, it is the current gui-order.
 
 ```python
 class CardinalityNumber(Enum):
@@ -172,7 +177,7 @@ class CardinalityNumber(Enum):
 class Cardinality:
     property: str
     cardinality: CardinalityNumber
-    property_display_order: int | None  # this is the gui_order
+    property_display_order: int | None
 ```
 
 ### Property
@@ -234,7 +239,7 @@ class DatatypeProperty(Property):
 @dataclass(frozen=True)
 class ObjectProperty(Property):
     dsp_type: DspObjectPropertyTypes
-    object_class: str
+    object_class: str | None
 
 
 @dataclass(frozen=True)

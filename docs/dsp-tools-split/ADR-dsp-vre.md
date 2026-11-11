@@ -1,18 +1,29 @@
+---
+status: proposed
+date: 2026-11-11
+---
+
 # ADR for the Python Package `dsp-vre`
 
-Status: proposed
+## Summary
 
 `dsp-vre` is a Python package for the DSP server.
-This ADR records its public interface. The internals are out of scope.
+DaSCH tools, DaSCH services and external researchers use it for all server interaction.
+This ADR records the public interface of `dsp-vre`: principles, package name, result model and domains.
+The internals are out of scope.
 
-## Guidelines and User Groups
+## Context
 
-### User Groups
+Today, the server clients live in `src/dsp_tools/clients/`, and only `dsp-tools` uses them.
+Other DaSCH services and researchers need the same server access, but they cannot use these clients.
+The clients also show API concepts (routes, JSON-LD, the separate ingest service) to the caller.
 
 The package has two user groups:
 
 - DaSCH tools and services, which use the package for all server interaction.
 - External researchers, who use the package in scripts and notebooks.
+
+## Decision
 
 ### Principles
 
@@ -46,12 +57,10 @@ The package has two user groups:
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, a client can check the rights before it starts an operation.
-11. **Functional Error Model.**
-    The package does not raise errors, rather it follows the Functional Error handling model, which represents error
-    states (success, partial success and failure) by typed objects.
-    As this is not Python native, it will be done through enums.
-
-## Decisions
+11. **Functional error model.**
+    The package does not raise errors.
+    Typed objects show the outcome of an operation: success, partial success or failure.
+    Python has no native type for this, thus the package uses enums.
 
 ### Package Name
 
@@ -66,45 +75,99 @@ The package has a synchronous interface only. The reasons are:
 - Speed comes from parallel work inside the package (principle 1), not from the interface.
 - An asynchronous interface can come later as a separate module, if a user needs it.
 
-## Domain
+### Result Model
+
+Each operation returns a result object and does not raise an error (principles 6, 8 and 11).
+The outcome of the result is an enum value.
+The diagram shows the outcomes of one operation.
+
+```mermaid
+---
+title: Outcomes of One Operation
+---
+stateDiagram-v2
+    [*] --> Running
+    Running --> Success
+    Running --> PartialSuccess
+    Running --> Failure
+    Running --> Interrupted
+    Interrupted --> Running: user gives back the continuation state
+    Success --> [*]
+    PartialSuccess --> [*]
+    Failure --> [*]
+
+    note right of PartialSuccess
+        Result holds the created items
+        and the failed items.
+    end note
+    note right of Interrupted
+        Result holds the items that are not done
+        and the ID-to-IRI map of the done items.
+    end note
+```
+
+### Domains
+
+The package has six domains.
+The diagram shows which domain needs which other domain. An arrow points to the domain that is needed.
+All domains need Connection through Projects.
+
+```mermaid
+---
+title: Domains of dsp-vre
+---
+flowchart LR
+    connection["Connection<br/>credentials"]
+    projects["Projects<br/>metadata, legal info,<br/>embargo, migration"]
+    access["Access<br/>users, groups,<br/>memberships, rights"]
+    datamodel["Data model<br/>ontologies, classes,<br/>properties, mappings"]
+    vocabularies["Vocabularies<br/>lists, nodes"]
+    data["Data<br/>create, validate"]
+
+    projects --> connection
+    access --> projects
+    datamodel --> projects
+    vocabularies --> projects
+    data --> datamodel
+    data --> vocabularies
+    data -->|legal info| projects
+    data -->|permissions| access
+```
 
 Each domain lists the capabilities in scope for the first release.
-The section "Future work" lists the capabilities for later releases.
+"Future work" lists the capabilities for later releases.
 
-### Connection
+#### Connection
 
 - Connect to a server with credentials.
 
 Future work: none at this time.
 
-### Projects
+#### Projects
 
 - Project with metadata.
 - Legal info: licenses, copyright holders, default authorship.
-- Embargo state of the project (this is mocked, by ignoring the set permissions in code, to be changed once embargo is
-  implemented)
-- Migration: Export a project from one server and import it into another server. The export includes the data model and
-  the admin data.
+- Embargo state of the project.
+  The first release mocks the embargo: the code ignores the set permissions.
+  This changes when the server implements the embargo.
+- Migration: export a project from one server and import it into another server.
+  The export includes the data model and the admin data.
 
 Future work:
 
 - Embargo: mark a project as under embargo, and lift the embargo in the database.
 
-### Access
+#### Access
 
 - Users, groups and memberships.
 - Operations that the current user can do (principle 10).
 
-Future work:
-
-- Admin permissions of users.
-
-### Data Model
+#### Data Model
 
 - Ontologies, classes, properties, cardinalities and specific permissions.
 - External mappings of classes and properties.
 
-### Vocabularies
+#### Vocabularies
 
 - Lists and nodes.
 
@@ -113,7 +176,7 @@ Future work:
 - Reorder nodes.
 - Change labels and comments of nodes.
 
-### Data
+#### Data
 
 - Create data: resources, values and files as one unit.
   The package selects the ingest strategy.
@@ -128,7 +191,23 @@ Future work:
 - Change permissions of resources and values without versioning of the data.
 - Export data as Python objects, for example by class.
 
-## Progress & Reporting
+## Consequences
+
+Positive:
+
+- DaSCH tools, DaSCH services and researchers use one server interface.
+- API changes on the server affect `dsp-vre` only, not its callers.
+- File formats stay in `dsp-tools`. `dsp-vre` stays free of JSON, XML and Excel parsing.
+
+Negative:
+
+- `dsp-tools` and `dsp-vre` have two release cycles.
+- `dsp-tools` depends on a pinned version range of `dsp-vre`.
+- A synchronous interface can be too slow for callers that need many parallel operations.
+
+## Open Decisions
+
+### Progress & Reporting
 
 Status: not decided.
 
@@ -152,3 +231,10 @@ The options are:
   This option needs an asynchronous design.
 
 The options get evaluated against one real bulk-create use case before a decision.
+
+## Related Documents
+
+- [Map: `dsp-vre` domains in `dsp-tools`](dsp-vre-to-tools-map.md):
+  which `dsp-tools` command uses which domain, with the `dsp-tools create` worked example.
+- [Set-up for the split](dsp-tools-split-package-setup.md):
+  repository layout, dependency direction and release timeline.

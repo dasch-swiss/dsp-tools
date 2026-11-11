@@ -33,7 +33,7 @@ class LabelComments:
 
 
 # ---------------------------------------------------------------------------
-# Project and legal information
+# Projects
 # ---------------------------------------------------------------------------
 
 
@@ -58,7 +58,36 @@ class ProjectLegalSettings:
 
 
 # ---------------------------------------------------------------------------
-# Ontology
+# Access
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Group:
+    name: str
+    descriptions: dict[Language, str]
+
+
+# dsp-tools reads the password from DSP_USER_PASSWORD if the JSON project file has none
+@dataclass(frozen=True)
+class User:
+    username: str
+    email: str
+    given_name: str
+    family_name: str
+    password: str
+    language: Language = Language.EN
+
+
+@dataclass(frozen=True)
+class ProjectMembership:
+    username: str
+    is_project_admin: bool
+    groups: set[str]
+
+
+# ---------------------------------------------------------------------------
+# Data model
 # ---------------------------------------------------------------------------
 
 
@@ -75,7 +104,7 @@ class Ontology:
 @dataclass(frozen=True)
 class Class:
     name: str
-    class_information: list[LabelComments]
+    label_comments: list[LabelComments]
     ontology_super_classes: set[str]
     external_mapping: set[str]
     cardinalities: list[Cardinality]
@@ -145,8 +174,8 @@ class DspObjectPropertyTypes(Enum):
 class Property(ABC):
     name: str
     label_comments: list[LabelComments]
-    internal_super_properties: set[str] | None
-    external_mapping: set[str] | None
+    ontology_super_properties: set[str]
+    external_mapping: set[str]
     subject_class: str | None
 
 
@@ -158,7 +187,7 @@ class DatatypeProperty(Property):
 @dataclass(frozen=True)
 class ObjectProperty(Property):
     dsp_type: DspObjectPropertyTypes
-    object_class: str | None
+    object_class: str
 
 
 @dataclass(frozen=True)
@@ -167,7 +196,7 @@ class ControlledVocabularyProperty(Property):
 
 
 # ---------------------------------------------------------------------------
-# Controlled vocabulary
+# Vocabularies
 # ---------------------------------------------------------------------------
 
 

@@ -11,6 +11,7 @@ This document proposes the input dataclasses for the `create` operation in `dsp-
 For each dataclass, it gives the intent, the code and the related keys of the JSON project file.
 The principles come from [ADR-dsp-vre.md](ADR-dsp-vre.md).
 The steps of `create` are in [dsp-vre-to-tools-map.md](dsp-vre-to-tools-map.md).
+The sections follow the order of the domains in the ADR.
 
 ## Design Rules
 
@@ -25,9 +26,21 @@ All dataclasses are frozen.
 
 ## Scope
 
-Groups, users and permissions are not in this document. A later document describes them.
+Each domain has its own `create` operation and its own input dataclasses.
+There is no dataclass that holds a complete project.
+`dsp-tools create` calls the operations of the domains in the order of the map.
 
-## Language, Label and Comment
+Not in this document:
+
+- Connection: it has no `create` input.
+- Data: `xmlupload` creates data, not `create`.
+- Permissions: a later document describes them.
+  The plan is typed pre-sets, as in the JSON project file:
+  a project default (`public` or `private`) and exceptions (`private`, `limited_view`).
+
+## Shared Types
+
+### Language, Label and Comment
 
 `Language` is the closed set of languages that DSP supports.
 
@@ -58,7 +71,20 @@ class LabelComments:
 | `labels: {"en": "..."}` and `comments: {"en": "..."}` (two dicts) | `list[LabelComments]` (one item per language) |
 | Language code as a free string                                    | `Language`                                    |
 
-## Project and Legal Information
+### References
+
+The user refers to items by their local names (ADR principle 4).
+A reference has one of these forms:
+
+- An item of the same ontology: the name only, for example `Book`.
+- An item of another ontology of the same project: `<ontology>:<name>`, for example `biblio:Book`.
+- A class or property of an external ontology: the full IRI, for example `http://www.cidoc-crm.org/cidoc-crm/E22`.
+- A group or user: the name or username only.
+
+`dsp-vre` has no prefixes.
+`dsp-tools` uses the `prefixes` of the JSON project file to change prefixed external names into full IRIs.
+
+## Projects
 
 ### Project
 
@@ -66,11 +92,10 @@ A system admin creates the project.
 `Project` holds the identity and the description of the project.
 `embargo` sets the embargo state at creation. The default is no embargo.
 
-Note:
-    Currently the embargo is mocked by the code,
-    meaning that while restricted permissions can be created if the embargo is true then all other permission settings are
-    ingored and are set to private. Once DSP implements the embargo properly this can eaisly be reverted in code.
-    The advantage of this modelling is that already now in the json project file we are able to record the desired end status.
+The first release mocks the embargo.
+If `embargo` is true, `dsp-vre` creates the restricted permissions and sets all other permissions to private.
+When the server implements the embargo, only the code changes, not the interface.
+Thus, the JSON project file can record the necessary final state now.
 
 ```python
 @dataclass(frozen=True)
@@ -104,9 +129,66 @@ class ProjectLegalSettings:
 | Not available                                                                          | `Project.embargo`                           |
 | `enabled_licenses`, `data_license`, `data_copyright_holder`, `default_data_authorship` | `ProjectLegalSettings`: same names          |
 
-## Ontology
+## Access
 
-### Data Model
+### Group
+
+`Group` is a group of users in the project.
+Permissions refer to groups.
+
+```python
+@dataclass(frozen=True)
+class Group:
+    name: str
+    descriptions: dict[Language, str]
+```
+
+### User
+
+`User` is a person who can log in.
+`dsp-vre` always gets a password.
+If the JSON project file has no password, `dsp-tools` reads it from the environment variable `DSP_USER_PASSWORD`.
+
+```python
+@dataclass(frozen=True)
+class User:
+    username: str
+    email: str
+    given_name: str
+    family_name: str
+    password: str
+    language: Language = Language.EN
+```
+
+### Project Membership
+
+`ProjectMembership` connects a user to the project.
+It sets the project admin right and the groups of the user.
+It is separate from `User`, because a user can exist before the project and be a member of many projects.
+
+```python
+@dataclass(frozen=True)
+class ProjectMembership:
+    username: str
+    is_project_admin: bool
+    groups: set[str]
+```
+
+| JSON project file (`project`)                              | Proposed field                         |
+|------------------------------------------------------------|----------------------------------------|
+| `groups[].name`                                            | `Group.name`                           |
+| `groups[].descriptions: {"en": "..."}`                     | `Group.descriptions`                   |
+| `users[].username`, `email`                                | `User`: same names                     |
+| `users[].givenName`, `familyName`                          | `User.given_name`, `family_name`       |
+| `users[].password`                                         | `User.password`                        |
+| `users[].password: null`                                   | `User.password` from the environment   |
+| `users[].lang`                                             | `User.language`                        |
+| `users[].projects: [":admin"]` or `[":member"]`            | `ProjectMembership.is_project_admin`   |
+| `users[].groups: [":editors"]`                             | `ProjectMembership.groups`             |
+
+## Data Model
+
+### Ontology
 
 `Ontology` holds the classes and the properties of one data model.
 The label is one string and the comment is optional. They do not have a language.
@@ -130,11 +212,13 @@ The intent is to separate two kinds of super-classes:
 - `ontology_super_classes`: classes of the same project. They give inheritance, which is visible in DSP.
 - `external_mapping`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
 
+An empty set means that the class has no super-class of that kind.
+
 ```python
 @dataclass(frozen=True)
 class Class:
     name: str
-    class_information: list[LabelComments]
+    label_comments: list[LabelComments]
     ontology_super_classes: set[str]
     external_mapping: set[str]
     cardinalities: list[Cardinality]
@@ -160,10 +244,19 @@ class ClassWithFile(Class):
     file_type: DspFileTypes
 ```
 
+| `DspFileTypes` | `knora-api` super-class     |
+|----------------|-----------------------------|
+| `ARCHIVE`      | `ArchiveRepresentation`     |
+| `AUDIO`        | `AudioRepresentation`       |
+| `DOCUMENT`     | `DocumentRepresentation`    |
+| `VIDEO`        | `MovingImageRepresentation` |
+| `STILL_IMAGE`  | `StillImageRepresentation`  |
+| `TEXT`         | `TextRepresentation`        |
+
 ### Cardinality
 
 `Cardinality` connects a property to a class.
-`property_display_order` sets the position of the property in the user interface, it is the current gui-order.
+`property_display_order` sets the position of the property in the user interface.
 
 ```python
 class CardinalityNumber(Enum):
@@ -195,7 +288,11 @@ The property type replaces the combination of `super`, `object` and `gui_element
 The user states the intent, for example `TEXT_MULTI_LINE`.
 `dsp-vre` then selects the correct `knora-api` super-property, value type and GUI element.
 
-As with classes, `internal_super_properties` gives inheritance and `external_mapping` gives meaning only.
+As with classes, `ontology_super_properties` gives inheritance and `external_mapping` gives meaning only.
+An empty set means that the property has no super-property of that kind.
+
+`ObjectProperty.object_class` is the class that the link points to.
+For `HAS_REPRESENTATION`, it is a `ClassWithFile` of the project.
 
 ```python
 class DspDatatypePropertyTypes(Enum):
@@ -226,8 +323,8 @@ class DspObjectPropertyTypes(Enum):
 class Property(ABC):
     name: str
     label_comments: list[LabelComments]
-    internal_super_properties: set[str] | None
-    external_mapping: set[str] | None
+    ontology_super_properties: set[str]
+    external_mapping: set[str]
     subject_class: str | None
 
 
@@ -239,7 +336,7 @@ class DatatypeProperty(Property):
 @dataclass(frozen=True)
 class ObjectProperty(Property):
     dsp_type: DspObjectPropertyTypes
-    object_class: str | None
+    object_class: str
 
 
 @dataclass(frozen=True)
@@ -247,24 +344,50 @@ class ControlledVocabularyProperty(Property):
     vocabulary_name: str
 ```
 
+The table shows which property type replaces which combination in the JSON project file.
+
+| Property type                       | `super`             | `object`             | `gui_element`           |
+|-------------------------------------|---------------------|----------------------|-------------------------|
+| `BOOLEAN`                           | `hasValue`          | `BooleanValue`       | `Checkbox`              |
+| `COLOR`                             | `hasColor`          | `ColorValue`         | `Colorpicker`           |
+| `DATE`                              | `hasValue`          | `DateValue`          | `Date`                  |
+| `DECIMAL`                           | `hasValue`          | `DecimalValue`       | `Spinbox`, `SimpleText` |
+| `GEOLOCATION`                       | `hasValue`          | `GeolocationValue`   | `Geolocation`           |
+| `GEONAME`                           | `hasValue`          | `GeonameValue`       | `Geonames`              |
+| `INT`                               | `hasValue`          | `IntValue`           | `Spinbox`, `SimpleText` |
+| `REGION_PREVIEW`                    | `hasRegionPreview`  | `RegionPreviewValue` | `RegionPreview`         |
+| `TEXT_ONE_LINE`                     | `hasValue`          | `TextValue`          | `SimpleText`            |
+| `TEXT_MULTI_LINE`                   | `hasValue`          | `TextValue`          | `Textarea`              |
+| `TEXT_FORMATTED`                    | `hasValue`          | `TextValue`          | `Richtext`              |
+| `TIME`                              | `hasValue`          | `TimeValue`          | `TimeStamp`             |
+| `URI`                               | `hasValue`          | `UriValue`           | `SimpleText`            |
+| `HAS_COMMENT`                       | `hasComment`        | `TextValue`          | `Richtext`              |
+| `SEQNUM`                            | `seqnum`            | `IntValue`           | `Spinbox`, `SimpleText` |
+| `LINK_TO_CLASS`                     | `hasLinkTo`         | a class              | `Searchbox`             |
+| `IS_PART_OF_COLLECTION`             | `isPartOf`          | a class              | `Searchbox`             |
+| `HAS_REPRESENTATION`                | `hasRepresentation` | `Representation`     | `Searchbox`             |
+| `ControlledVocabularyProperty`      | `hasValue`          | `ListValue`          | `List`                  |
+
+For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` selects the GUI element.
+
 | JSON project file                                               | Proposed field                                 |
 |-----------------------------------------------------------------|------------------------------------------------|
 | `ontologies[].name`, `label`, `comment`                         | `Ontology`: same names                         |
-| `resources[].labels`, `comments`                                | `Class.class_information`                      |
+| `resources[].labels`, `comments`                                | `Class.label_comments`                         |
 | `resources[].super` (project class)                             | `Class.ontology_super_classes`                 |
 | `resources[].super` (external class)                            | `Class.external_mapping`                       |
 | `resources[].super: StillImageRepresentation` (and other files) | `ClassWithFile.file_type`                      |
 | `cardinalities[].propname`, `cardinality`                       | `Cardinality.property`, `cardinality`          |
 | `cardinalities[].gui_order`                                     | `Cardinality.property_display_order`           |
 | `properties[].labels`, `comments`                               | `Property.label_comments`                      |
-| `properties[].super` (project property)                         | `Property.internal_super_properties`           |
+| `properties[].super` (project property)                         | `Property.ontology_super_properties`           |
 | `properties[].super` (external property)                        | `Property.external_mapping`                    |
 | `properties[].subject`                                          | `Property.subject_class`                       |
 | `properties[].super`, `object`, `gui_element`                   | `dsp_type`                                     |
 | `properties[].object` (class name)                              | `ObjectProperty.object_class`                  |
 | `properties[].gui_attributes: {"hlist": ...}`                   | `ControlledVocabularyProperty.vocabulary_name` |
 
-## Controlled Vocabulary
+## Vocabularies
 
 `ControlledVocabulary` is a tree of nodes. The JSON project file calls it a list.
 `VocabularyNode` can have sub-nodes, thus the tree can have many levels.
@@ -293,3 +416,18 @@ class VocabularyNode:
 | `nodes[].name`               | `VocabularyNode.node_name`                    |
 | `nodes[].labels`, `comments` | `VocabularyNode.node_information`             |
 | `nodes[].nodes`              | `VocabularyNode.vocabulary_sub_nodes`         |
+
+## Not Supported
+
+`dsp-vre` does not support these parts of the JSON project file:
+
+| JSON project file                                                       | Reason                                                     |
+|-------------------------------------------------------------------------|------------------------------------------------------------|
+| `prefixes`                                                              | Replaced by the [References](#references) rule.            |
+| `gui_attributes` other than `hlist`                                     | `dsp-tools create` ignores them today.                     |
+| `gui_element`: `Radio`, `Pulldown`                                      | `dsp-tools create` does not support them today.            |
+| `resources[].super`: `Resource`                                         | `Class` is always a sub-class of `Resource`.               |
+| `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Not used. The server does not support `DDDRepresentation`. |
+| A label without a comment                                               | Each language has a label and a comment (`LabelComments`). |
+| `groups[].status`, `selfjoin`                                           | `dsp-vre` sets them: active, no self-join.                 |
+| `default_permissions`, `default_permissions_overrule`                   | A later document describes permissions.                    |

@@ -1,13 +1,20 @@
+from __future__ import annotations
+
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum, auto
-from abc import ABC
-
 
 # Design considerations
 # - In any dataclass you only show fields that can or must be filled
 # - It should not be possible to create an invalid class, for example a link property with a list name
 # - Neither dsp-tools domain nor outdated knora language should be used
 # - The names here should be more descriptive of their intent, for example no reference to gui ontology
+
+
+# ---------------------------------------------------------------------------
+# Language, label and comment
+# ---------------------------------------------------------------------------
+
 
 class Language(Enum):
     EN = "en"
@@ -24,13 +31,19 @@ class LabelComments:
     comment: str
     language: Language
 
+
+# ---------------------------------------------------------------------------
+# Project and legal information
+# ---------------------------------------------------------------------------
+
+
 # Project creation, only done by system admin
 @dataclass(frozen=True)
 class Project:
     shortcode: str
     shortname: str
     longname: str
-    descriptions: dict[str, str]
+    descriptions: dict[Language, str]
     keywords: list[str]
     embargo: bool = False
 
@@ -44,21 +57,11 @@ class ProjectLegalSettings:
     default_data_authorship: list[str]
 
 
-# controlled vocabulary
-@dataclass(frozen=True)
-class ControlledVocabulary:
-    vocabulary_name: str
-    vocabulary_information: list[LabelComments]
-    vocabulary_nodes: list[VocabularyNode]
+# ---------------------------------------------------------------------------
+# Ontology
+# ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
-class VocabularyNode:
-    node_name: str
-    node_information: list[LabelComments]
-    vocabulary_sub_nodes: list[VocabularyNode]
-
-# one ontology
 @dataclass(frozen=True)
 class Ontology:
     name: str
@@ -71,6 +74,7 @@ class Ontology:
 # This generic type will be knora-api:Resource
 @dataclass(frozen=True)
 class Class:
+    name: str
     class_information: list[LabelComments]
     ontology_super_classes: set[str]
     external_mapping: set[str]
@@ -87,6 +91,7 @@ class DspFileTypes(Enum):
     TEXT = auto()
 
 
+@dataclass(frozen=True)
 class ClassWithFile(Class):
     file_type: DspFileTypes
 
@@ -102,10 +107,12 @@ class CardinalityNumber(Enum):
 class Cardinality:
     property: str
     cardinality: CardinalityNumber
-    property_display_order: int | None # this is the gui-element
+    property_display_order: int | None  # this is the gui_order
 
-# The new schema does not refer to gui-element and type since that is not intuitive domain language and logic
+
+# The schema does not refer to gui-element and type since that is not intuitive domain language and logic
 # It is also not needed for dsp to understand which combination of knora-api super and gui-element is required
+
 
 # these are literals in the RDF world
 class DspDatatypePropertyTypes(Enum):
@@ -118,7 +125,7 @@ class DspDatatypePropertyTypes(Enum):
     INT = auto()
     REGION_PREVIEW = auto()
     TEXT_ONE_LINE = auto()
-    TEXT_MTULI_LINE = auto()
+    TEXT_MULTI_LINE = auto()
     TEXT_FORMATTED = auto()
     TIME = auto()
     URI = auto()
@@ -127,7 +134,7 @@ class DspDatatypePropertyTypes(Enum):
 
 
 # these are the supers that are links
-class DspObjectPropertyTypes(DspDatatypePropertyTypes):
+class DspObjectPropertyTypes(Enum):
     LINK_TO_CLASS = auto()
     IS_PART_OF_COLLECTION = auto()
     HAS_REPRESENTATION = auto()
@@ -136,20 +143,43 @@ class DspObjectPropertyTypes(DspDatatypePropertyTypes):
 # This is not to be used directly because the three different types require other additional information
 @dataclass(frozen=True)
 class Property(ABC):
+    name: str
     label_comments: list[LabelComments]
     internal_super_properties: set[str] | None
     external_mapping: set[str] | None
     subject_class: str | None
 
 
+@dataclass(frozen=True)
 class DatatypeProperty(Property):
     dsp_type: DspDatatypePropertyTypes
 
 
+@dataclass(frozen=True)
 class ObjectProperty(Property):
     dsp_type: DspObjectPropertyTypes
     object_class: str
 
 
+@dataclass(frozen=True)
 class ControlledVocabularyProperty(Property):
     vocabulary_name: str
+
+
+# ---------------------------------------------------------------------------
+# Controlled vocabulary
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ControlledVocabulary:
+    vocabulary_name: str
+    vocabulary_information: list[LabelComments]
+    vocabulary_nodes: list[VocabularyNode]
+
+
+@dataclass(frozen=True)
+class VocabularyNode:
+    node_name: str
+    node_information: list[LabelComments]
+    vocabulary_sub_nodes: list[VocabularyNode]

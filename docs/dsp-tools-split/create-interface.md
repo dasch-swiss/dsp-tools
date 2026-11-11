@@ -169,9 +169,17 @@ It is separate from `User`, because a user can exist before the project and be a
 @dataclass(frozen=True)
 class ProjectMembership:
     username: str
-    is_project_admin: bool
-    groups: set[str]
+    user_role: ProjectUserRole
 ```
+
+```python
+class ProjectUserRole(Enum):
+    ADMIN # CR and ontology changes
+    EDITOR # CR no ontology changes
+    WRITER # M no ontology changes
+    READER # V no write rights
+```
+
 
 | JSON project file (`project`)                   | Proposed field                       |
 |-------------------------------------------------|--------------------------------------|

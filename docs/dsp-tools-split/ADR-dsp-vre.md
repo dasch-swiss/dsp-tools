@@ -119,7 +119,7 @@ title: Domains of dsp-vre
 flowchart LR
     connection["Connection<br/>credentials"]
     projects["Projects<br/>metadata, legal info,<br/>embargo, migration"]
-    access["Access<br/>users, groups,<br/>memberships, rights"]
+    access["Access<br/>users, project roles,<br/>rights"]
     datamodel["Data model<br/>ontologies, classes,<br/>properties, mappings"]
     vocabularies["Vocabularies<br/>lists, nodes"]
     data["Data<br/>create, validate"]
@@ -159,7 +159,7 @@ Future work:
 
 #### Access
 
-- Users, groups and memberships.
+- Users and their project roles.
 - Operations that the current user can do (principle 10).
 
 #### Data Model

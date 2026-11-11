@@ -76,7 +76,7 @@ A reference has one of these forms:
 - An item of the same ontology: the name only, for example `Book`.
 - An item of another ontology of the same project: `<ontology>:<name>`, for example `biblio:Book`.
 - A class or property of an external ontology: the full IRI, for example `http://www.cidoc-crm.org/cidoc-crm/E22`.
-- A group or user: the name or username only.
+- A user: the username only.
 
 `dsp-vre` has no prefixes.
 `dsp-tools` uses the `prefixes` of the JSON project file to change prefixed external names into full IRIs.
@@ -130,18 +130,6 @@ class ProjectLegalSettings:
 
 ## Access
 
-### Group
-
-`Group` is a group of users in the project.
-Permissions refer to groups.
-
-```python
-@dataclass(frozen=True)
-class Group:
-    name: str
-    descriptions: dict[Language, str]
-```
-
 ### User
 
 `User` is a person who can log in.
@@ -161,37 +149,86 @@ class User:
 
 ### Project Membership
 
-`ProjectMembership` connects a user to the project.
-It sets the project admin right and the groups of the user.
+`ProjectMembership` connects a user to the project and sets the role of the user.
+A user has one role in a project.
 It is separate from `User`, because a user can exist before the project and be a member of many projects.
 
-```python
-@dataclass(frozen=True)
-class ProjectMembership:
-    username: str
-    user_role: ProjectUserRole
-```
+The user does not see groups. The role states the intent, for example "this person can edit the data".
+`dsp-vre` then sets the necessary rights on the server.
 
 ```python
 class ProjectUserRole(Enum):
-    ADMIN # CR and ontology changes
-    EDITOR # CR no ontology changes
-    WRITER # M no ontology changes
-    READER # V no write rights
+    ADMIN = auto()
+    EDITOR = auto()
+    WRITER = auto()
+    READER = auto()
+
+
+@dataclass(frozen=True)
+class ProjectMembership:
+    username: str
+    role: ProjectUserRole
 ```
 
+The roles give these rights:
 
-| JSON project file (`project`)                   | Proposed field                       |
-|-------------------------------------------------|--------------------------------------|
-| `groups[].name`                                 | `Group.name`                         |
-| `groups[].descriptions: {"en": "..."}`          | `Group.descriptions`                 |
-| `users[].username`, `email`                     | `User`: same names                   |
-| `users[].givenName`, `familyName`               | `User.given_name`, `family_name`     |
-| `users[].password`                              | `User.password`                      |
-| `users[].password: null`                        | `User.password` from the environment |
-| `users[].lang`                                  | `User.language`                      |
-| `users[].projects: [":admin"]` or `[":member"]` | `ProjectMembership.is_project_admin` |
-| `users[].groups: [":editors"]`                  | `ProjectMembership.groups`           |
+| Role     | Project data | Create resources | Data model, users, legal info, restrictions |
+|----------|--------------|------------------|---------------------------------------------|
+| `ADMIN`  | `CR`         | Yes              | Yes                                         |
+| `EDITOR` | `CR`         | Yes              | No                                          |
+| `WRITER` | `M`          | Yes              | No                                          |
+| `READER` | `V`          | No               | No                                          |
+
+`CR` includes delete and the change of permissions. `M` does not include delete.
+A `READER` can see private data of the project.
+
+### Implementation of Roles
+
+Roles are the design for `dsp-vre`. There are two ways to implement them:
+
+- A: DSP-API supports roles.
+  The server enforces the roles.
+  This is a breaking change in DSP-API and in `dsp-tools`.
+- B: `dsp-vre` creates one fixed custom group for each role, and the default permissions for these groups.
+  `ADMIN` uses the existing project admin group.
+  This needs no change in DSP-API.
+  `dsp-vre` hides the groups, but other clients, for example DSP-APP, show them.
+
+### Fallback: Groups
+
+If A and B are both rejected, `dsp-vre` uses the classical groups of DSP-API.
+Then the interface has a `Group`, and `ProjectMembership` has the groups of the user:
+
+```python
+@dataclass(frozen=True)
+class Group:
+    name: str
+    descriptions: dict[Language, str]
+
+
+@dataclass(frozen=True)
+class ProjectMembership:
+    username: str
+    is_project_admin: bool
+    groups: set[str]
+```
+
+| JSON project file (`project`)        | Proposed field                       |
+|--------------------------------------|--------------------------------------|
+| `users[].username`, `email`          | `User`: same names                   |
+| `users[].givenName`, `familyName`    | `User.given_name`, `family_name`     |
+| `users[].password`                   | `User.password`                      |
+| `users[].password: null`             | `User.password` from the environment |
+| `users[].lang`                       | `User.language`                      |
+| `users[].projects: [":admin"]`       | `ProjectUserRole.ADMIN`              |
+| `users[].projects: [":member"]`      | Open decision                        |
+| `groups[]`, `users[].groups`         | No field (fallback only)             |
+
+Open decisions:
+
+- Mapping of `:member`: today, a member gets `D` (delete) on the project data.
+  `EDITOR`: no member loses a right, but each member can change permissions.
+  `WRITER`: no member gets a new right, but each member loses the right to delete.
 
 ## Data Model
 
@@ -407,11 +444,11 @@ A restriction does not change data that exists.
 
 The levels give these rights:
 
-| Level        | Project admin | Project member | Known and unknown users |
-|--------------|---------------|----------------|-------------------------|
-| Public       | `CR`          | `D`            | `V`                     |
-| Private      | `CR`          | `D`            | None                    |
-| Limited view | `CR`          | `D`            | `RV`                    |
+| Level        | `ADMIN` | `EDITOR` | `WRITER` | `READER` | Known and unknown users |
+|--------------|---------|----------|----------|----------|-------------------------|
+| Public       | `CR`    | `CR`     | `M`      | `V`      | `V`                     |
+| Private      | `CR`    | `CR`     | `M`      | `V`      | None                    |
+| Limited view | `CR`    | `CR`     | `M`      | `V`      | `RV`                    |
 
 A restriction applies to one of these targets:
 
@@ -487,7 +524,7 @@ Open decisions:
 - Embargo: during the mocked embargo, all data is private.
   The place that keeps the restrictions until the embargo ends depends on the server design of the embargo.
   For the moment the only record stays the project json file.
-- Custom groups: a restriction does not refer to a custom group.
+- Roles replace groups. A restriction does not refer to a group.
   The full permission model (ADR principle 9) is future work.
 
 ## Vocabularies
@@ -532,4 +569,4 @@ class VocabularyNode:
 | `resources[].super`: `Resource`                                      | `Class` is always a sub-class of `Resource`.               |
 | `resources[].super`: `Representation`, `DDDRepresentation`, `Region` | Out of scope for the first release. No file ingest for 3D. |
 | A label without a comment                                            | Each language has a label and a comment (`LabelComments`). |
-| `groups[].status`, `selfjoin`                                        | `dsp-vre` sets them: active, no self-join.                 |
+| `groups`, `users[].groups`                                           | Replaced by project roles.                                 |

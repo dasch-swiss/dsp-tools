@@ -12,11 +12,11 @@ The table does not repeat it.
 | Command                                            | Domain       | Capability                                       | Client modules today                                                          |
 |----------------------------------------------------|--------------|--------------------------------------------------|-------------------------------------------------------------------------------|
 | `create`                                           | Projects     | Project with metadata, legal info, embargo state | `project_client`, `legal_info_client`                                         |
-|                                                    | Access       | Users, groups, memberships                       | `group_user_clients`, `permissions_client`                                    |
+|                                                    | Access       | Users, project roles                             | `group_user_clients`, `permissions_client`                                    |
 |                                                    | Data model   | Ontologies, classes, properties, cardinalities   | `ontology_clients`, `ontology_create_client_live`, `ontology_get_client_live` |
 |                                                    | Vocabularies | Lists and nodes                                  | `list_client`                                                                 |
 | `get`                                              | Projects     | Read project with metadata                       | `connection` (legacy models)                                                  |
-|                                                    | Access       | Read users, groups                               | `connection` (legacy models), `permissions_client`                            |
+|                                                    | Access       | Read users, project roles                        | `connection` (legacy models), `permissions_client`                            |
 |                                                    | Data model   | Read ontologies                                  | `connection` (legacy models)                                                  |
 |                                                    | Vocabularies | Read lists                                       | `connection` (legacy models)                                                  |
 | `xmlupload`, `resume-xmlupload`                    | Data         | Create data, continuation state                  | `resource_client`, `value_client`, `ingest`                                   |
@@ -31,7 +31,7 @@ The table does not repeat it.
 |                                                    | Vocabularies | Read lists                                       | `list_client`                                                                 |
 | `mapping config`, `mapping update`                 | Data model   | External mappings                                | `mapping_client`, `ontology_get_client_live`                                  |
 |                                                    | Projects     | Read project                                     | `project_client`                                                              |
-| `migration`                                        | Projects    | Export and import of a project                   | `migration_clients`, `project_client`                                         |
+| `migration`                                        | Projects     | Export and import of a project                   | `migration_clients`, `project_client`                                         |
 
 Notes:
 
@@ -61,9 +61,8 @@ The command reads the JSON project file, converts it into `dsp-vre` dataclasses,
 2. Check that the current user can create a project (Access).
 3. Create the project with its metadata and legal info, and sets embargo state (Projects).
 4. Create the lists (Vocabularies).
-5. Create the groups (Access).
-6. Create the users and their memberships (Access).
-7. Create the ontologies with classes, properties and cardinalities and permissions (if not embargo) (Data model).
+5. Create the users and their project roles (Access).
+6. Create the ontologies with classes, properties and cardinalities and permissions (if not embargo) (Data model).
 
 Each step returns created items and failures (principle 6).
 The progress options get compared on these questions:

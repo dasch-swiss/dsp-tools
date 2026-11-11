@@ -62,12 +62,6 @@ class ProjectLegalSettings:
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
-class Group:
-    name: str
-    descriptions: dict[Language, str]
-
-
 # dsp-tools reads the password from DSP_USER_PASSWORD if the JSON project file has none
 @dataclass(frozen=True)
 class User:
@@ -79,11 +73,18 @@ class User:
     language: Language = Language.EN
 
 
+# The user does not see groups. dsp-vre sets the rights for each role.
+class ProjectUserRole(Enum):
+    ADMIN = auto()  # CR on project data, data model, users, legal info, restrictions
+    EDITOR = auto()  # CR on project data, create resources
+    WRITER = auto()  # M on project data, create resources
+    READER = auto()  # V on project data, also private data
+
+
 @dataclass(frozen=True)
 class ProjectMembership:
     username: str
-    is_project_admin: bool
-    groups: set[str]
+    role: ProjectUserRole
 
 
 # ---------------------------------------------------------------------------

@@ -18,14 +18,14 @@ dsp-tools/                          # repository root, virtual workspace root
 ├── uv.lock                         # one lock file for both packages
 ├── justfile
 ├── .github/workflows/
-├── docs/                           # shared documentation
-│   └── dsp-tools-split/
 └── packages/
     ├── dsp-tools/
+    │   ├── docs/
     │   ├── pyproject.toml          # name = "dsp-tools", CLI entry point
     │   ├── src/dsp_tools/
     │   └── test/
     └── dsp-vre/
+        ├── docs/
         ├── pyproject.toml          # name = "dsp-vre"
         ├── src/dsp_vre/
         └── test/

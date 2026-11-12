@@ -65,7 +65,16 @@ The package has two user groups:
 
 ### Package Name
 
-The PyPI name is `dsp-vre`. The import name is `dsp_vre`.
+The package name is not decided.
+The repository that holds the package at the end has the name `dsp-vre`.
+Thus the package needs a different name. There are two suggestions:
+
+| PyPI name     | Import name   |
+|---------------|---------------|
+| `dsp-vre-lib` | `dsp_vre_lib` |
+| `dsp-vre-py`  | `dsp_vre_py`  |
+
+The documents in this folder use `dsp-vre` as a working name until the decision.
 
 ### Synchronous Interface Only
 

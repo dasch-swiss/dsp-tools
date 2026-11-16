@@ -71,7 +71,7 @@ Thus the package needs a different name. There are two suggestions:
 
 | PyPI name     | Import name   |
 |---------------|---------------|
-| `dsp-vre-lib` | `dsp_vre_lib` |
+| `dsp-vre-lib` | `dsp_vre_lib` | -> lib is decided
 | `dsp-vre-py`  | `dsp_vre_py`  |
 
 The documents in this folder use `dsp-vre` as a working name until the decision.
@@ -239,6 +239,9 @@ The options are:
 - **Server-side streaming (long term).**
   A streaming service on the server keeps the state, thus the state never reaches the client.
   This option needs an asynchronous design.
+- **Masking vs. Exposing.** 
+  In some cases we will decide to mock certain behaviour, for example resource by resource creation in the xmlupload.
+  In other cases, we may decide to expose granular behaviour that we do not want to keep in the long term but decide to keep in the middle term.
 
 The options get evaluated against one real bulk-create use case before a decision.
 

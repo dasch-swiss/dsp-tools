@@ -91,6 +91,8 @@ A reference has one of these forms:
 
 ### Project
 
+-> make the embargo as a future desired state not modelled at the time
+
 A system admin creates the project.
 `Project` holds the identity and the description of the project.
 `embargo` sets the embargo state at creation. The default is no embargo.

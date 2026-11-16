@@ -481,7 +481,7 @@ The levels give these rights:
 
 A restriction applies to one of these targets:
 
-- A class: `private_classes`.
+- A class: `private_classes`, if this class has a file, the file itself will also be private.
 - A property, on all classes: `private_properties`.
 - A property on one class: `private_class_properties`.
 - The file of a `ClassWithFile`: `file_restrictions`.

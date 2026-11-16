@@ -49,6 +49,13 @@ dsp-vre = { workspace = true }
 ```
 
 The dependency goes in one direction only: `dsp_vre` never imports `dsp_tools`.
+The ruff rule `TID251` (banned-api) in the `dsp-vre` ruff configuration bans imports of `dsp_tools`.
+CI runs ruff, thus a violation blocks the merge.
+
+### CI
+
+CI keeps the current fine-grained jobs.
+Each package gets its own jobs (unit, integration, e2e).
 
 ### Content of Each Package
 
@@ -84,9 +91,13 @@ The layout gives space for more packages later.
 
 ## Open Questions
 
-- How do we enforce that `dsp_vre` never imports `dsp_tools`? Options: import-linter, a ruff rule, a CI check.
-- CI: one shared test job or one job per package?
 - Do the tests that need a DSP stack (testcontainers) move with `dsp-vre`?
 - Step two: how does the Python build fit into the Bazel and sbt build of `dsp-api`?
-- Step two: do we keep the git history of `packages/dsp-vre/` when it moves?
-- Step two: which first version does `dsp-vre` get in lockstep, and how do we map the step-one versions?
+- Step two: do we copy the git history of `packages/dsp-vre/` into `dsp-api`?
+  `git filter-repo` can extract the history of the folder, incl. the old paths before the move.
+  `dsp-api` then merges it as unrelated history. `dsp-tools` keeps its full history in all cases.
+  Trade-off: `dsp-api` gets many commits from another repository.
+- Step two: in step one, `dsp-vre` has its own version, for example 1.4.0.
+  In step two, the version is the `dsp-api` release number, for example 33.0.0.
+  How do we handle this jump? Example: how does `dsp-tools` change its pinned range,
+  and what do users of 1.x versions do?

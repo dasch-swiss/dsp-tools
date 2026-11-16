@@ -52,9 +52,11 @@ The package has two user groups:
     - Delete is possible for all items. On Data, delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
-9. **Full permission model.**
-   The desired option is a feature-complete pre-set, for example project roles.
-   If a pre-set cannot be feature-complete, the interface shows the full permission set and groups.
+9. **Permissions through pre-sets first.**
+   The interface gives permission pre-sets, for example the project roles admin, member and guest.
+   The goal: the pre-sets cover all permission needs.
+   If the pre-sets cannot cover a need, the interface also shows the full DSP permission model:
+   the permission levels (view, modify, delete, change rights) and the user groups.
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, a client can check the rights before it starts an operation.
@@ -217,11 +219,12 @@ Negative:
 
 ## Open Decisions
 
-### Progress & Reporting
+### Progress, Reporting and Continuation
 
 Status: not decided.
 
-The options are:
+The topics below are different mechanisms. They do not compete with each other.
+For each topic, the exact behaviour is not defined.
 
 - **Callback.**
   The user gives an optional function to a long operation, for example `on_progress`.
@@ -236,14 +239,19 @@ The options are:
   and the ID-to-IRI map of the items that are done.
   The package gives functions to save the state to a file and to read it from a file.
   The user gives the state back to the same operation, which does not create done items again.
-- **Server-side streaming (long term).**
-  A streaming service on the server keeps the state, thus the state never reaches the client.
-  This option needs an asynchronous design.
-- **Masking vs. Exposing.** 
+- **Server-side state (long term).**
+  Today, the client holds the state of a bulk operation.
+  If the client stops, the user must keep the continuation state.
+  Long term, the server can run the bulk operation and keep its state,
+  for example with a streaming platform such as Kafka.
+  The client then only sends the data and reads the progress from the server.
+  This needs significant infrastructure work and an asynchronous interface in the package.
+  It is out of scope for the first release.
+- **Masking vs. Exposing.**
   In some cases we will decide to mock certain behaviour, for example resource by resource creation in the xmlupload.
   In other cases, we may decide to expose granular behaviour that we do not want to keep in the long term but decide to keep in the middle term.
 
-The options get evaluated against one real bulk-create use case before a decision.
+Each topic gets evaluated against one real bulk-create use case before a decision.
 
 ## Related Documents
 

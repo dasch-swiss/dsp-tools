@@ -1,9 +1,9 @@
 # Set-Up for the `dsp-tools` Split into an Own PyPI Package
 
-This document shows how the package `dsp-vre` splits from `dsp-tools` on a technical level,
-and how `dsp-vre` gets to PyPI.
+This document shows how the package `dsp-vre-lib` splits from `dsp-tools` on a technical level,
+and how `dsp-vre-lib` gets to PyPI.
 The document is a timeline in two steps.
-The public interface of `dsp-vre` is in the [ADR](ADR-dsp-vre.md).
+The public interface of `dsp-vre-lib` is in the [ADR](ADR-dsp-vre-lib.md).
 
 ## Step One: uv Workspace in the `dsp-tools` Repository
 
@@ -24,10 +24,10 @@ dsp-tools/                          # repository root, virtual workspace root
     │   ├── pyproject.toml          # name = "dsp-tools", CLI entry point
     │   ├── src/dsp_tools/
     │   └── test/
-    └── dsp-vre/
+    └── dsp-vre-lib/
         ├── docs/
-        ├── pyproject.toml          # name = "dsp-vre"
-        ├── src/dsp_vre/
+        ├── pyproject.toml          # name = "dsp-vre-lib"
+        ├── src/dsp_vre_lib/
         └── test/
 ```
 
@@ -36,20 +36,20 @@ It holds the workspace definition and the shared configuration for ruff, mypy an
 
 ### Dependency
 
-`dsp-tools` declares `dsp-vre` as a normal dependency.
+`dsp-tools` declares `dsp-vre-lib` as a normal dependency.
 In the workspace, uv resolves it to the local source:
 
 ```toml
 # packages/dsp-tools/pyproject.toml
 [project]
-dependencies = ["dsp-vre>=1.0,<2.0"]
+dependencies = ["dsp-vre-lib>=1.0,<2.0"]
 
 [tool.uv.sources]
-dsp-vre = { workspace = true }
+dsp-vre-lib = { workspace = true }
 ```
 
-The dependency goes in one direction only: `dsp_vre` never imports `dsp_tools`.
-The ruff rule `TID251` (banned-api) in the `dsp-vre` ruff configuration bans imports of `dsp_tools`.
+The dependency goes in one direction only: `dsp_vre_lib` never imports `dsp_tools`.
+The ruff rule `TID251` (banned-api) in the `dsp-vre-lib` ruff configuration bans imports of `dsp_tools`.
 CI runs ruff, thus a violation blocks the merge.
 
 ### CI
@@ -59,7 +59,7 @@ Each package gets its own jobs (unit, integration, e2e).
 
 ### Content of Each Package
 
-`dsp-vre` gets:
+`dsp-vre-lib` gets:
 
 - The server clients from `src/dsp_tools/clients/`.
 - The data validation against the server data model.
@@ -74,30 +74,30 @@ Each package gets its own jobs (unit, integration, e2e).
 
 ### Release
 
-- `dsp-vre` has its own semantic version.
-- `dsp-vre` has its own release-please component and its own PyPI workflow.
-- `dsp-tools` pins a compatible range of `dsp-vre`.
+- `dsp-vre-lib` has its own semantic version.
+- `dsp-vre-lib` has its own release-please component and its own PyPI workflow.
+- `dsp-tools` pins a compatible range of `dsp-vre-lib`.
 
-## Step Two: Move `dsp-vre` into `dsp-api`
+## Step Two: Move `dsp-vre-lib` into `dsp-api`
 
-1. Move `packages/dsp-vre/` into the `dsp-api` repository.
-2. Publish `dsp-vre` to PyPI from `dsp-api`.
-   The `dsp-vre` version is the same as the `dsp-api` release number.
-3. Remove `dsp-vre` from the workspace in the `dsp-tools` repository.
-   `dsp-tools` then gets `dsp-vre` from PyPI.
+1. Move `packages/dsp-vre-lib/` into the `dsp-api` repository.
+2. Publish `dsp-vre-lib` to PyPI from `dsp-api`.
+   The `dsp-vre-lib` version is the same as the `dsp-api` release number.
+3. Remove `dsp-vre-lib` from the workspace in the `dsp-tools` repository.
+   `dsp-tools` then gets `dsp-vre-lib` from PyPI.
 
 The `dsp-tools` repository keeps the `packages/` layout.
 The layout gives space for more packages later.
 
 ## Open Questions
 
-- Do the tests that need a DSP stack (testcontainers) move with `dsp-vre`?
+- Do the tests that need a DSP stack (testcontainers) move with `dsp-vre-lib`?
 - Step two: how does the Python build fit into the Bazel and sbt build of `dsp-api`?
-- Step two: do we copy the git history of `packages/dsp-vre/` into `dsp-api`?
+- Step two: do we copy the git history of `packages/dsp-vre-lib/` into `dsp-api`?
   `git filter-repo` can extract the history of the folder, incl. the old paths before the move.
   `dsp-api` then merges it as unrelated history. `dsp-tools` keeps its full history in all cases.
   Trade-off: `dsp-api` gets many commits from another repository.
-- Step two: in step one, `dsp-vre` has its own version, for example 1.4.0.
+- Step two: in step one, `dsp-vre-lib` has its own version, for example 1.4.0.
   In step two, the version is the `dsp-api` release number, for example 33.0.0.
   How do we handle this jump? Example: how does `dsp-tools` change its pinned range,
   and what do users of 1.x versions do?

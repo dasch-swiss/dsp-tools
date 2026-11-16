@@ -3,14 +3,14 @@ status: proposed
 date: 2026-11-11
 ---
 
-# Interface of `create` in `dsp-vre`
+# Interface of `create` in `dsp-vre-lib`
 
 ## Summary
 
-This document proposes the input dataclasses for the `create` operation in `dsp-vre`.
+This document proposes the input dataclasses for the `create` operation in `dsp-vre-lib`.
 For each dataclass, it gives the intent, the code and the related keys of the JSON project file.
-The principles come from [ADR-dsp-vre.md](ADR-dsp-vre.md).
-The steps of `create` are in [dsp-vre-to-tools-map.md](dsp-vre-to-tools-map.md).
+The principles come from [ADR-dsp-vre-lib.md](ADR-dsp-vre-lib.md).
+The steps of `create` are in [dsp-vre-lib-to-tools-map.md](dsp-vre-lib-to-tools-map.md).
 The sections follow the order of the domains in the ADR.
 
 ## Design Rules
@@ -26,8 +26,8 @@ All dataclasses are frozen. Collections are tuples, thus the objects are immutab
 All enums are `StrEnum`.
 
 The types cannot express all rules of rule 2, for example "each language occurs one time".
-`dsp-vre` enforces these rules in the background. The mechanism is not decided.
-Pydantic is not a good choice, because `dsp-vre` collects all errors and does not raise (ADR principle 11).
+`dsp-vre-lib` enforces these rules in the background. The mechanism is not decided.
+Pydantic is not a good choice, because `dsp-vre-lib` collects all errors and does not raise (ADR principle 11).
 
 ## Scope
 
@@ -49,7 +49,7 @@ Not in this document:
 `LabelComments` holds the label and the comment for one language.
 The intent is that each language has a label and a comment.
 A label without a comment is not possible.
-`dsp-vre` enforces this rule. It is a breaking change for JSON project files without comments, but necessary.
+`dsp-vre-lib` enforces this rule. It is a breaking change for JSON project files without comments, but necessary.
 
 Classes, properties and vocabulary nodes use a `tuple[LabelComments, ...]`, with one item for each language.
 
@@ -84,7 +84,7 @@ A reference has one of these forms:
 - A class or property of an external ontology: the full IRI, for example `http://www.cidoc-crm.org/cidoc-crm/E22`.
 - A user: the username only.
 
-`dsp-vre` has no prefixes.
+`dsp-vre-lib` has no prefixes.
 `dsp-tools` uses the `prefixes` of the JSON project file to change prefixed external names into full IRIs.
 
 ## Projects
@@ -154,7 +154,7 @@ class ProjectLegalSettings:
 ### User
 
 `User` is a person who can log in.
-`dsp-vre` always gets a password.
+`dsp-vre-lib` always gets a password.
 If the JSON project file has no password, `dsp-tools` reads it from the environment variable `DSP_USER_PASSWORD`.
 
 ```python
@@ -176,7 +176,7 @@ It is separate from `User`, because a user can exist before the project and be a
 The project is an argument of the function, not a field of the dataclass.
 
 The user does not see groups. The role states the intent, for example "this person can edit the data".
-`dsp-vre` then sets the necessary rights on the server.
+`dsp-vre-lib` then sets the necessary rights on the server.
 
 ```python
 class ProjectUserRole(StrEnum):
@@ -207,19 +207,19 @@ A `READER` can see private data of the project.
 
 ### Implementation of Roles
 
-Roles are the design for `dsp-vre`. There are two ways to implement them:
+Roles are the design for `dsp-vre-lib`. There are two ways to implement them:
 
 - A: DSP-API supports roles.
   The server enforces the roles.
   This is a breaking change in DSP-API and in `dsp-tools`.
-- B: `dsp-vre` creates one fixed custom group for each role, and the default permissions for these groups.
+- B: `dsp-vre-lib` creates one fixed custom group for each role, and the default permissions for these groups.
   `ADMIN` uses the existing project admin group.
   This needs no change in DSP-API.
-  `dsp-vre` hides the groups, but other clients, for example DSP-APP, show them.
+  `dsp-vre-lib` hides the groups, but other clients, for example DSP-APP, show them.
 
 ### Fallback: Groups
 
-If A and B are both rejected, `dsp-vre` uses the classical groups of DSP-API.
+If A and B are both rejected, `dsp-vre-lib` uses the classical groups of DSP-API.
 Then the interface has a `Group`, and `GroupMembership` has the groups of the user:
 
 ```python
@@ -245,7 +245,7 @@ class GroupMembership:
 | `users[].lang`                    | `User.language`                      |
 | `users[].projects: [":admin"]`    | `ProjectUserRole.ADMIN`              |
 | `users[].projects: [":member"]`   | Open decision                        |
-| `users[].projects: ["other:..."]` | Not supported in `dsp-vre`           |
+| `users[].projects: ["other:..."]` | Not supported in `dsp-vre-lib`       |
 | `groups[]`, `users[].groups`      | No field (fallback only)             |
 
 Open decisions:
@@ -355,7 +355,7 @@ Thus, a link property with a vocabulary name is not possible.
 
 The property type replaces the combination of `super`, `object` and `gui_element` in the JSON project file.
 The user states the intent, for example `TEXT_MULTI_LINE`.
-`dsp-vre` then selects the correct `knora-api` super-property, value type and GUI element.
+`dsp-vre-lib` then selects the correct `knora-api` super-property, value type and GUI element.
 
 As with classes, `ontology_super_properties` gives inheritance and `external_mapping` gives meaning only.
 An empty tuple means that the property has no super-property of that kind.
@@ -439,7 +439,7 @@ The table shows which property type replaces which combination in the JSON proje
 | `ControlledVocabularyProperty` | `hasValue`          | `ListValue`                            | `List`                  |
 
 To be decided:
-For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre` there are to options Spinbox or SimpleText,
+For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre-lib` there are to options Spinbox or SimpleText,
 this changed interface would disallow a selection of either. Is this an acceptable breaking change?
 
 | JSON project file                                               | Proposed field                                   |
@@ -513,7 +513,7 @@ class AccessRestrictions:
     file_restrictions: tuple[FileRestriction, ...]
 ```
 
-`dsp-vre` checks these rules and returns a failure for each item that does not obey them:
+`dsp-vre-lib` checks these rules and returns a failure for each item that does not obey them:
 
 - Each class and property name exists in the project.
 - `FileRestriction.class_name` is a `ClassWithFile`.
@@ -534,7 +534,7 @@ The restrictions are a separate input, and not fields of `Class` and `Property`.
 
 The cost of this decision:
 
-- `dsp-vre` must check that each name exists, because the restriction is not part of the class.
+- `dsp-vre-lib` must check that each name exists, because the restriction is not part of the class.
 - A read of the data model returns the ontologies and the restrictions as two objects.
 
 `default_permissions: "private"` maps to the embargo.
@@ -591,7 +591,7 @@ class VocabularyNode:
 
 ## Not Supported
 
-`dsp-vre` does not support these parts of the JSON project file:
+`dsp-vre-lib` does not support these parts of the JSON project file:
 
 | JSON project file                                                    | Reason                                                     |
 |----------------------------------------------------------------------|------------------------------------------------------------|

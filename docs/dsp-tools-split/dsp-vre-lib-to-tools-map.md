@@ -1,8 +1,8 @@
-# Map: `dsp-vre` Domains in `dsp-tools`
+# Map: `dsp-vre-lib` Domains in `dsp-tools`
 
-This document shows which `dsp-tools` command needs which `dsp-vre` domain.
-The domains and capabilities are in the [ADR for `dsp-vre`](ADR-dsp-vre.md).
-The column "Client modules today" names the modules in `src/dsp_tools/clients/` that `dsp-vre` replaces.
+This document shows which `dsp-tools` command needs which `dsp-vre-lib` domain.
+The domains and capabilities are in the [ADR for `dsp-vre-lib`](ADR-dsp-vre-lib.md).
+The column "Client modules today" names the modules in `src/dsp_tools/clients/` that `dsp-vre-lib` replaces.
 
 ## Commands with Server Interaction
 
@@ -35,14 +35,14 @@ The table does not repeat it.
 
 Notes:
 
-- With `dsp-vre`, the four commands `xmlupload`, `upload-files`, `ingest-files` and `ingest-xmlupload`
-  call one capability: create data. `dsp-vre` selects the ingest strategy.
+- With `dsp-vre-lib`, the four commands `xmlupload`, `upload-files`, `ingest-files` and `ingest-xmlupload`
+  call one capability: create data. `dsp-vre-lib` selects the ingest strategy.
 - Each command that changes the server needs the Access capability
   "operations that the current user can do", to check the rights before it starts.
 
 ## Commands without Server Interaction
 
-These commands do not use `dsp-vre`:
+These commands do not use `dsp-vre-lib`:
 
 - `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`
 - `old-excel2json`, `old-excel2lists`
@@ -54,8 +54,8 @@ These commands do not use `dsp-vre`:
 ## Worked Example: `dsp-tools create`
 
 `dsp-tools create` is the use case for the open decision in
-[Progress & Reporting](ADR-dsp-vre.md#progress--reporting).
-The command reads the JSON project file, converts it into `dsp-vre` dataclasses, and then does these steps:
+[Progress & Reporting](ADR-dsp-vre-lib.md#progress--reporting).
+The command reads the JSON project file, converts it into `dsp-vre-lib` dataclasses, and then does these steps:
 
 1. Connect to the server (Connection).
 2. Check that the current user can create a project (Access).
@@ -63,7 +63,7 @@ The command reads the JSON project file, converts it into `dsp-vre` dataclasses,
 4. Create the lists (Vocabularies).
 5. Create the users and their project roles (Access).
 6. Create the ontologies with classes, properties and cardinalities (Data model).
-7. Create the access restrictions (Data model). During the mocked embargo, `dsp-vre` ignores them.
+7. Create the access restrictions (Data model). During the mocked embargo, `dsp-vre-lib` ignores them.
 
 Each step returns created items and failures (principle 6).
 The progress options get compared on these questions:

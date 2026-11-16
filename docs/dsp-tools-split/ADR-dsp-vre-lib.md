@@ -3,13 +3,13 @@ status: proposed
 date: 2026-11-11
 ---
 
-# ADR for the Python Package `dsp-vre`
+# ADR for the Python Package `dsp-vre-lib`
 
 ## Summary
 
-`dsp-vre` is a Python package for the DSP server.
+`dsp-vre-lib` is a Python package for the DSP server.
 DaSCH tools, DaSCH services and external researchers use it for all server interaction.
-This ADR records the public interface of `dsp-vre`: principles, package name, result model and domains.
+This ADR records the public interface of `dsp-vre-lib`: principles, package name, result model and domains.
 The internals are out of scope.
 
 ## Context
@@ -67,16 +67,9 @@ The package has two user groups:
 
 ### Package Name
 
-The package name is not decided.
+The PyPI name is `dsp-vre-lib`. The import name is `dsp_vre_lib`.
 The repository that holds the package at the end has the name `dsp-vre`.
-Thus the package needs a different name. There are two suggestions:
-
-| PyPI name     | Import name   |
-|---------------|---------------|
-| `dsp-vre-lib` | `dsp_vre_lib` | -> lib is decided
-| `dsp-vre-py`  | `dsp_vre_py`  |
-
-The documents in this folder use `dsp-vre` as a working name until the decision.
+Thus the package needs a different name.
 
 ### Synchronous Interface Only
 
@@ -126,7 +119,7 @@ All domains need Connection through Projects.
 
 ```mermaid
 ---
-title: Domains of dsp-vre
+title: Domains of dsp-vre-lib
 ---
 flowchart LR
     connection["Connection<br/>credentials"]
@@ -208,13 +201,13 @@ Future work:
 Positive:
 
 - DaSCH tools, DaSCH services and researchers use one server interface.
-- API changes on the server affect `dsp-vre` only, not its callers.
-- File formats stay in `dsp-tools`. `dsp-vre` stays free of JSON, XML and Excel parsing.
+- API changes on the server affect `dsp-vre-lib` only, not its callers.
+- File formats stay in `dsp-tools`. `dsp-vre-lib` stays free of JSON, XML and Excel parsing.
 
 Negative:
 
-- `dsp-tools` and `dsp-vre` have two release cycles.
-- `dsp-tools` depends on a pinned version range of `dsp-vre`.
+- `dsp-tools` and `dsp-vre-lib` have two release cycles.
+- `dsp-tools` depends on a pinned version range of `dsp-vre-lib`.
 - A synchronous interface can be too slow for callers that need many parallel operations.
 
 ## Open Decisions
@@ -231,7 +224,7 @@ For each topic, the exact behaviour is not defined.
   The package calls the function after each item with one progress event:
   items done, items total, current item, and failures so far.
 - **Standard logging.**
-  The package writes to a Python logger with the fixed name `dsp_vre`.
+  The package writes to a Python logger with the fixed name `dsp_vre_lib`.
   The caller configures handlers, formats and files.
   Levels: `INFO` for start, end and summary of an operation, `DEBUG` for each item, `WARNING` for failed items.
 - **Continuation state.**
@@ -255,7 +248,7 @@ Each topic gets evaluated against one real bulk-create use case before a decisio
 
 ## Related Documents
 
-- [Map: `dsp-vre` domains in `dsp-tools`](dsp-vre-to-tools-map.md):
+- [Map: `dsp-vre-lib` domains in `dsp-tools`](dsp-vre-lib-to-tools-map.md):
   which `dsp-tools` command uses which domain, with the `dsp-tools create` worked example.
 - [Set-up for the split](dsp-tools-split-package-setup.md):
   repository layout, dependency direction and release timeline.

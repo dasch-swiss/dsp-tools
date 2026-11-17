@@ -304,14 +304,14 @@ class ClassWithFile(Class):
     file_type: FileType
 ```
 
-| `FileType`    | `knora-api` super-class     |
-|---------------|-----------------------------|
-| `ARCHIVE`     | `ArchiveRepresentation`     |
-| `AUDIO`       | `AudioRepresentation`       |
-| `DOCUMENT`    | `DocumentRepresentation`    |
-| `VIDEO`       | `MovingImageRepresentation` |
-| `STILL_IMAGE` | `StillImageRepresentation`  |
-| `TEXT`        | `TextRepresentation`        |
+| `FileType`           | `knora-api` super-class     |
+|----------------------|-----------------------------|
+| `COMPRESSED_ARCHIVE` | `ArchiveRepresentation`     |
+| `AUDIO`              | `AudioRepresentation`       |
+| `DOCUMENT`           | `DocumentRepresentation`    |
+| `VIDEO`              | `MovingImageRepresentation` |
+| `IMAGE`              | `StillImageRepresentation`  |
+| `TEXT`               | `TextRepresentation`        |
 
 ### Cardinality
 
@@ -508,7 +508,7 @@ class AccessRestrictions:
 
 - Each class and property name exists in the project.
 - `FileRestriction.class_name` is a `ClassWithFile`.
-- `LIMITED_VIEW` is only on a `ClassWithFile` of the type `STILL_IMAGE`, `VIDEO` or `AUDIO`.
+- `LIMITED_VIEW` is only on a `ClassWithFile` of the type `IMAGE`, `VIDEO` or `AUDIO`.
 - Each class has a maximum of one `FileRestriction`.
 
 The Data model domain has three operations for restrictions:

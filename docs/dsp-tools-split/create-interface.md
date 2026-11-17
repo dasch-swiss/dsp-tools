@@ -279,9 +279,9 @@ An empty tuple means that the class has no super-class of that kind.
 class Class:
     name: str
     label_comments: tuple[LabelComments, ...]
-    ontology_super_classes: tuple[str, ...]
-    external_mapping: tuple[str, ...]
-    cardinalities: tuple[Cardinality, ...]
+    ontology_super_classes: tuple[str, ...] | None
+    external_mapping: tuple[str, ...] | None
+    cardinalities: tuple[Cardinality, ...] | None
 ```
 
 ### Class with File
@@ -384,8 +384,8 @@ class ObjectPropertyType(StrEnum):
 class Property(ABC):
     name: str
     label_comments: tuple[LabelComments, ...]
-    ontology_super_properties: tuple[str, ...]
-    external_mapping: tuple[str, ...]
+    ontology_super_properties: tuple[str, ...] | None
+    external_mapping: tuple[str, ...] | None
     subject_class: str | None
 
 

@@ -88,7 +88,7 @@ BaseError                                     # Root. Dataclass with message: st
 │   ├── UserDirectoryNotFoundError            # Generic: directory does not exist.
 │   ├── BadCredentialsError                   # DSP-API rejected credentials.
 │   ├── NonInteractiveContextCliError         # Input is missing, and no terminal can ask for it.
-│   └── DspAdminAccountNotUsedForUploadError  # Upload to a prod-like server without the project admin account.
+│   └── DaschEmployeeAccountUsedForUploadError  # Upload to a prod-like server with a DaSCH employee account declined.
 └── InternalError                             # Requires developer assistance. Prints contact info + log file path.
     ├── UnreachableCodeError                  # Code path that must never execute.
     └── PermanentConnectionError              # All reconnection attempts failed.

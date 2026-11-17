@@ -270,7 +270,7 @@ class Ontology:
 The intent is to separate two kinds of super-classes:
 
 - `project_super_classes`: classes of the same project. They give inheritance, which is visible in DSP.
-- `external_mapping`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
+- `external_mappings`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
 
 An empty tuple means that the class has no super-class of that kind.
 
@@ -280,7 +280,7 @@ class Class:
     name: str
     label_comments: tuple[LabelComments, ...]
     project_super_classes: tuple[str, ...] | None
-    external_mapping: tuple[str, ...] | None
+    external_mappings: tuple[str, ...] | None
     cardinalities: tuple[Cardinality, ...] | None
 ```
 
@@ -348,7 +348,7 @@ The property type replaces the combination of `super`, `object` and `gui_element
 The user states the intent, for example `TEXT_MULTI_LINE`.
 `dsp-vre-lib` then selects the correct `knora-api` super-property, value type and GUI element.
 
-As with classes, `project_super_properties` gives inheritance and `external_mapping` gives meaning only.
+As with classes, `project_super_properties` gives inheritance and `external_mappings` gives meaning only.
 An empty tuple means that the property has no super-property of that kind.
 
 `ObjectProperty.object_class_restriction` is the class that the link points to.
@@ -385,7 +385,7 @@ class Property(ABC):
     name: str
     label_comments: tuple[LabelComments, ...]
     project_super_properties: tuple[str, ...] | None
-    external_mapping: tuple[str, ...] | None
+    external_mappings: tuple[str, ...] | None
     subject_class: str | None
 
 
@@ -438,13 +438,13 @@ The property type does not let the user select one. Is this breaking change acce
 | `ontologies[].name`, `label`, `comment`                         | `Ontology`: same names                           |
 | `resources[].labels`, `comments`                                | `Class.label_comments`                           |
 | `resources[].super` (project class)                             | `Class.project_super_classes`                   |
-| `resources[].super` (external class)                            | `Class.external_mapping`                         |
+| `resources[].super` (external class)                            | `Class.external_mappings`                         |
 | `resources[].super: StillImageRepresentation` (and other files) | `ClassWithFile.file_type`                        |
 | `cardinalities[].propname`, `cardinality`                       | `Cardinality.property_name`, `cardinality`       |
 | `cardinalities[].gui_order`                                     | `Cardinality.property_display_order`             |
 | `properties[].labels`, `comments`                               | `Property.label_comments`                        |
 | `properties[].super` (project property)                         | `Property.project_super_properties`             |
-| `properties[].super` (external property)                        | `Property.external_mapping`                      |
+| `properties[].super` (external property)                        | `Property.external_mappings`                      |
 | `properties[].subject`                                          | `Property.subject_class`                         |
 | `properties[].super`, `object`, `gui_element`                   | `dsp_type`                                       |
 | `properties[].object` (class name)                              | `ObjectProperty.object_class_restriction`        |

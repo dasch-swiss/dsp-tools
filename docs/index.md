@@ -88,9 +88,9 @@ Additionally, it contains the `xmllib` which helps you construct the XML file re
       Please note, that we recommend to use the `xmllib` library to create the file
       as we will ensure interoperability between the DSP-API requirements and your input.
     - If you want to validate and upload your XML file take a look [here](./data-file/data-file-commands.md).
-      DaSCH employees use the [project admin account](./production-account.md) to upload data of the project.
-      Project members should use their personal account, 
-      please ensure that you are not uploading a long project during a University of Basel maintenance window 
+      DaSCH employees use the dedicated [project admin account](./production-account.md) to upload data of the project.
+      External project admins can use their personal account.
+      Please ensure that you are not uploading a big project during a University of Basel maintenance window 
       or on Wednesday morning during the deployment of the DSP infrastructure.
 
 ## List of CLI Commands

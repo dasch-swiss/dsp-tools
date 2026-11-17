@@ -99,7 +99,7 @@ it is necessary to specify the following options:
     External project admins should use their personal account for uploads.
 
     **When uploading on a server please ensure that it is not a University of Basel maintenance weekend 
-    or on Wednesday morning when the DSP infrastrucutre is deployed.**
+    or on Wednesday morning when the DSP infrastructure is deployed.**
 
 ```bash
 uvx dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml

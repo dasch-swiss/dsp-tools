@@ -291,11 +291,11 @@ The user selects the file type. The user does not select the `knora-api` super-c
 
 ```python
 class FileType(StrEnum):
-    ARCHIVE = "ArchiveRepresentation"
+    COMPRESSED_ARCHIVE = "ArchiveRepresentation"
     AUDIO = "AudioRepresentation"
     DOCUMENT = "DocumentRepresentation"
     VIDEO = "MovingImageRepresentation"
-    STILL_IMAGE = "StillImageRepresentation"
+    IMAGE = "StillImageRepresentation"
     TEXT = "TextRepresentation"
 
 
@@ -338,7 +338,7 @@ class Cardinality:
 `Property` is abstract. The user creates one of three types:
 
 - `DatatypeProperty`: the value is a literal, for example a text or a date.
-- `ObjectProperty`: the value is a link to a resource.
+- `LinkProperty`: the value is a link to a resource.
 - `ControlledVocabularyProperty`: the value is a node of a controlled vocabulary.
 
 Each type has only the fields that it needs.
@@ -374,10 +374,10 @@ class DatatypePropertyType(StrEnum):
     SEQNUM = "seqnum"
 
 
-class ObjectPropertyType(StrEnum):
+class LinkTargetType(StrEnum):
     LINK_TO_CLASS = "link_to_class"
     IS_PART_OF_COLLECTION = "is_part_of_collection"
-    HAS_REPRESENTATION = "has_representation"
+    LINK_TO_CLASS_WITH_FILE = "has_representation"
 
 
 @dataclass(frozen=True)
@@ -395,7 +395,7 @@ class DatatypeProperty(Property):
 
 
 @dataclass(frozen=True)
-class ObjectProperty(Property):
+class LinkProperty(Property):
     dsp_type: ObjectPropertyType
     object_class_restriction: str | None
 

@@ -374,7 +374,7 @@ class DatatypePropertyType(StrEnum):
     SEQNUM = "seqnum"
 
 
-class LinkTargetType(StrEnum):
+class LinkPropertyType(StrEnum):
     LINK_TO_CLASS = "link_to_class"
     IS_PART_OF_COLLECTION = "is_part_of_collection"
     LINK_TO_CLASS_WITH_FILE = "has_representation"

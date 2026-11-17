@@ -1,8 +1,6 @@
-import warnings
-
-from dsp_tools.error.custom_warnings import DspAdminAccountNotUsedForUploadWarning
-from dsp_tools.error.exceptions import DspAdminAccountNotUsedForUploadError
+from dsp_tools.error import DaschEmployeeAccountUsedForUploadError
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
+from dsp_tools.utils.interactive import prompt_until_valid_answer
 
 
 def dsp_admin_account_email(shortname: str) -> str:
@@ -13,8 +11,12 @@ def is_correct_dsp_admin_account_email(shortname: str, email: str) -> bool:
     return email == dsp_admin_account_email(shortname)
 
 
-def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str, server: str) -> None:
-    if is_correct_dsp_admin_account_email(shortname, email):
+def is_dsp_employee_acount_email(email: str) -> bool:
+    return email.endswith("@dasch.swiss")
+
+
+def check_for_dsp_employee_account_email_for_data_upload(email: str, server: str) -> None:
+    if not is_dsp_employee_acount_email(email):
         return
     rule = (
         "It is mandatory that each project has an admin account for DaSCH internal usage. "
@@ -22,12 +24,18 @@ def check_for_dsp_admin_account_email_for_data_upload(shortname: str, email: str
     )
     if is_prod_like_server(server):
         msg = (
-            "You are uploading data on a prod-like server.\n"
-            f"{rule} Please create such an account and re-start the upload."
+            "You are uploading data on a prod-like server and are using your DaSCH employee account.\n"
+            f"{rule} Are you sure you want to continue? [yes / no] "
         )
-        raise DspAdminAccountNotUsedForUploadError(msg)
-    msg = (
-        "You are uploading data without the project admin account.\n"
-        f"{rule} Other accounts are only permitted in test environments."
-    )
-    warnings.warn(DspAdminAccountNotUsedForUploadWarning(msg))
+        answer = prompt_until_valid_answer(
+            prompt=msg,
+            valid_answers=["yes", "no"],
+            non_interactive_answer="no",
+            non_interactive_notice="Using a DaSCH employee account for an upload on a prod-like server, "
+            "aborting upload.",
+        )
+        if answer.lower() == "no":
+            raise DaschEmployeeAccountUsedForUploadError(
+                "User aborted upload due to using a DaSCH employee acount on a prod-like server."
+            )
+    return

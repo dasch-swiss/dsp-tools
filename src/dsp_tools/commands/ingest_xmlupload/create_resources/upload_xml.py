@@ -29,7 +29,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
-from dsp_tools.utils.dsp_user_account_check import check_for_dsp_admin_account_email_for_data_upload
+from dsp_tools.utils.dsp_user_account_check import check_for_dsp_employee_account_email_for_data_upload
 from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
@@ -75,7 +75,7 @@ def ingest_xmlupload(
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     shortname = ProjectClientLive(creds.server, auth).get_project_shortname(shortcode)
-    check_for_dsp_admin_account_email_for_data_upload(shortname, creds.user, creds.server)
+    check_for_dsp_employee_account_email_for_data_upload(shortname, creds.user, creds.server)
     config = UploadConfig(
         media_previously_uploaded=True,
         interrupt_after=interrupt_after,

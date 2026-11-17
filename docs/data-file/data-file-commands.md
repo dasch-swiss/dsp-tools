@@ -93,6 +93,14 @@ In order to upload the same data
 to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
+
+!!! Attention 
+    DaSCH employees should use the dedicated project account for an `xmlupload` in the format of: '<shortname>@admin.dasch.swiss'
+    External project admins should use their personal account for uploads.
+
+    **When uploading on a server please ensure that it is not a University of Basel maintenance weekend 
+    or on Wednesday morning when the DSP infrastrucutre is deployed.**
+
 ```bash
 uvx dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
 ```
@@ -101,9 +109,6 @@ uvx dsp-tools xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.s
 
     `xmlupload` needs the credentials of a project admin of the project or of a system admin.
     The credentials of a project member are not enough, even for an XML file without multimedia files.
-    On production, DSP-TOOLS accepts only the project admin account `<shortname>@admin.dasch.swiss`.
-
-On production, use the [project admin account](../production-account.md) of the project.
 
 The expected XML format is [documented here](./xml-data-file.md).
 

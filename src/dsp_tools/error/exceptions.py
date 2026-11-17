@@ -107,5 +107,5 @@ class NonInteractiveContextCliError(UserError):
         super().__init__(msg)
 
 
-class DspAdminAccountNotUsedForUploadError(UserError):
-    """Class for errors when data is uploaded to a prod-like server with an account other than the project admin."""
+class DaschEmployeeAccountUsedForUploadError(UserError):
+    """Class for errors when data is uploaded to a prod-like server with a DaSCH employee account."""

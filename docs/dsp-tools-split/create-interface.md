@@ -353,7 +353,7 @@ An empty tuple means that the property has no super-property of that kind.
 
 `ObjectProperty.object_class_restriction` is the class that the link points to.
 `None` means that the link can point to any resource.
-For `HAS_REPRESENTATION` only, it must be a `ClassWithFile` of the project.
+For `LINK_TO_CLASS_WITH_FILE` only, it must be a `ClassWithFile` of the project.
 
 ```python
 class DatatypePropertyType(StrEnum):
@@ -426,7 +426,7 @@ The table shows which property type replaces which combination in the JSON proje
 | `SEQNUM`                       | `seqnum`            | `IntValue`                             | `Spinbox`, `SimpleText` |
 | `LINK_TO_CLASS`                | `hasLinkTo`         | a class, or `Resource`                 | `Searchbox`             |
 | `IS_PART_OF_COLLECTION`        | `isPartOf`          | a class                                | `Searchbox`             |
-| `HAS_REPRESENTATION`           | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`             |
+| `LINK_TO_CLASS_WITH_FILE`      | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`             |
 | `ControlledVocabularyProperty` | `hasValue`          | `ListValue`                            | `List`                  |
 
 To be decided:

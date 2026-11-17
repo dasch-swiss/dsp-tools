@@ -472,7 +472,8 @@ The levels give these rights:
 
 A restriction applies to one of these targets:
 
-- A class: `private_classes`, if this class has a file, the file itself will also be private.
+- A class: `private_classes`.
+  The resource and its file are private.
 - A property, on all classes: `private_properties`.
 - A property on one class: `private_class_properties`.
 - The file of a `ClassWithFile`: `file_restrictions`.
@@ -510,6 +511,8 @@ class AccessRestrictions:
 - `FileRestriction.class_name` is a `ClassWithFile`.
 - `LIMITED_VIEW` is only on a `ClassWithFile` of the type `IMAGE`, `VIDEO` or `AUDIO`.
 - Each class has a maximum of one `FileRestriction`.
+- A class in `private_classes` has no `FileRestriction`.
+  `private_classes` already makes the file private.
 
 The Data model domain has three operations for restrictions:
 

@@ -11,7 +11,7 @@ The table does not repeat it.
 
 | Command                                            | Domain       | Capability                                       | Client modules today                                                          |
 |----------------------------------------------------|--------------|--------------------------------------------------|-------------------------------------------------------------------------------|
-| `create`                                           | Projects     | Project with metadata, legal info, embargo state | `project_client`, `legal_info_client`                                         |
+| `create`                                           | Projects     | Project with metadata, legal info                | `project_client`, `legal_info_client`                                         |
 |                                                    | Access       | Users, project roles                             | `group_user_clients`, `permissions_client`                                    |
 |                                                    | Data model   | Ontologies, classes, properties, cardinalities   | `ontology_clients`, `ontology_create_client_live`, `ontology_get_client_live` |
 |                                                    | Vocabularies | Lists and nodes                                  | `list_client`                                                                 |
@@ -54,16 +54,16 @@ These commands do not use `dsp-vre-lib`:
 ## Worked Example: `dsp-tools create`
 
 `dsp-tools create` is the use case for the open decision in
-[Progress & Reporting](ADR-dsp-vre-lib.md#progress--reporting).
+[Progress, Reporting and Continuation](ADR-dsp-vre-lib.md#progress-reporting-and-continuation).
 The command reads the JSON project file, converts it into `dsp-vre-lib` dataclasses, and then does these steps:
 
 1. Connect to the server (Connection).
 2. Check that the current user can create a project (Access).
-3. Create the project with its metadata and legal info, and set the embargo state (Projects).
+3. Create the project with its metadata and legal info (Projects).
 4. Create the lists (Vocabularies).
 5. Create the users and their project roles (Access).
 6. Create the ontologies with classes, properties and cardinalities (Data model).
-7. Create the access restrictions (Data model). During the mocked embargo, `dsp-vre-lib` ignores them.
+7. Create the access restrictions (Data model).
 
 Each step returns created items and failures (principle 6).
 The progress options get compared on these questions:

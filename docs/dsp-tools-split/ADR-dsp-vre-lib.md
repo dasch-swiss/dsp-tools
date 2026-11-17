@@ -25,6 +25,14 @@ The package has two user groups:
 
 ## Decision
 
+### Scope of the Split
+
+The split is complete when `dsp-vre-lib` supports all features of `dsp-tools`.
+Each domain lists later capabilities under "Future work", for example the export of data.
+If the interface of a future capability is known, the package has a stub with the final signature.
+The stub cannot be called.
+If the interface is not known, the documentation names the capability, and there is no stub.
+
 ### Principles
 
 1. **Intent over procedure.**
@@ -53,7 +61,7 @@ The package has two user groups:
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
 9. **Permissions through pre-sets first.**
-   The interface gives permission pre-sets, for example the project roles admin, member and guest.
+   The interface gives permission pre-sets, for example the project roles admin, member and reader.
    The goal: the pre-sets cover all permission needs.
    If the pre-sets cannot cover a need, the interface also shows the full DSP permission model:
    the permission levels (view, modify, delete, change rights) and the user groups.
@@ -123,7 +131,7 @@ title: Domains of dsp-vre-lib
 ---
 flowchart LR
     connection["Connection<br/>credentials"]
-    projects["Projects<br/>metadata, legal info,<br/>embargo, migration"]
+    projects["Projects<br/>metadata, legal info,<br/>migration"]
     access["Access<br/>users, project roles,<br/>rights"]
     datamodel["Data model<br/>ontologies, classes,<br/>properties, mappings"]
     vocabularies["Vocabularies<br/>lists, nodes"]
@@ -152,9 +160,6 @@ Future work: none at this time.
 
 - Project with metadata.
 - Legal info: licenses, copyright holders, default authorship.
-- Embargo state of the project.
-  The first release mocks the embargo: the code ignores the set permissions.
-  This changes when the server implements the embargo.
 - Migration: export a project from one server and import it into another server.
   The export includes the data model and the admin data.
 
@@ -241,8 +246,8 @@ For each topic, the exact behaviour is not defined.
   This needs significant infrastructure work and an asynchronous interface in the package.
   It is out of scope for the first release.
 - **Masking vs. Exposing.**
-  In some cases we will decide to mock certain behaviour, for example resource by resource creation in the xmlupload.
-  In other cases, we may decide to expose granular behaviour that we do not want to keep in the long term but decide to keep in the middle term.
+  In some cases, the package hides a behaviour, for example the creation of one resource after the other in `xmlupload`.
+  In other cases, the package shows a granular behaviour for the medium term, but not for the long term.
 
 Each topic gets evaluated against one real bulk-create use case before a decision.
 

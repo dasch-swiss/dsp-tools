@@ -80,7 +80,7 @@ The user refers to items by their local names (ADR principle 4).
 A reference has one of these forms:
 
 - An item of the same ontology or another ontology of the same project: `<ontology>:<name>`, for example `biblio:Book`.
-  This makes the implementation logic eaiser.
+  This makes the implementation logic easier.
 - A class or property of an external ontology: the full IRI, for example `http://www.cidoc-crm.org/cidoc-crm/E22`.
 - A user: the username only.
 
@@ -91,19 +91,11 @@ A reference has one of these forms:
 
 ### Project
 
--> make the embargo as a future desired state not modelled at the time
-
 A system admin creates the project.
 `Project` holds the identity and the description of the project.
-`embargo` sets the embargo state at creation. The default is no embargo.
 
-The first release mocks the embargo.
-If `embargo` is true, the mock ignores all permissions that are set.
-The user can still set access restrictions in the dataclasses.
-When the server implements the embargo, only the code changes, not the interface.
-Thus, the JSON project file can record the necessary final state now.
-
-A private project uses the embargo. There is no other project-level private default.
+There is no project-level private default.
+To make all project data private, list each class in `AccessRestrictions.private_classes`.
 
 `descriptions` is a mapping and not `LabelComments`, because a project description has no label.
 
@@ -115,8 +107,11 @@ class Project:
     longname: str
     descriptions: Mapping[Language, str]
     keywords: tuple[str, ...]
-    embargo: bool = False
 ```
+
+Future work:
+
+- Embargo. The interface is not decided, thus there is no stub.
 
 ### Legal Information
 
@@ -145,7 +140,6 @@ class ProjectLegalSettings:
 |----------------------------------------------------------------------------------------|------------------------------------------------|
 | `shortcode`, `shortname`, `longname`, `keywords`                                       | `Project`: same names                          |
 | `descriptions: {"en": "..."}`                                                          | `Project.descriptions: Mapping[Language, str]` |
-| Not available                                                                          | `Project.embargo`                              |
 | `enabled_licenses`, `data_license`, `data_copyright_holder`, `default_data_authorship` | `ProjectLegalSettings`: same names             |
 | License as a free string                                                               | `License`                                      |
 
@@ -181,8 +175,7 @@ The user does not see groups. The role states the intent, for example "this pers
 ```python
 class ProjectUserRole(StrEnum):
     ADMIN = "admin"
-    EDITOR = "editor"
-    WRITER = "writer"
+    MEMBER = "member"
     READER = "reader"
 
 
@@ -197,13 +190,15 @@ The roles give these rights:
 | Role     | Project data | Create resources | Data model, users, legal info, restrictions |
 |----------|--------------|------------------|---------------------------------------------|
 | `ADMIN`  | `CR`         | Yes              | Yes                                         |
-| `EDITOR` | `D`          | Yes              | No                                          |
-| `WRITER` | `M`          | Yes              | No                                          |
+| `MEMBER` | `D`          | Yes              | No                                          |
 | `READER` | `V`          | No               | No                                          |
 
 `CR` includes delete and the change of permissions. `D` includes delete, but not the change of permissions.
-`M` does not include delete.
 A `READER` can see private data of the project.
+
+DSP-API has no reader role.
+Until it has one, `dsp-vre-lib` creates a standardised custom group for `READER` in each project.
+The fixed group makes the later change to a server role simple.
 
 ### Implementation of Roles
 
@@ -216,6 +211,8 @@ Roles are the design for `dsp-vre-lib`. There are two ways to implement them:
   `ADMIN` uses the existing project admin group.
   This needs no change in DSP-API.
   `dsp-vre-lib` hides the groups, but other clients, for example DSP-APP, show them.
+
+Until DSP-API has a reader role, A and B both use the standardised custom group for `READER`.
 
 ### Fallback: Groups
 
@@ -244,15 +241,9 @@ class GroupMembership:
 | `users[].password: null`          | `User.password` from the environment |
 | `users[].lang`                    | `User.language`                      |
 | `users[].projects: [":admin"]`    | `ProjectUserRole.ADMIN`              |
-| `users[].projects: [":member"]`   | Open decision                        |
+| `users[].projects: [":member"]`   | `ProjectUserRole.MEMBER`             |
 | `users[].projects: ["other:..."]` | Not supported in `dsp-vre-lib`       |
 | `groups[]`, `users[].groups`      | No field (fallback only)             |
-
-Open decisions:
-
-- Mapping of `:member`: today, a member gets `D` (delete) on the project data.
-  `EDITOR`: the rights stay the same, because `EDITOR` also has `D`.
-  `WRITER`: no member gets a new right, but each member loses the right to delete.
 
 ## Data Model
 
@@ -439,8 +430,8 @@ The table shows which property type replaces which combination in the JSON proje
 | `ControlledVocabularyProperty` | `hasValue`          | `ListValue`                            | `List`                  |
 
 To be decided:
-For `DECIMAL`, `INT` and `SEQNUM`, `dsp-vre-lib` there are to options Spinbox or SimpleText,
-this changed interface would disallow a selection of either. Is this an acceptable breaking change?
+For `DECIMAL`, `INT` and `SEQNUM`, the JSON project file allows `Spinbox` or `SimpleText`.
+The property type does not let the user select one. Is this breaking change acceptable?
 
 | JSON project file                                               | Proposed field                                   |
 |-----------------------------------------------------------------|--------------------------------------------------|
@@ -473,11 +464,11 @@ A restriction does not change data that exists.
 
 The levels give these rights:
 
-| Level        | `ADMIN` | `EDITOR` | `WRITER` | `READER` | Known and unknown users |
-|--------------|---------|----------|----------|----------|-------------------------|
-| Public       | `CR`    | `D`      | `M`      | `V`      | `V`                     |
-| Private      | `CR`    | `D`      | `M`      | `V`      | None                    |
-| Limited view | `CR`    | `D`      | `M`      | `V`      | `RV`                    |
+| Level        | `ADMIN` | `MEMBER` | `READER` | Known and unknown users |
+|--------------|---------|----------|----------|-------------------------|
+| Public       | `CR`    | `D`      | `V`      | `V`                     |
+| Private      | `CR`    | `D`      | `V`      | None                    |
+| Limited view | `CR`    | `D`      | `V`      | `RV`                    |
 
 A restriction applies to one of these targets:
 
@@ -537,13 +528,10 @@ The cost of this decision:
 - `dsp-vre-lib` must check that each name exists, because the restriction is not part of the class.
 - A read of the data model returns the ontologies and the restrictions as two objects.
 
-`default_permissions: "private"` maps to the embargo.
-This is not a contradiction, because a permanently private project does not exist.
-
 | JSON project file (`project`)                      | Proposed field                                           |
 |----------------------------------------------------|----------------------------------------------------------|
-| `default_permissions: "public"`                    | `Project.embargo = False` (Default)                      |
-| `default_permissions: "private"`                   | `Project.embargo = True`                                 |
+| `default_permissions: "public"`                    | No restriction (default)                                 |
+| `default_permissions: "private"`                   | `dsp-tools` adds each class to `private_classes`         |
 | `default_permissions_overrule.private` (class)     | `AccessRestrictions.private_classes`                     |
 | `default_permissions_overrule.private` (property)  | `AccessRestrictions.private_properties`                  |
 | `default_permissions_overrule.limited_view: [...]` | `FileRestriction(..., FileRestrictionType.LIMITED_VIEW)` |
@@ -553,9 +541,6 @@ This is not a contradiction, because a permanently private project does not exis
 
 Open decisions:
 
-- Embargo: during the mocked embargo, all data is private.
-  The place that keeps the restrictions until the embargo ends depends on the server design of the embargo.
-  For the moment the only record stays the project json file.
 - Roles replace groups. A restriction does not refer to a group.
   The full permission model (ADR principle 9) is future work.
 

@@ -187,11 +187,11 @@ class ProjectMembership:
 
 The roles give these rights:
 
-| Role     | Project data | Create resources | Data model, users, legal info, restrictions |
-|----------|--------------|------------------|---------------------------------------------|
-| `ADMIN`  | `CR`         | Yes              | Yes                                         |
-| `MEMBER` | `D`          | Yes              | No                                          |
-| `READER` | `V`          | No               | No                                          |
+| Role     | Project data | Create resources | Data model, users, legal info, restrictions | Current implementation |
+|----------|--------------|------------------|---------------------------------------------|------------------------|
+| `ADMIN`  | `CR`         | Yes              | Yes                                         | `:admin`               |
+| `MEMBER` | `D`          | Yes              | No                                          | `:member`              |
+| `READER` | `V`          | No               | No                                          | -                      |
 
 `CR` includes delete and the change of permissions. `D` includes delete, but not the change of permissions.
 A `READER` can see private data of the project.
@@ -208,7 +208,7 @@ Roles are the design for `dsp-vre-lib`. There are two ways to implement them:
   The server enforces the roles.
   This is a breaking change in DSP-API and in `dsp-tools`.
 - B: `dsp-vre-lib` creates one fixed custom group for each role, and the default permissions for these groups.
-  `ADMIN` uses the existing project admin group.
+  `ADMIN` and `MEMBER` uses the existing project admin and member group respectively.
   This needs no change in DSP-API.
   `dsp-vre-lib` hides the groups, but other clients, for example DSP-APP, show them.
 

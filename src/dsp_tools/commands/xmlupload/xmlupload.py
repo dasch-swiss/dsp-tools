@@ -73,8 +73,7 @@ def xmlupload(
     project_client: ProjectClient = ProjectClientLive(creds.server, auth)
     # verify that a project with the shortcode exists
     project_client.get_project_iri(shortcode)
-    shortname = project_client.get_project_shortname(shortcode)
-    check_for_dsp_employee_account_email_for_data_upload(shortname, creds.user, creds.server)
+    check_for_dsp_employee_account_email_for_data_upload(creds.user, creds.server)
     project_default_authorship = _resolve_project_default_authorship(root, project_client, shortcode)
 
     config = config.with_server_info(server=creds.server, shortcode=shortcode)

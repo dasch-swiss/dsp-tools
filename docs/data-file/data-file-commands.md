@@ -95,7 +95,7 @@ it is necessary to specify the following options:
 
 
 !!! Attention 
-    DaSCH employees should use the dedicated project account for an `xmlupload` in the format of: '<shortname>@admin.dasch.swiss'
+    DaSCH employees should use the dedicated project account for an `xmlupload` in the format of: `<shortname>@admin.dasch.swiss`
     External project admins should use their personal account for uploads.
 
     **When uploading on a server please ensure that it is not a University of Basel maintenance weekend 

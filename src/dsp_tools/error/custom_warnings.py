@@ -23,10 +23,6 @@ class DspToolsUserWarning(DspToolsWarning):
         print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)
 
 
-class DspAdminAccountNotUsedForUploadWarning(DspToolsUserWarning):
-    """Class to display a warning that data is uploaded with an account other than the project admin."""
-
-
 class DspAdminAccountNotInProjectFileWarning(DspToolsUserWarning):
     """Class to display a warning that the project file does not define the project admin account correctly."""
 

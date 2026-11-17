@@ -13,7 +13,6 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.ingest import BulkIngestedAssetClient
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
@@ -74,8 +73,7 @@ def ingest_xmlupload(
     root = _replace_filepaths_with_internal_filename_from_ingest(root, shortcode)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    shortname = ProjectClientLive(creds.server, auth).get_project_shortname(shortcode)
-    check_for_dsp_employee_account_email_for_data_upload(shortname, creds.user, creds.server)
+    check_for_dsp_employee_account_email_for_data_upload(creds.user, creds.server)
     config = UploadConfig(
         media_previously_uploaded=True,
         interrupt_after=interrupt_after,

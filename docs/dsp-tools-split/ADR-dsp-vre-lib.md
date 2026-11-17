@@ -60,10 +60,10 @@ If the interface is not known, the documentation names the capability, and there
     - Delete is possible for all items. On Data, delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
-9. **Permissions through pre-sets first.**
-   The interface gives permission pre-sets, for example the project roles admin, member and reader.
-   The goal: the pre-sets cover all permission needs.
-   If the pre-sets cannot cover a need, the interface also shows the full DSP permission model:
+9. **Permissions through a user-friendly abstraction layer**
+   The interface provides some easy-to-understand options for the permissions, for example the project roles admin, member and reader.
+   The goal: the user-facing options cover all permission needs, without exposing too much complexity.
+   If the options cannot cover a need, the interface also shows the full DSP permission model:
    the permission levels (view, modify, delete, change rights) and the user groups.
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.

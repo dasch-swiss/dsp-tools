@@ -64,6 +64,10 @@ def main() -> None:
     docs_dir = repo_root / "docs"
 
     links = _find_urls_in_docstrings(xmllib_dir)
+    if not links:
+        # The xmllib docstrings always contain links, so an empty result means that the search is broken.
+        print(f"{BOLD_RED}Found no documentation links in {xmllib_dir}{RESET_TO_DEFAULT}")
+        sys.exit(1)
     internal_links = [link for link in links if link.category == LinkCategory.DSP_TOOLS_INTERNAL]
     external_links = [link for link in links if link.category == LinkCategory.EXTERNAL]
 
@@ -85,10 +89,17 @@ def main() -> None:
 
 def _find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
     """Use grep to find all documentation URLs with line numbers."""
+    # BSD grep reports a missing directory as "no match", so check it here
+    if not directory.is_dir():
+        raise FileNotFoundError(f"Directory not found: {directory}")
     cmd = ["grep", "-rn", "https://docs.dasch.swiss", str(directory), "--include=*.py"]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    # grep exits with 1 if it finds no match, and with 2 on an error
+    if result.returncode == 1:
+        return []
+    result.check_returncode()
 
-    url_pattern = regex.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]]+")
+    url_pattern = regex.compile(r"https://docs\.dasch\.swiss/[^\s\)>\]\"'`]+")
     links = []
 
     for line in result.stdout.splitlines():
@@ -101,7 +112,8 @@ def _find_urls_in_docstrings(directory: Path) -> list[LinkReference]:
 
             # Find all URLs in this line
             for match in url_pattern.finditer(content):
-                url = match.group(0)
+                # A URL at the end of a sentence is followed by a punctuation mark that is not part of the URL
+                url = match.group(0).rstrip(".,;:")
                 category = _categorize_url(url)
                 links.append(LinkReference(file_path, line_number, url, category))
 
@@ -170,9 +182,25 @@ def _validate_anchor(md_file: Path, anchor: str) -> bool:
 
     # For header anchors, parse the markdown headers and validate
     header_pattern = regex.compile(r"^#+\s+(.+)$", regex.MULTILINE)
-    headers = header_pattern.findall(content)
+    headers = header_pattern.findall(_remove_fenced_code_blocks(content))
     generated_anchors = {_header_to_anchor(h) for h in headers}
     return anchor in generated_anchors
+
+
+def _remove_fenced_code_blocks(content: str) -> str:
+    """Remove fenced code blocks, because a comment in a code block can look like a markdown header."""
+    kept_lines = []
+    open_fence: str | None = None
+    for line in content.splitlines():
+        stripped = line.lstrip()
+        if open_fence is None and stripped.startswith(("```", "~~~")):
+            open_fence = stripped[:3]
+        elif open_fence is not None:
+            if stripped.startswith(open_fence):
+                open_fence = None
+        else:
+            kept_lines.append(line)
+    return "\n".join(kept_lines)
 
 
 def _header_to_anchor(header: str) -> str:

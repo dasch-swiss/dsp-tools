@@ -28,6 +28,20 @@ Some text.
 ### `xmllib` Functions, explained!
 
 Some more text.
+
+```bash
+# Upload the data
+dsp-tools xmlupload data.xml
+```
+
+!!! example
+
+    ~~~python
+    ## Build the root
+    root = xmllib.XMLRoot.create_new("0001", "onto")
+    ~~~
+
+## Color
 """
 
 
@@ -90,6 +104,15 @@ class TestValidateAnchor:
 
     def test_text_that_is_not_a_header_is_no_anchor(self, docs_dir: Path) -> None:
         assert not _validate_anchor(docs_dir / "data-file" / "xml-data-file.md", "some-text")
+
+    def test_header_after_code_blocks(self, docs_dir: Path) -> None:
+        assert _validate_anchor(docs_dir / "data-file" / "xml-data-file.md", "color")
+
+    def test_comment_in_code_block_is_no_anchor(self, docs_dir: Path) -> None:
+        assert not _validate_anchor(docs_dir / "data-file" / "xml-data-file.md", "upload-the-data")
+
+    def test_comment_in_indented_code_block_is_no_anchor(self, docs_dir: Path) -> None:
+        assert not _validate_anchor(docs_dir / "data-file" / "xml-data-file.md", "build-the-root")
 
     def test_api_anchor_in_xmllib_docs(self, docs_dir: Path) -> None:
         md_file = docs_dir / "xmllib-docs" / "general-functions.md"
@@ -163,6 +186,20 @@ class TestFindUrlsInDocstrings:
         links = _find_urls_in_docstrings(tmp_path)
         assert [link.url for link in links] == [EXTERNAL_URL]
 
+    @pytest.mark.parametrize("text_after_url", [".", ",", ";", ":", '"""', "'", "`", ")."])
+    def test_strips_characters_after_bare_url(self, tmp_path: Path, text_after_url: str) -> None:
+        (tmp_path / "module.py").write_text(f'"""See {EXTERNAL_URL}{text_after_url}\n"""\n', encoding="utf-8")
+        links = _find_urls_in_docstrings(tmp_path)
+        assert [link.url for link in links] == [EXTERNAL_URL]
+
+    def test_returns_empty_list_when_no_links(self, tmp_path: Path) -> None:
+        (tmp_path / "module.py").write_text('"""No link here."""\n', encoding="utf-8")
+        assert _find_urls_in_docstrings(tmp_path) == []
+
+    def test_raises_when_directory_is_missing(self, tmp_path: Path) -> None:
+        with pytest.raises(FileNotFoundError):
+            _find_urls_in_docstrings(tmp_path / "no-such-directory")
+
 
 class TestValidateExternalLink:
     @pytest.mark.parametrize("status_code", [200, 302])
@@ -210,21 +247,24 @@ class TestMain:
     def _patch_links(self, monkeypatch: pytest.MonkeyPatch, links: list[LinkReference]) -> None:
         monkeypatch.setattr(validate_xmllib_docstring_links, "_find_urls_in_docstrings", lambda _: links)
 
-    def test_exits_without_error_when_no_links(
+    def test_exits_with_error_when_no_links(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
         self._patch_links(monkeypatch, [])
         with pytest.raises(SystemExit) as exc_info:
             main()
-        assert exc_info.value.code == 0
-        assert "All xmllib docstring links are valid" in capsys.readouterr().out
+        assert exc_info.value.code == 1
+        assert "Found no documentation links" in capsys.readouterr().out
 
-    def test_exits_without_error_when_all_links_valid(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_exits_without_error_when_all_links_valid(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         self._patch_links(monkeypatch, [_external_link(EXTERNAL_URL)])
         monkeypatch.setattr(requests, "head", lambda *_, **__: SimpleNamespace(status_code=200))
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 0
+        assert "All xmllib docstring links are valid" in capsys.readouterr().out
 
     def test_exits_with_error_on_broken_links(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]

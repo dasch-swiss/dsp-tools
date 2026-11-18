@@ -28,6 +28,7 @@ The CLI commands (user docs: `docs/index.md` and the pages it links to):
 | `update-legal`                                                      | Moves legal metadata in an XML file into `<bitstream>` attributes.                 |
 | `start-stack`, `stop-stack`                                         | Run a DSP stack on the local machine.                                              |
 | `mapping config`, `mapping update`                                  | Replace the external mappings of an ontology on a server, from an Excel file.      |
+| `migration config`, `complete`, `export`, `import`, `clean-up`      | Migrate a project from one DSP server to another.                                  |
 
 Two Python modules are public API:
 
@@ -63,7 +64,7 @@ Two Python modules are public API:
 - Format the code: `just format`
 - Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly)
 - Dead code: `just vulture`
-- Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint`
+- Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint` (runs in Docker)
 
 ### Tests
 

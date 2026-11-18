@@ -431,6 +431,7 @@ When adding a new command, verify:
 
 ## Related Documentation
 
-- Root `CLAUDE.md` - General project guidelines, coding standards, testing philosophy
+- Root `CLAUDE.md` - Project overview and commands
+- `CONVENTIONS.md` - Coding, testing and commit conventions
 - `src/dsp_tools/commands/` - Contains the actual implementation of CLI commands
 - `pyproject.toml` - Entry point configuration (`[project.scripts]` section)

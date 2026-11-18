@@ -147,7 +147,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | excel2json | `src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
 | validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
 | xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
-| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `start_stack` / `stop_stack`. |
+| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
 | xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
 | utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
 | schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
@@ -211,6 +211,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/), enforced by
 workflow — check recent `git log` for the prevailing style. Common prefixes in this repo: `feat:`, `fix:`,
 `chore:`, `docs:`, `test:`, `refactor:`, `build:`. Breaking changes use `!`.
 The repo squash-merges, so the PR title becomes the commit subject on `main`.
+A PR title whose type is not `chore`, `refactor`, `docs`, `test` or `fix` must end in a Linear ticket,
+for example `feat: add a geolocation value (DEV-1234)`. The same workflow checks this.
 
 ## Reviewers & Git History
 
@@ -228,8 +230,7 @@ so that `git blame` skips the commits that only reformat code.
 
 ## Before committing
 
-- `just lint` (ruff check + ruff format check + yamllint + markdownlint) is clean.
-- `just mypy` is clean.
+- `just lint` is clean. It runs every linter in the `lint` recipe of the `justfile`, mypy and vulture included.
 - Relevant tests pass (`just unittests` / `just integration-tests` / `just e2e-tests`).
 - All markdown complies with `.markdownlint.yml`.
 - Update the relevant `CLAUDE.md` (root and/or per-module) when behaviour or structure changes, and update

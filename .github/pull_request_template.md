@@ -3,6 +3,7 @@ Fixes DEV-
 <!--
 This repo squash-merges: the PR title becomes the commit subject on `main`.
 Write the title as a Conventional Commit (`type(scope): subject`); the "Check PR Title" workflow enforces it.
+Unless the type is chore, refactor, docs, test or fix, end the title in the Linear ticket: `(DEV-1234)`.
 Describe the code and the diff, not the history of the branch.
 -->
 

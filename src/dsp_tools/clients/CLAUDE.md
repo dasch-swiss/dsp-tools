@@ -275,8 +275,7 @@ import requests
 from loguru import logger
 from requests import RequestException, Response
 
-from dsp_tools.clients. < protocol_file >
-import < ProtocolClass >
+from dsp_tools.clients.<protocol_file> import <ProtocolClass>
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode

@@ -240,7 +240,7 @@ def should_retry_request(response: ResponseCodeAndText) -> bool:
     """Returns the decision if a retry of a request is sensible."""
     retriable_status = _is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in the test workflows in .github/workflows/
     return (retriable_status or try_again_later) and not in_testing_env
 
 

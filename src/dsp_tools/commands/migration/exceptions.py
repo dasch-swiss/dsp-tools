@@ -2,11 +2,11 @@ from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
-class InvalidMigrationConfigFile(UserError):
+class InvalidMigrationConfigFileError(UserError):
     """This error is to be raised in case the provided config file is invalid."""
 
 
-class MigrationReferenceInfoIncomplete(UserError):
+class MigrationReferenceInfoIncompleteError(UserError):
     def __init__(self, required_field: str) -> None:
         msg = (
             f"The following field(s) in the migration reference file (composed by dsp-tools) must be filled "

@@ -7,7 +7,7 @@ from loguru import logger
 from lxml import etree
 from tqdm import tqdm
 
-from dsp_tools.commands.xmlupload.exceptions import MultimediaFileNotFound
+from dsp_tools.commands.xmlupload.exceptions import MultimediaFileNotFoundError
 from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.input_problems import MultimediaFileNotFoundProblem
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
@@ -57,4 +57,4 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: Path) -> None:
         if not Path(imgdir / pth).is_file():
             all_problems.append(MultimediaFileNotFoundProblem(res.attrib["id"], str(pth)))
     if all_problems:
-        raise MultimediaFileNotFound(str(imgdir), all_problems)
+        raise MultimediaFileNotFoundError(str(imgdir), all_problems)

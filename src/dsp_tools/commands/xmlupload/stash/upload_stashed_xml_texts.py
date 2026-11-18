@@ -19,7 +19,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
@@ -57,7 +57,7 @@ def upload_stashed_xml_texts(
                 continue
             else:
                 resource_in_triplestore = request_result
-        except DspToolsRequestException as err:
+        except DspToolsRequestError as err:
             _log_unable_to_retrieve_resource(resource=res_id, msg=err.message)
             continue
 
@@ -131,7 +131,7 @@ def _upload_stash_item(
     )
     try:
         upload_problem = val_client.replace_existing_value(payload)
-    except DspToolsRequestException as err:
+    except DspToolsRequestError as err:
         _log_unable_to_upload_xml_resource(err.message, stash_item.res_id, stash_item.value.prop_iri)
         return False
     if upload_problem:

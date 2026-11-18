@@ -5,8 +5,8 @@ from typing import cast
 import requests
 from requests import RequestException
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
-from dsp_tools.clients.exceptions import ProjectOntologyNotFound
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.clients.ontology_clients import OntologyGetClient
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception
@@ -35,7 +35,7 @@ class OntologyGetClientLive(OntologyGetClient):
         log_response(response, status_code=response.status_code, include_response_content=False)
         if response.ok:
             return response.text
-        raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(params.url, response.status_code, response.text)
 
     def get_ontologies(self) -> tuple[list[str], list[str]]:
         """
@@ -59,10 +59,10 @@ class OntologyGetClientLive(OntologyGetClient):
             log_and_raise_request_exception(err)
         log_response(response, status_code=response.status_code)
         if not response.ok:
-            raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+            raise FatalNonOkApiResponseCodeError(params.url, response.status_code, response.text)
         response_json = cast(dict[str, Any], response.json())
         if not (ontos := response_json.get("project", {}).get("ontologies")):
-            raise ProjectOntologyNotFound(self.shortcode)
+            raise ProjectOntologyNotFoundError(self.shortcode)
         output = cast(list[str], ontos)
         return output
 
@@ -78,4 +78,4 @@ class OntologyGetClientLive(OntologyGetClient):
         log_response(response, status_code=response.status_code, include_response_content=False)
         if response.ok:
             return response.text
-        raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(params.url, response.status_code, response.text)

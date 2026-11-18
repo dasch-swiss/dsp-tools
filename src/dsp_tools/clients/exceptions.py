@@ -3,7 +3,7 @@ from dsp_tools.error.exceptions import UserError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 
 
-class FatalNonOkApiResponseCode(InternalError):
+class FatalNonOkApiResponseCodeError(InternalError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
 
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
@@ -22,7 +22,7 @@ class InvalidInputError(UserError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
-class ProjectOntologyNotFound(UserError):
+class ProjectOntologyNotFoundError(UserError):
     """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
 
     def __init__(self, shortcode: str) -> None:

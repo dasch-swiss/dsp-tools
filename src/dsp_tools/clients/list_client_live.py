@@ -9,7 +9,7 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client import ListGetClient
 from dsp_tools.clients.list_client import ListInfo
@@ -56,7 +56,7 @@ class ListGetClientLive(ListGetClient):
         if response.ok:
             json_response = cast(dict[str, Any], response.json())
             return json_response
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
         return [x["id"] for x in response_json["lists"]]
@@ -74,7 +74,7 @@ class ListGetClientLive(ListGetClient):
         if response.ok:
             response_json = cast(dict[str, Any], response.json())
             return response_json
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> ListInfo:
         return ListInfo(response_json["list"]["listinfo"], response_json["list"]["children"])

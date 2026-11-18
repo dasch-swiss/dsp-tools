@@ -9,7 +9,7 @@ from dsp_tools.clients.migration_clients import MigrationImportClient
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
-from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
+from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncompleteError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.error.exceptions import UnreachableCodeError
@@ -23,7 +23,7 @@ STATUS_CHECK_SLEEP_TIME = 5
 def import_zip(target_info: ServerInfo, config: MigrationConfig) -> bool:
     reference_info = parse_reference_json(config.reference_savepath)
     if not reference_info.project_iri:
-        raise MigrationReferenceInfoIncomplete("project_iri")
+        raise MigrationReferenceInfoIncompleteError("project_iri")
     auth = AuthenticationClientLive(target_info.server, target_info.user, target_info.password)
     client = MigrationImportClientLive(target_info.server, reference_info.project_iri, auth)
     success, _ = execute_import(client, config)

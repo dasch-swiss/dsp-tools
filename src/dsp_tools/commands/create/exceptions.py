@@ -7,7 +7,7 @@ class ProjectJsonSchemaValidationError(UserError):
         super().__init__(detail_msg)
 
 
-class CircularOntologyDependency(UserError):
+class CircularOntologyDependencyError(UserError):
     """Class if a circular dependency was found in the ontology."""
 
     def __init__(self, dependency_location: str) -> None:

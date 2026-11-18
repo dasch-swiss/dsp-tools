@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 import requests
 
+from scripts import validate_xmllib_docstring_links
 from scripts.validate_xmllib_docstring_links import LinkCategory
 from scripts.validate_xmllib_docstring_links import LinkReference
 from scripts.validate_xmllib_docstring_links import _categorize_url
@@ -12,6 +13,7 @@ from scripts.validate_xmllib_docstring_links import _header_to_anchor
 from scripts.validate_xmllib_docstring_links import _validate_anchor
 from scripts.validate_xmllib_docstring_links import _validate_external_link
 from scripts.validate_xmllib_docstring_links import _validate_internal_link
+from scripts.validate_xmllib_docstring_links import main
 
 INTERNAL_BASE = "https://docs.dasch.swiss/DSP-TOOLS"
 EXTERNAL_URL = "https://docs.dasch.swiss/DSP-API/01-introduction/legal-info/"
@@ -165,15 +167,15 @@ class TestFindUrlsInDocstrings:
 class TestValidateExternalLink:
     @pytest.mark.parametrize("status_code", [200, 302])
     def test_ok_status(self, monkeypatch: pytest.MonkeyPatch, status_code: int) -> None:
-        requested: list[str] = []
+        requested: list[tuple[str, dict[str, object]]] = []
 
-        def fake_head(url: str, **_: object) -> SimpleNamespace:
-            requested.append(url)
+        def fake_head(url: str, **kwargs: object) -> SimpleNamespace:
+            requested.append((url, kwargs))
             return SimpleNamespace(status_code=status_code)
 
         monkeypatch.setattr(requests, "head", fake_head)
         assert _validate_external_link(_external_link(f"{EXTERNAL_URL}#section")) is None
-        assert requested == [EXTERNAL_URL]
+        assert requested == [(EXTERNAL_URL, {"timeout": 10, "allow_redirects": True})]
 
     def test_http_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(requests, "head", lambda *_, **__: SimpleNamespace(status_code=404))
@@ -202,3 +204,39 @@ class TestValidateExternalLink:
         assert result
         assert result.error_type == "network_error"
         assert "name resolution failed" in result.details
+
+
+class TestMain:
+    def _patch_links(self, monkeypatch: pytest.MonkeyPatch, links: list[LinkReference]) -> None:
+        monkeypatch.setattr(validate_xmllib_docstring_links, "_find_urls_in_docstrings", lambda _: links)
+
+    def test_exits_without_error_when_no_links(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        self._patch_links(monkeypatch, [])
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 0
+        assert "All xmllib docstring links are valid" in capsys.readouterr().out
+
+    def test_exits_without_error_when_all_links_valid(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        self._patch_links(monkeypatch, [_external_link(EXTERNAL_URL)])
+        monkeypatch.setattr(requests, "head", lambda *_, **__: SimpleNamespace(status_code=200))
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 0
+
+    def test_exits_with_error_on_broken_links(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        broken_internal = _internal_link(f"{INTERNAL_BASE}/data-file/no-such-file/")
+        broken_external = _external_link(EXTERNAL_URL)
+        self._patch_links(monkeypatch, [broken_internal, broken_external])
+        monkeypatch.setattr(requests, "head", lambda *_, **__: SimpleNamespace(status_code=404))
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 1
+        output = capsys.readouterr().out
+        assert "Total errors: 2" in output
+        assert "no-such-file.md" in output
+        assert "HTTP 404" in output

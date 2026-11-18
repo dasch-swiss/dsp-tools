@@ -21,7 +21,7 @@ It transforms user input from the command line into structured actions that are 
 
 ### Data Flow
 
-```
+```text
 User runs command
   ↓
 entry_point.py:main() → entry_point.py:run()
@@ -47,31 +47,31 @@ To add a new argument/flag to an existing command, you need to modify the parser
 
 1. Locate the function that creates the parser for your command in `create_parsers.py`:
 
-```python
-def _add_xmlupload(
-    subparsers: _SubParsersAction[ArgumentParser],
-    default_dsp_api_url: str,
-    root_user_email: str,
-    root_user_pw: str,
-) -> None:
-    subparser = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
-    subparser.set_defaults(action="xmlupload")
+    ```python
+    def _add_xmlupload(
+        subparsers: _SubParsersAction[ArgumentParser],
+        default_dsp_api_url: str,
+        root_user_email: str,
+        root_user_pw: str,
+    ) -> None:
+        subparser = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
+        subparser.set_defaults(action="xmlupload")
 
-    # ... existing arguments ...
+        # ... existing arguments ...
 
-    # Add your new argument here
-    subparser.add_argument("--timeout-seconds", type=int, default=300, help="timeout for API requests in seconds")
-```
+        # Add your new argument here
+        subparser.add_argument("--timeout-seconds", type=int, default=300, help="timeout for API requests in seconds")
+    ```
 
 2. The parsed argument will automatically be available in the `args` namespace passed to the command handler.
 
 3. Update the command handler in `call_action_with_network.py` or `call_action_files_only.py` to use the new argument:
 
-```python
-def call_xmlupload(args: argparse.Namespace) -> bool:
-    timeout = args.timeout_seconds  # Access the new argument
-    # ... rest of implementation ...
-```
+    ```python
+    def call_xmlupload(args: argparse.Namespace) -> bool:
+        timeout = args.timeout_seconds  # Access the new argument
+        # ... rest of implementation ...
+    ```
 
 **Argument Types**:
 
@@ -313,7 +313,7 @@ Use dataclasses from `args.py` to group related parameters:
 
 ### Implementation Steps
 
-**Step 1: Design the command interface**
+#### Step 1: Design the command interface
 
 Determine the command name and its arguments. Document the intended CLI usage:
 
@@ -322,7 +322,7 @@ Determine the command name and its arguments. Document the intended CLI usage:
 dsp-tools validate-project <project_file> [--strict]
 ```
 
-**Step 2: Add argument parser**
+#### Step 2: Add argument parser
 
 Create a parser function in `create_parsers.py`:
 
@@ -347,7 +347,7 @@ def make_parser(...) -> ArgumentParser:
     # ... rest of parsers ...
 ```
 
-**Step 3: Create command handler**
+#### Step 3: Create command handler
 
 Add handler in `call_action_files_only.py` (or `call_action_with_network.py`):
 
@@ -373,7 +373,7 @@ def call_validate_project(args: argparse.Namespace) -> bool:
     return result
 ```
 
-**Step 4: Route the command**
+#### Step 4: Route the command
 
 Add a case in `call_action.py:call_requested_action()`:
 
@@ -386,7 +386,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:
         # ... rest of cases ...
 ```
 
-**Step 5: Implement command logic**
+#### Step 5: Implement command logic
 
 Create implementation in `src/dsp_tools/commands/` (this is where the actual work happens):
 
@@ -401,7 +401,7 @@ def validate_project_file(project_file: Path, strict: bool) -> bool:
     return True  # or False if validation fails
 ```
 
-**Step 6: Add tests**
+#### Step 6: Add tests
 
 Add tests in `test/unittests/cli/`:
 

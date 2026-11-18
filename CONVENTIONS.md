@@ -1,9 +1,9 @@
 # Conventions
 
 Agent reference card for the **work phase**. Pair with `REVIEW.md` (review phase).
-Authoritative detail lives in `CLAUDE.md` and the per-module `CLAUDE.md` files under `src/dsp_tools/`;
-developer docs live in `docs/developers/`. This card collects the conventions that are otherwise
-only enforced in review.
+Authoritative detail lives in `docs/` (developer docs in `docs/developers/`) and in the per-module `CLAUDE.md`
+files under `src/dsp_tools/`. The root `CLAUDE.md` is only an overview that points here.
+This card collects the conventions that are otherwise only enforced in review.
 
 ## Stack
 
@@ -163,6 +163,7 @@ threading — are detailed in the sections above and under "Testing Conventions"
 
 - **Every feature is tested.** Logic (parsers, serialisers, mappers, validators) gets unit tests;
   user-facing behaviour gets an integration/E2E round-trip. "It compiles / runs" is not coverage.
+- Work test-first: write a failing test, see it fail, make it pass, then refactor with the tests green.
 - Assertions are bare — no custom messages. Pytest reports enough on failure.
   Correct: `assert "id" in nodes[0]`. Incorrect: `assert "id" in nodes[0], f"..."`.
 - **RDF-graph tests assert the *whole* graph, not just the triple under test.** When a test builds a graph
@@ -209,6 +210,21 @@ threading — are detailed in the sections above and under "Testing Conventions"
 Follow [Conventional Commits](https://www.conventionalcommits.org/), enforced by the "Check PR Title"
 workflow — check recent `git log` for the prevailing style. Common prefixes in this repo: `feat:`, `fix:`,
 `chore:`, `docs:`, `test:`, `refactor:`, `build:`. Breaking changes use `!`.
+The repo squash-merges, so the PR title becomes the commit subject on `main`.
+
+## Reviewers & Git History
+
+Before you open a PR, read `main`'s `git log` and the recently merged PRs (`gh pr list --state merged`).
+Use them for two things:
+
+- Confirm the commit and PR-title conventions above. Where they leave an edge case open, the history decides.
+- Find the reviewers: the people who recently authored the files that the PR touches
+  (`git log --format='%an' -- <path>`, `git blame <path>`).
+
+The repo keeps no `CODEOWNERS` file by decision: GitHub would request a review from the listed owners
+on every PR, with no way to stop it. So git history is the reviewer signal.
+Run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once per clone,
+so that `git blame` skips the commits that only reformat code.
 
 ## Before committing
 
@@ -223,7 +239,7 @@ workflow — check recent `git log` for the prevailing style. Common prefixes in
 
 - **"dsp-tools subsystem inventory (blast-radius reference)"** (this file) — the cross-suite touch-point
   map; walk it with the `change-blast-radius` skill on any feature work.
-- `CLAUDE.md` — repository overview, commands, architecture, working agreements.
+- `CLAUDE.md` — repository overview, commands, architecture.
 - `ARCH-MAP.md` — component-level dependency graph and boundary rules; load on demand for import-level
   blast-radius and boundary questions (a different concern from the subsystem inventory above).
 - `CONTEXT.md` — the project's domain vocabulary.

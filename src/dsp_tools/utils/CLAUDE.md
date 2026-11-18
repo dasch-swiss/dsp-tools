@@ -174,7 +174,7 @@ If two commands need the same functionality, that functionality belongs in utils
 
 This architecture prevents tight coupling and makes commands independent, testable, and maintainable.
 
-```
+```text
 ✅ GOOD: Commands import from utils
 commands/xmlupload/ ──→ utils/request_utils.py
 commands/create/    ──→ utils/request_utils.py
@@ -203,7 +203,7 @@ Code does NOT belong in utils when:
 
 The utils layer acts as a **shared foundation** that enables code reuse without creating dependencies between commands:
 
-```
+```text
 Command Layer (independent):
   xmlupload/     validate-data/     create/     id2iri/
 
@@ -221,20 +221,24 @@ Utils Layer (shared foundation):
 ## General Guidelines for Reuse
 
 **Validation Functions:**
+
 - All validation functions return boolean or raise exceptions (no silent failures)
 - Use validation functions before sending data to API
 - Use `data_formats/` validators for all user input
 
 **Parsing Functions:**
+
 - All parsing functions raise user-friendly errors with context
 - They act as anti-corruption layers between external data and internal models
 - Always use `json_parsing.py` and `xml_parsing/` instead of writing your own parsing code
 
 **Request Functions:**
+
 - Never make direct HTTP requests without `request_utils.py`
 - Ensures consistent logging, error handling, and retry logic
 
 **XML Processing:**
+
 - XML parsing utilities are pipeline-oriented - use in sequence:
   1. `parse_clean_validate_xml.py` - Parse and validate
   2. `get_parsed_resources.py` - Transform to models

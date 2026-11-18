@@ -7,7 +7,7 @@ point to valid files (for internal DSP-TOOLS links) or valid URLs
 (for external DSP-API links).
 
 Usage:
-    python scripts/validate_docstring_links.py
+    python scripts/validate_xmllib_docstring_links.py
 
 Exit codes:
     0: All links are valid
@@ -116,7 +116,7 @@ def _categorize_url(url: str) -> LinkCategory:
 
 
 def _validate_internal_link(link: LinkReference, docs_dir: Path) -> ValidationResult | None:
-    """Validate internal DSP-TOOLS link against local file structuregex."""
+    """Validate internal DSP-TOOLS link against local file structure."""
     parsed = urlparse(link.url)
     path = parsed.path
     fragment = parsed.fragment
@@ -171,17 +171,17 @@ def _validate_anchor(md_file: Path, anchor: str) -> bool:
     # For header anchors, parse the markdown headers and validate
     header_pattern = regex.compile(r"^#+\s+(.+)$", regex.MULTILINE)
     headers = header_pattern.findall(content)
-
-    def header_to_anchor(header: str) -> str:
-        """Convert markdown header to anchor format."""
-        clean = regex.sub(r"[*`_]", "", header)
-        anchor_text = clean.lower()
-        anchor_text = regex.sub(r"[^\w\s-]", "", anchor_text)
-        anchor_text = regex.sub(r"[-\s]+", "-", anchor_text)
-        return anchor_text.strip("-")
-
-    generated_anchors = {header_to_anchor(h) for h in headers}
+    generated_anchors = {_header_to_anchor(h) for h in headers}
     return anchor in generated_anchors
+
+
+def _header_to_anchor(header: str) -> str:
+    """Convert markdown header to anchor format."""
+    clean = regex.sub(r"[*`_]", "", header)
+    anchor_text = clean.lower()
+    anchor_text = regex.sub(r"[^\w\s-]", "", anchor_text)
+    anchor_text = regex.sub(r"[-\s]+", "-", anchor_text)
+    return anchor_text.strip("-")
 
 
 def _validate_external_link(link: LinkReference) -> ValidationResult | None:

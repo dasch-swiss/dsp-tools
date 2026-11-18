@@ -1,5 +1,17 @@
 # Changelog
 
+## [19.3.4](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.3...v19.3.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* **xmlupload:** allow all project admin accounts to upload data (DEV-7906) ([#2494](https://github.com/dasch-swiss/dsp-tools/issues/2494)) ([5992837](https://github.com/dasch-swiss/dsp-tools/commit/5992837341df53c3b5d7cb7ed9bc59a5e52dd57c))
+
+
+### Maintenance
+
+* **start-stack:** bump versions to 2026.11.04 ([#2496](https://github.com/dasch-swiss/dsp-tools/issues/2496)) ([b274120](https://github.com/dasch-swiss/dsp-tools/commit/b27412053eace17a61287abb0d2f739d4821131d))
+
 ## [19.3.3](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.2...v19.3.3) (2026-11-11)
 
 

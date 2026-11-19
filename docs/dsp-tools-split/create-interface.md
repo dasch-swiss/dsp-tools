@@ -29,33 +29,40 @@ The code follows these conventions:
 - All dataclasses are `frozen=True, kw_only=True`. Optional fields have a default.
 - Collections are tuples. An empty tuple is the default, not `None`.
 - The public types contain no `Mapping`, `dict` or `list`.
-- Small values have their own class, for example `Labels` and `ClassRef`, not strings.
-- Enums are plain `Enum`, not `StrEnum`. The mapping to server values is internal.
-- One dataclass for each concept. There are no sub-classes and no union of one class for each variant.
+- References are typed objects, for example `ClassRef`, not strings.
+  Names and identifiers of one item stay strings, for example a username or a shortcode.
+- Multilingual texts have their own class, for example `Labels`.
+- Variants are a union of dataclasses with a type alias, one dataclass for each variant.
+  Each variant has only the fields that it needs. There is no inheritance.
+- Enums are only for a small closed set without data, for example `CardinalityNumber`.
+  Enums are plain `Enum`, not `StrEnum`. The mapping to server values is internal.
 - Factory functions are the intended way to build the objects, as in `xmllib`.
-  The factories hide the internal enums, for example the value type of a property.
+  The name of a factory matches the name of its dataclass, for example `properties.integer` and `IntegerProperty`.
 
 ### Validation
 
-The types cannot express all rules, for example "a file visibility needs a file".
+The types cannot express all rules, for example "a link to a class with a file needs a class with a file".
 Each dataclass has a `validate()` method that returns a tuple of problems. It does not raise.
-`dsp-vre-lib` calls `validate()` before each action, for example before `add_data_model`.
-The user can call `validate()` earlier.
-Rules across objects, for example "each reference resolves", are checked on the complete input of the action.
+The user can call `validate()` before an action.
 
-Programming errors raise, for example a wrong type or a call of a stub.
+Each action calls `validate()` on all objects of its input, for example `add_data_model`.
+The action then checks the rules across objects on the complete input, for example "each reference resolves".
+If there are problems, the action raises one exception that holds all problems.
+The action then writes nothing to the server.
+
+Programming errors raise, for example invalid input, a wrong type or a call of a stub.
 Runtime conditions are results, for example a rejection by the server (ADR principle 11).
 
 ## Operations
 
 Each domain has its own operations, named by their intent:
 
-| Domain                | Operation                              |
-|-----------------------|----------------------------------------|
-| Projects              | `create_project`, `set_legal_settings` |
-| Users and Permissions | `add_user`, `add_membership`           |
-| Data Model            | `add_data_model`, `set_visibility`     |
-| Vocabularies          | `add_vocabulary`                       |
+| Domain       | Operation                                 |
+|--------------|-------------------------------------------|
+| Projects     | `create_project`, `set_legal_settings`    |
+| Permissions  | `add_user`, `add_group`, `add_membership` |
+| Data Model   | `add_data_model`, `set_visibility`        |
+| Vocabularies | `add_vocabulary`                          |
 
 One aggregate operation sets up a complete project in one call:
 
@@ -66,6 +73,7 @@ result = set_up_project(
     legal_settings=ProjectLegalSettings(...),
     vocabularies=(vocabulary_1,),
     data_models=(data_model_1, data_model_2),
+    groups=(...),
     users=(...),
     memberships=(...),
 )
@@ -76,6 +84,10 @@ The aggregate has these advantages:
 - `dsp-vre-lib` knows the order of the steps, not `dsp-tools`.
 - `dsp-vre-lib` checks the references across domains before the first write.
 - The call has one progress stream and one result.
+
+An operation for one kind of item fails if the item exists.
+The aggregate skips the items that exist, as `dsp-tools create` does today.
+Its result reports the skipped items (ADR principle 7).
 
 The names of the operations are working names.
 The result types are in the ADR.
@@ -170,7 +182,7 @@ biblio.prop("hasAuthor")  # PropertyRef(data_model="biblio", name="hasAuthor")
 ```
 
 A vocabulary belongs to the project, thus `VocabularyRef` has no data model.
-A user reference is the username only.
+A user reference and a group reference are the name only.
 
 `dsp-vre-lib` has no prefixes.
 `dsp-tools` uses the `prefixes` of the JSON project file to change prefixed external names into full IRIs.
@@ -250,20 +262,34 @@ class User:
     language: Language = Language.EN
 ```
 
+### Group
+
+`Group` is a custom group of the project, as in `dsp-tools` today.
+A group has members only. A visibility does not refer to a group.
+Permission levels on groups are future work (ADR principle 9).
+
+```python
+@dataclass(frozen=True, kw_only=True)
+class Group:
+    name: str
+    descriptions: Descriptions | None = None
+```
+
 ### Project Membership
 
-`ProjectMembership` connects a user to the project and sets the permission of the user.
-A user has one permission in a project.
+`ProjectMembership` connects a user to the project.
+It sets the project role of the user and the custom groups of the user.
+A user has one project role in a project.
 It is separate from `User`, because a user can exist before the project and be a member of many projects.
 The project is an argument of the function, not a field of the dataclass.
 
-The user does not see groups. The permission states what the person can do.
+The project role states what the person can do.
 `dsp-vre-lib` then sets the necessary rights on the server.
 
-The names of the levels are open for a discussion with product management.
+The names of the roles are open for a discussion with product management.
 
 ```python
-class ProjectPermission(Enum):
+class ProjectRole(Enum):
     READ = auto()
     WRITE = auto()
     ADMIN = auto()
@@ -272,12 +298,13 @@ class ProjectPermission(Enum):
 @dataclass(frozen=True, kw_only=True)
 class ProjectMembership:
     username: str
-    permission: ProjectPermission
+    role: ProjectRole
+    groups: tuple[str, ...] = ()
 ```
 
-The levels give these rights:
+The roles give these rights:
 
-| Level   | Project data | Create resources | Data model, users, legal info, permissions | Current implementation |
+| Role    | Project data | Create resources | Data model, users, legal info, permissions | Current implementation |
 |---------|--------------|------------------|--------------------------------------------|------------------------|
 | `ADMIN` | `CR`         | Yes              | Yes                                        | `:admin`               |
 | `WRITE` | `D`          | Yes              | No                                         | `:member`              |
@@ -293,25 +320,6 @@ The group only works where it is part of the permission.
 Thus, each default permission and each explicit permission must include it,
 also the permissions that `xmlupload`, DSP-APP or the API set.
 
-### Fallback: Groups
-
-If the permission levels are rejected, `dsp-vre-lib` uses the classical groups of DSP-API.
-Then the interface has a `Group`, and `GroupMembership` has the groups of the user:
-
-```python
-@dataclass(frozen=True, kw_only=True)
-class Group:
-    name: str
-    descriptions: Descriptions | None = None
-
-
-@dataclass(frozen=True, kw_only=True)
-class GroupMembership:
-    username: str
-    is_project_admin: bool = False
-    groups: tuple[str, ...] = ()
-```
-
 | JSON project file (`project`)     | Proposed field                       |
 |-----------------------------------|--------------------------------------|
 | `users[].username`, `email`       | `User`: same names                   |
@@ -319,10 +327,11 @@ class GroupMembership:
 | `users[].password`                | `User.password`                      |
 | `users[].password: null`          | `User.password` from the environment |
 | `users[].lang`                    | `User.language`                      |
-| `users[].projects: [":admin"]`    | `ProjectPermission.ADMIN`            |
-| `users[].projects: [":member"]`   | `ProjectPermission.WRITE`            |
+| `users[].projects: [":admin"]`    | `ProjectRole.ADMIN`                  |
+| `users[].projects: [":member"]`   | `ProjectRole.WRITE`                  |
 | `users[].projects: ["other:..."]` | Not supported in `dsp-vre-lib`       |
-| `groups[]`, `users[].groups`      | No field (fallback only)             |
+| `groups[].name`, `descriptions`   | `Group`: same names                  |
+| `users[].groups`                  | `ProjectMembership.groups`           |
 
 ## Data Model
 
@@ -338,57 +347,67 @@ class DataModel:
     name: str
     label: str
     comment: str | None = None
-    classes: tuple[Class, ...] = ()
+    classes: tuple[ResourceClass, ...] = ()
     properties: tuple[Property, ...] = ()
 ```
 
-### Class
+### Resource Classes
 
-`Class` is a class of the data model.
-On the server, a class without a file is a sub-class of `knora-api:Resource`.
+`ResourceClass` is a class of the data model.
+It is a union with one dataclass for each file type, and `PlainClass` for a class without a file.
+On the server, `PlainClass` is a sub-class of `knora-api:Resource`.
 A class with a file is a sub-class of a `knora-api` representation.
-The user selects the file type. The user does not select the `knora-api` super-class.
+The user selects the dataclass. The user does not select the `knora-api` super-class.
 
 The intent is to separate two kinds of super-classes:
 
 - `project_super_classes`: classes of the same project. They give inheritance, which is visible in DSP.
 - `external_mappings`: classes of external ontologies, for example CIDOC CRM. They give meaning only.
 
+The order of `cardinalities` is the display order of the properties in the user interface.
+
+Only a class with a file has `file_visibility`.
+Only `ImageClass`, `VideoClass` and `AudioClass` accept `FileVisibility.LIMITED_VIEW`.
+
 `part_of` makes the class a part of a compound object, for example a page of a book.
-Only a class with the file type `IMAGE` can be a part, because DSP shows a compound object as a sequence of images.
-The target of `part_of` is a class without a file, for example made by `classes.plain`.
+Only `ImageClass` has `part_of`, because DSP shows a compound object as a sequence of images.
+The target of `part_of` is a `PlainClass`.
 DSP-API accepts any resource as a part and as a target. `dsp-vre-lib` is stricter.
 `dsp-vre-lib` then creates the `isPartOf` link property and the `seqnum` property for the class,
 and their cardinalities of `1`.
 The naming pattern of these two properties is not decided.
 
-The order of `cardinalities` is the display order of the properties in the user interface.
-
 ```python
-class FileType(Enum):
-    COMPRESSED_ARCHIVE = auto()
-    AUDIO = auto()
-    DOCUMENT = auto()
-    VIDEO = auto()
-    IMAGE = auto()
-    TEXT = auto()
-
-
 @dataclass(frozen=True, kw_only=True)
-class Class:
+class PlainClass:
     name: str
     labels: Labels
     comments: Comments | None = None
-    file: FileType | None = None
     project_super_classes: tuple[ClassRef, ...] = ()
     external_mappings: tuple[ExternalIri, ...] = ()
-    part_of: ClassRef | None = None
     cardinalities: tuple[Cardinality, ...] = ()
     visibility: Visibility = Visibility.PUBLIC
+
+
+@dataclass(frozen=True, kw_only=True)
+class DocumentClass:
+    # ... the fields of PlainClass
     file_visibility: FileVisibility | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ImageClass:
+    # ... the fields of PlainClass
+    file_visibility: FileVisibility | None = None
+    part_of: ClassRef | None = None
+
+
+type ResourceClass = (
+    PlainClass | CompressedArchiveClass | AudioClass | DocumentClass | VideoClass | ImageClass | TextClass
+)
 ```
 
-The factories set the file type:
+The factories build the classes:
 
 ```python
 classes.plain("Book", labels=Labels(en="Book"))
@@ -396,29 +415,25 @@ classes.image("Page", labels=Labels(en="Page"), part_of=biblio.cls("Book"))
 classes.image("Photo", labels=Labels(en="Photo"), file_visibility=FileVisibility.LIMITED_VIEW)
 ```
 
-Only `classes.image` has the parameter `part_of`.
+| Factory                      | Dataclass                | `knora-api` super-class     |
+|------------------------------|--------------------------|-----------------------------|
+| `classes.plain`              | `PlainClass`             | `Resource`                  |
+| `classes.compressed_archive` | `CompressedArchiveClass` | `ArchiveRepresentation`     |
+| `classes.audio`              | `AudioClass`             | `AudioRepresentation`       |
+| `classes.document`           | `DocumentClass`          | `DocumentRepresentation`    |
+| `classes.video`              | `VideoClass`             | `MovingImageRepresentation` |
+| `classes.image`              | `ImageClass`             | `StillImageRepresentation`  |
+| `classes.text`               | `TextClass`              | `TextRepresentation`        |
 
-| Factory                      | `FileType`           | `knora-api` super-class     |
-|------------------------------|----------------------|-----------------------------|
-| `classes.plain`              | -                    | `Resource`                  |
-| `classes.compressed_archive` | `COMPRESSED_ARCHIVE` | `ArchiveRepresentation`     |
-| `classes.audio`              | `AUDIO`              | `AudioRepresentation`       |
-| `classes.document`           | `DOCUMENT`           | `DocumentRepresentation`    |
-| `classes.video`              | `VIDEO`              | `MovingImageRepresentation` |
-| `classes.image`              | `IMAGE`              | `StillImageRepresentation`  |
-| `classes.text`               | `TEXT`               | `TextRepresentation`        |
+`validate()` checks this rule:
 
-`Class.validate()` checks these rules:
-
-- `file_visibility` needs a `file`.
-- `LIMITED_VIEW` needs the file type `IMAGE`, `VIDEO` or `AUDIO`.
-- `part_of` needs the file type `IMAGE`.
+- `LIMITED_VIEW` is only on `ImageClass`, `VideoClass` or `AudioClass`.
 
 `dsp-vre-lib` checks these rules on the complete input:
 
-- The target of `part_of` is a class without a file.
+- The target of `part_of` is a `PlainClass`.
 - Each reference resolves.
-- A class with `visibility=PRIVATE` has no `file_visibility`. The private class already makes the file private.
+- The visibility rules in [Permissions](#permissions).
 
 ### Cardinality
 
@@ -439,7 +454,7 @@ class Cardinality:
     visibility: Visibility = Visibility.PUBLIC
 ```
 
-The factories hide `CardinalityNumber`:
+The factories are a short form:
 
 ```python
 cardinalities.one(biblio.prop("hasTitle"))
@@ -455,57 +470,53 @@ cardinalities.zero_or_more(biblio.prop("hasNote"), visibility=Visibility.PRIVATE
 
 The names of the factories can change after the implementation.
 
-### Property
+### Properties
 
-`Property` is one dataclass for all properties.
-`value_type` states the intent, for example a text with many lines.
+`Property` is a union with one dataclass for each value type.
+The dataclass states the intent, for example a text with many lines.
 `dsp-vre-lib` then selects the correct `knora-api` super-property, value type and GUI element.
 
-The value type replaces the combination of `super`, `object` and `gui_element` in the JSON project file.
-The factories set `value_type`. The user does not set it directly.
+The dataclass replaces the combination of `super`, `object` and `gui_element` in the JSON project file.
 
 As with classes, `project_super_properties` gives inheritance and `external_mappings` gives meaning only.
 
-`target` is the class that a link points to.
+`LinkProperty.target` is the class that a link points to.
 `None` means that the link can point to any resource.
-`vocabulary` is the controlled vocabulary of a vocabulary property.
+`VocabularyProperty.vocabulary` is the controlled vocabulary of the property.
 
 ```python
-class ValueType(Enum):
-    BOOLEAN = auto()
-    COLOR = auto()
-    DATE = auto()
-    DECIMAL = auto()
-    GEOLOCATION = auto()
-    GEONAME = auto()
-    INT = auto()
-    REGION_PREVIEW = auto()
-    TEXT_ONE_LINE = auto()
-    TEXT_MULTI_LINE = auto()
-    TEXT_FORMATTED = auto()
-    TIME = auto()
-    URI = auto()
-    HAS_COMMENT = auto()
-    LINK = auto()
-    LINK_TO_CLASS_WITH_FILE = auto()
-    VOCABULARY = auto()
-
-
 @dataclass(frozen=True, kw_only=True)
-class Property:
+class TextOneLineProperty:
     name: str
     labels: Labels
     comments: Comments | None = None
-    value_type: ValueType
-    target: ClassRef | None = None
-    vocabulary: VocabularyRef | None = None
     subject_class: ClassRef | None = None
     project_super_properties: tuple[PropertyRef, ...] = ()
     external_mappings: tuple[ExternalIri, ...] = ()
     visibility: Visibility = Visibility.PUBLIC
+
+
+@dataclass(frozen=True, kw_only=True)
+class LinkProperty:
+    # ... the fields of TextOneLineProperty
+    target: ClassRef | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class VocabularyProperty:
+    # ... the fields of TextOneLineProperty
+    vocabulary: VocabularyRef
+
+
+type Property = (
+    BooleanProperty | ColorProperty | DateProperty | DecimalProperty | GeolocationProperty | GeonameProperty
+    | IntegerProperty | RegionPreviewProperty | TextOneLineProperty | TextMultiLineProperty
+    | TextFormattedProperty | TimeProperty | UriProperty | CommentProperty
+    | LinkProperty | LinkToClassWithFileProperty | VocabularyProperty
+)
 ```
 
-The factories set only the fields that the value type needs:
+The factories build the properties:
 
 ```python
 properties.text_one_line("title", labels=Labels(en="Title", de="Titel"))
@@ -513,59 +524,55 @@ properties.link("hasAuthor", target=biblio.cls("Person"), labels=Labels(en="Auth
 properties.vocabulary("hasGenre", vocabulary=VocabularyRef(name="genres"), labels=Labels(en="Genre"))
 ```
 
-`Property.validate()` checks these rules:
-
-- Only `LINK` and `LINK_TO_CLASS_WITH_FILE` have a `target`.
-- Only `VOCABULARY` has a `vocabulary`, and it must have one.
-
 `dsp-vre-lib` checks these rules on the complete input:
 
-- For `LINK_TO_CLASS_WITH_FILE`, `target` is a class with a file, or `None`.
+- The `target` of `LinkToClassWithFileProperty` is a class with a file, or `None`.
 - Each reference resolves.
 
-The table shows which factory replaces which combination in the JSON project file.
+The table shows which dataclass replaces which combination in the JSON project file.
 
-| Factory                              | `value_type`              | `super`             | `object`                               | `gui_element`   |
-|--------------------------------------|---------------------------|---------------------|----------------------------------------|-----------------|
-| `properties.boolean`                 | `BOOLEAN`                 | `hasValue`          | `BooleanValue`                         | `Checkbox`      |
-| `properties.color`                   | `COLOR`                   | `hasColor`          | `ColorValue`                           | `Colorpicker`   |
-| `properties.date`                    | `DATE`                    | `hasValue`          | `DateValue`                            | `Date`          |
-| `properties.decimal`                 | `DECIMAL`                 | `hasValue`          | `DecimalValue`                         | `Spinbox`       |
-| `properties.geolocation`             | `GEOLOCATION`             | `hasValue`          | `GeolocationValue`                     | `Geolocation`   |
-| `properties.geoname`                 | `GEONAME`                 | `hasValue`          | `GeonameValue`                         | `Geonames`      |
-| `properties.integer`                 | `INT`                     | `hasValue`          | `IntValue`                             | `Spinbox`       |
-| `properties.region_preview`          | `REGION_PREVIEW`          | `hasRegionPreview`  | `RegionPreviewValue`                   | `RegionPreview` |
-| `properties.text_one_line`           | `TEXT_ONE_LINE`           | `hasValue`          | `TextValue`                            | `SimpleText`    |
-| `properties.text_multi_line`         | `TEXT_MULTI_LINE`         | `hasValue`          | `TextValue`                            | `Textarea`      |
-| `properties.text_formatted`          | `TEXT_FORMATTED`          | `hasValue`          | `TextValue`                            | `Richtext`      |
-| `properties.time`                    | `TIME`                    | `hasValue`          | `TimeValue`                            | `TimeStamp`     |
-| `properties.uri`                     | `URI`                     | `hasValue`          | `UriValue`                             | `SimpleText`    |
-| `properties.comment`                 | `HAS_COMMENT`             | `hasComment`        | `TextValue`                            | `Richtext`      |
-| `properties.link`                    | `LINK`                    | `hasLinkTo`         | a class, or `Resource`                 | `Searchbox`     |
-| `properties.link_to_class_with_file` | `LINK_TO_CLASS_WITH_FILE` | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`     |
-| `properties.vocabulary`              | `VOCABULARY`              | `hasValue`          | `ListValue`                            | `List`          |
+| Factory                              | Dataclass                     | `super`             | `object`                               | `gui_element`   |
+|--------------------------------------|-------------------------------|---------------------|----------------------------------------|-----------------|
+| `properties.boolean`                 | `BooleanProperty`             | `hasValue`          | `BooleanValue`                         | `Checkbox`      |
+| `properties.color`                   | `ColorProperty`               | `hasColor`          | `ColorValue`                           | `Colorpicker`   |
+| `properties.date`                    | `DateProperty`                | `hasValue`          | `DateValue`                            | `Date`          |
+| `properties.decimal`                 | `DecimalProperty`             | `hasValue`          | `DecimalValue`                         | `Spinbox`       |
+| `properties.geolocation`             | `GeolocationProperty`         | `hasValue`          | `GeolocationValue`                     | `Geolocation`   |
+| `properties.geoname`                 | `GeonameProperty`             | `hasValue`          | `GeonameValue`                         | `Geonames`      |
+| `properties.integer`                 | `IntegerProperty`             | `hasValue`          | `IntValue`                             | `Spinbox`       |
+| `properties.region_preview`          | `RegionPreviewProperty`       | `hasRegionPreview`  | `RegionPreviewValue`                   | `RegionPreview` |
+| `properties.text_one_line`           | `TextOneLineProperty`         | `hasValue`          | `TextValue`                            | `SimpleText`    |
+| `properties.text_multi_line`         | `TextMultiLineProperty`       | `hasValue`          | `TextValue`                            | `Textarea`      |
+| `properties.text_formatted`          | `TextFormattedProperty`       | `hasValue`          | `TextValue`                            | `Richtext`      |
+| `properties.time`                    | `TimeProperty`                | `hasValue`          | `TimeValue`                            | `TimeStamp`     |
+| `properties.uri`                     | `UriProperty`                 | `hasValue`          | `UriValue`                             | `SimpleText`    |
+| `properties.comment`                 | `CommentProperty`             | `hasComment`        | `TextValue`                            | `Richtext`      |
+| `properties.link`                    | `LinkProperty`                | `hasLinkTo`         | a class, or `Resource`                 | `Searchbox`     |
+| `properties.link_to_class_with_file` | `LinkToClassWithFileProperty` | `hasRepresentation` | a class with file, or `Representation` | `Searchbox`     |
+| `properties.vocabulary`              | `VocabularyProperty`          | `hasValue`          | `ListValue`                            | `List`          |
 
-`DECIMAL` and `INT` always use `Spinbox`, as in DSP-APP.
+`DecimalProperty` and `IntegerProperty` always use `Spinbox`, as in DSP-APP.
 The JSON project file also allows `SimpleText`. This is a breaking change.
 
 | JSON project file                                               | Proposed field                             |
 |-----------------------------------------------------------------|--------------------------------------------|
 | `ontologies[].name`, `label`, `comment`                         | `DataModel`: same names                    |
-| `resources[].labels`, `comments`                                | `Class.labels`, `comments`                 |
-| `resources[].super` (project class)                             | `Class.project_super_classes`              |
-| `resources[].super` (external class)                            | `Class.external_mappings`                  |
+| `resources[].labels`, `comments`                                | `labels`, `comments` of the class          |
+| `resources[].super` (project class)                             | `project_super_classes` of the class       |
+| `resources[].super` (external class)                            | `external_mappings` of the class           |
+| `resources[].super: Resource`                                   | `classes.plain`                            |
 | `resources[].super: StillImageRepresentation` (and other files) | `classes.image` (and other file factories) |
 | `cardinalities[].propname`, `cardinality`                       | `cardinalities.<factory>(PropertyRef)`     |
-| `cardinalities[].gui_order`                                     | Order of `Class.cardinalities`             |
-| `properties[].super: isPartOf`, `seqnum`                        | `Class.part_of`                            |
-| `properties[].labels`, `comments`                               | `Property.labels`, `comments`              |
-| `properties[].super` (project property)                         | `Property.project_super_properties`        |
-| `properties[].super` (external property)                        | `Property.external_mappings`               |
-| `properties[].subject`                                          | `Property.subject_class`                   |
+| `cardinalities[].gui_order`                                     | Order of `cardinalities` of the class      |
+| `properties[].super: isPartOf`, `seqnum`                        | `ImageClass.part_of`                       |
+| `properties[].labels`, `comments`                               | `labels`, `comments` of the property       |
+| `properties[].super` (project property)                         | `project_super_properties` of the property |
+| `properties[].super` (external property)                        | `external_mappings` of the property        |
+| `properties[].subject`                                          | `subject_class` of the property            |
 | `properties[].super`, `object`, `gui_element`                   | `properties.<factory>`                     |
-| `properties[].object` (class name)                              | `Property.target`                          |
-| `properties[].object: Resource`, `Representation`               | `Property.target = None`                   |
-| `properties[].gui_attributes: {"hlist": ...}`                   | `Property.vocabulary`                      |
+| `properties[].object` (class name)                              | `target` of the link property              |
+| `properties[].object: Resource`, `Representation`               | `target = None`                            |
+| `properties[].gui_attributes: {"hlist": ...}`                   | `VocabularyProperty.vocabulary`            |
 
 ### Permissions
 
@@ -594,17 +601,24 @@ The levels give these rights:
 
 A visibility applies to one of these targets:
 
-| Target                    | Field                    |
-|---------------------------|--------------------------|
-| All data of the project   | `Project.visibility`     |
-| A class and its file      | `Class.visibility`       |
-| The file of a class       | `Class.file_visibility`  |
-| A property on all classes | `Property.visibility`    |
-| A property on one class   | `Cardinality.visibility` |
+| Target                    | Field                          |
+|---------------------------|--------------------------------|
+| All data of the project   | `Project.visibility`           |
+| A class and its file      | `visibility` of the class      |
+| The file of a class       | `file_visibility` of the class |
+| A property on all classes | `visibility` of the property   |
+| A property on one class   | `Cardinality.visibility`       |
 
-An item cannot be less restricted than its parent.
-The effective level is the most restricted level of the item and its parents.
+The default value is always valid.
+With the default, the effective level is the most restricted level of the item and its parents.
 For example, a public property on a private class is private.
+`Visibility.PUBLIC` is the default, thus an explicit `PUBLIC` has the same effect.
+
+An explicit value that is less restricted than its parent is a problem.
+`dsp-vre-lib` checks these rules on the complete input:
+
+- A class with `visibility=PRIVATE` has no `file_visibility`. The private class already makes the file private.
+- If `Project.visibility` is `PRIVATE`, no class has `file_visibility` `PUBLIC` or `LIMITED_VIEW`.
 
 On the server, a visibility is a default object access permission (DOAP).
 The server applies a DOAP only to data that it creates after the DOAP.
@@ -617,21 +631,16 @@ The user does not see this DOAP.
 `set_visibility` sets the visibility of an item in an existing data model.
 It needs no update of the data model. Its signature is not decided.
 
-| JSON project file (`project`)                      | Proposed field                                        |
-|----------------------------------------------------|-------------------------------------------------------|
-| `default_permissions: "public"`                    | `Project.visibility = PUBLIC` (default)               |
-| `default_permissions: "private"`                   | `Project.visibility = PRIVATE`                        |
-| `default_permissions_overrule.private` (class)     | `Class.visibility = PRIVATE`                          |
-| `default_permissions_overrule.private` (property)  | `Property.visibility = PRIVATE`                       |
-| `default_permissions_overrule.limited_view: [...]` | `Class.file_visibility = LIMITED_VIEW`                |
-| `default_permissions_overrule.limited_view: "all"` | `dsp-tools` sets it on each image, video, audio class |
-| Not available                                      | `Cardinality.visibility`                              |
-| Not available                                      | `FileVisibility.PRIVATE`                              |
-
-Open decisions:
-
-- A visibility does not refer to a group.
-  The full permission model (ADR principle 9) is future work.
+| JSON project file (`project`)                      | Proposed field                                                               |
+|----------------------------------------------------|------------------------------------------------------------------------------|
+| `default_permissions: "public"`                    | `Project.visibility = PUBLIC` (default)                                      |
+| `default_permissions: "private"`                   | `Project.visibility = PRIVATE`                                               |
+| `default_permissions_overrule.private` (class)     | `visibility = PRIVATE` of the class                                          |
+| `default_permissions_overrule.private` (property)  | `visibility = PRIVATE` of the property                                       |
+| `default_permissions_overrule.limited_view: [...]` | `file_visibility = LIMITED_VIEW` of the class                                |
+| `default_permissions_overrule.limited_view: "all"` | `dsp-tools` sets it on each image, video and audio class of a public project |
+| Not available                                      | `Cardinality.visibility`                                                     |
+| Not available                                      | `FileVisibility.PRIVATE`                                                     |
 
 ## Vocabularies
 
@@ -666,15 +675,16 @@ class VocabularyNode:
 
 ## Not Supported
 
-`dsp-vre-lib` does not support these parts of the JSON project file:
+`dsp-vre-lib` does not support these parts of the JSON project file.
+They are the exceptions to the parity rule in the ADR.
 
-| JSON project file                                                    | Reason                                                         |
-|----------------------------------------------------------------------|----------------------------------------------------------------|
-| `prefixes`                                                           | Replaced by the [References](#references) rule.                |
-| `gui_attributes` other than `hlist`                                  | `dsp-tools create` ignores them today.                         |
-| `gui_element`: `Radio`, `Pulldown`                                   | `dsp-tools create` does not support them today.                |
-| `gui_element: SimpleText` for `IntValue`, `DecimalValue`             | `DECIMAL` and `INT` always use `Spinbox`.                      |
-| `resources[].super`: `Resource`                                      | `classes.plain` is always a sub-class of `Resource`.           |
-| `resources[].super`: `Representation`, `DDDRepresentation`, `Region` | Out of scope for the first release. No file ingest for 3D.     |
-| `users[].projects` of other projects                                 | The project is an argument of the function.                    |
-| `groups`, `users[].groups`                                           | Replaced by project permissions (unless the fallback applies). |
+| JSON project file                                                       | Reason                                                                     |
+|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| `prefixes`                                                              | Replaced by the [References](#references) rule.                            |
+| `gui_attributes` other than `hlist`                                     | `dsp-tools create` ignores them today.                                     |
+| `gui_element`: `Radio`, `Pulldown`                                      | `dsp-tools create` does not support them today.                            |
+| `gui_element: SimpleText` for `IntValue`, `DecimalValue`                | `DecimalProperty` and `IntegerProperty` always use `Spinbox`.              |
+| `resources[].super`: `Representation`, `DDDRepresentation`, `Region`    | Out of scope for the first release. No file ingest for 3D.                 |
+| `isPartOf`, `seqnum` other than on an image class, with cardinality `1` | DSP shows a compound object as a sequence of images. See `part_of`.        |
+| `isPartOf` with a target that has a file                                | The target of a compound object is a `PlainClass`.                         |
+| `users[].projects` of other projects                                    | `dsp-tools create` ignores them today. The project is a function argument. |

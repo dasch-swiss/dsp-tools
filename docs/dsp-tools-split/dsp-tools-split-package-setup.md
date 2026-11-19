@@ -74,7 +74,9 @@ Each package gets its own jobs (unit, integration, e2e).
 
 ### Release
 
-- `dsp-vre-lib` has its own semantic version.
+- `dsp-vre-lib` has its own semantic version in step one and in step two.
+- The first version is 0.1.0. Version 1.0.0 comes when the interface is stable.
+- `dsp-vre-lib` states the `dsp-api` versions that it supports. It checks the server version when it connects.
 - `dsp-vre-lib` has its own release-please component and its own PyPI workflow.
 - `dsp-tools` pins a compatible range of `dsp-vre-lib`.
 
@@ -82,7 +84,7 @@ Each package gets its own jobs (unit, integration, e2e).
 
 1. Move `packages/dsp-vre-lib/` into the `dsp-api` repository.
 2. Publish `dsp-vre-lib` to PyPI from `dsp-api`.
-   The `dsp-vre-lib` version is the same as the `dsp-api` release number.
+   The `dsp-vre-lib` version stays independent of the `dsp-api` release number.
 3. Remove `dsp-vre-lib` from the workspace in the `dsp-tools` repository.
    `dsp-tools` then gets `dsp-vre-lib` from PyPI.
 
@@ -97,7 +99,3 @@ The layout gives space for more packages later.
   `git filter-repo` can extract the history of the folder, incl. the old paths before the move.
   `dsp-api` then merges it as unrelated history. `dsp-tools` keeps its full history in all cases.
   Trade-off: `dsp-api` gets many commits from another repository.
-- Step two: in step one, `dsp-vre-lib` has its own version, for example 1.4.0.
-  In step two, the version is the `dsp-api` release number, for example 33.0.0.
-  How do we handle this jump? Example: how does `dsp-tools` change its pinned range,
-  and what do users of 1.x versions do?

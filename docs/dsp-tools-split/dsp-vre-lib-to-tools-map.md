@@ -12,11 +12,11 @@ The table does not repeat it.
 | Command                                            | Domain       | Capability                                       | Client modules today                                                          |
 |----------------------------------------------------|--------------|--------------------------------------------------|-------------------------------------------------------------------------------|
 | `create`                                           | Projects     | Project with metadata, legal info                | `project_client`, `legal_info_client`                                         |
-|                                                    | Access       | Users, project roles                             | `group_user_clients`, `permissions_client`                                    |
+|                                                    | Permissions  | Users, project roles, groups                     | `group_user_clients`, `permissions_client`                                    |
 |                                                    | Data model   | Ontologies, classes, properties, cardinalities   | `ontology_clients`, `ontology_create_client_live`, `ontology_get_client_live` |
 |                                                    | Vocabularies | Lists and nodes                                  | `list_client`                                                                 |
 | `get`                                              | Projects     | Read project with metadata                       | `connection` (legacy models)                                                  |
-|                                                    | Access       | Read users, project roles                        | `connection` (legacy models), `permissions_client`                            |
+|                                                    | Permissions  | Read users, project roles, groups                | `connection` (legacy models), `permissions_client`                            |
 |                                                    | Data model   | Read ontologies                                  | `connection` (legacy models)                                                  |
 |                                                    | Vocabularies | Read lists                                       | `connection` (legacy models)                                                  |
 | `xmlupload`, `resume-xmlupload`                    | Data         | Create data, continuation state                  | `resource_client`, `value_client`, `ingest`                                   |
@@ -37,7 +37,7 @@ Notes:
 
 - With `dsp-vre-lib`, the four commands `xmlupload`, `upload-files`, `ingest-files` and `ingest-xmlupload`
   call one capability: create data. `dsp-vre-lib` selects the ingest strategy.
-- Each command that changes the server needs the Access capability
+- Each command that changes the server needs the Permissions capability
   "operations that the current user can do", to check the rights before it starts.
 
 ## Commands without Server Interaction
@@ -53,20 +53,18 @@ These commands do not use `dsp-vre-lib`:
 
 ## Worked Example: `dsp-tools create`
 
-`dsp-tools create` is the use case for the open decision in
+`dsp-tools create` reads the JSON project file and converts it into `dsp-vre-lib` dataclasses.
+It then checks that the current user can create a project (Permissions).
+After that, it calls `set_up_project` one time.
+
+`set_up_project` does these steps in this order:
+
+1. Create the project with its metadata and legal info (Projects).
+2. Create the vocabularies (Vocabularies).
+3. Create the groups, the users and their project roles (Permissions).
+4. Create the data models with classes, properties, cardinalities and their visibility (Data model).
+
+The call has one progress stream and one result.
+The result reports the created items, the skipped items that exist, and the failures (principles 6 and 7).
+The progress mechanism is an open decision in
 [Progress, Reporting and Continuation](ADR-dsp-vre-lib.md#progress-reporting-and-continuation).
-The command reads the JSON project file, converts it into `dsp-vre-lib` dataclasses, and then does these steps:
-
-1. Connect to the server (Connection).
-2. Check that the current user can create a project (Access).
-3. Create the project with its metadata and legal info (Projects).
-4. Create the lists (Vocabularies).
-5. Create the users and their project roles (Access).
-6. Create the ontologies with classes, properties and cardinalities (Data model).
-7. Create the access restrictions (Data model).
-
-Each step returns created items and failures (principle 6).
-The progress options get compared on these questions:
-
-- How does `dsp-tools` show one progress bar across the steps?
-- How does `dsp-tools` write the failures of each step to its log file?

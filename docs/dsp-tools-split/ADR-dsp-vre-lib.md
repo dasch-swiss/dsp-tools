@@ -28,6 +28,8 @@ The package has two user groups:
 ### Scope of the Split
 
 The split is complete when `dsp-vre-lib` supports all features of `dsp-tools`.
+The exceptions are the features in the "Not Supported" table of each interface document.
+Each row of the table gives the reason.
 Each domain lists later capabilities under "Future work", for example the export of data.
 If the interface of a future capability is known, the package has a stub with the final signature.
 The stub cannot be called.
@@ -45,6 +47,11 @@ If the interface is not known, the documentation names the capability, and there
 3. **Python objects in and out.**
    Input and output are typed, immutable dataclasses.
    File formats (JSON, XML, Excel) are not part of the package.
+   A read returns separate read models, not the input dataclasses.
+   The server can hold data that an input dataclass does not accept,
+   for example a user without a password or a GUI element that the package does not support.
+   A conversion from a read model to an input model reports the information that gets lost.
+   The name of the read operation is not decided.
 4. **Local references.**
    The user refers to items by their own ID, name or shortcode.
    The package returns the server IRIs as part of the result.
@@ -52,27 +59,30 @@ If the interface is not known, the documentation names the capability, and there
    Each operation accepts one item or a collection.
 6. **Results, not exceptions per item.**
    A bulk operation returns a result with the created items and the failures.
-7. **Same verbs in every domain.**
-   Each domain has create, read, update and delete.
-   Domain actions add to these verbs where necessary.
-    - Create is only for new items. Create of an item that exists fails.
+7. **Each domain covers create, read, update and delete.**
+   The names of the operations state the intent, for example `add_data_model` or `set_visibility`.
+    - An operation that creates one kind of item fails if the item exists.
+    - An aggregate operation, for example `set_up_project`, skips the items that exist.
+      Its result reports the skipped items.
     - Update changes or adds to an item that exists.
     - Delete is possible for all items. On Data, delete marks an item as deleted and does not erase it.
 8. **Long operations can continue.**
    An interrupted bulk operation returns a state that the user gives back to continue.
-9. **Permissions through a user-friendly abstraction layer**
-   The interface provides some easy-to-understand options for the permissions, 
-   for example the project roles admin, member and reader.
-   The goal: the user-facing options cover all permission needs, without exposing too much complexity.
-   If the options cannot cover a need, the interface also shows the full DSP permission model:
-   the permission levels (view, modify, delete, change rights) and the user groups.
+9. **Permissions through a user-friendly abstraction layer.**
+   The interface gives easy-to-understand options for the permissions:
+   the project roles read, write and admin, and a visibility on the items of the data model.
+   The goal: the options cover all permission needs, without too much complexity.
+   A user can also be a member of custom groups, as in `dsp-tools` today.
+   A visibility does not refer to a group.
+   The full DSP permission model (permission levels on groups) is future work.
 10. **Rights are known before an operation.**
     A helper function returns an enum of the operations that the current user can do.
     As a result, a client can check the rights before it starts an operation.
 11. **Functional error model.**
-    The package does not raise errors.
-    Typed objects show the outcome of an operation: success, partial success or failure.
-    Python has no native type for this, thus the package uses enums.
+    Runtime conditions are results, for example a rejection by the server,
+    an unreachable server, a partial success or a feature that the server does not support.
+    Programming errors raise, for example a wrong type, invalid input or a call of a stub.
+    The result is a union of dataclasses. Each variant holds only its own data.
 
 ### Package Name
 
@@ -91,8 +101,21 @@ The package has a synchronous interface only. The reasons are:
 
 ### Result Model
 
-Each operation returns a result object and does not raise an error (principles 6, 8 and 11).
-The outcome of the result is an enum value.
+Each operation returns a result object for runtime conditions (principles 6, 8 and 11).
+The result is a union of frozen dataclasses, one for each outcome:
+
+```python
+type Result = Success | PartialSuccess | Failure | Interrupted
+
+match result:
+    case Success(): ...
+    case PartialSuccess(): ...
+    case Failure(): ...
+    case Interrupted(): ...
+    case _: assert_never(result)
+```
+
+The fields of each variant are not decided.
 The diagram shows the outcomes of one operation.
 
 ```mermaid
@@ -133,19 +156,19 @@ title: Domains of dsp-vre-lib
 flowchart LR
     connection["Connection<br/>credentials"]
     projects["Projects<br/>metadata, legal info,<br/>migration"]
-    access["Access<br/>users, project roles,<br/>rights"]
+    permissions["Permissions<br/>users, project roles,<br/>groups, rights"]
     datamodel["Data model<br/>ontologies, classes,<br/>properties, mappings"]
     vocabularies["Vocabularies<br/>lists, nodes"]
     data["Data<br/>create, validate"]
 
     projects --> connection
-    access --> projects
+    permissions --> projects
     datamodel --> projects
     vocabularies --> projects
     data --> datamodel
     data --> vocabularies
     data -->|legal info| projects
-    data -->|permissions| access
+    data -->|project roles| permissions
 ```
 
 Each domain lists the capabilities in scope for the first release.
@@ -168,14 +191,14 @@ Future work:
 
 - Embargo: mark a project as under embargo, and lift the embargo in the database.
 
-#### Access
+#### Permissions
 
-- Users and their project roles.
+- Users, their project roles and their custom groups.
 - Operations that the current user can do (principle 10).
 
 #### Data Model
 
-- Ontologies, classes, properties, cardinalities and access restrictions.
+- Ontologies, classes, properties, cardinalities and their visibility.
 - External mappings of classes and properties.
 
 #### Vocabularies
@@ -214,6 +237,7 @@ Negative:
 
 - `dsp-tools` and `dsp-vre-lib` have two release cycles.
 - `dsp-tools` depends on a pinned version range of `dsp-vre-lib`.
+- `dsp-vre-lib` states the `dsp-api` versions that it supports.
 - A synchronous interface can be too slow for callers that need many parallel operations.
 
 ## Open Decisions

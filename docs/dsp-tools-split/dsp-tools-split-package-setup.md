@@ -21,6 +21,7 @@ dsp-tools/                          # repository root, virtual workspace root
 ├── mkdocs.yml                      # docs_dir: packages/dsp-tools/docs
 ├── .github/workflows/
 ├── docs/adr/                       # architectural decision records of the repository
+├── docs/dsp-tools-split/           # this document, map of dsp-vre-lib domains in dsp-tools commands
 ├── scripts/                        # repository tooling, with its tests in scripts/test/
 ├── src/dsp_tools/resources/schema/ # copy of the schema files, keeps the old schema URLs valid
 └── packages/
@@ -33,7 +34,7 @@ dsp-tools/                          # repository root, virtual workspace root
     │   └── testdata/
     └── dsp-vre-lib/
         ├── CHANGELOG.md            # written by release-please
-        ├── docs/
+        ├── docs/                   # incl. adr/ (interface decisions) and create-interface.md
         ├── pyproject.toml          # name = "dsp-vre-lib", pytest and mypy config
         ├── src/dsp_vre_lib/
         └── test/

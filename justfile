@@ -198,11 +198,27 @@ legacy-e2e-tests *FLAGS:
 [no-exit-message]
 [positional-arguments]
 dsp-tools-pytest *ARGS:
+    just _package-pytest dsp-tools "$@"
+
+
+# Run pytest for dsp-vre-lib on the given paths, which can be relative to the repository root or to packages/dsp-vre-lib/
+[no-exit-message]
+[positional-arguments]
+vre-lib-pytest *ARGS:
+    just _package-pytest dsp-vre-lib "$@"
+
+
+# Run pytest in packages/PACKAGE/, with the paths in ARGS relative to that folder
+[no-exit-message]
+[positional-arguments]
+_package-pytest PACKAGE *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
+    package="$1"
+    shift
     args=()
-    for arg in "$@"; do args+=("${arg#packages/dsp-tools/}"); done
-    cd packages/dsp-tools
+    for arg in "$@"; do args+=("${arg#packages/${package}/}"); done
+    cd "packages/${package}"
     uv run pytest ${args[@]+"${args[@]}"}
 
 

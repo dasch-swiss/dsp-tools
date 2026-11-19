@@ -155,4 +155,4 @@ interrupt that workflow to consult a developer: the `excel2json` family, `id2iri
   citable, stable external identifier; dsp-tools' only role is the one-way conversion of a pre-existing
   legacy salsah.org ARK into an IRI during migration, never minting a new one.
 - `mapping` and `migration` are not classified as **Group A** or **Group B** commands — unresolved,
-  inherited from `docs/developers/architecture/error-handling.md`, which doesn't classify them either.
+  inherited from `packages/dsp-tools/docs/developers/architecture/error-handling.md`, which doesn't classify them either.

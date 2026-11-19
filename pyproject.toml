@@ -1,62 +1,10 @@
-# See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml
+# Virtual workspace root: it holds the workspace definition, the dev dependencies and the shared ruff configuration.
+# Each package in `packages/` has its own `pyproject.toml` with its metadata, and its pytest, mypy and vulture configuration.
+# pytest and mypy run per package, with the package folder as the working directory,
+# because the tests use paths relative to the working directory.
 
-[project]
-name = "dsp-tools"
-version = "19.3.4"
-description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
-authors = [
-    { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
-]
-readme = "docs/index.md"
-classifiers = [
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    "Operating System :: OS Independent",
-]
-requires-python = ">=3.12"
-dependencies = [
-    "argparse",
-    "jinja2",
-    "jsonpath-ng>=1.12",
-    "jsonschema",
-    "loguru~=0.7.3", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
-    "lxml",
-    "openpyxl",
-    "oxrdflib~=0.5.0",
-    "packaging",
-    "pandas[excel]",
-    # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
-    "polars",
-    "pyld",
-    "pyoxigraph~=0.5.2", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
-    "python-dotenv",
-    "pyyaml",
-    "rdflib",
-    "regex",
-    "requests",
-    "rustworkx>=0.17.1,<0.19.0", # non-dev dependencies < 1.0 should be pinned to a specific minor version to avoid breaking changes
-    "tqdm",
-    "typing-extensions",
-    "yaspin",
-]
-
-
-[project.urls]
-Homepage = "https://www.dasch.swiss/"
-Documentation = "https://docs.dasch.swiss/DSP-TOOLS/"
-Repository = "https://github.com/dasch-swiss/dsp-tools.git"
-
-
-[project.scripts]
-dsp-tools = "dsp_tools.cli.entry_point:main" # definition of the CLI entry point
-
-
-[build-system]
-# Tells “frontend” build tools (like pip, build, or uv) what “backend” build tool to use.
-requires = ["uv_build>=0.8.13"]
-build-backend = "uv_build"
+[tool.uv.workspace]
+members = ["packages/*"]
 
 
 [dependency-groups]
@@ -94,35 +42,15 @@ dev = [
 
 
 [tool.pytest.ini_options]
+# Tests of the repository tooling in `scripts/`
 addopts = ["--import-mode=importlib"]
-# see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
-pythonpath = [".", "src", "test"]
-
-
-[tool.mypy]
-python_version = "3.12"
-show_column_numbers = true
-strict = true
-enable_error_code = ["possibly-undefined"]
-exclude = [
-    "src/dsp_tools/legacy_models/*",
-    "src/dsp_tools/commands/get/legacy_models/*",
-]
-
-
-[[tool.mypy.overrides]]
-# For these packages, no type stubs are available yet:
-module = ["viztracer.*", "pyld.*", "testcontainers.*"]
-ignore_missing_imports = true
-
-
-[[tool.mypy.overrides]]
-module = ["test/*"]
-disable_error_code = ["no-untyped-def", "method-assign"]
+pythonpath = ["."]
 
 
 [tool.ruff]
 line-length = 120
+# first-party modules for isort: the repository tooling and the source folder of each package
+src = [".", "packages/*/src"]
 target-version = "py312"
 
 
@@ -174,36 +102,19 @@ extend-select = [  # this is for preview (beta) features
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/**" = [
-    "S607", # flake8-bandit: start-process-with-partial-path  # scripts invoke git/gh by name intentionally
+    "S607",   # flake8-bandit: start-process-with-partial-path  # scripts invoke git/gh by name intentionally
+    "D103",   # pydocstyle: undocumented-public-function
+    "DOC501", # pydoclint: docstring-missing-exception
+]
+"scripts/test/**" = [
+    "S101", # flake8-bandit: use of assert
+    "PLC2701" # import of private function
 ]
 "__init__.py" = [
     "F401",    # unused-import
     "F403",    # undefined-local-with-import-star
     "PLC0414", # useless-import-alias
 ]
-"testdata/**" = [
-    "INP001", # implicit-namespace-package    # there are some python files, but no __init__.py
-]
-"test/*" = [
-    "S101", # flake8-bandit: use of assert
-    "PLC2701" # import of private function
-]
-"src/dsp_tools/commands/excel2xml/**" = [
-    "A002",  # flake8: builtin-argument-shadowing
-    "DOC102", # missing arg name in docstring
-]
-"src/dsp_tools/commands/get/legacy_models/**" = [
-    "A002",  # flake8: builtin-argument-shadowing
-    "PLR0913", # pylint: too-many-arguments
-    "PLR0917", # Too many positional arguments
-]
-"src/dsp_tools/xmllib/models/**" = [
-    "A002"  # flake8: builtin-argument-shadowing
-]
-"src/dsp_tools/legacy_models/**" = [
-    "PLW"
-]
-"!src/dsp_tools/xmllib/**.py" = ["D103", "DOC501"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 
 
 [tool.ruff.lint.pylint]
@@ -220,13 +131,3 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
-
-
-[tool.vulture]
-paths = ["src/dsp_tools", ".vulture_whitelist.py"]
-exclude = [
-    "src/dsp_tools/xmllib/",
-    "src/dsp_tools/commands/excel2xml/",
-    "test/",
-]
-sort_by_size = true  # sort unused classes and functions by size 

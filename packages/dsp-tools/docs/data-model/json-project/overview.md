@@ -30,7 +30,7 @@ A complete project definition looks like this:
     "foaf": "http://xmlns.com/foaf/0.1/",
     "dcterms": "http://purl.org/dc/terms/"
   },
-  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/project.json",
   "project": {
     "shortcode": "0123",
     "shortname": "BiZ",
@@ -101,7 +101,7 @@ more information about referencing ontologies.
 
 The `$schema` object refers to the JSON schema for DSP data model definitions and is mandatory.
 
-`"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"`
+`"$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/project.json"`
 
 
 

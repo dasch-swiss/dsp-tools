@@ -10,7 +10,7 @@ from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import Users
 
-SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
+SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/project.json"
 
 
 @pytest.fixture

@@ -73,7 +73,7 @@ def get_project(
 
     project_obj["ontologies"] = ontos
 
-    schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
+    schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/project.json"
     outfile_content = {
         "prefixes": prefixes,
         "$schema": schema,

@@ -10,7 +10,7 @@ from scripts.bump_version import _post_release_version
 from scripts.bump_version import _write_new_version_into_pyproject_toml
 from scripts.bump_version import main
 
-DESCRIBE_CALL = "git describe --tags --abbrev=0"
+DESCRIBE_CALL = "git describe --tags --abbrev=0 --match v[0-9]*"
 BRANCH_CALL = "git rev-parse --abbrev-ref HEAD"
 COUNT_CALL = "git rev-list --count main ^v9.0.2"
 
@@ -20,6 +20,13 @@ name = "dsp-tools"
 version = "9.0.2"  # keep this comment
 description = "DSP-TOOLS"
 """
+
+
+def _write_pyproject(repo_root: Path) -> Path:
+    pyproject = repo_root / "packages" / "dsp-tools" / "pyproject.toml"
+    pyproject.parent.mkdir(parents=True)
+    pyproject.write_text(PYPROJECT, encoding="utf-8")
+    return pyproject
 
 
 def _patch_sys_call(monkeypatch: pytest.MonkeyPatch, answers: dict[str, str]) -> list[str]:
@@ -36,8 +43,7 @@ def _patch_sys_call(monkeypatch: pytest.MonkeyPatch, answers: dict[str, str]) ->
 
 class TestMain:
     def test_writes_post_release_version(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text(PYPROJECT, encoding="utf-8")
+        pyproject = _write_pyproject(tmp_path)
         monkeypatch.chdir(tmp_path)
         _patch_sys_call(monkeypatch, {DESCRIBE_CALL: "v9.0.2", BRANCH_CALL: "main", COUNT_CALL: "5"})
         main()
@@ -47,8 +53,7 @@ class TestMain:
     def test_leaves_pyproject_unchanged_on_release_commit(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text(PYPROJECT, encoding="utf-8")
+        pyproject = _write_pyproject(tmp_path)
         monkeypatch.chdir(tmp_path)
         _patch_sys_call(monkeypatch, {DESCRIBE_CALL: "v9.0.2", BRANCH_CALL: "main", COUNT_CALL: "0"})
         with pytest.raises(SystemExit) as exc_info:
@@ -89,16 +94,14 @@ class TestCalculateNewVersion:
 
 class TestWriteNewVersionIntoPyprojectToml:
     def test_replaces_version(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text(PYPROJECT, encoding="utf-8")
+        pyproject = _write_pyproject(tmp_path)
         monkeypatch.chdir(tmp_path)
         _write_new_version_into_pyproject_toml(old_version="9.0.2", new_version="9.0.2.post4")
         expected = PYPROJECT.replace('version = "9.0.2"', 'version = "9.0.2.post4"')
         assert pyproject.read_text(encoding="utf-8") == expected
 
     def test_raises_on_version_mismatch(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text(PYPROJECT, encoding="utf-8")
+        pyproject = _write_pyproject(tmp_path)
         monkeypatch.chdir(tmp_path)
         with pytest.raises(ValueError, match=r"9\.0\.1"):
             _write_new_version_into_pyproject_toml(old_version="9.0.1", new_version="9.0.1.post4")
@@ -116,7 +119,7 @@ class TestMakeSysCall:
         monkeypatch.setattr(subprocess, "run", fake_run)
         assert _make_sys_call(DESCRIBE_CALL) == "v9.0.2"
         [(args, kwargs)] = received
-        assert args == ["git", "describe", "--tags", "--abbrev=0"]
+        assert args == ["git", "describe", "--tags", "--abbrev=0", "--match", "v[0-9]*"]
         assert kwargs["check"] is True
 
     def test_exits_with_error_when_call_fails(self, monkeypatch: pytest.MonkeyPatch) -> None:

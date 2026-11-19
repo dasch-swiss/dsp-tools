@@ -42,7 +42,7 @@ The `<knora>` element may look as follows:
 <knora
     xmlns="https://dasch.swiss/schema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+    xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/data.xsd"
     shortcode="0806"
     default-ontology="webern">
  ...

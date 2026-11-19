@@ -345,9 +345,7 @@ class XMLRoot:
         return perm in [Permissions.PUBLIC, Permissions.LIMITED_VIEW, Permissions.PRIVATE]
 
     def _make_root(self) -> etree._Element:
-        schema_url = (
-            "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
-        )
+        schema_url = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/data.xsd"
         schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
         schema_location_value = f"https://dasch.swiss/schema {schema_url}"
         attrib = {

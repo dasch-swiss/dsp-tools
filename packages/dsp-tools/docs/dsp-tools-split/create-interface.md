@@ -10,7 +10,7 @@ date: 2026-11-11
 This document proposes the input dataclasses for the `create` operation in `dsp-vre-lib`.
 For each dataclass, it gives the intent, the code and the related keys of the JSON project file.
 The principles come from [ADR-dsp-vre-lib.md](ADR-dsp-vre-lib.md).
-The steps of `create` are in [dsp-vre-lib-to-tools-map.md](dsp-vre-lib-to-tools-map.md).
+The steps of `create` are in `docs/dsp-tools-split/dsp-vre-lib-to-tools-map.md` at the repository root.
 The sections follow the order of the domains in the ADR.
 
 ## Design Rules

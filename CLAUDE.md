@@ -110,7 +110,7 @@ The XML data goes through a pipeline:
 
 The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/).
 Each package is in `packages/`. The plan for the split into packages is in
-`packages/dsp-tools/docs/dsp-tools-split/dsp-tools-split-package-setup.md`.
+`docs/dsp-tools-split/dsp-tools-split-package-setup.md`.
 
 - The root `pyproject.toml` holds the workspace definition, the dev dependencies, the shared ruff configuration,
   and the pytest and mypy configuration for `scripts/`.

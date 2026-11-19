@@ -286,7 +286,8 @@ Each topic gets evaluated against one real bulk-create use case before a decisio
 
 ## Related Documents
 
-- [Map: `dsp-vre-lib` domains in `dsp-tools`](dsp-vre-lib-to-tools-map.md):
+- Map of the `dsp-vre-lib` domains in `dsp-tools`
+  (`docs/dsp-tools-split/dsp-vre-lib-to-tools-map.md` at the repository root):
   which `dsp-tools` command uses which domain, with the `dsp-tools create` worked example.
-- [Set-up for the split](dsp-tools-split-package-setup.md):
+- Set-up for the split (`docs/dsp-tools-split/dsp-tools-split-package-setup.md` at the repository root):
   repository layout, dependency direction and release timeline.

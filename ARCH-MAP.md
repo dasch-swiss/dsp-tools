@@ -487,7 +487,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 ### docs
 
-- **Paths**: `packages/dsp-tools/docs/**`, `docs/adr/**`, `mkdocs.yml`
+- **Paths**: `packages/dsp-tools/docs/**`, `docs/adr/**`, `docs/dsp-tools-split/**`, `mkdocs.yml`
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
   The ADRs are in `docs/adr/` at the repository root, outside the mkdocs `docs_dir`, because ADRs are a

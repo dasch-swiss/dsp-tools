@@ -42,8 +42,7 @@ dev = [
 
 
 [tool.pytest.ini_options]
-# Tests of the repository tooling in `scripts/`.
-# The tests of each package run from the package folder (`just dsp-tools-pytest`), with the config of the package.
+# Tests of the repository tooling in `scripts/`. Each package has its own pytest configuration.
 addopts = ["--import-mode=importlib"]
 pythonpath = ["."]
 testpaths = ["scripts/test"]

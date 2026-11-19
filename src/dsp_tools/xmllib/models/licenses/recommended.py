@@ -83,7 +83,7 @@ class DSP(License):
     Pre-defined and recommended licenses created and curated by DaSCH:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
-    - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
+    - `UNKNOWN`: Copyright Undetermined: Ask Before Reuse
     - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright
 
     Examples:

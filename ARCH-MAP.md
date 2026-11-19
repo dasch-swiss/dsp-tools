@@ -620,6 +620,22 @@ this map found confirmed violations of both rules; see Conventions and each comp
   plus commit), and dependabot.
 - **Fingerprint**: `0bb606e8e661`
 
+### dsp-vre-lib
+
+- **Paths**: `packages/dsp-vre-lib/**`
+- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`) for all interaction with a DSP server.
+  It has no public interface yet. The interface decisions are in
+  `packages/dsp-tools/docs/dsp-tools-split/ADR-dsp-vre-lib.md`.
+- **Public interface**: none yet.
+- **Depends on**: nothing.
+- **Used by**: nothing yet. `dsp-tools` does not declare it as a dependency.
+- **Boundary rules**:
+    - `dsp_vre_lib` never imports `dsp_tools`. (enforcement: lint, ruff `TID251` banned-api in
+    `packages/dsp-vre-lib/pyproject.toml`)
+    - No file formats (JSON project file, XML data file, Excel). (enforcement: docs-only,
+    `packages/dsp-vre-lib/CLAUDE.md`)
+- **Durable state**: none.
+
 ## Cross-cutting concerns
 
 ### error/ (`packages/dsp-tools/src/dsp_tools/error/**`)

@@ -81,3 +81,7 @@ tmp/
 /packages/dsp-tools/testdata/e2e/sipi-cache
 
 /packages/dsp-tools/testdata/e2e/testcontainer_port_lockfiles
+
+# coverage data of pytest-cov, in each package folder
+.coverage
+coverage.xml

@@ -76,6 +76,7 @@ Two Python modules are public API:
 - Legacy E2E tests (need a running DSP stack): `just legacy-e2e-tests`
 - One test: `just dsp-tools-pytest packages/dsp-tools/test/path/to/test.py::TestClass::test_method`
 - Tests of the repository tooling in `scripts/`: `just scripts-tests`
+- Unit tests of `dsp-vre-lib`: `just vre-lib-unittests`
 
 ### Other
 
@@ -93,6 +94,8 @@ Two Python modules are public API:
 - `packages/dsp-tools/src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a
   subdirectory.
 - `packages/dsp-tools/src/dsp_tools/xmllib/`: the public library to create XML data files.
+- `packages/dsp-vre-lib/`: the package for all interaction with a DSP server. It has no public interface yet.
+  It never imports `dsp_tools`. See `packages/dsp-vre-lib/CLAUDE.md`.
 - `packages/dsp-tools/src/dsp_tools/utils/`: shared, stateless helpers. `utils/CLAUDE.md` says which helper serves which
   purpose.
 

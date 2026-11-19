@@ -23,10 +23,16 @@ def _calculate_new_version(latest_tag: str) -> str:
     # if this CI run was triggered by a release, do nothing
     if commit_count_str == "0":
         sys.exit(0)
-    # e.g. 5 -> 4 (N in ".postN" is zero-based)
-    commit_count = int(commit_count_str) - 1
-    # e.g. "9.0.2.post4" (no leading v in pyproject.toml)
-    return f"{latest_tag[1:]}.post{commit_count}"
+    return _post_release_version(latest_tag, int(commit_count_str))
+
+
+def _post_release_version(latest_tag: str, commit_count: int) -> str:
+    """
+    Build the post-release version, for example "v9.0.2" with 5 commits gives "9.0.2.post4".
+
+    The N in ".postN" is zero-based, and pyproject.toml has no leading "v".
+    """
+    return f"{latest_tag[1:]}.post{commit_count - 1}"
 
 
 def _check_if_on_main_branch() -> None:

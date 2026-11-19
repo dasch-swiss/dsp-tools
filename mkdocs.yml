@@ -18,6 +18,7 @@ validation:
 
 not_in_nav: |
   adr/**
+  dsp-tools-split/**
 
 nav:
   - Overview: index.md

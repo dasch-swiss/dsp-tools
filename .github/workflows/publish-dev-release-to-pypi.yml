@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - main
+    # Only a change to dsp-tools makes a dsp-tools dev release.
+    paths:
+      - packages/dsp-tools/**
   workflow_dispatch:
 
 env:

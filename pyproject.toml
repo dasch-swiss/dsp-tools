@@ -42,9 +42,21 @@ dev = [
 
 
 [tool.pytest.ini_options]
-# Tests of the repository tooling in `scripts/`
+# Tests of the repository tooling in `scripts/`.
+# The tests of each package run from the package folder (`just dsp-tools-pytest`), with the config of the package.
 addopts = ["--import-mode=importlib"]
 pythonpath = ["."]
+testpaths = ["scripts/test"]
+
+
+[tool.mypy]
+# Type checking of the repository tooling in `scripts/` (`just mypy-scripts`).
+# Each package has its own mypy configuration.
+python_version = "3.12"
+show_column_numbers = true
+strict = true
+enable_error_code = ["possibly-undefined"]
+
 
 
 [tool.ruff]

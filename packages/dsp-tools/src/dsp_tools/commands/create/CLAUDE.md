@@ -73,7 +73,8 @@ The validation process happens in three distinct phases:
 
 - **Function**: `_validate_with_json_schema()`
 - **Purpose**: Structural validation against JSON schema
-- **Schema Location**: `src/dsp_tools/resources/schema/project.json`
+- **Schema Location**: `packages/dsp-tools/src/dsp_tools/resources/schema/project.json`
+  (the folder `src/dsp_tools/resources/schema/` at the repository root is a copy, see `just sync-schema-copy`)
 - **Validates**:
     - Required fields presence
     - Field types and formats

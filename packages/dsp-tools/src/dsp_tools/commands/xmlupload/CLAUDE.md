@@ -283,7 +283,7 @@ When an upload fails or is interrupted:
 - Use dataclasses for model definitions
 - Implement comprehensive error handling
 - Add type hints for all new code
-- Comments and docstrings follow `CONVENTIONS.md` -> "Comments"
+- Comments and docstrings follow the root `CONVENTIONS.md` -> "Comments"
 - Use dependency injection for testability
 
 ## Key Files to Reference

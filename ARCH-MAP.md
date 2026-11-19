@@ -447,9 +447,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Key entities**: `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json`,
   `data.xsd`, `api-shapes.ttl`, `docker-compose.yml`, `versions.env`, `shacl-cli-image.yml`
 - **Public interface**: the files themselves are the contract (JSON Schema, XSD, SHACL shapes,
-  Compose/template files). The GitHub raw `main` URLs of `schema/project.json` and `schema/data.xsd` are
-  hard-coded as `$schema`/schemaLocation in `get.py`, `excel2json/models/json_header.py`,
-  `xmllib/models/root.py` and `excel2xml_lib.py`, so renaming or moving them breaks user files.
+  Compose/template files). The GitHub raw `main` URLs of `schema/project.json` and `schema/data.xsd`
+  (path `packages/dsp-tools/src/dsp_tools/resources/schema/`) are hard-coded as `$schema`/schemaLocation in
+  `get.py`, `excel2json/models/json_header.py`, `xmllib/models/root.py` and `excel2xml_lib.py`, so renaming
+  or moving them breaks user files. Files made before the uv workspace use the old URL path
+  `src/dsp_tools/resources/schema/`, which a copy at the repository root keeps valid.
 - **Local-context kit**: `schema/project.json`, `schema/data.xsd`, `validate_data/api-shapes.ttl`,
   `start-stack/docker-compose.yml`, `start-stack/versions.env`,
   `packages/dsp-tools/test/distribution/test_cli_deps_resources.py`
@@ -461,6 +463,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (`versions.env`, `data.xsd`, `api-shapes.ttl`); `repo-tooling` (`bump_stack_versions.py` writes
   `versions.env`, `publish-release-to-pypi.yml` reads it)
 - **Boundary rules**:
+    - The copy of `schema/` in `src/dsp_tools/resources/schema/` at the repository root has one writer:
+    `just sync-schema-copy`. Never edit it by hand. (enforcement: static-analysis, `just check-schema-copy`
+    in `lint-code.yml`)
     - Read-only at runtime. Single writer per file: a human via PR, except `versions.env`, whose only writer
     is `scripts/bump_stack_versions.py` via a bot PR from `bump-stack-versions.yml` (the file says "Do not
     edit by hand"). `start_stack.py` only writes *copies* into the user's `~/.dsp-tools/start-stack`, never
@@ -484,9 +489,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Paths**: `packages/dsp-tools/docs/**`, `mkdocs.yml`
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
-  `packages/dsp-tools/docs/adr/` is the one exception inside `packages/dsp-tools/docs/**`: it is excluded from the
-  published site (`not_in_nav`
-  in `mkdocs.yml`) because ADRs are a lightweight, git-native decision log, not a site page. The five ADRs
+  The ADRs are in `docs/adr/` at the repository root, outside the mkdocs `docs_dir`, because ADRs are a
+  lightweight, git-native decision log for the whole repository, not a site page. The five ADRs
   (0001–0005) have no index page; `CONVENTIONS.md` and `REVIEW.md` reference them.
 - **Key entities**: mkdocs nav sections — Overview, User Guides, Running a Local Stack, Data Modelling, Data
   for Mass-Upload, Advanced Workflows, Information for developers, Changelog
@@ -509,9 +513,6 @@ this map found confirmed violations of both rules; see Conventions and each comp
     becomes a build-failing error under the `--strict` flag the required `check-docs` CI check runs (see
     `mkdocs.yml`'s own comment above its `validation:` block), so an unregistered page fails CI, it does not
     silently disappear. (enforcement: static-analysis)
-    - `packages/dsp-tools/docs/adr/**` is carved out of this rule via `not_in_nav` in `mkdocs.yml`, since ADRs are never
-      meant
-    to get a nav entry. (enforcement: structure)
     - Renaming or moving a page or heading that an xmllib docstring links to fails
     `just check-xmllib-docstring-links` in `check-docs`. The script scans only `xmllib/`, so links from
     other code are not checked. (enforcement: static-analysis)

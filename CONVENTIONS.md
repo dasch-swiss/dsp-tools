@@ -125,12 +125,15 @@ it here:
 
 ### Dependencies
 
-- Never `pip install` globally. Add deps with `uv add <pkg>` (or `uv add --dev <pkg>`); install with
-  `uv sync --all-extras --dev`.
+- Never `pip install` globally. Add a runtime dependency with `uv add --package dsp-tools <pkg>`, a dev dependency
+  with `uv add --dev <pkg>` (root `pyproject.toml`, shared by all packages); install with
+  `uv sync --all-packages --all-extras --dev`.
 
 ### JSON Schema (project definition)
 
 - The project-definition schema is `packages/dsp-tools/src/dsp_tools/resources/schema/project.json`.
+- `src/dsp_tools/resources/schema/` at the repository root is a copy that keeps old schema URLs valid.
+  Never edit it. After a change to a schema file, run `just sync-schema-copy`. CI runs `just check-schema-copy`.
 - When a field accepts only a **fixed, known set of values**, model it as an `enum` (not a free `string` or
   a loose `pattern`) so validation fails client-side with an actionable message. Hard requirement, not a
   style choice.
@@ -257,7 +260,7 @@ so that `git blame` skips the commits that only reformat code.
 - `ARCH-MAP.md` — component-level dependency graph and boundary rules; load on demand for import-level
   blast-radius and boundary questions (a different concern from the subsystem inventory above).
 - `CONTEXT.md` — the project's domain vocabulary.
-- `packages/dsp-tools/docs/adr/` — architectural decision records.
+- `docs/adr/` — architectural decision records.
 - `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
 - `packages/dsp-tools/src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.
 - `packages/dsp-tools/src/dsp_tools/xmllib/CLAUDE.md` — xmllib public-API layering.

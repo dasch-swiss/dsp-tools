@@ -1,0 +1,14 @@
+# Commits that only reformat code or docs. `git blame` skips them when configured with:
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub's blame view reads this file automatically.
+# Add a commit here only if it changes formatting and nothing else
+# (the formatter setting or version that caused the reformat may change in the same commit).
+
+# chore: reformat code (DEV-2263) (#399)
+35af8c41517ff61e239d96d4a426b13c9ebac0fb
+# chore: ruff.lint.isort: force-single-line (#840)
+fb3c1d940b6aa6e91d5e224f64a1981f401a7b21
+# chore: ruff reformatting (#867)
+5ed62fc3b132007bba5805066e2fbf4c6d7f3aca
+# chore(lint): bump markdownlint-cli to v0.49.1 and align the tables that MD060 flags (#2484)
+5bec19aea6c339389811c2a15f3cce743bea5a4e

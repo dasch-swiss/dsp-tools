@@ -275,8 +275,7 @@ import requests
 from loguru import logger
 from requests import RequestException, Response
 
-from dsp_tools.clients. < protocol_file >
-import < ProtocolClass >
+from dsp_tools.clients.<protocol_file> import <ProtocolClass>
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
@@ -290,7 +289,8 @@ from dsp_tools.utils.request_utils import (
 
 ## Constants
 
-- **Timeout values**: Define module-level constants for timeouts called `TIMEOUT_[numer in seconds]` (eg: `TIMEOUT_10 = 10`)
+- **Timeout values**: Define module-level constants for timeouts called `TIMEOUT_[number in seconds]`
+  (for example `TIMEOUT_10 = 10`)
 - **Default values**: Use module-level constants for commonly used values
 
 ```python

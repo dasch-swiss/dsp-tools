@@ -82,7 +82,6 @@ markdownlint:
     ghcr.io/igorshubovych/markdownlint-cli:v0.49.1 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
-    --ignore **/CLAUDE.md \
     "**/*.md"
 
 

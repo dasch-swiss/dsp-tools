@@ -141,8 +141,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `cli` entry)
 - **Used by**: `cli` (calls `get.get_project()`); `utils/request_utils.py` and top-level
   `legacy_models/projectContext.py` reach into this component's `legacy_models/` subfolder (see Boundary
-  rules); indirectly `xmlupload` and `utils/xml_parsing/get_lookups.py`, through `projectContext.py`;
-  test-only: `create/test_admin_account_check.py` (`User`), `integration/commands/test_get_project.py` and
+  rules); test-only: `create/test_admin_account_check.py` (`User`), `integration/commands/test_get_project.py` and
   `unittests/commands/get/test_project_legacy.py` (`Project`), and the legacy E2E tests under
   `test/legacy_e2e/commands/project/` (`User`, `Group`, `Ontology`, `ResourceClass`, `PropertyClass`,
   `ListNode`)
@@ -150,6 +149,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - Two confirmed reach-ins into this component's internal `legacy_models/` subfolder, bypassing `get.py`:
     top-level `legacy_models/projectContext.py` imports `Group`/`Project` directly; `utils/request_utils.py`
     imports `Context`/`OntoIri` directly. (enforcement: docs-only, `get/CLAUDE.md`)
+    - Through `projectContext.py`, every `xmlupload` and `ingest-xmlupload` run calls
+    `Project.getAllProjects` and `Group.getAllGroups`: a change to these methods can break both upload
+    commands, though neither imports `get`. (enforcement: docs-only, `get/CLAUDE.md`)
     - `get` and `utils` form an import cycle: `get_permissions.py` imports `utils.request_utils`, which imports
     `get.legacy_models.context` and `get.legacy_models.helpers`. (enforcement: docs-only)
     - Tests reach past `get_project()`: `test_get_permissions.py` imports 10 private helpers of
@@ -160,7 +162,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     admin-account check. This is a get→create file-format contract, not an import. (enforcement: docs-only)
 - **Durable state**: reads DSP server state; writes exactly one local JSON file at the user-given
   `outfile_path` (single writer: `get.py`'s `json.dump` call).
-- **Fingerprint**: `7de7b6bddcee`
+- **Fingerprint**: `5026114ffdbf`
 
 ### excel2json
 
@@ -288,8 +290,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `resume_xmlupload.resume_xmlupload.resume_xmlupload`).
 - **Local-context kit**: `upload_files/CLAUDE.md`, `ingest_files/ingest_files.py`,
   `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
-  `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (both commands build an `UploadConfig` and call
-  `execute_upload()`). `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
+  `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`ingest-xmlupload` builds an `UploadConfig`,
+  `resume-xmlupload` uses one to locate the pickle, and both call `execute_upload()`).
+  `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
 - **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, BulkIngestedAssetClient,
   DspIngestClientLive, LegalInfo/List clients), `xmlupload` (execute_upload, models, prepare_xml_input,
   upload_config — heavy reuse), `validate-data`, `cli` (`cli.args` — inverted, see the `cli` entry), `utils`
@@ -505,8 +508,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - External http(s) links are checked by lychee on every pull request (`check-external-links.yml`,
     config `lychee.toml`), deliberately not a required check. (enforcement: static-analysis, non-gating)
     - Every Markdown file except `CHANGELOG.md` must pass `just markdownlint` (`.markdownlint.yml`), which
-    runs in `just lint` and in the required `check-docs` job; MD060, for example, requires aligned table
-    columns. (enforcement: static-analysis)
+    runs in `just lint` and in the required `check-docs` job; MD060, for example, requires one consistent
+    column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
 - **Fingerprint**: `97e64dcab695`
@@ -604,10 +607,10 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 Two-branch exception hierarchy: `BaseError` → `UserError` (user can fix it) / `InternalError` (needs a
 developer; auto-appends contact info and the log path). `custom_warnings.py` mirrors this for warnings;
-`problems.py` defines the `Problem` protocol used by Group B's aggregated-error pattern. It also holds
-`DaschEmployeeAccountUsedForUploadError` (raised by `utils/dsp_user_account_check.py` when the user declines
-an upload to a prod-like server with a DaSCH employee account) and `DspAdminAccountNotInProjectFileWarning`
-(emitted by `create` when the project file lacks the project admin account). Per
+`problems.py` defines the `Problem` protocol used by Group B's aggregated-error pattern. `exceptions.py` also
+holds `DaschEmployeeAccountUsedForUploadError` (raised by `utils/dsp_user_account_check.py` when the user declines
+an upload to a prod-like server with a DaSCH employee account), and `custom_warnings.py` holds
+`DspAdminAccountNotInProjectFileWarning` (emitted by `create` when the project file lacks the project admin account). Per
 `docs/developers/architecture/error-handling.md`: catch only recoverable external failures and let your own
 bugs crash; Group A commands (`create`, `xmlupload`, `get`, …) fail fast, Group B commands (`excel2json`,
 `validate-data`, `xmllib`, …) collect every `Problem` into one aggregated `UserError`. Ten command modules

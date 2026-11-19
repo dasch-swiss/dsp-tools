@@ -155,7 +155,9 @@ then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
 **`dsp_user_account_check.py`**
 
 - Build the email of the project admin account (`dsp_admin_account_email`)
-- Check that an upload uses the project admin account: an error on prod-like servers, a warning elsewhere
+- Check the account of an upload (`check_for_dsp_employee_account_email_for_data_upload`):
+  on a prod-like server, a DaSCH employee account (`@dasch.swiss`) must confirm the upload.
+  In non-interactive mode, the upload stops. Other accounts and other servers pass without a check.
 - Used by: create (email builder), xmlupload and ingest-xmlupload (upload check)
 
 ## Error Handling

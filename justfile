@@ -228,14 +228,17 @@ scripts-tests *FLAGS:
     uv run pytest scripts/test/ {{FLAGS}}
 
 
+schema_source := "packages/dsp-tools/src/dsp_tools/resources/schema/"
+schema_copy := "src/dsp_tools/resources/schema/"
+
+
 # Check that the copy of the schema files at the old URL path equals the packaged schema files
 [no-exit-message]
 check-schema-copy:
     #!/usr/bin/env bash
     set -euo pipefail
-    if ! diff -r src/dsp_tools/resources/schema/ packages/dsp-tools/src/dsp_tools/resources/schema/ --exclude=README.md; then
-        echo "The copy in src/dsp_tools/resources/schema/ differs from packages/dsp-tools/src/dsp_tools/resources/schema/."
-        echo "Edit only the files in packages/dsp-tools/, then run: just sync-schema-copy"
+    if ! diff -r {{schema_copy}} {{schema_source}} --exclude=README.md; then
+        echo "The copy in {{schema_copy}} differs from {{schema_source}}. Edit only the source, then run: just sync-schema-copy"
         exit 1
     fi
 
@@ -243,7 +246,7 @@ check-schema-copy:
 # Overwrite the copy of the schema files at the old URL path with the packaged schema files
 [no-exit-message]
 sync-schema-copy:
-    rsync -a --delete --exclude=README.md packages/dsp-tools/src/dsp_tools/resources/schema/ src/dsp_tools/resources/schema/
+    rsync -a --delete --exclude=README.md {{schema_source}} {{schema_copy}}
 
 
 # Remove artifact files

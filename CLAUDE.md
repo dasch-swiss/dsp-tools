@@ -65,7 +65,8 @@ Two Python modules are public API:
 
 - All linters in parallel: `just lint`
 - Format the code: `just format`
-- Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly)
+- Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly). It runs `just mypy-dsp-tools`
+  and `just mypy-scripts`, which also work alone.
 - Dead code: `just vulture`
 - Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint` (runs in Docker)
 
@@ -84,6 +85,7 @@ Two Python modules are public API:
 - Start a local DSP stack: `dsp-tools start-stack`
 - Serve the documentation: `mkdocs serve`
 - Remove build artifacts: `just clean`
+- After a change to a schema file: `just sync-schema-copy` (CI runs `just check-schema-copy`)
 
 ## Architecture Overview
 
@@ -110,7 +112,10 @@ The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/w
 Each package is in `packages/`. The plan for the split into packages is in
 `packages/dsp-tools/docs/dsp-tools-split/dsp-tools-split-package-setup.md`.
 
-- The root `pyproject.toml` holds the workspace definition, the dev dependencies and the shared ruff configuration.
+- The root `pyproject.toml` holds the workspace definition, the dev dependencies, the shared ruff configuration,
+  and the pytest and mypy configuration for `scripts/`.
+- The root `.python-version` pins the interpreter of the shared `.venv`, locally and in CI.
+  `requires-python` of each package stays the lower bound.
 - `packages/dsp-tools/pyproject.toml` holds the metadata, the dependencies, and the pytest, mypy and vulture
   configuration.
 - The tests run with `packages/dsp-tools/` as the working directory, because their paths (for example `testdata/...`)
@@ -118,6 +123,6 @@ Each package is in `packages/`. The plan for the split into packages is in
 - Paths in files under `packages/dsp-tools/` (for example the per-module `CLAUDE.md` files)
   are relative to `packages/dsp-tools/`. Paths in the files at the repository root are relative to the root.
 - `src/dsp_tools/resources/schema/` at the root is a copy of the schema files that keeps old URLs valid.
-  Do not edit it. `just check-schema-copy` checks it.
+  Do not edit it. Write it with `just sync-schema-copy`. `just check-schema-copy` checks it.
 
 The `justfile` is the task runner, and `.pre-commit-config.yaml` holds the local hooks.

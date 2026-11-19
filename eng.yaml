@@ -80,6 +80,9 @@ overrides:
   - when: "docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
+  - when: "packages/dsp-vre-lib/docs/adr/**"
+    reviewers: ['eng:review:dune-reviewer']
+
   - when: "eng.yaml"
     reviewers: ['eng:review:dune-reviewer']
 

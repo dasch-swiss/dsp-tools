@@ -465,12 +465,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (`versions.env`, `data.xsd`, `api-shapes.ttl`); `repo-tooling` (`bump_stack_versions.py` writes
   `versions.env`, `publish-release-to-pypi.yml` reads it)
 - **Boundary rules**:
-    - The copy of `schema/` in `src/dsp_tools/resources/schema/` at the repository root has one writer:
-    `just sync-schema-copy`. Never edit it by hand. (enforcement: static-analysis, `just check-schema-copy`
-    in `lint-code.yml`)
-    - Read-only at runtime. Single writer per file: a human via PR, except `versions.env`, whose only writer
-    is `scripts/bump_stack_versions.py` via a bot PR from `bump-stack-versions.yml` (the file says "Do not
-    edit by hand"). `start_stack.py` only writes *copies* into the user's `~/.dsp-tools/start-stack`, never
+    - Read-only at runtime. Single writer per file: a human via PR, with two exceptions. The only writer of
+    `versions.env` is `scripts/bump_stack_versions.py` via a bot PR from `bump-stack-versions.yml` (the file
+    says "Do not edit by hand"). The only writer of the copy of `schema/` in `src/dsp_tools/resources/schema/`
+    at the repository root is `just sync-schema-copy` (`just check-schema-copy` in `lint-code.yml` fails on a
+    difference). `start_stack.py` only writes *copies* into the user's `~/.dsp-tools/start-stack`, never
     back into this tree. (enforcement: review)
     - Runtime code (`src/`) loads these files via `importlib.resources` (never a relative `open()` path), as
     required for correct behavior when installed from a wheel. Tests and scripts use repo-relative paths.
@@ -553,6 +552,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
     the `scripts/` tests) and occurs in integration tests (7 of 22) and in the e2e `validate_data` tests
     (`_validate_data`, 4 of 15 e2e files). Only legacy_e2e stays strictly black-box (CLI-level).
     (enforcement: review)
+    - Tests run with `packages/dsp-tools/` as the working directory, because their paths (`testdata/...`)
+    are relative to it. `pytest_sessionstart` in `packages/dsp-tools/test/conftest.py` stops a run from
+    another directory and names `just dsp-tools-pytest`. (enforcement: static-analysis)
     - E2E three-place wiring: a test dir or file under `packages/dsp-tools/test/e2e/commands/`, a `just e2e-test-<name>`
     recipe, and a matching job in `.github/workflows/tests-e2e.yml` — a test not registered in all three
     silently never runs in CI. (enforcement: docs-only; verified consistent for all six e2e targets)
@@ -621,7 +623,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `2f031575aae7`
+- **Fingerprint**: `0788a4771dcd`
 
 ### dsp-vre-lib
 

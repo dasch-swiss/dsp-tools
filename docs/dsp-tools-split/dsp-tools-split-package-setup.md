@@ -94,7 +94,10 @@ The layout gives space for more packages later.
 ## Open Questions
 
 - Do the tests that need a DSP stack (testcontainers) move with `dsp-vre-lib`?
-- Step two: how does the Python build fit into the Bazel and sbt build of `dsp-api`?
+- Step two: how do we build and publish `dsp-vre-lib` with Bazel in `dsp-api`?
+  `dsp-api` uses `rules_python` only for internal tooling scripts,
+  without third-party Python dependencies and without wheels.
+  Python packaging and publishing are thus new in `dsp-api`.
 - Step two: do we copy the git history of `packages/dsp-vre-lib/` into `dsp-api`?
   `git filter-repo` can extract the history of the folder, incl. the old paths before the move.
   `dsp-api` then merges it as unrelated history. `dsp-tools` keeps its full history in all cases.

@@ -40,7 +40,7 @@ class UploadFailures:
         ratio = f"{self.num_of_initial_files - len(self.failures)}/{self.num_of_initial_files}"
         msg = f"Uploaded {ratio} files onto server {self.dsp_ingest_url}. "
         if len(self.failures) > self.maximum_prints:
-            url = regex.sub(r"https?://", "", self.dsp_ingest_url)
+            url = regex.sub(r"https?://", "", self.dsp_ingest_url).replace("/", "_")
             output_file = Path(f"upload_failures_{self.shortcode}_{url}.csv")
             self._save_to_csv(output_file)
             msg += f"Failed to upload {len(self.failures)} files. "

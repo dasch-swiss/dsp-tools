@@ -211,8 +211,11 @@ creds = get_creds(args)  # Returns ServerCredentials dataclass
 
 The CLI automatically transforms DSP server URLs to their canonical form:
 
-- `localhost:3333` or `0.0.0.0:3333` → `http://0.0.0.0:3333` (API) + `http://0.0.0.0:3340` (ingest)
-- `admin.dasch.swiss` or `api.dasch.swiss` → `https://api.dasch.swiss` (API) + `https://ingest.dasch.swiss` (ingest)
+- `localhost:3333` or `0.0.0.0:3333` → `http://0.0.0.0:3333` (API) + `http://0.0.0.0:3333/ingest` (ingest)
+- `admin.`, `api.`, `app.` or `ingest.dasch.swiss` → `https://api.dasch.swiss` (API) + `https://api.dasch.swiss/ingest`
+  (ingest)
+
+The ingest URL is always `<canonical server>/ingest`: DSP-API serves ingest under that path.
 
 This happens in `entry_point.py:_derive_dsp_ingest_url()` before the command handler is called.
 

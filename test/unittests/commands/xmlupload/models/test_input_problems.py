@@ -112,8 +112,15 @@ def refused_host() -> IIIFHostRefused:
     )
 
 
-def test_iiif_host_refused_msg(refused_host: IIIFHostRefused) -> None:
-    refused_host.unverified_uris.append("https://iiif.ub.unibe.ch/b/full/max/0/default.jpg")
+def test_iiif_host_refused_msg() -> None:
+    refused_host = IIIFHostRefused(
+        host="iiif.ub.unibe.ch",
+        status_code=403,
+        unverified_uris=[
+            "https://iiif.ub.unibe.ch/a/full/max/0/default.jpg",
+            "https://iiif.ub.unibe.ch/b/full/max/0/default.jpg",
+        ],
+    )
     assert refused_host.get_msg() == (
         "IIIF server: iiif.ub.unibe.ch\n"
         "    - The server refused access to dsp-tools. Status code: 403\n"

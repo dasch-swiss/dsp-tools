@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections import defaultdict
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -44,20 +45,26 @@ def _check_iiif_uris(uris: list[str]) -> AllIIIFUriProblems:
     """Check each URI. After a server refused access, do not call it again, to prevent a block of the IP address."""
     validator = IIIFUriValidator()
     problems: list[IIIFUriProblem] = []
-    refused_hosts: dict[str, IIIFHostRefused] = {}
+    refused_status_codes: dict[str, int | None] = {}
+    unverified_uris: dict[str, list[str]] = defaultdict(list)
     for uri in tqdm(uris, desc="Checking IIIF-URIs", dynamic_ncols=True):
         host = urlparse(uri).netloc
-        if refused := refused_hosts.get(host):
-            refused.unverified_uris.append(uri)
+        if host in refused_status_codes:
+            unverified_uris[host].append(uri)
             continue
         result = validator.validate_one_uri(uri)
         if not result:
             continue
         if result.category == IIIFProblemCategory.ACCESS_REFUSED:
-            refused_hosts[host] = IIIFHostRefused(host=host, status_code=result.status_code, unverified_uris=[uri])
+            refused_status_codes[host] = result.status_code
+            unverified_uris[host].append(uri)
         else:
             problems.append(result)
-    return AllIIIFUriProblems(problems=problems, refused_hosts=list(refused_hosts.values()))
+    refused_hosts = [
+        IIIFHostRefused(host=host, status_code=status_code, unverified_uris=unverified_uris[host])
+        for host, status_code in refused_status_codes.items()
+    ]
+    return AllIIIFUriProblems(problems=problems, refused_hosts=refused_hosts)
 
 
 def check_if_bitstreams_exist(root: etree._Element, imgdir: Path) -> None:

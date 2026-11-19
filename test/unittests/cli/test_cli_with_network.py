@@ -586,6 +586,7 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -608,6 +609,29 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=False,
+        )
+
+    @patch("dsp_tools.cli.utils._check_network_health")
+    @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
+    def test_ingest_xmlupload_no_iiif(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
+        args = f"ingest-xmlupload --no-iiif-uri-validation {DATA_XML_PATH}".split()
+        entry_point.run(args)
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        ingest_xmlupload.assert_called_once_with(
+            xml_file=Path(DATA_XML_PATH),
+            creds=creds,
+            interrupt_after=None,
+            skip_validation=False,
+            skip_ontology_validation=False,
+            id2iri_file=None,
+            do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=True,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -629,6 +653,7 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -653,6 +678,7 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -674,6 +700,7 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=ID_2_IRI_JSON_PATH,
             do_not_request_resource_metadata_from_db=False,
+            skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -697,6 +724,7 @@ class TestIngestUploads:
             skip_ontology_validation=False,
             id2iri_file=None,
             do_not_request_resource_metadata_from_db=True,
+            skip_iiif_validation=False,
         )
 
 

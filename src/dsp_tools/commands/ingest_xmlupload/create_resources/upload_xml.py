@@ -42,6 +42,7 @@ def ingest_xmlupload(
     skip_ontology_validation: bool = False,
     id2iri_file: str | None = None,
     do_not_request_resource_metadata_from_db: bool = False,
+    skip_iiif_validation: bool = False,
 ) -> bool:
     """
     This function reads an XML file
@@ -60,6 +61,7 @@ def ingest_xmlupload(
         id2iri_file: to replace internal IDs of an XML file by IRIs provided in this mapping file
         do_not_request_resource_metadata_from_db: if true do not request metadata information from the api
                                                   for existing resources
+        skip_iiif_validation: do not check if the IIIF URIs can be reached
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -77,6 +79,7 @@ def ingest_xmlupload(
     config = UploadConfig(
         media_previously_uploaded=True,
         interrupt_after=interrupt_after,
+        skip_iiif_validation=skip_iiif_validation,
     ).with_server_info(
         server=creds.server,
         shortcode=shortcode,

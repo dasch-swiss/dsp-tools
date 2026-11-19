@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from enum import StrEnum
 from enum import auto
 
+from dsp_tools.utils.request_utils import is_server_error
+
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
 
 HTTP_OK = 200
-HTTP_SERVER_ERROR = 500
 ACCESS_REFUSED_STATUS_CODES = (401, 403, 429)
 
 
@@ -43,7 +44,7 @@ def _join_msg(header: str, msgs: list[str]) -> str | None:
     return header + medium_separator + medium_separator.join(msgs)
 
 
-@dataclass
+@dataclass(frozen=True)
 class IIIFHostRefused:
     """A IIIF server that refused access. Its URIs are not checked."""
 
@@ -74,7 +75,7 @@ class IIIFUriProblem:
     def category(self) -> IIIFProblemCategory:
         if self.status_code in ACCESS_REFUSED_STATUS_CODES:
             return IIIFProblemCategory.ACCESS_REFUSED
-        if self.status_code is None or self.status_code >= HTTP_SERVER_ERROR:
+        if self.status_code is None or is_server_error(self.status_code):
             return IIIFProblemCategory.UNREACHABLE
         return IIIFProblemCategory.INVALID
 

@@ -10,7 +10,7 @@ class XsdValidationError(UserError):
     """XML provided does not pass xsd validation"""
 
 
-class DuplicateIdsInXmlAndId2IriMapping(UserError):
+class DuplicateIdsInXmlAndId2IriMappingError(UserError):
     """
     Represents an error raised if a resource ID that is in the Id2Iri mapping
     is also used as a resource id in the new data.
@@ -21,5 +21,5 @@ class MalformedPrefixedIriError(UserError):
     """If the input prefixed IRI is malformed"""
 
 
-class DspToolsRequestException(InternalError):
+class DspToolsRequestError(InternalError):
     """Class for errors that are raised if any request exceptions happens."""

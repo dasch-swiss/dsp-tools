@@ -8,12 +8,12 @@ import requests
 from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"
@@ -121,12 +121,12 @@ class TestListClient:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.list_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 list_client._get_all_list_iris()
 
     def test_get_all_list_iris_timeout(self, list_client: ListGetClientLive) -> None:
         with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 list_client._get_all_list_iris()
 
     def test_get_one_list(self, list_client: ListGetClientLive) -> None:
@@ -142,12 +142,12 @@ class TestListClient:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.list_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
     def test_get_one_list_timeout(self, list_client: ListGetClientLive) -> None:
         with patch("dsp_tools.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
     def test_extract_list_iris(
@@ -220,7 +220,7 @@ class TestListCreateClient:
             "labels": [{"value": "Test List", "language": "en"}],
         }
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 list_create_client.create_new_list(list_info)
 
     def test_create_new_list_server_error(self, list_create_client: ListCreateClientLive) -> None:
@@ -286,7 +286,7 @@ class TestListCreateClient:
             "labels": [{"value": "Test Node", "language": "en"}],
         }
         with patch("dsp_tools.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
     def test_add_list_node_server_error(self, list_create_client: ListCreateClientLive) -> None:

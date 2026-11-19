@@ -14,7 +14,7 @@ from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
-from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncomplete
+from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncompleteError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
@@ -92,7 +92,7 @@ def _check_export_progress(
 def download(source_info: ServerInfo, config: MigrationConfig) -> bool:
     reference_info = parse_reference_json(config.reference_savepath)
     if reference_info.export_id is None:
-        raise MigrationReferenceInfoIncomplete("export_id")
+        raise MigrationReferenceInfoIncompleteError("export_id")
     auth = AuthenticationClientLive(source_info.server, source_info.user, source_info.password)
     client = MigrationExportClientLive(source_info.server, reference_info.project_iri, auth)
     success = _execute_download(client, reference_info.export_id, config)

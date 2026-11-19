@@ -117,7 +117,7 @@ def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Respons
             "Only a SystemAdmin or ProjectAdmin can do ... Your permissions are insufficient for this action.."
         )
 
-    raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+    raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 ```
 
 Pattern 2: If the request is not successful, then the user is warned and `None` is returned (non-fatal failure)
@@ -209,7 +209,7 @@ def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: b
 
 - **Network errors**: Catch `RequestException` and call `log_and_raise_request_exception(err)`
 - **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
-- **Other API errors**: Raise `FatalNonOkApiResponseCode` with URL, status code, and response text
+- **Other API errors**: Raise `FatalNonOkApiResponseCodeError` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
 
 ### 401 vs 403: Authentication vs Authorization
@@ -278,7 +278,7 @@ from requests import RequestException, Response
 from dsp_tools.clients.<protocol_file> import <ProtocolClass>
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
@@ -416,7 +416,7 @@ from requests import RequestException
 from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.clients.user_client import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
@@ -456,7 +456,7 @@ class UserClientLive(UserClient):
 
         if response.status_code == HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to access user information.")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 ```
 
 ## Related Documentation

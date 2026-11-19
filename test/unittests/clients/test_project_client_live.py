@@ -7,11 +7,11 @@ import pytest
 import requests
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 
@@ -70,14 +70,14 @@ class TestProjectGetIri:
 
     def test_get_project_iri_timeout(self, project_client: ProjectClientLive) -> None:
         with patch("dsp_tools.clients.project_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 project_client.get_project_iri("0001")
 
     def test_get_project_iri_other_error(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.project_client_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 project_client.get_project_iri("0001")
 
 
@@ -124,7 +124,7 @@ class TestPostNewProject:
 
     def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
         with patch("dsp_tools.clients.project_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 project_client.post_new_project(project_info)
 
     def test_bad_credentials(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:

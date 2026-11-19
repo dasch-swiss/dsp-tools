@@ -23,7 +23,7 @@ from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import OntoIri
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 
 
 @dataclass
@@ -220,7 +220,7 @@ def log_and_raise_request_exception(error: RequestException) -> Never:
     if error.request:
         msg += f"Original request: {error.request.method} {error.request.url}"
     logger.exception(msg)
-    raise DspToolsRequestException(msg) from None
+    raise DspToolsRequestError(msg) from None
 
 
 def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
@@ -240,7 +240,7 @@ def should_retry_request(response: ResponseCodeAndText) -> bool:
     """Returns the decision if a retry of a request is sensible."""
     retriable_status = _is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in the test workflows in .github/workflows/
     return (retriable_status or try_again_later) and not in_testing_env
 
 

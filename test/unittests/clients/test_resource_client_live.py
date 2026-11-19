@@ -11,7 +11,7 @@ from requests import RequestException
 
 from dsp_tools.clients.resource_client_live import ResourceClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
@@ -72,7 +72,7 @@ class TestPostResource:
         self, log_req: Mock, log_resp: Mock, client: ResourceClientLive
     ) -> None:
         with patch.object(client._session, "post", side_effect=RequestException("Connection refused")):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client.post_resource(RESOURCE_JSON, resource_has_bitstream=False)
 
     @patch("dsp_tools.clients.resource_client_live.log_request")
@@ -149,5 +149,5 @@ class TestGetResource:
         with patch(
             "dsp_tools.clients.resource_client_live.requests.get", side_effect=RequestException("Connection refused")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client.get_resource(RES_IRI)

@@ -8,7 +8,7 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
@@ -40,7 +40,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
                 "Your permissions are insufficient for this action."
             )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def _post_and_log_request(self, url: str, data: list[str]) -> Response:
         headers = {
@@ -84,7 +84,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 "Only a SystemAdmin or ProjectAdmin can set the resource-side legal info of a project, "
                 "your permissions are insufficient for this action."
             )
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def get_licenses_of_a_project(self, enabled_only: bool = True) -> list[dict[str, Any]]:
         logger.debug("GET enabled licenses of the project.")
@@ -121,7 +121,7 @@ class LegalInfoClientLive(LegalInfoClient):
             log_and_raise_request_exception(err)
         if response.ok:
             return response
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
 
 def _is_last_page(response: dict[str, Any]) -> bool:

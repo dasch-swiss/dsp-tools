@@ -2,7 +2,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMapping
+from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMappingError
 from dsp_tools.utils.replace_id_with_iri import _process_link_value
 from dsp_tools.utils.replace_id_with_iri import _process_one_resource
 from dsp_tools.utils.replace_id_with_iri import _process_richtext_value
@@ -52,7 +52,7 @@ class TestReplaceAllIds:
             "This means that the new XML file must not contain IDs that were previously used.\n"
             "The following ID(s) are both in the id2iri mapping and the new data: r1_id"
         )
-        with pytest.raises(DuplicateIdsInXmlAndId2IriMapping, match=msg):
+        with pytest.raises(DuplicateIdsInXmlAndId2IriMappingError, match=msg):
             _replace_all_ids_with_iris([res], iri_resolver)
 
 

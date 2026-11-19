@@ -11,7 +11,7 @@ from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFileError
 
 
 class TestCreateConfig:
@@ -126,30 +126,30 @@ class TestParseConfigFile:
                 "source-server": [{"server": "https://src.example.com"}, {"user": None}, {"password": None}],
             },
         )
-        with pytest.raises(InvalidMigrationConfigFile):
+        with pytest.raises(InvalidMigrationConfigFileError):
             parse_config_file(filepath)
 
     def test_missing_shortcode_raises(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(tmp_path, {"keep-local-export": False})
-        with pytest.raises(InvalidMigrationConfigFile):
+        with pytest.raises(InvalidMigrationConfigFileError):
             parse_config_file(filepath)
 
     def test_non_hex_shortcode_raises(self, tmp_path: Path) -> None:
         filepath = self._write_yaml(tmp_path, {"shortcode": "ZZZZ"})
-        with pytest.raises(InvalidMigrationConfigFile, match="4-character hexadecimal"):
+        with pytest.raises(InvalidMigrationConfigFileError, match="4-character hexadecimal"):
             parse_config_file(filepath)
 
     def test_octal_parsed_shortcode_raises(self, tmp_path: Path) -> None:
         # YAML parses unquoted 0205 as octal -> integer 133, which fails hex validation
         filepath = tmp_path / "migration.yaml"
         filepath.write_text("shortcode: 0205\n", encoding="utf-8")
-        with pytest.raises(InvalidMigrationConfigFile, match="4-character hexadecimal"):
+        with pytest.raises(InvalidMigrationConfigFileError, match="4-character hexadecimal"):
             parse_config_file(filepath)
 
     def test_invalid_yaml_raises(self, tmp_path: Path) -> None:
         filepath = tmp_path / "bad.yaml"
         filepath.write_text("key: [unclosed bracket", encoding="utf-8")
-        with pytest.raises(InvalidMigrationConfigFile):
+        with pytest.raises(InvalidMigrationConfigFileError):
             parse_config_file(filepath)
 
 

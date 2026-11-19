@@ -9,7 +9,7 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.exceptions import MigrationExportExistsError
 from dsp_tools.clients.exceptions import MigrationExportImportInProgressError
 from dsp_tools.clients.exceptions import MigrationImportExistsError
@@ -62,7 +62,7 @@ class MigrationExportClientLive(MigrationExportClient):
             case HTTPStatus.CONFLICT:
                 raise MigrationExportExistsError()
             case _:
-                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+                raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def get_status(self, export_id: ExportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
@@ -95,7 +95,7 @@ class MigrationExportClientLive(MigrationExportClient):
                     "It is not permissible to download a project at the same time."
                 )
             case _:
-                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+                raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def delete_export(self, export_id: ExportId) -> None:
         encoded_iri = quote(self.project_iri, safe="")
@@ -141,7 +141,7 @@ class MigrationImportClientLive(MigrationImportClient):
             case HTTPStatus.CONFLICT:
                 raise MigrationImportExistsError()
             case _:
-                raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+                raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def get_status(self, import_id: ImportId) -> ExportImportStatus:
         encoded_iri = quote(self.project_iri, safe="")
@@ -172,7 +172,7 @@ def _make_status_check_call(params: RequestParameters) -> ExportImportStatus:
         case HTTPStatus.FORBIDDEN:
             raise BadCredentialsError("You don't have permission to check the status.")
         case _:
-            raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+            raise FatalNonOkApiResponseCodeError(params.url, response.status_code, response.text)
 
 
 def _make_delete_call(params: RequestParameters, process: Literal["import", "export"]) -> None:
@@ -195,4 +195,4 @@ def _make_delete_call(params: RequestParameters, process: Literal["import", "exp
         case HTTPStatus.CONFLICT:
             raise MigrationExportImportInProgressError(f"It is not permissible to delete the {process} at this point.")
         case _:
-            raise FatalNonOkApiResponseCode(params.url, response.status_code, response.text)
+            raise FatalNonOkApiResponseCodeError(params.url, response.status_code, response.text)

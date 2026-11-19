@@ -10,7 +10,7 @@ class UnableToRetrieveProjectInfoError(InternalError):
     """When the project information could not be retrieved."""
 
 
-class MultimediaFileNotFound(UserError):
+class MultimediaFileNotFoundError(UserError):
     def __init__(self, imgdir: str, problems: list[MultimediaFileNotFoundProblem]) -> None:
         image_str = [f"Resource ID: {i.res_id} | Filepath: {i.filepath}" for i in problems]
         msg = (

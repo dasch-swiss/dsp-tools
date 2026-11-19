@@ -11,7 +11,7 @@ from dsp_tools.clients.group_user_clients_live import GroupClientLive
 from dsp_tools.clients.group_user_clients_live import UserClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from test.unittests.clients.constants import API_URL
 from test.unittests.clients.constants import GROUP_IRI
 from test.unittests.clients.constants import PROJECT_IRI
@@ -107,7 +107,7 @@ class TestGroupClientLiveGetGroup:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 group_client.get_all_groups()
 
     def test_get_all_groups_server_error(self, group_client: GroupClientLive) -> None:
@@ -142,7 +142,7 @@ class TestGroupClientCreateNewGroup:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 group_client.create_new_group(new_group)
 
     def test_non_ok_response(self, group_client: GroupClientLive, new_group) -> None:
@@ -189,7 +189,7 @@ class TestUserClientLiveGetAllUsers:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 user_client.get_all_users()
 
     def test_server_error(self, user_client: UserClientLive) -> None:
@@ -229,7 +229,7 @@ class TestUserClientLivePostNewUser:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 user_client.post_new_user(new_user)
 
     def test_server_error(self, user_client: UserClientLive, new_user) -> None:
@@ -265,7 +265,7 @@ class TestUserClientLiveAddUserToProject:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
 
     def test_server_error(self, user_client: UserClientLive) -> None:
@@ -301,7 +301,7 @@ class TestUserClientLiveAddUserAsProjectAdmin:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 user_client.add_user_as_project_admin(USER_IRI, PROJECT_IRI)
 
     def test_server_error(self, user_client: UserClientLive) -> None:
@@ -377,7 +377,7 @@ class TestUserClientLiveAddUserToOneGroup:
         with patch(
             "dsp_tools.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 user_client._add_user_to_one_group(user_iri_encoded, GROUP_IRI)
 
     def test_server_error(self, user_client: UserClientLive) -> None:

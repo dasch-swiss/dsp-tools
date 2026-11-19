@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.exceptions import MultimediaFileNotFound
+from dsp_tools.commands.xmlupload.exceptions import MultimediaFileNotFoundError
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 
 
@@ -20,7 +20,7 @@ def test_check_if_bitstreams_exist_skips_placeholder(tmp_path: Path) -> None:
             </bitstream>
         </resource>"""
     )
-    # No real file exists; if placeholder is not skipped, this raises MultimediaFileNotFound
+    # No real file exists; if placeholder is not skipped, this raises MultimediaFileNotFoundError
     check_if_bitstreams_exist(root, tmp_path)
 
 
@@ -40,5 +40,5 @@ def test_check_if_bitstreams_exist_raises_for_missing_file(tmp_path: Path) -> No
             <bitstream>missing.jpg</bitstream>
         </resource>"""
     )
-    with pytest.raises(MultimediaFileNotFound):
+    with pytest.raises(MultimediaFileNotFoundError):
         check_if_bitstreams_exist(root, tmp_path)

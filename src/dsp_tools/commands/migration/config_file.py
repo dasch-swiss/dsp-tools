@@ -7,7 +7,7 @@ import yaml
 
 from dsp_tools.clients.migration_clients import ExportId
 from dsp_tools.clients.migration_clients import ImportId
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFileError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ReferenceInfo
@@ -54,9 +54,9 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
     try:
         data = yaml.safe_load(filepath.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
-        raise InvalidMigrationConfigFile(f"Failed to parse YAML file '{filepath}': {e}") from e
+        raise InvalidMigrationConfigFileError(f"Failed to parse YAML file '{filepath}': {e}") from e
     if not isinstance(data, dict):
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The migration config file '{filepath}' does not contain a valid YAML mapping."
         )
     return data
@@ -65,12 +65,12 @@ def _parse_yaml(filepath: Path) -> dict[str, Any]:
 def _parse_config_info(data: dict[str, Any], filepath: Path) -> MigrationConfig:
     shortcode = data.get("shortcode")
     if not shortcode:
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The migration config file '{filepath}' is missing the required 'shortcode' field."
         )
     shortcode_str = str(shortcode)
     if not re.fullmatch(r"[0-9A-Fa-f]{4}", shortcode_str):
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The 'shortcode' in '{filepath}' must be a 4-character hexadecimal string (e.g. '0806'). "
             f"Got: '{shortcode_str}'. "
             f"Make sure the shortcode is quoted in the YAML file."
@@ -108,7 +108,7 @@ def _parse_server_info(
         return None
     missing = [name for name, val in [("server", server), ("user", user), ("password", password)] if val is None]
     if missing:
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The '{section_name}' section in '{filepath}' is incomplete. Missing fields: {', '.join(missing)}."
         )
     return ServerInfo(server=str(server), user=str(user), password=str(password))

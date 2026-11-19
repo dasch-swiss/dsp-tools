@@ -21,7 +21,7 @@ from dsp_tools.commands.mapping.config_file import parse_mapping_config
 from dsp_tools.commands.mapping.mapping_update import mapping_update
 from dsp_tools.commands.migration.clean_up import clean_up
 from dsp_tools.commands.migration.config_file import parse_config_file
-from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFile
+from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFileError
 from dsp_tools.commands.migration.export_download import download
 from dsp_tools.commands.migration.export_download import export_and_download
 from dsp_tools.commands.migration.import_zip import import_zip
@@ -237,7 +237,7 @@ def call_migration_complete(args: argparse.Namespace) -> bool:
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.source is None or migration_info.target is None:
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The config file '{config_path}' must contain a 'source-server' and a 'target-server' section "
             f"for the `migration` command."
         )
@@ -265,7 +265,7 @@ def call_migration_export(args: argparse.Namespace) -> bool:
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.source is None:
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The config file '{config_path}' must contain a 'source-server' section for the export command."
         )
     server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.source.server)
@@ -295,7 +295,7 @@ def call_migration_import(args: argparse.Namespace) -> bool:
     check_input_dependencies(required_paths=PathDependencies([config_path]))
     migration_info = parse_config_file(config_path)
     if migration_info.target is None:
-        raise InvalidMigrationConfigFile(
+        raise InvalidMigrationConfigFileError(
             f"The config file '{config_path}' must contain a 'target-server' section for the import command."
         )
     server, ingest_url = get_canonical_server_and_dsp_ingest_url(migration_info.target.server)

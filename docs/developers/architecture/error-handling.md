@@ -104,6 +104,8 @@ BaseError                                     # Root. Dataclass with message: st
   or create a new one if no appropriate one exists yet.
 - `UserError` and `InternalError` are the **only** allowed direct subclasses of `BaseError`.
   All new exception classes must inherit from one of them, never from `BaseError` itself.
+- The name of every exception class ends in `Error`, for example `MultimediaFileNotFoundError`.
+  The ruff rule `N818` enforces this.
 
 ## Exit codes
 

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from importlib.metadata import version
 
 import requests
 
@@ -35,7 +36,7 @@ class IIIFUriValidator:
         try:
             return requests.get(
                 url=info_json_uri,
-                headers={"Content-Type": "application/ld+json"},
+                headers={"Accept": "application/ld+json", "User-Agent": f"DSP-TOOLS/{version('dsp-tools')}"},
                 timeout=10,
             )
         except Exception as e:  # noqa: BLE001 (blind-except)

@@ -301,7 +301,10 @@ def _add_xmlupload(
     subparser.add_argument(
         "--no-iiif-uri-validation",
         action="store_true",
-        help="don't check if the IIIF links are valid URLs that can be reached online",
+        help=(
+            "don't check if the IIIF links are valid URLs that can be reached online. "
+            "Use this for IIIF servers that refuse automated requests"
+        ),
     )
     subparser.add_argument(
         "--ignore-duplicate-files-warning",

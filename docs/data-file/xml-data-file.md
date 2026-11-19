@@ -452,6 +452,11 @@ Notes:
 
 - Only _one_ `<iiif-uri>` element is allowed per `StillImageRepresentation`. 
 - If a resource has a `<iiif-uri>` element, it cannot have a `<bitstream>` element.
+- Before the upload, `xmlupload` sends one request to the IIIF server for each URI.
+  If a server refuses access (status code 401, 403 or 429), `xmlupload` does not call that server again.
+  The URIs of that server are not checked, and `xmlupload` prints an info message.
+  Some servers accept automated requests only from their own network or VPN.
+- To skip this check, use `--no-iiif-uri-validation`.
 
 Please consult the official documentation for details regarding the URI syntax:
 

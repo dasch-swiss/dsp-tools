@@ -1,231 +1,99 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Orientation for Claude Code in this repository.
+This file gives the overview. The files under "Where to read next" hold the detail.
 
 ## What is DSP-TOOLS?
 
-DSP-TOOLS is a CLI tool for interacting with the DaSCH Service Platform (DSP) API.
-A DSP server is a remote server or a local machine
-where the [DSP-API](https://github.com/dasch-swiss/dsp-api) is running on.
+DSP-TOOLS is a CLI tool and a Python library for the DaSCH Service Platform (DSP).
+It talks to a DSP server: a remote or local machine that runs [DSP-API](https://github.com/dasch-swiss/dsp-api).
+It serves two main tasks:
 
-The two main tasks that DSP-TOOLS serves for are:
+- Create a project and its data models on a DSP server, from a JSON project file.
+- Upload data, described in an XML file, to a project on a DSP server whose data model matches.
 
-- **Create a project with its data model(s), described in a JSON file, on a DSP server**
-  In order to archive your data on the DaSCH Service Platform,
-  you need a data model that describes your data.
-  The data model is defined in a JSON project definition file.
-  The project (incl. its data models) must be created on the DSP server.
-  If the DSP server is aware of the data model for your project,
-  conforming data can be uploaded into the DSP repository.
-- **Upload data, described in an XML file, to a DSP server that has a project with a matching data model**
-  DSP-TOOLS allows you to perform bulk imports of your data.
-  In order to do so, the data has to be described in an XML file.
-  DSP-TOOLS is able to read the XML file
-  and upload all data to the DSP server.
+The CLI commands (user docs: `docs/index.md` and the pages it links to):
 
-All functionalities of DSP-TOOLS revolve around these two basic tasks.
+| Command                                                             | What it does                                                                       |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `create`                                                            | Creates a project and its data models on a server, from a JSON file.               |
+| `get`                                                               | Reads a project from a server and writes it into a JSON file.                      |
+| `validate-data`                                                     | Validates an XML data file against the ontology on the server (SHACL).             |
+| `xmlupload`                                                         | Uploads the data and the multimedia files of an XML file to a server.              |
+| `upload-files`, `ingest-files`, `ingest-xmlupload`                  | The same as `xmlupload`, split into three steps.                                   |
+| `resume-xmlupload`                                                  | Resumes an interrupted `xmlupload` or `ingest-xmlupload`.                          |
+| `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`  | Create a JSON project file, or one of its sections, from Excel files.              |
+| `old-excel2json`, `old-excel2lists`                                 | The same as `excel2json` and `excel2lists`, with an older Excel format for lists.  |
+| `id2iri`                                                            | Replaces internal IDs in an XML file with IRIs, from a JSON mapping file.          |
+| `update-legal`                                                      | Moves legal metadata in an XML file into `<bitstream>` attributes.                 |
+| `start-stack`, `stop-stack`                                         | Run a DSP stack on the local machine.                                              |
+| `mapping config`, `mapping update`                                  | Replace the external mappings of an ontology on a server, from an Excel file.      |
+| `migration config`, `complete`, `export`, `import`, `clean-up`      | Migrate a project from one DSP server to another.                                  |
 
-DSP-TOOLS provides the following functionalities:
+Two Python modules are public API:
 
-- `dsp-tools create` creates the project with its data model(s) on a DSP server from a JSON file.
-- `dsp-tools get` reads a project with its data model(s) from a DSP server and writes it into a JSON file.
-- `dsp-tools validate-data` validates an XML data file according to the ontology previously uploaded on the server.
-- `dsp-tools xmlupload` uploads data from an XML file onto a DSP server, incl. multimedia assets referenced in the XML.
-- Alternative to `xmlupload`: a workflow split into three commands.
-  Both ways are supported.
-    - `dsp-tools upload-files` uploads all multimedia assets that are referenced in an XML file to a DSP server.
-    - `dsp-tools ingest-files` kicks off the ingest process on the DSP server,
-      and retrieves the mapping CSV when it is finished.
-    - `dsp-tools ingest-xmlupload`
-      creates the resources contained in the XML file on the DSP server, using the mapping CSV.
-- `dsp-tools resume-xmlupload` resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
-- `dsp-tools excel2json` creates an entire JSON project file from a folder with Excel files in it.
-    - `dsp-tools excel2lists`
-      creates the "lists" section of a JSON project file from one or several Excel files.
-      The resulting section can be integrated into a JSON project file
-      and then be uploaded to a DSP server with `dsp-tools create`.
-    - `dsp-tools excel2resources`
-      creates the "resources" section of a JSON project file from an Excel file.
-      The resulting section can be integrated into a JSON project file
-      and then be uploaded to a DSP server with `dsp-tools create`.
-    - `dsp-tools excel2properties`
-      creates the "properties" section of a JSON project file from an Excel file.
-      The resulting section can be integrated into a JSON project file
-      and then be uploaded to a DSP server with `dsp-tools create`.
-- `dsp-tools old-excel2json`
-  does the same as the newer `excel2json` command, but the Excel format for the `lists` section is different.
-    - `dsp-tools old-excel2lists`
-      does the same as the newer `excel2lists` command, but the Excel format is different.
-- The module `excel2xml` provides helper methods that can be used in a Python script
-  to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
-- The `xmllib` library provides helper functions that can be used in a Python script
-  to convert data from a tabular format into XML.
-- `dsp-tools id2iri` takes an XML file for bulk data import and replaces referenced internal IDs with IRIs.
-  The mapping has to be provided with a JSON file.
-- `dsp-tools update-legal` converts legal metadata in XML files to `<bitstream>` attributes.
-  Legal metadata (authorship, copyright, license) is migrated from `<text-prop>` elements
-  to attributes on `<bitstream>` or `<iiif-uri>` elements.
-  The command handles validation, error correction via CSV workflow, and authorship deduplication.
-- `dsp-tools start-stack / stop-stack` assist you in running a DSP stack on your local machine.
-- `dsp-tools mapping [config|update]` replace the external mappings of an existing ontology on a server.
-  The Excel file is the source of truth: `mapping update` replaces the external mappings of the whole ontology
-  with the ones the Excel file defines.
+- `xmllib` (`src/dsp_tools/xmllib/`) helps scripts convert tabular data into an XML data file.
+- `excel2xml` does the same, but is deprecated in favour of `xmllib`.
 
+## Where to read next
 
-## Conventions and Review
-
-- See `CONVENTIONS.md` for a condensed agent reference card of coding, testing, test-data, and commit
-  conventions (work phase).
-- See `REVIEW.md` for the code-review checklist (review phase) — reviewer agents should flag anything a
-  change violates.
-- Before feature work, map the change's blast radius with the `change-blast-radius` skill against the
-  "dsp-tools subsystem inventory" in `CONVENTIONS.md`, so no subsystem is silently missed
-  (the class of miss where `data_license` skipped `excel2json`).
-- Keep both in sync with this file and the per-module `CLAUDE.md` files whenever a convention changes.
-- Architecture map: see `ARCH-MAP.md`; load on demand for blast-radius and boundary questions.
+- `CONVENTIONS.md`: coding, testing, test-data and commit conventions (work phase).
+  It also holds the "dsp-tools subsystem inventory".
+  Before feature work, walk that inventory with the `change-blast-radius` skill,
+  so that no subsystem is silently missed.
+- `REVIEW.md`: the code-review checklist (review phase).
+- `ARCH-MAP.md`: components, public interfaces and the dependency direction. Load it for boundary questions.
+- `CONTEXT.md`: the domain vocabulary.
+- `docs/adr/`: architectural decision records.
+- `docs/developers/architecture/error-handling.md`: the exception hierarchy, and when to catch or fail.
+- The per-module `CLAUDE.md` files under `src/dsp_tools/`, for example `utils/CLAUDE.md` for what goes into utils.
 
 ## Development Commands
 
-### Environment Setup
+### Setup
 
-- **Install dependencies**: `uv sync --all-extras --dev`
-- **Activate virtual environment**: `source .venv/bin/activate`
-- **Install pre-commit hooks**: `pre-commit install`
-
-### Code Quality and Linting
-
-- **Run all linters**: `just lint`
-- **Format code**: `just format`
-- **Type checking**: `just mypy`
-    - Use `dmypy restart` if mypy behaves unexpectedly
-- **Check for dead code**: `just vulture`
-- **Check specific linters**:
-    - `just ruff-check` (Python linting)
-    - `just ruff-format-check` (Python formatting)
-    - `just yamllint` (YAML linting)
-    - `just markdownlint` (Markdown linting)
-
-### Testing
-
-- **Unit tests**: `just unittests` or `pytest test/unittests/`
-- **Integration tests**: `just integration-tests` or `pytest test/integration/`
-- **E2E tests (with testcontainers)**: `just e2e-tests` or `pytest -n=auto --dist=loadfile test/e2e/`
-- **Legacy E2E tests (requires running DSP stack)**: `just legacy-e2e-tests`
-- **Run specific test**: `pytest test/path/to/test.py::TestClass::test_method`
-- **Assertion format**: Use simple assertions without custom error messages.
-  Pytest provides clear output on failure without custom messages.
-    - **Correct**: `assert "id" in second_list_all_nodes[0]`
-    - **Incorrect**: `assert "id" in second_list_all_nodes[0], f"Node missing 'id': {second_list_all_nodes[0]}"`
-
-### Development Utilities
-
-- **Start DSP stack**: `dsp-tools start-stack`
-- **Build documentation**: `mkdocs serve`
-- **Clean artifacts**: `just clean`
-- **Install new dependencies**: `uv add package` (or `uv add --dev package` for dev dependencies)
-
-
-## Architecture Overview
-
-### Core Components
-
-#### CLI Module (`src/dsp_tools/cli/`)
-
-- **Entry point**: `entry_point.py` - Main CLI entry point with argument parsing and version checking
-- **Argument parsing**: `create_parsers.py` - Creates CLI argument parsers for all commands
-- **Action dispatcher**: `call_action.py` - Routes parsed arguments to appropriate command handlers
-
-
-#### Clients Module (`src/dsp_tools/clients`)
-
-- HTTP clients that are used across several modules
-- Should be generic enough to be re-used by several commands and not contain re-try logic.
-
-#### Commands Module (`src/dsp_tools/commands/`)
-
-Generally, each subdirectory implements a specific CLI command.
-Some commands share a subdirectory, and some commands live in a single file instead of a directory.
-
-#### xmllib Module (`src/dsp_tools/xmllib/`)
-
-Public API library for programmatic creation of XML files:
-
-- **models/**: Resource and value models for XML generation
-- **general_functions.py**: Public utility functions for creating XML files
-- **value_checkers.py**: Validation functions for different value types
-- **value_converters.py**: Conversion utilities for values
-
-#### Utils Module (`src/dsp_tools/utils/`)
-
-- `src/dsp_tools/utils/CLAUDE.md` describes the functionalities and for which purposes they should be used
-
-### Data Flow Architecture
-
-The system follows this general flow for XML processing:
-
-1. **XML Parsing**: Raw XML → etree Root → XSD validation → ParsedResource
-2. **Processing**: ParsedResource → resolve permissions/IRIs → ProcessedResource
-3. **Upload/Validation**: ProcessedResource → API calls or SHACL validation
-
-### Key Design Patterns
-
-- **Command Pattern**: CLI commands are implemented as separate modules with consistent interfaces
-- **Pipeline Pattern**: XML processing follows a multi-stage pipeline with clear transformations
-- **Model-Based**: Heavy use of dataclass models for type safety
-- **Client Abstraction**: Separate client classes for different API endpoints
-- **Error Handling**: See `docs/developers/architecture/error-handling.md` for the exception hierarchy,
-  when to catch vs. let fail, and how to handle caught exceptions
-
-### Testing Strategy
-
-- **Unit tests**: Test individual functions and classes in isolation
-- **Integration tests**: Test file I/O and cross-module interactions
-- **E2E tests**: Test full workflows with testcontainers running DSP stack (database, backend, frontend)
-- **Benchmarking tests**: Performance testing for critical algorithms
-
-### Configuration
-
-- **pyproject.toml**: Project metadata, dependencies, and tool configurations
-- **justfile**: Task runner with commands for development workflow
-- **Pre-commit hooks**: Automated code quality checks on commit
-
-## Basic instructions about Claude's role and how to behave
-
-### Our relationship
-
-- You are a Senior Software Developer who supports me in my daily work.
-- When I ask you for a solution to a problem, you should always think critically about the problem, and ask back if necessary.
-  Perhaps there is an important aspect that I forgot, or perhaps I have misunderstood the problem.
-- When I ask you to do something, you should always think critically about it.
-  If you think it doesn't make sense, then you should push back, but you should also cite evidence.
-
-### Writing code
-
-- We prefer simple, clean, maintainable solutions over clever or complex ones,
-  even if the latter are more concise or performant.
-  Readability and maintainability are primary concerns.
-- Make the smallest reasonable changes to get to the desired outcome.
-  Ask permission before you reimplement a feature or system from scratch
-  instead of updating the existing implementation.
-- For coding, testing, and naming conventions (evergreen naming, docstring policy, types, `pathlib`,
-  stateless functions, test data, commit rules), follow `CONVENTIONS.md`; the review checklist is `REVIEW.md`.
+- Install the dependencies and create the virtual environment: `uv sync --all-extras --dev`
+- Activate the virtual environment: `source .venv/bin/activate`
+- Install the pre-commit hooks: `pre-commit install`
+- Make `git blame` skip the reformat commits: `git config blame.ignoreRevsFile .git-blame-ignore-revs`
+- Add a dependency: `uv add <package>` (or `uv add --dev <package>`)
 
 ### Code quality
 
-- Whenever you modify the codebase, make sure to also update all CLAUDE.md files (if necessary)
-- Read the output of the system and the tests. Logs and messages often show the cause of a failure.
-- If the logs are supposed to contain errors, capture and test it.
+- All linters in parallel: `just lint`
+- Format the code: `just format`
+- Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly)
+- Dead code: `just vulture`
+- Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint` (runs in Docker)
 
-### Getting help
+### Tests
 
-- If you're having trouble with something, it's ok to stop and ask for help.
+- Unit tests: `just unittests`
+- Integration tests: `just integration-tests`
+- E2E tests (testcontainers start the DSP stack): `just e2e-tests`
+- Legacy E2E tests (need a running DSP stack): `just legacy-e2e-tests`
+- One test: `pytest test/path/to/test.py::TestClass::test_method`
 
-### TDD (Test-Driven Development) Implementation Process
+### Other
 
-- Write a failing test that defines a desired function or improvement
-- Run the test to confirm it fails as expected
-- Write minimal code to make the test pass
-- Run the test to confirm success
-- Refactor code to improve design while keeping tests green
-- Repeat the cycle for each new feature or bugfix
-- If you want to adjust a test for any reason, ask for confirmation, even if you suspect the test to contain the error.
+- Start a local DSP stack: `dsp-tools start-stack`
+- Serve the documentation: `mkdocs serve`
+- Remove build artifacts: `just clean`
+
+## Architecture Overview
+
+- `src/dsp_tools/cli/`: the entry point (`entry_point.py`), the argument parsers (`create_parsers.py`),
+  and the dispatch to the command handlers (`call_action.py`).
+- `src/dsp_tools/clients/`: HTTP clients that several commands use. They are generic and contain no retry logic.
+- `src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a subdirectory.
+- `src/dsp_tools/xmllib/`: the public library to create XML data files.
+- `src/dsp_tools/utils/`: shared, stateless helpers. `utils/CLAUDE.md` says which helper serves which purpose.
+
+The XML data goes through a pipeline:
+
+1. Parsing: raw XML → etree root → XSD validation → `ParsedResource`
+2. Processing: `ParsedResource` → resolved permissions and IRIs → `ProcessedResource`
+3. Upload or validation: `ProcessedResource` → API calls, or SHACL validation
+
+Configuration lives in `pyproject.toml` (metadata, dependencies, tool settings),
+the `justfile` (task runner), and `.pre-commit-config.yaml` (local hooks).

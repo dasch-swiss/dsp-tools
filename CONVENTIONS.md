@@ -1,9 +1,9 @@
 # Conventions
 
 Agent reference card for the **work phase**. Pair with `REVIEW.md` (review phase).
-Authoritative detail lives in `CLAUDE.md` and the per-module `CLAUDE.md` files under `src/dsp_tools/`;
-developer docs live in `docs/developers/`. This card collects the conventions that are otherwise
-only enforced in review.
+Authoritative detail lives in `docs/` (developer docs in `docs/developers/`) and in the per-module `CLAUDE.md`
+files under `src/dsp_tools/`. The root `CLAUDE.md` is only an overview that points here.
+This card collects the conventions that are otherwise only enforced in review.
 
 ## Stack
 
@@ -149,7 +149,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | excel2json | `src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
 | validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
 | xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
-| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `start_stack` / `stop_stack`. |
+| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
 | xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
 | utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
 | schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
@@ -165,6 +165,7 @@ threading — are detailed in the sections above and under "Testing Conventions"
 
 - **Every feature is tested.** Logic (parsers, serialisers, mappers, validators) gets unit tests;
   user-facing behaviour gets an integration/E2E round-trip. "It compiles / runs" is not coverage.
+- Work test-first: write a failing test, see it fail, make it pass, then refactor with the tests green.
 - Assertions are bare — no custom messages. Pytest reports enough on failure.
   Correct: `assert "id" in nodes[0]`. Incorrect: `assert "id" in nodes[0], f"..."`.
 - **RDF-graph tests assert the *whole* graph, not just the triple under test.** When a test builds a graph
@@ -211,11 +212,27 @@ threading — are detailed in the sections above and under "Testing Conventions"
 Follow [Conventional Commits](https://www.conventionalcommits.org/), enforced by the "Check PR Title"
 workflow — check recent `git log` for the prevailing style. Common prefixes in this repo: `feat:`, `fix:`,
 `chore:`, `docs:`, `test:`, `refactor:`, `build:`. Breaking changes use `!`.
+The repo squash-merges, so the PR title becomes the commit subject on `main`.
+A PR title whose type is not `chore`, `refactor`, `docs`, `test` or `fix` must end in a Linear ticket,
+for example `feat: add a geolocation value (DEV-1234)`. The same workflow checks this.
+
+## Reviewers & Git History
+
+Before you open a PR, read `main`'s `git log` and the recently merged PRs (`gh pr list --state merged`).
+Use them for two things:
+
+- Confirm the commit and PR-title conventions above. Where they leave an edge case open, the history decides.
+- Find the reviewers: the people who recently authored the files that the PR touches
+  (`git log --format='%an' -- <path>`, `git blame <path>`).
+
+The repo keeps no `CODEOWNERS` file by decision: GitHub would request a review from the listed owners
+on every PR, with no way to stop it. So git history is the reviewer signal.
+Run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once per clone,
+so that `git blame` skips the commits that only reformat code.
 
 ## Before committing
 
-- `just lint` (ruff check + ruff format check + yamllint + markdownlint) is clean.
-- `just mypy` is clean.
+- `just lint` is clean. It runs every linter in the `lint` recipe of the `justfile`, mypy and vulture included.
 - Relevant tests pass (`just unittests` / `just integration-tests` / `just e2e-tests`).
 - All markdown complies with `.markdownlint.yml`.
 - Update the relevant `CLAUDE.md` (root and/or per-module) when behaviour or structure changes, and update
@@ -225,7 +242,7 @@ workflow — check recent `git log` for the prevailing style. Common prefixes in
 
 - **"dsp-tools subsystem inventory (blast-radius reference)"** (this file) — the cross-suite touch-point
   map; walk it with the `change-blast-radius` skill on any feature work.
-- `CLAUDE.md` — repository overview, commands, architecture, working agreements.
+- `CLAUDE.md` — repository overview, commands, architecture.
 - `ARCH-MAP.md` — component-level dependency graph and boundary rules; load on demand for import-level
   blast-radius and boundary questions (a different concern from the subsystem inventory above).
 - `CONTEXT.md` — the project's domain vocabulary.

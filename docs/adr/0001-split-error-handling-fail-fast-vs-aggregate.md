@@ -18,4 +18,4 @@ user-friendliness, because they do not want to interrupt their workflow to consu
 Thus, these commands aggregate every problem into one user-friendly report, which lets the user fix all
 problems without help.
 
-Enforced by: none (docs-only) — stated in `docs/developers/architecture/error-handling.md`.
+Enforced by: none (docs-only) — stated in `packages/dsp-tools/docs/developers/architecture/error-handling.md`.

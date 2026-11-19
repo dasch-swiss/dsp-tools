@@ -44,7 +44,7 @@ Two Python modules are public API:
 - `REVIEW.md`: the code-review checklist (review phase).
 - `ARCH-MAP.md`: components, public interfaces and the dependency direction. Load it for boundary questions.
 - `CONTEXT.md`: the domain vocabulary.
-- `packages/dsp-tools/docs/adr/`: architectural decision records.
+- `docs/adr/`: architectural decision records for the whole repository.
 - `packages/dsp-tools/docs/developers/architecture/error-handling.md`: the exception hierarchy, and when to catch or
   fail.
 - The per-module `CLAUDE.md` files under `packages/dsp-tools/src/dsp_tools/`, for example `utils/CLAUDE.md` for what
@@ -58,7 +58,8 @@ Two Python modules are public API:
 - Activate the virtual environment: `source .venv/bin/activate`
 - Install the pre-commit hooks: `pre-commit install`
 - Make `git blame` skip the reformat commits: `git config blame.ignoreRevsFile .git-blame-ignore-revs`
-- Add a dependency: `uv add <package>` (or `uv add --dev <package>`)
+- Add a runtime dependency: `uv add --package dsp-tools <package>`. Add a dev dependency: `uv add --dev <package>`
+  (root `pyproject.toml`, shared by all packages).
 
 ### Code quality
 

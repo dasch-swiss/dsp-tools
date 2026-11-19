@@ -13,6 +13,7 @@ defaults:
 overrides:
   # Tests of dsp-tools run with the package folder as the working directory.
   - when: "packages/dsp-tools/**"
+    conventions: [packages/dsp-tools/CLAUDE.md]
     commands:
       test_targeted: just dsp-tools-pytest {files}
 
@@ -20,7 +21,7 @@ overrides:
     conventions: [packages/dsp-vre-lib/CLAUDE.md]
     commands:
       test: just vre-lib-unittests
-      test_targeted: just vre-lib-unittests
+      test_targeted: just vre-lib-pytest {files}
 
   - when: "packages/dsp-tools/src/dsp_tools/cli/**"
     conventions: [packages/dsp-tools/src/dsp_tools/cli/CLAUDE.md]
@@ -76,7 +77,7 @@ overrides:
   - when: "CONTEXT.md"
     reviewers: ['eng:review:dune-reviewer']
 
-  - when: "packages/dsp-tools/docs/adr/**"
+  - when: "docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
   - when: "eng.yaml"

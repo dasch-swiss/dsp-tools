@@ -189,7 +189,10 @@ Future work: none at this time.
 
 Future work:
 
-- Embargo: mark a project as under embargo, and lift the embargo in the database.
+- Embargo: data is hidden until an end date, with embargo metadata. Needs support in DSP-API first.
+- Private project ("VRE mode"): the project is hidden entirely from non-members, including its data model.
+  Needs support in DSP-API; until then, approximated with permissions.
+- Access rights: the rights that apply once a project is in the archive. Needs support in DSP-API first.
 
 #### Permissions
 

@@ -15,10 +15,12 @@ with two packages.
 ```text
 dsp-tools/                          # repository root, virtual workspace root
 ├── pyproject.toml                  # [tool.uv.workspace] members = ["packages/*"], dev dependencies, ruff config
+├── .python-version                 # interpreter of the shared .venv
 ├── uv.lock                         # one lock file for both packages
 ├── justfile
 ├── mkdocs.yml                      # docs_dir: packages/dsp-tools/docs
 ├── .github/workflows/
+├── docs/adr/                       # architectural decision records of the repository
 ├── scripts/                        # repository tooling, with its tests in scripts/test/
 ├── src/dsp_tools/resources/schema/ # copy of the schema files, keeps the old schema URLs valid
 └── packages/
@@ -38,19 +40,22 @@ dsp-tools/                          # repository root, virtual workspace root
 ```
 
 The root `pyproject.toml` has no `[project]` table.
-It holds the workspace definition, the dev dependencies and the shared ruff configuration.
+It holds the workspace definition, the dev dependencies, the shared ruff configuration,
+and the pytest and mypy configuration for `scripts/`.
 The `pyproject.toml` of each package extends the ruff configuration with `extend = "../../pyproject.toml"`.
 
-The pytest and mypy configuration is in each package, not at the root:
+The pytest and mypy configuration of each package is in the package:
 
 - The tests use paths relative to the working directory, for example `testdata/...`.
   Thus the tests of each package run with the package folder as the working directory.
-  The `just` recipes do this.
+  The `just` recipes do this, for example `just dsp-tools-pytest <path>`.
+  The `conftest.py` of `dsp-tools` stops a test run from another folder.
 - Two `test/` folders in one mypy run give the error "Duplicate module named test".
   Thus mypy runs once for each package.
 
 The old schema URLs (`.../main/src/dsp_tools/resources/schema/...`) are in files of users.
-The copy at the old path keeps these URLs valid. `just check-schema-copy` checks that the copy is equal.
+The copy at the old path keeps these URLs valid. `just sync-schema-copy` is the only writer of the copy.
+`just check-schema-copy` checks that the copy is equal.
 
 ### Dependency
 

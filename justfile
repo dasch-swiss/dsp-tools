@@ -214,11 +214,10 @@ vre-lib-pytest *ARGS:
 _package-pytest PACKAGE *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
-    package="$1"
-    shift
+    shift  # the first positional argument is PACKAGE
     args=()
-    for arg in "$@"; do args+=("${arg#packages/${package}/}"); done
-    cd "packages/${package}"
+    for arg in "$@"; do args+=("${arg#packages/{{PACKAGE}}/}"); done
+    cd "packages/{{PACKAGE}}"
     uv run pytest ${args[@]+"${args[@]}"}
 
 

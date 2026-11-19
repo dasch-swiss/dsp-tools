@@ -623,7 +623,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `e901804d235f`
+- **Fingerprint**: `0788a4771dcd`
 
 ### dsp-vre-lib
 

@@ -284,8 +284,8 @@ resource.add_list_multiple(prop_name=":hasColor", list_name="list1", values=node
 
 - Follow existing patterns for new value types
 - One `Resource.add_<value>` method family per value type, and the typed-input-object rule:
-  see `CONVENTIONS.md` -> xmllib
-- Comments and docstrings follow `CONVENTIONS.md` -> "Comments"; these are public API, and mkdocstrings
+  see the root `CONVENTIONS.md` -> xmllib
+- Comments and docstrings follow the root `CONVENTIONS.md` -> "Comments"; these are public API, and mkdocstrings
   renders them into `docs/xmllib-docs/`
 - Include validation logic with clear error messages
 

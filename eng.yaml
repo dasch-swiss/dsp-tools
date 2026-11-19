@@ -13,6 +13,7 @@ defaults:
 overrides:
   # Tests of dsp-tools run with the package folder as the working directory.
   - when: "packages/dsp-tools/**"
+    conventions: [packages/dsp-tools/CLAUDE.md]
     commands:
       test_targeted: just dsp-tools-pytest {files}
 
@@ -76,7 +77,7 @@ overrides:
   - when: "CONTEXT.md"
     reviewers: ['eng:review:dune-reviewer']
 
-  - when: "packages/dsp-tools/docs/adr/**"
+  - when: "docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
   - when: "eng.yaml"

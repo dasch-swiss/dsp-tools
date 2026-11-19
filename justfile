@@ -58,7 +58,7 @@ ruff-format-check:
 
 # Check type annotations of all packages
 [no-exit-message]
-mypy: mypy-dsp-tools mypy-vre-lib
+mypy: mypy-dsp-tools mypy-vre-lib mypy-scripts
 
 
 # Check type annotations of dsp-tools. Autostart mypy daemon if necessary, autoshutdown daemon after 1 day of inactivity
@@ -79,6 +79,12 @@ check-links:
 [working-directory: 'packages/dsp-vre-lib']
 mypy-vre-lib:
     uv run dmypy run --timeout 86400 -- .
+
+
+# Check type annotations of the repository tooling in scripts/
+[no-exit-message]
+mypy-scripts:
+    uv run dmypy run --timeout 86400 -- scripts
 
 
 # Check that docstring links in xmllib are valid
@@ -190,8 +196,14 @@ legacy-e2e-tests *FLAGS:
 
 # Run pytest for dsp-tools on the given paths, which can be relative to the repository root or to packages/dsp-tools/
 [no-exit-message]
+[positional-arguments]
 dsp-tools-pytest *ARGS:
-    cd packages/dsp-tools && uv run pytest $(echo "{{ARGS}}" | sed 's#packages/dsp-tools/##g')
+    #!/usr/bin/env bash
+    set -euo pipefail
+    args=()
+    for arg in "$@"; do args+=("${arg#packages/dsp-tools/}"); done
+    cd packages/dsp-tools
+    uv run pytest ${args[@]+"${args[@]}"}
 
 
 # Run the tests of the repository tooling in scripts/
@@ -203,7 +215,19 @@ scripts-tests *FLAGS:
 # Check that the copy of the schema files at the old URL path equals the packaged schema files
 [no-exit-message]
 check-schema-copy:
-    diff -r src/dsp_tools/resources/schema/ packages/dsp-tools/src/dsp_tools/resources/schema/ --exclude=README.md
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! diff -r src/dsp_tools/resources/schema/ packages/dsp-tools/src/dsp_tools/resources/schema/ --exclude=README.md; then
+        echo "The copy in src/dsp_tools/resources/schema/ differs from packages/dsp-tools/src/dsp_tools/resources/schema/."
+        echo "Edit only the files in packages/dsp-tools/, then run: just sync-schema-copy"
+        exit 1
+    fi
+
+
+# Overwrite the copy of the schema files at the old URL path with the packaged schema files
+[no-exit-message]
+sync-schema-copy:
+    rsync -a --delete --exclude=README.md packages/dsp-tools/src/dsp_tools/resources/schema/ src/dsp_tools/resources/schema/
 
 
 # Remove artifact files

@@ -26,7 +26,7 @@ This document is intended for developers who want to work with the code of DSP-T
 To get started quickly, without reading the details, just execute these commands.
 
 - `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- `uv sync --all-extras --dev`
+- `uv sync --all-packages --all-extras --dev`
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `brew install just parallel yamlfmt lychee`
@@ -110,7 +110,7 @@ GitHub's dependabot is configured to automatically create a version bumping PR i
 Version bumping PRs can also be created manually: run `uv lock --upgrade` and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `uv self update` to update uv, 
-and `uv sync --upgrade` to update the dependencies from `uv.lock`.
+and `uv sync --all-packages --all-extras --dev --upgrade` to update the dependencies from `uv.lock`.
 
 
 

@@ -18,7 +18,6 @@ validation:
   anchors: warn
 
 not_in_nav: |
-  adr/**
   dsp-tools-split/**
 
 nav:

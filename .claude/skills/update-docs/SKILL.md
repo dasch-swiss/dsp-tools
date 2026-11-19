@@ -59,7 +59,7 @@ First check the **worked examples** below for the common recurring changes. If n
 
 ### How to write it (the one editorial rule)
 
-User-facing pages (**everything except `packages/dsp-tools/docs/developers/` and `packages/dsp-tools/docs/adr/`**) describe **what the user
+User-facing pages (**everything except `packages/dsp-tools/docs/developers/`**) describe **what the user
 experiences** — the
 behavior, the format, the choices they make. They do **not** explain the internal mechanism. If a
 sentence you are about to write explains *how it works under the hood*, it belongs in `packages/dsp-tools/docs/developers/`
@@ -141,8 +141,6 @@ Directories:
 - `developers/` — Contributor/maintainer docs. **Exception to the editorial rule: these DO explain
   mechanism.** architecture/, index.md, mkdocs.md, packaging.md, start-stack.md,
   user-data.md.
-- `adr/` — Architectural decision records (not `developers/`). **Not published** — excluded from the
-  mkdocs nav via `not_in_nav`, so it needs no nav entry and no worked example above applies to it.
 - `special-workflows/` — Multi-step workflow guides: `workflow-xmlupload.md`
   (`upload-files` / `ingest-files` / `ingest-xmlupload`), `migration.md`, `update-legal.md`, `env-set-up.md`.
 - `xmllib-docs/` — The `xmllib` Python API reference. **Almost every page is mkdocstrings-generated**

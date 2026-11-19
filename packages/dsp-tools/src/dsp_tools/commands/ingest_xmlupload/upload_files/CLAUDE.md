@@ -34,7 +34,8 @@ workflow (`upload-files` → `ingest-files` → `ingest-xmlupload`).
   which prints the list or writes a CSV past `maximum_prints`.
 - A refusal for missing write access or an invalid token is not an `UploadFailure`.
   `BulkIngestClient.upload_file` raises `BadCredentialsError`, and the command stops at the first file.
-  This follows the fail-fast rule for this command in `docs/adr/0001-split-error-handling-fail-fast-vs-aggregate.md`.
+  This follows the fail-fast rule for this command in `docs/adr/0001-split-error-handling-fail-fast-vs-aggregate.md` at
+  the repository root.
 - `creds.server` is the DSP-API URL (passed to `get_parsed_resources`). `creds.dsp_ingest_url` is the
   ingest server (passed to `BulkIngestClient`).
 

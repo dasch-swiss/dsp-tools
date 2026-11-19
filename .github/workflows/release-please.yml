@@ -23,7 +23,8 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      # Empty when release-please neither created nor updated a release PR in this run.
+      # Number of the dsp-tools release PR.
+      # Empty when release-please neither created nor updated a dsp-tools release PR in this run.
       release_pr_number: ${{ steps.release_pr.outputs.number }}
     steps:
       - uses: googleapis/release-please-action@v5
@@ -39,57 +40,67 @@ jobs:
           token: ${{ secrets.DASCHBOT_PAT }}
           config-file: .github/release-please-config.json
           manifest-file: .github/release-please-manifest.json
-      - name: Read the release PR reported by release-please
+      - name: Read the release PRs reported by release-please
         id: release_pr
         env:
-          RELEASE_PR: ${{ steps.release_please.outputs.pr }}
+          # JSON array with one entry per release PR that release-please created or updated.
+          # There is one release PR per package (separate-pull-requests in the config).
+          RELEASE_PRS: ${{ steps.release_please.outputs.prs }}
         run: |
           set -euo pipefail
-          echo "release-please pr output: ${RELEASE_PR:-<unset>}"
-          if [[ -z "$RELEASE_PR" ]]; then
+          echo "release-please prs output: ${RELEASE_PRS:-<unset>}"
+          if [[ -z "$RELEASE_PRS" || "$RELEASE_PRS" == "[]" ]]; then
             echo "::notice::release-please created or updated no release PR — skipping uv.lock update"
             exit 0
           fi
-          number=$(jq -r '.number // empty' <<<"$RELEASE_PR")
-          branch=$(jq -r '.headBranchName // empty' <<<"$RELEASE_PR")
-          # Fail here rather than let a bad number reach `gh pr view` or a bad
-          # branch reach `git checkout`, where the error would be cryptic.
-          if [[ ! "$number" =~ ^[0-9]+$ || -z "$branch" ]]; then
-            echo "::error::unexpected shape of the release-please pr output (see the line above)"
+          branches=$(jq -r '[.[].headBranchName // empty] | join(" ")' <<<"$RELEASE_PRS")
+          # Fail here rather than let a bad branch reach `git checkout`, where the error would be cryptic.
+          if [[ -z "$branches" || "$(jq 'length' <<<"$RELEASE_PRS")" != "$(wc -w <<<"$branches" | tr -d ' ')" ]]; then
+            echo "::error::unexpected shape of the release-please prs output (see the line above)"
+            exit 1
+          fi
+          # Only the dsp-tools release PR takes part in the release train (job auto-merge-release-pr).
+          number=$(jq -r --arg suffix "--components--dsp-tools" \
+            '[.[] | select(.headBranchName | endswith($suffix))] | first | .number // empty' <<<"$RELEASE_PRS")
+          if [[ -n "$number" && ! "$number" =~ ^[0-9]+$ ]]; then
+            echo "::error::unexpected number of the dsp-tools release PR: $number"
             exit 1
           fi
           {
             echo "number=$number"
-            echo "branch=$branch"
+            echo "branches=$branches"
           } >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7
-        if: steps.release_pr.outputs.branch != ''
+        if: steps.release_pr.outputs.branches != ''
         with:
           fetch-depth: 0
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
-        if: steps.release_pr.outputs.branch != ''
+        if: steps.release_pr.outputs.branches != ''
         uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
-      - name: Update uv.lock and commit it
-        if: steps.release_pr.outputs.branch != ''
+      - name: Update uv.lock on each release PR and commit it
+        if: steps.release_pr.outputs.branches != ''
         env:
           PAT: ${{ secrets.DASCHBOT_PAT }}
-          BRANCH: ${{ steps.release_pr.outputs.branch }}
+          BRANCHES: ${{ steps.release_pr.outputs.branches }}
         run: |
+          set -euo pipefail
           git config user.name "daschbot"
           git config user.email "daschbot@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${PAT}@github.com/dasch-swiss/dsp-tools.git"
-          git checkout "$BRANCH"
-          # Plain `uv lock` — never add `-U`/`--upgrade`. Without it the only diff
-          # here is dsp-tools' own version, which is what lets tests-e2e.yml skip
-          # the e2e suite on release PRs; an upgrade flag would let a release ship
-          # different dependencies with no e2e run behind it.
-          uv lock
-          git add uv.lock
-          git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
-          git push
+          for branch in $BRANCHES; do
+            git checkout "$branch"
+            # Plain `uv lock` — never add `-U`/`--upgrade`. Without it the only diff
+            # here is the package's own version, which is what lets tests-e2e.yml skip
+            # the e2e suite on release PRs; an upgrade flag would let a release ship
+            # different dependencies with no e2e run behind it.
+            uv lock
+            git add uv.lock
+            git commit --allow-empty -m "update uv.lock with the new version of the package"
+            git push
+          done
 
   # Release-train leg: merging `chore(start-stack): bump versions to <DSP>` is
   # the last step before a release, so the release PR it produces is merged
@@ -134,7 +145,7 @@ jobs:
           # PR it would point at already exists and needed no change.
           if [[ -z "$PR_NUMBER" ]]; then
             PR_NUMBER=$(gh pr list --repo "$REPO" --state open --limit 50 --json number,headRefName \
-              --jq '[.[] | select(.headRefName | startswith("release-please--"))] | first | .number // empty')
+              --jq '[.[] | select(.headRefName | endswith("--components--dsp-tools"))] | first | .number // empty')
             if [[ -z "$PR_NUMBER" ]]; then
               echo "::notice::no open release PR to merge"
               exit 0

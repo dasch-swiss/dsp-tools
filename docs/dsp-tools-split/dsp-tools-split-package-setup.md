@@ -3,7 +3,7 @@
 This document shows how the package `dsp-vre-lib` splits from `dsp-tools` on a technical level,
 and how `dsp-vre-lib` gets to PyPI.
 The document is a timeline in two steps.
-The public interface of `dsp-vre-lib` is in the [ADR](ADR-dsp-vre-lib.md).
+The public interface of `dsp-vre-lib` is in the [ADR](../../packages/dsp-vre-lib/docs/adr/0001-public-interface.md).
 
 ## Step One: uv Workspace in the `dsp-tools` Repository
 

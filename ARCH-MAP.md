@@ -487,7 +487,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 ### docs
 
-- **Paths**: `packages/dsp-tools/docs/**`, `docs/adr/**`, `mkdocs.yml`
+- **Paths**: `packages/dsp-tools/docs/**`, `docs/adr/**`, `docs/dsp-tools-split/**`, `mkdocs.yml`
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
   The ADRs are in `docs/adr/` at the repository root, outside the mkdocs `docs_dir`, because ADRs are a
@@ -524,7 +524,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `71a3b1564bf5`
+- **Fingerprint**: `6ce301b0fb83`
 
 ### tests
 
@@ -623,14 +623,14 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `1ed90a06407e`
+- **Fingerprint**: `669d7a9f74fa`
 
 ### dsp-vre-lib
 
 - **Paths**: `packages/dsp-vre-lib/**`
 - **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`) for all interaction with a DSP server.
   It has no public interface yet. The interface decisions are in
-  `packages/dsp-tools/docs/dsp-tools-split/ADR-dsp-vre-lib.md`.
+  `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
 - **Public interface**: none yet.
 - **Depends on**: nothing.
 - **Used by**: nothing yet. `dsp-tools` does not declare it as a dependency.
@@ -640,7 +640,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - No file formats (JSON project file, XML data file, Excel). (enforcement: docs-only,
     `packages/dsp-vre-lib/CLAUDE.md`)
 - **Durable state**: none.
-- **Fingerprint**: `cf3bc17e0158`
+- **Fingerprint**: `081f365b5d36`
 
 ## Cross-cutting concerns
 

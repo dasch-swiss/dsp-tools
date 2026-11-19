@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-05
+date: 2026-11-19
 ---
 
 # ARCH-MAP.md
@@ -47,7 +47,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     inverted dependency (the callee layer reaching into the caller layer); tolerated today, not to be
     extended. (enforcement: docs-only; an import-linter contract could make it static-analysis)
 - **Durable state**: none — validates paths, then delegates writes to `commands/*`.
-- **Fingerprint**: `eb5639dbcd69`
+- **Fingerprint**: `630337b26dda`
 
 ### clients
 
@@ -56,10 +56,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
   legal-info, mapping, migration, metadata, ingest.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
-  `ResourceClient`/`ResourceClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
+  `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
+  `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
   `BulkIngestClient`, `DspIngestClientLive`
 - **Public interface**: each domain's `Protocol` plus its `*Live` class, imported and instantiated directly
-  by the command that needs it — no factory or registry.
+  by the command that needs it — no factory or registry. Plus `clients/exceptions.py` (`*Error` classes such
+  as `ProjectNotFoundError`, `FatalNonOkApiResponseCodeError`), which commands import directly.
 - **Local-context kit**: `CLAUDE.md`, `connection_live.py`, `authentication_client_live.py`,
   `resource_client.py`, `resource_client_live.py`
 - **Depends on**: `utils` (request_utils, rdf_constants), `error`, `setup`; also `ingest.py` and
@@ -83,7 +85,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
   until `_renew_session()` replaces it per instance; `__post_init__` and `_renew_session()` both write its
   headers — two writers on a shared mutable default.
-- **Fingerprint**: `f42ddda0a45e`
+- **Fingerprint**: `7e161cef5c17`
 
 ### create
 
@@ -121,41 +123,44 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: writes only to the DSP server (project, lists, groups, users, ontologies, classes,
   properties, cardinalities, DOAPs, legal-info) — one dedicated `create_on_server/*.py` module per resource
   type, sequenced for dependencies (single writer per type). No local file writes besides reading the input.
-- **Fingerprint**: `4cf510d775f9`
+- **Fingerprint**: `37f9af80336d`
 
 ### get
 
 - **Paths**: `src/dsp_tools/commands/get/**`
 - **Purpose**: Reads a project (ontologies, permissions) from a DSP server and writes it back out as a JSON
-  project-definition file — the read-side counterpart to `create`. **No CLAUDE.md exists here** (flagged
-  below as a gap).
+  project-definition file — the read-side counterpart to `create`.
 - **Key entities**: `get_project()`, `get_default_permissions()`, `Project`, `Group`, `Ontology` (in this
   component's own `legacy_models/` subfolder)
 - **Public interface**: `get.get_project()` — the only function called from outside
   (`cli/call_action_with_network.py`).
-- **Local-context kit**: `get.py`, `get_permissions.py`, `get_permissions_legacy.py`,
-  `legacy_models/project.py`, `models/permissions_models.py`
+- **Local-context kit**: `CLAUDE.md`, `get.py`, `get_permissions.py`, `get_permissions_legacy.py`,
+  `models/permissions_models.py`, `legacy_models/project.py`, `legacy_models/user.py`
 - **Depends on**: `clients` (Connection, Authentication, Permissions), `error`, top-level `legacy_models`
   (LangString, DateTimeStamp), `utils` (iri_util, request_utils), `cli` (`cli.args` — inverted, see the
   `cli` entry)
 - **Used by**: `cli` (calls `get.get_project()`); `utils/request_utils.py` and top-level
   `legacy_models/projectContext.py` reach into this component's `legacy_models/` subfolder (see Boundary
-  rules); test-only: `test/unittests/commands/create/test_admin_account_check.py` imports
-  `get.legacy_models.user.User`
+  rules); indirectly `xmlupload` and `utils/xml_parsing/get_lookups.py`, through `projectContext.py`;
+  test-only: `create/test_admin_account_check.py` (`User`), `integration/commands/test_get_project.py` and
+  `unittests/commands/get/test_project_legacy.py` (`Project`), and the legacy E2E tests under
+  `test/legacy_e2e/commands/project/` (`User`, `Group`, `Ontology`, `ResourceClass`, `PropertyClass`,
+  `ListNode`)
 - **Boundary rules**:
     - Two confirmed reach-ins into this component's internal `legacy_models/` subfolder, bypassing `get.py`:
     top-level `legacy_models/projectContext.py` imports `Group`/`Project` directly; `utils/request_utils.py`
-    imports `Context`/`OntoIri` directly. (enforcement: docs-only)
-    - Tests reach past `get_project()` into private helpers (`_categorize_doaps`,
-    `_parse_project_member_perms`) and import `legacy_models.project.Project` directly. (enforcement: review)
+    imports `Context`/`OntoIri` directly. (enforcement: docs-only, `get/CLAUDE.md`)
+    - `get` and `utils` form an import cycle: `get_permissions.py` imports `utils.request_utils`, which imports
+    `get.legacy_models.context` and `get.legacy_models.helpers`. (enforcement: docs-only)
+    - Tests reach past `get_project()`: `test_get_permissions.py` imports 10 private helpers of
+    `get_permissions.py`, `test_get_permissions_legacy.py` imports `_parse_default_permissions`, and the
+    tests listed under Used by import `legacy_models` classes directly. (enforcement: review)
     - The `users` section that `get` writes is read back by `create`'s `_parse_one_user`
     (`legacy_models/user.py` says so), and `create`'s tests check that `get`'s output passes the
     admin-account check. This is a get→create file-format contract, not an import. (enforcement: docs-only)
 - **Durable state**: reads DSP server state; writes exactly one local JSON file at the user-given
   `outfile_path` (single writer: `get.py`'s `json.dump` call).
-- **Note**: good candidate for its own `CLAUDE.md` — real internal complexity, two confirmed reach-ins, and
-  tests that dip into internals. Not written here; left for a future change.
-- **Fingerprint**: `d84e178b78bc`
+- **Fingerprint**: `7de7b6bddcee`
 
 ### excel2json
 
@@ -243,10 +248,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Depends on**: `clients`, `utils` (incl. `dsp_user_account_check`, `data_formats.geolocation_util`),
   `error`, `setup`, top-level `legacy_models`, `validate-data` (`validate_parsed_resources`), `cli`
   (`cli.args` — inverted, see the `cli` entry)
-- **Used by**: `cli` (calls `xmlupload.xmlupload()`); `clients` (`ingest.py` imports from this component — a
-  reach-in, see `clients`' Boundary rules); `utils` (`replace_id_with_iri.py`, `xml_parsing/get_lookups.py`
-  reach into this component's internals — see the `utils` entry); `ingest-xmlupload` (heavy reach-in, see
-  Boundary rules); `validate-data` (two-way, see that entry)
+- **Used by**: `cli` (calls `xmlupload.xmlupload()` and builds `upload_config.UploadConfig`); `clients`
+  (`ingest.py` imports from this component — a reach-in, see `clients`' Boundary rules); `utils`
+  (`replace_id_with_iri.py`, `xml_parsing/get_lookups.py` reach into this component's internals — see the
+  `utils` entry); `ingest-xmlupload` (heavy reach-in, see Boundary rules); `validate-data` (two-way, see that
+  entry)
 - **Boundary rules**:
     - `ingest_xmlupload` and `resume_xmlupload` bypass the `xmlupload()` entry point and call
     `execute_upload()` and internal modules directly: ingest uses `models/` and `prepare_xml_input/`, resume
@@ -262,11 +268,14 @@ this map found confirmed violations of both rules; see Conventions and each comp
     `RDF_LITERAL_PROP_TYPE_MAPPER` entry (`make_rdf_graph/constants.py`), and a case in
     `_make_one_value_graph` (`make_rdf_graph/make_values.py`). (enforcement: docs-only)
 - **Durable state**: reads the XML input file; writes resources to the DSP server; writes a resumable-state
-  pickle at `~/.dsp-tools/xmluploads/<server>/resumable/latest.pkl` only while a stash is pending, deleted
-  on success (single writer: `handle_errors.save_upload_state`, called from `execute_upload`; read by
-  `resume_xmlupload`). On every run, writes an ID→IRI mapping JSON twice: `./id2iri_<shortcode>_<server>_<ts>.json`
-  and `~/.dsp-tools/id2iri/id2iri_<ts>_<shortcode>_<server>.json`.
-- **Fingerprint**: `e1182f6d651a`
+  pickle at `~/.dsp-tools/xmluploads/<server>/resumable/latest.pkl` (path from `upload_config.py`) when a
+  stash is still pending, or when the upload stops early (`--interrupt-after`, Ctrl-C, a permanent connection
+  error or timeout, bad credentials). `execute_upload` deletes it on success, or when only failed resources
+  remain. Single writer: `handle_errors.save_upload_state`, reached from `execute_upload` through
+  `_report_incomplete_upload` and `persist_state_for_resume`; read by `resume_xmlupload`. On every run,
+  writes an ID→IRI mapping JSON twice: `./id2iri_<shortcode>_<server>_<ts>.json` and
+  `~/.dsp-tools/id2iri/id2iri_<ts>_<shortcode>_<server>.json`.
+- **Fingerprint**: `cfebcfe9b163`
 
 ### ingest-xmlupload
 
@@ -277,10 +286,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Public interface**: one function per CLI subcommand (`upload_files.upload_files`,
   `ingest_files.ingest_files`, `create_resources.upload_xml.ingest_xmlupload`,
   `resume_xmlupload.resume_xmlupload.resume_xmlupload`).
-- **Local-context kit**: `upload_files/CLAUDE.md`, `upload_files/upload_files.py`,
-  `ingest_files/ingest_files.py`, `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`
-- **Depends on**: `clients` (BulkIngestClient, BulkIngestedAssetClient, DspIngestClientLive,
-  ProjectClientLive, LegalInfo/List clients), `xmlupload` (execute_upload, models, prepare_xml_input,
+- **Local-context kit**: `upload_files/CLAUDE.md`, `ingest_files/ingest_files.py`,
+  `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
+  `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (both commands build an `UploadConfig` and call
+  `execute_upload()`). `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
+- **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, BulkIngestedAssetClient,
+  DspIngestClientLive, LegalInfo/List clients), `xmlupload` (execute_upload, models, prepare_xml_input,
   upload_config — heavy reuse), `validate-data`, `cli` (`cli.args` — inverted, see the `cli` entry), `utils`
   (incl. `dsp_user_account_check`), `setup` (ansi_colors), `error`
 - **Used by**: `cli` (calls each CLI subcommand's function); `clients` (`bulk_ingest_client.py` reaches into
@@ -293,9 +304,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
     `cli/create_parsers.py` + `cli/call_action_with_network.py`, and reuse `commands/xmlupload`'s
     `UploadState`/`UploadClients`/`execute_upload` rather than duplicating upload logic. (enforcement: review)
 - **Durable state**: writes uploaded bitstreams to the dsp-ingest server; writes/reads
-  `mapping-<shortcode>.csv` in the working directory (rotated on rewrite); reads the resumable pickle that
-  `commands/xmlupload`'s `execute_upload` wrote; writes optional failure-report CSVs past a threshold.
-- **Fingerprint**: `de4586a6c7c5`
+  `mapping-<shortcode>.csv` in the working directory (rotated on rewrite; single writer `ingest_files.py`,
+  single reader `apply_ingest_id.py`); reads the resumable pickle that `commands/xmlupload` writes (resume
+  finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;
+  `ingest-xmlupload` writes `UnusedMediaUploaded.csv` / `FilesNotUploaded.csv`
+  (`create_resources/user_information.py`).
+- **Fingerprint**: `385107d8658f`
 
 ### other-commands
 
@@ -307,7 +321,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   Docker), `migration` (all-in-one export/import), and `excel2xml` (deprecated library, superseded by
   `xmllib`).
 - **Key entities**: `id2iri()`, `update_legal_metadata()`, `mapping_update()`, `StackHandler`, `migration()`
-- **Public interface**: one function/class per command; `excel2xml` additionally exposes ~20 `make_*prop`
+- **Public interface**: per command a main function/class, plus helpers that `cli` imports directly
+  (`mapping.config_file`, the `migration` step functions and `InvalidMigrationConfigFileError`,
+  `update_legal.models`, `start_stack.StackConfiguration`); `excel2xml` additionally exposes ~20 `make_*prop`
   helpers as a library surface (no CLI subcommand of its own). `excel2xml/excel2xml_cli.py`'s `excel2xml()`
   is referenced by nothing (dead code; vulture excludes the directory).
 - **Local-context kit**: `update_legal/CLAUDE.md`, `docs/developers/architecture/migration-command.md`, plus
@@ -315,15 +331,17 @@ this map found confirmed violations of both rules; see Conventions and each comp
   no code with each other.
 - **Depends on**: `utils`, `error`, `setup` (ansi_colors: mapping, migration), `cli` (mapping:
   `cli.args.ServerCredentials` and `cli.utils` — inverted, see the `cli` entry), `xmllib` (update_legal,
-  excel2xml), top-level `legacy_models` (excel2xml), `clients` (mapping, migration), `resources` (start_stack
-  Compose/template files), `excel2json` (`mapping/parse_excel.py` reach-in, see Boundary rules),
-  Docker/subprocess (start_stack)
+  excel2xml — including a reach-in into `xmllib.internal`), top-level `legacy_models` (excel2xml),
+  `clients` (mapping, migration), `resources` (start_stack Compose/template files), `excel2json`
+  (`mapping/parse_excel.py` reach-in, see Boundary rules), Docker/subprocess (start_stack)
 - **Used by**: `cli` (each of the five CLI-wired commands); `src/dsp_tools/__init__.py` imports `excel2xml`
   unconditionally at package init; `utils/data_formats/shared.py` imports
   `excel2xml.propertyelement.PropertyElement` (reach-in)
 - **Boundary rules**:
-    - `mapping/parse_excel.py` imports from `excel2json` (see that entry) — the one cross-import among these
-    six. (enforcement: docs-only)
+    - `mapping/parse_excel.py` imports from `excel2json` (see that entry) — the one cross-command import
+    among these six. (enforcement: docs-only)
+    - `excel2xml/excel2xml_lib.py` imports `xmllib.internal.input_converters`, a reach-in into `xmllib`'s
+    internals (see that entry). (enforcement: docs-only)
     - `utils/data_formats/shared.py` importing `commands.excel2xml.propertyelement.PropertyElement` is an
     inverted reach-in (utils depending on a command). (enforcement: docs-only)
     - Not a reserved "small command" slot: a new small command is wired exactly like any other command
@@ -336,7 +354,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (writes `export-<shortcode>.zip` and `migration-references-<shortcode>.json` under
   `~/.dsp-tools/migration/` by default, plus a config template), `id2iri` (reads XML + JSON mapping file,
   writes XML), `excel2xml` (none — pure library).
-- **Fingerprint**: `5b7702e157f5`
+- **Fingerprint**: `3f360f5eafb9`
 
 ### xmllib
 
@@ -382,10 +400,10 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Purpose**: Shared, stateless helpers used by every command: HTTP (`request_utils.py`), XML parsing
   (`xml_parsing/`), data-format checks (`data_formats/`), JSON parsing, interactive prompts, RDF constants,
   the geolocation CRS table and checks (`geolocation_constants.py`, `data_formats/geolocation_util.py`), and
-  the project-admin-account check (`dsp_user_account_check.py`).
+  the DaSCH-employee-account check for uploads (`dsp_user_account_check.py`).
 - **Key entities**: `request_utils` (retry/backoff HTTP), `parse_clean_validate_xml`, `get_parsed_resources`,
   `replace_id_with_iri`, `rdf_constants`, `geolocation_constants`, `get_geolocation_problem`,
-  `dsp_admin_account_email`, `check_for_dsp_admin_account_email_for_data_upload`
+  `dsp_admin_account_email`, `check_for_dsp_employee_account_email_for_data_upload`
 - **Public interface**: every file is directly importable; there is no `__init__.py` gate.
 - **Local-context kit**: `CLAUDE.md`, `request_utils.py`, `xml_parsing/parse_clean_validate_xml.py`,
   `data_formats/shared.py`, `geolocation_constants.py`
@@ -411,7 +429,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: none — `request_utils.py`'s retry/backoff settings are static, not runtime-mutable.
   The only file write is the user-facing `xsd_validation_errors.csv` (`parse_clean_validate_xml.py`, more
   than 50 XSD errors).
-- **Fingerprint**: `ebb76f804523`
+- **Fingerprint**: `e9885fad9474`
 
 ### resources
 
@@ -450,7 +468,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     templates need explicit render logic). (enforcement: review)
 - **Durable state**: these files ARE the durable state; no runtime writer (`versions.env` is bot-written, see
   Boundary rules).
-- **Fingerprint**: `d842f3a4edd9`
+- **Fingerprint**: `9321d98b0ca1`
 
 ### docs
 
@@ -470,7 +488,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Depends on**: `xmllib` (mkdocstrings pulls its docstrings for the API reference); `repo-tooling`
   (`docs/changelog.md` includes the root `CHANGELOG.md` via include-markdown)
 - **Used by**: developers and agents reading it; `xmllib` (docstrings hard-code page/anchor URLs); a few
-  unchecked links from `commands/excel2xml/excel2xml_lib.py` and `commands/update_legal/exceptions.py`; the
+  unchecked links from `commands/excel2xml/excel2xml_lib.py` and `commands/update_legal/exceptions.py` (the
+  `excel2xml` links point to `/DSP-TOOLS/file-formats/xml-data-file/`, a path that no longer exists); the
   `dasch-swiss/dsp-docs` site. Whether/where to update it on a given change is gated by the `update-docs`
   skill.
 - **Boundary rules**:
@@ -485,9 +504,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
     other code are not checked. (enforcement: static-analysis)
     - External http(s) links are checked by lychee on every pull request (`check-external-links.yml`,
     config `lychee.toml`), deliberately not a required check. (enforcement: static-analysis, non-gating)
+    - Every Markdown file except `CHANGELOG.md` must pass `just markdownlint` (`.markdownlint.yml`), which
+    runs in `just lint` and in the required `check-docs` job; MD060, for example, requires aligned table
+    columns. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `9819acf63d34`
+- **Fingerprint**: `97e64dcab695`
 
 ### tests
 
@@ -503,8 +525,9 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `testdata/USED_SHORTCODE_SHORTNAMES.md`, `test/e2e/setup_testcontainers/setup.py`
 - **Depends on**: every component in this map (it's what's under test), including `repo-tooling`'s
   `scripts/` (`test/unittests/scripts/`); testcontainers read image versions from
-  `resources/start-stack/versions.env`; pytest/pytest-xdist/testcontainers and the DSP Docker images
-  (true-external)
+  `src/dsp_tools/resources/start-stack/versions.env`; pytest/pytest-xdist/testcontainers and the DSP Docker
+  images (true-external); the e2e setup needs a running Docker daemon and downloads the Sipi config from
+  `raw.githubusercontent.com/dasch-swiss/dsp-api` (network)
 - **Used by**: CI — `tests.yml` (unittests and integration via `just`; benchmarking and distribution via
   raw `pytest`), `tests-e2e.yml` (via `just e2e-test-*` and `just legacy-e2e-tests`); developers
 - **Boundary rules**:
@@ -517,34 +540,42 @@ this map found confirmed violations of both rules; see Conventions and each comp
     silently never runs in CI. (enforcement: docs-only; verified consistent for all six e2e targets)
 - **Durable state**: `testdata/USED_SHORTCODE_SHORTNAMES.md` is a human-maintained register (single writer:
   whoever adds a shortcode, reviewed via PR diff); the e2e testcontainers and the distribution tier's
-  `start-stack` spin up ephemeral Docker state, discarded after the run.
-- **Fingerprint**: `ae188d69bf53`
+  `start-stack` spin up ephemeral Docker state, discarded after the run. The e2e testcontainers also write
+  per-run directories under `testdata/e2e/` and port lockfiles under `testdata/e2e/testcontainer_port_lockfiles/`
+  (single writer: `test/e2e/setup_testcontainers/`). `get_containers` removes them in a `finally` block but
+  ignores a `PermissionError`, so leftovers can remain; they are gitignored.
+- **Fingerprint**: `20b433451688`
 
 ### repo-tooling
 
 - **Paths**: `pyproject.toml`, `justfile`, `uv.lock`, `.github/**`, `scripts/**`, `k6/**`,
   `.pre-commit-config.yaml`, `.editorconfig`, `.gitignore`, `.markdownlint.yml`, `.yamllint.yml`,
   `.yamlfmt.yml`, `.kodus-readiness.yml`, `codecov.yml`, `lychee.toml`, `CHANGELOG.md`, `LICENSE`,
-  `README.md`, `.vulture_whitelist.py`, `CLAUDE.md`, `CONVENTIONS.md`, `REVIEW.md`,
-  `CONTEXT.md`, `eng.yaml`, `src/dsp_tools/__init__.py`, `src/dsp_tools/py.typed`,
-  `src/dsp_tools/commands/__init__.py`, `.claude/**`
+  `README.md`, `SECURITY.md`, `.env.example`, `.git-blame-ignore-revs`, `.vulture_whitelist.py`,
+  `CLAUDE.md`, `CONVENTIONS.md`, `REVIEW.md`, `CONTEXT.md`, `eng.yaml`, `src/dsp_tools/__init__.py`,
+  `src/dsp_tools/py.typed`, `src/dsp_tools/commands/__init__.py`, `.claude/**`
 - **Purpose**: Repo-level build, lint, and CI tooling — everything a developer or CI runs that isn't
-  application code, docs, or tests.
+  application code, docs, or tests — plus repo-level policy, templates and developer config (security
+  policy, PR template, `.env.example`, blame-ignore list).
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,
   legacy-e2e-tests), release-please, `scripts/bump_version.py` (dev-release `.postN`),
   `scripts/bump_stack_versions.py` (start-stack version-bump PR), `scripts/merge_pr_when_green.py` and the
-  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `readiness.yml`
+  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `readiness.yml`,
+  `.github/pull_request_template.md`, `.env.example` (the optional runtime env vars; never loaded by
+  DSP-TOOLS itself)
 - **Public interface**: the justfile's recipe names, any `.github/workflows/*.yml` (auto-discovered by
   GitHub Actions), and the local composite actions `.github/actions/*/action.yml`.
-- **Local-context kit**: `justfile`, `pyproject.toml`, `README.md` (dev-onboarding lives here; no
-  CONTRIBUTING.md exists)
+- **Local-context kit**: `justfile`, `pyproject.toml`, `CLAUDE.md` (dev commands and the index of the
+  instruction files), `README.md` (detailed dev setup; no CONTRIBUTING.md exists)
 - **Depends on**: ruff, mypy, pytest, vulture, markdownlint-cli, yamllint, yamlfmt, lychee, pre-commit,
   release-please, `gh` CLI (true-external); the dasch-specs `assessments/regression-check` action, fetched
   at `main` by `readiness.yml` (remote-owned); `scripts/validate_xmllib_docstring_links.py` imports
   `dsp_tools.setup.ansi_colors` (the one in-process import); `scripts/bump_stack_versions.py` writes
   `resources/start-stack/versions.env`
 - **Used by**: CI, developers running `just <recipe>`, pre-commit git hooks; `tests`
-  (`test/unittests/scripts/` imports `scripts.*`, incl. private names); `docs` (includes `CHANGELOG.md`)
+  (`test/unittests/scripts/` imports `scripts.*`, incl. private names); `docs` (includes `CHANGELOG.md`);
+  GitHub's blame view reads `.git-blame-ignore-revs` (local git only after
+  `git config blame.ignoreRevsFile .git-blame-ignore-revs`)
 - **Boundary rules**:
     - `.github/workflows/*.yml` is reserved-path/auto-discovered by GitHub Actions; the justfile is one flat
     file with no such convention. CI does not run `just lint`: `lint-code.yml` and `check-docs.yml` call
@@ -555,12 +586,17 @@ this map found confirmed violations of both rules; see Conventions and each comp
     (enforcement: structure)
     - `scripts/bump_stack_versions.py` writes `resources/start-stack/versions.env` through a bot PR
     (`bump-stack-versions.yml`). (enforcement: review)
-- **Durable state**: `CHANGELOG.md` and `pyproject.toml`'s version field are written by the release-please
-  GitHub Action, not by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
+    - `.env.example` is a hand-kept copy of the env vars that `src/` reads; nothing checks that the two
+    stay in sync. (enforcement: review)
+    - `.git-blame-ignore-revs` may list only commits that change formatting and nothing else.
+    (enforcement: docs-only, its header comment)
+- **Durable state**: `CHANGELOG.md`, `.github/release-please-manifest.json` and `pyproject.toml`'s version
+  field are written by the release-please GitHub Action, not by hand; `.git-blame-ignore-revs` is
+  maintained by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `8625bc431fbc`
+- **Fingerprint**: `0bb606e8e661`
 
 ## Cross-cutting concerns
 
@@ -568,17 +604,17 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 Two-branch exception hierarchy: `BaseError` → `UserError` (user can fix it) / `InternalError` (needs a
 developer; auto-appends contact info and the log path). `custom_warnings.py` mirrors this for warnings;
-`problems.py` defines the `Problem` protocol used by Group B's aggregated-error pattern. It also holds the
-DSP-admin-account error and warnings (`DspAdminAccountNotUsedForUploadError`,
-`DspAdminAccountNotUsedForUploadWarning`, `DspAdminAccountNotInProjectFileWarning`): an error on prod-like
-servers, a warning elsewhere. Per `docs/developers/architecture/error-handling.md`: catch only recoverable
-external failures and let your own bugs crash; Group A commands (`create`, `xmlupload`, `get`, …) fail
-fast, Group B commands (`excel2json`, `validate-data`, `xmllib`, …) collect every `Problem` into one
-aggregated `UserError`. Ten command modules define their own `exceptions.py` subclassing from here (so do
-`cli/`, `clients/`, `utils/` and `xmllib/internal/`). Imported by 88 files in `src/`, 127 including tests.
-No durable state.
+`problems.py` defines the `Problem` protocol used by Group B's aggregated-error pattern. It also holds
+`DaschEmployeeAccountUsedForUploadError` (raised by `utils/dsp_user_account_check.py` when the user declines
+an upload to a prod-like server with a DaSCH employee account) and `DspAdminAccountNotInProjectFileWarning`
+(emitted by `create` when the project file lacks the project admin account). Per
+`docs/developers/architecture/error-handling.md`: catch only recoverable external failures and let your own
+bugs crash; Group A commands (`create`, `xmlupload`, `get`, …) fail fast, Group B commands (`excel2json`,
+`validate-data`, `xmllib`, …) collect every `Problem` into one aggregated `UserError`. Ten command modules
+define their own `exceptions.py` subclassing from here (so do `cli/`, `clients/`, `utils/` and
+`xmllib/internal/`). Imported by 88 files in `src/`, 127 including tests. No durable state.
 
-- **Fingerprint**: `e302615efb18`
+- **Fingerprint**: `21b6e79118ab`
 
 ### setup/ (`src/dsp_tools/setup/**`)
 

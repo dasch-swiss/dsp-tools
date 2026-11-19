@@ -8,7 +8,7 @@ import requests
 from requests import JSONDecodeError
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.exceptions import MigrationExportExistsError
 from dsp_tools.clients.exceptions import MigrationExportImportInProgressError
 from dsp_tools.clients.exceptions import MigrationImportExistsError
@@ -19,7 +19,7 @@ from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
 from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.clients.migration_clients_live import _make_delete_call
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import RequestParameters
 
 
@@ -88,14 +88,14 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.post_export(False)
 
     def test_post_export_request_exception(self, export_client: MigrationExportClientLive) -> None:
         with patch(
             "dsp_tools.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 export_client.post_export(False)
 
     def test_get_status_success(self, export_client: MigrationExportClientLive) -> None:
@@ -130,7 +130,7 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.get_status(ExportId("export-123"))
 
     def test_get_download_success(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
@@ -160,7 +160,7 @@ class TestMigrationExportClientLive:
         destination = tmp_path / "export.zip"
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         with patch("dsp_tools.clients.migration_clients_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.get_download(ExportId("export-123"), destination)
 
     def test_delete_export_success(self, export_client: MigrationExportClientLive) -> None:
@@ -180,7 +180,7 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
         with patch("dsp_tools.clients.migration_clients_live.requests.delete", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.delete_export(ExportId("export-123"))
 
 
@@ -220,7 +220,7 @@ class TestMigrationImportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.post", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.post_import(zip_file)
 
     def test_post_import_request_exception(self, import_client: MigrationImportClientLive, tmp_path: Path) -> None:
@@ -229,7 +229,7 @@ class TestMigrationImportClientLive:
         with patch(
             "dsp_tools.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 import_client.post_import(zip_file)
 
     def test_get_status_success(self, import_client: MigrationImportClientLive) -> None:
@@ -264,7 +264,7 @@ class TestMigrationImportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.migration_clients_live.requests.get", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.get_status(ImportId("import-456"))
 
     def test_delete_import_success(self, import_client: MigrationImportClientLive) -> None:
@@ -284,7 +284,7 @@ class TestMigrationImportClientLive:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
         with patch("dsp_tools.clients.migration_clients_live.requests.delete", return_value=mock_response):
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.delete_import(ImportId("import-456"))
 
 

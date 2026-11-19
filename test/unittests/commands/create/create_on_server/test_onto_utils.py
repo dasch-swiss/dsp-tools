@@ -7,11 +7,11 @@ import rustworkx as rx
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.clients.exceptions import ProjectOntologyNotFound
+from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import get_project_iri_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
-from dsp_tools.commands.create.exceptions import CircularOntologyDependency
+from dsp_tools.commands.create.exceptions import CircularOntologyDependencyError
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 
 PROJECT_IRI = "http://rdfh.ch/projects/1234"
@@ -34,7 +34,7 @@ class TestSortUploadOrder:
         graph.add_edge(node_idxb, node_idxa, None)
         node_to_iri = {node_idxa: "nodeA", node_idxb: "nodeB"}
         with caplog.at_level(logging.ERROR):
-            with pytest.raises(CircularOntologyDependency):
+            with pytest.raises(CircularOntologyDependencyError):
                 sort_for_upload(graph, node_to_iri)
         assert len(caplog.records) == 1
 
@@ -118,7 +118,7 @@ class TestOntoLookup:
     @patch("dsp_tools.commands.create.create_on_server.onto_utils.OntologyGetClientLive")
     def test_without_ontos(self, mock_client_class):
         mock_client = Mock()
-        mock_client.get_ontologies.side_effect = ProjectOntologyNotFound("No ontology")
+        mock_client.get_ontologies.side_effect = ProjectOntologyNotFoundError("No ontology")
         mock_client_class.return_value = mock_client
         result = get_project_iri_lookup(API_URL, "1234", PROJECT_IRI)
         assert result.project_iri == PROJECT_IRI

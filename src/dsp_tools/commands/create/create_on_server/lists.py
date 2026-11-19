@@ -5,7 +5,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.list_client import ListCreateClient
 from dsp_tools.clients.list_client_live import ListCreateClientLive
 from dsp_tools.clients.list_client_live import ListGetClientLive
@@ -70,7 +70,7 @@ def get_existing_lists_on_server(shortcode: str, auth: AuthenticationClient) -> 
     try:
         name2iri_dict = client.get_all_list_iris_and_names()
         return ListNameToIriLookup(name2iri_dict)
-    except FatalNonOkApiResponseCode as e:
+    except FatalNonOkApiResponseCodeError as e:
         logger.exception(e)
         warnings.warn(
             DspToolsUnexpectedStatusCodeWarning(

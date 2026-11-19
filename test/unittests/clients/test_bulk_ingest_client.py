@@ -8,8 +8,8 @@ from requests import RequestException
 from requests_mock import Mocker
 
 from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
-from dsp_tools.commands.ingest_xmlupload.exceptions import IngestFailure
-from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFound
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestError
+from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFoundError
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
@@ -154,7 +154,7 @@ def test_trigger_wrong_shortcode(ingest_client: BulkIngestClient, requests_mock:
         "No assets have been uploaded for project 9999. "
         "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
     )
-    with pytest.raises(NoIngestFileFound, match=err_msg):
+    with pytest.raises(NoIngestFileFoundError, match=err_msg):
         ingest_client.trigger_ingest_process()
 
 
@@ -189,7 +189,7 @@ def test_trigger_when_server_response_doesnt_contain_right_shortcode(
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=202)
     err_msg = re.escape("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-    with pytest.raises(IngestFailure, match=err_msg):
+    with pytest.raises(IngestError, match=err_msg):
         ingest_client.trigger_ingest_process()
 
 

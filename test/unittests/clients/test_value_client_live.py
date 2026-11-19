@@ -10,7 +10,7 @@ from requests import RequestException
 
 from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
@@ -68,7 +68,7 @@ class TestPostNewValue:
         with patch(
             "dsp_tools.clients.value_client_live.requests.post", side_effect=RequestException("Connection refused")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client.post_new_value(VALUE_JSON)
 
 
@@ -116,5 +116,5 @@ class TestReplaceExistingValue:
         with patch(
             "dsp_tools.clients.value_client_live.requests.put", side_effect=RequestException("Connection refused")
         ):
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client.replace_existing_value(VALUE_JSON)

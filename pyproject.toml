@@ -155,6 +155,7 @@ select = [
     "D417",  # pydocstyle: undocumented-param
     "B023",  # flake8-bugbear: function-uses-loop-variable
     "FIX",   # flake8-fixme: checks for FIXME, TODO, XXX, etc.
+    "N818",  # pep8-naming: exception name must end in "Error"
 ]
 ignore = [
     "ISC001", # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter

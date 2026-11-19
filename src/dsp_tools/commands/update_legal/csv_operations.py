@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import regex
 
-from dsp_tools.commands.update_legal.exceptions import InvalidInputFileFormat
+from dsp_tools.commands.update_legal.exceptions import InvalidInputFileFormatError
 from dsp_tools.commands.update_legal.models import Authorships
 from dsp_tools.commands.update_legal.models import LegalMetadata
 from dsp_tools.commands.update_legal.models import Problem
@@ -77,7 +77,7 @@ def read_corrections_csv(csv_path: Path) -> dict[str, LegalMetadata]:
     if not required_cols.issubset(df.columns):
         missing = required_cols - set(df.columns)
         msg = f"CSV file is missing required columns: {missing}"
-        raise InvalidInputFileFormat(msg)
+        raise InvalidInputFileFormatError(msg)
 
     corrections = {}
     for _, row in df.iterrows():

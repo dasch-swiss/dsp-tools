@@ -1,7 +1,7 @@
 from dsp_tools.error.exceptions import UserError
 
 
-class InvalidInputFileFormat(UserError):
+class InvalidInputFileFormatError(UserError):
     """A problem with the format of the input file"""
 
 

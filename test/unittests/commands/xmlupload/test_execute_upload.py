@@ -22,7 +22,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
 
@@ -257,7 +257,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = [DspToolsRequestException("err"), RES_IRI]
+        resource_client.post_resource.side_effect = [DspToolsRequestError("err"), RES_IRI]
         result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert result == RES_IRI
         assert resource_client.post_resource.call_count == 2
@@ -268,7 +268,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = [DspToolsRequestException("err"), RES_IRI]
+        resource_client.post_resource.side_effect = [DspToolsRequestError("err"), RES_IRI]
         with patch("dsp_tools.commands.xmlupload.execute_upload.log_request_failure_and_sleep") as log_mock:
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         log_mock.assert_called_once_with("Connection Error", 0, exc_info=False)
@@ -279,7 +279,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = DspToolsRequestException("err")
+        resource_client.post_resource.side_effect = DspToolsRequestError("err")
         with pytest.raises(PermanentConnectionError):
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert resource_client.post_resource.call_count == 24

@@ -13,13 +13,13 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 
@@ -234,7 +234,7 @@ class TestCardinalities:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
 
@@ -308,7 +308,7 @@ class TestProperties:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             ontology_client.post_new_property(sample_property_graph)
 
 
@@ -379,7 +379,7 @@ class TestClasses:
             raise ReadTimeout("Connection timed out")
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             ontology_client.post_new_class(sample_class_graph)
 
 
@@ -451,7 +451,7 @@ class TestOntology:
             raise ReadTimeout("Connection timed out")
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             ontology_client.post_new_ontology(sample_ontology_graph)
 
 
@@ -535,7 +535,7 @@ class TestUtilFunctions:
 
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
-        with pytest.raises(FatalNonOkApiResponseCode):
+        with pytest.raises(FatalNonOkApiResponseCodeError):
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
     def test_get_last_modification_date_timeout(
@@ -546,7 +546,7 @@ class TestUtilFunctions:
 
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
 

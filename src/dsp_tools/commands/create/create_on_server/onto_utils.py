@@ -9,10 +9,10 @@ from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.clients.exceptions import ProjectOntologyNotFound
+from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
-from dsp_tools.commands.create.exceptions import CircularOntologyDependency
+from dsp_tools.commands.create.exceptions import CircularOntologyDependencyError
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.utils.request_utils import ResponseCodeAndText
@@ -34,7 +34,7 @@ def sort_for_upload(graph: rx.PyDiGraph, node_to_iri: dict[int, str]) -> list[st
         return [node_to_iri[x] for x in reversed(node_sorting_order)]
     except rx.DAGHasCycle as e:
         logger.exception(e)
-        raise CircularOntologyDependency("super-properties") from None
+        raise CircularOntologyDependencyError("super-properties") from None
 
 
 def get_modification_date_onto_lookup(
@@ -58,7 +58,7 @@ def get_project_iri_lookup(server: str, shortcode: str, project_iri: str) -> Pro
         logger.debug(f"Project ontologies found: {', '.join(onto_iris)}")
         lookup = _get_name_to_iri_lookup(ontologies)
         return ProjectIriLookup(project_iri, lookup)
-    except ProjectOntologyNotFound:
+    except ProjectOntologyNotFoundError:
         logger.debug("No project ontologies on server.")
         return ProjectIriLookup(project_iri)
 

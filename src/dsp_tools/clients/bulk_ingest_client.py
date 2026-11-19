@@ -15,8 +15,8 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.commands.ingest_xmlupload.exceptions import IngestFailure
-from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFound
+from dsp_tools.commands.ingest_xmlupload.exceptions import IngestError
+from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFoundError
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import PermanentConnectionError
@@ -129,7 +129,7 @@ class BulkIngestClient:
             res, f"The ingest server refused to start the ingest process for project {self.shortcode}."
         )
         if res.status_code == HTTPStatus.NOT_FOUND:
-            raise NoIngestFileFound(
+            raise NoIngestFileFoundError(
                 f"No assets have been uploaded for project {self.shortcode}. "
                 "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
             )
@@ -147,9 +147,7 @@ class BulkIngestClient:
         except JSONDecodeError:
             failed = True
         if failed:
-            raise IngestFailure(
-                "Failed to trigger the ingest process. Please check the server logs, or try again later."
-            )
+            raise IngestError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 

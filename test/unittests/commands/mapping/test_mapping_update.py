@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.exceptions import ProjectOntologyNotFound
+from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.mapping_update import RERUN_ADVICE
 from dsp_tools.commands.mapping.mapping_update import _add_classes_mappings
@@ -97,9 +97,9 @@ class TestCheckProjectAndGetOntologyTtl:
             mock_project_cls.return_value = Mock()
             with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
-                mock_onto_client.get_ontologies.side_effect = ProjectOntologyNotFound("0001")
+                mock_onto_client.get_ontologies.side_effect = ProjectOntologyNotFoundError("0001")
                 mock_onto_cls.return_value = mock_onto_client
-                with pytest.raises(ProjectOntologyNotFound):
+                with pytest.raises(ProjectOntologyNotFoundError):
                     _check_project_and_get_ontology_ttl(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
     def test_get_ontologies_fatal_error_propagates(self):
@@ -107,9 +107,11 @@ class TestCheckProjectAndGetOntologyTtl:
             mock_project_cls.return_value = Mock()
             with patch("dsp_tools.commands.mapping.mapping_update.OntologyGetClientLive") as mock_onto_cls:
                 mock_onto_client = Mock()
-                mock_onto_client.get_ontologies.side_effect = FatalNonOkApiResponseCode(ONTO_IRI, 500, "server error")
+                mock_onto_client.get_ontologies.side_effect = FatalNonOkApiResponseCodeError(
+                    ONTO_IRI, 500, "server error"
+                )
                 mock_onto_cls.return_value = mock_onto_client
-                with pytest.raises(FatalNonOkApiResponseCode):
+                with pytest.raises(FatalNonOkApiResponseCodeError):
                     _check_project_and_get_ontology_ttl(self._make_auth(), MAPPING_CONFIG, ONTO_IRI)
 
 

@@ -8,7 +8,7 @@ from requests import RequestException
 
 from dsp_tools.clients.permissions_client_live import PermissionsClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
@@ -83,7 +83,7 @@ class TestGetProjectDoaps:
         )
         get_mock.side_effect = RequestException("Connection error")
 
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             client.get_project_doaps()
 
 
@@ -149,7 +149,7 @@ class TestDeleteDoap:
             project_iri="http://rdfh.ch/projects/test",
         )
         delete_mock.side_effect = RequestException("Connection error")
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             client.delete_doap("http://test.iri/doap")
 
 
@@ -214,5 +214,5 @@ class TestCreateNewDoap:
             project_iri="http://rdfh.ch/projects/test",
         )
         post_mock.side_effect = RequestException("Connection error")
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})

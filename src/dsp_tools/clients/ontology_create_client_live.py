@@ -11,7 +11,7 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.rdf_constants import KNORA_API
@@ -43,7 +43,7 @@ class OntologyCreateClientLive(OntologyCreateClient):
 
         if response.ok:
             return _parse_last_modification_date(response.text, URIRef(onto_iri))
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def post_resource_cardinalities(self, cardinality_graph: dict[str, Any]) -> Literal | ResponseCodeAndText:
         url = f"{self.server}/v2/ontologies/cardinalities"

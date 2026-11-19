@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.richtext_id2iri import replace_ids_if_found
-from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMapping
+from dsp_tools.utils.exceptions import DuplicateIdsInXmlAndId2IriMappingError
 from dsp_tools.utils.json_parsing import parse_json_file
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
@@ -33,7 +33,7 @@ def _raise_error_if_resource_ids_are_reused(
             "This means that the new XML file must not contain IDs that were previously used.\n"
             f"The following ID(s) are both in the id2iri mapping and the new data: {', '.join(overlap)}"
         )
-        raise DuplicateIdsInXmlAndId2IriMapping(msg)
+        raise DuplicateIdsInXmlAndId2IriMappingError(msg)
 
 
 def _process_one_resource(res: ParsedResource, iri_lookup: IriResolver) -> ParsedResource:

@@ -7,9 +7,9 @@ from requests import JSONDecodeError
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def test_get_token_error_responses(auth_client: AuthenticationClientLive):
     mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, ok=False, text="Error", headers={})
     mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
     with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
-        with pytest.raises(FatalNonOkApiResponseCode):
+        with pytest.raises(FatalNonOkApiResponseCodeError):
             auth_client.get_token()
 
 
@@ -62,5 +62,5 @@ def test_get_token_unauthorised_exception(auth_client: AuthenticationClientLive)
 def test_get_token_request_exception(auth_client: AuthenticationClientLive):
     request_error = RequestException("Connection timeout")
     with patch("dsp_tools.clients.authentication_client_live.requests.post", side_effect=request_error):
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             auth_client.get_token()

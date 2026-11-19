@@ -14,7 +14,7 @@ from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundErro
 from dsp_tools.commands.mapping.mapping_update import mapping_update
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 
 SHORTCODE = "4124"
 ONTO_NAME = "testonto"
@@ -52,7 +52,7 @@ def _get_ontology_graph(ontology_namespace: str) -> Graph:
     url = ontology_namespace.rstrip("#")
     response = requests.get(url, headers={"Accept": "text/turtle"}, timeout=5)
     if not response.ok:
-        raise DspToolsRequestException(
+        raise DspToolsRequestError(
             f"Non-ok response when requesting the ontology from the server.\n"
             f"Code: {response.status_code} Text: {response.text}"
         )

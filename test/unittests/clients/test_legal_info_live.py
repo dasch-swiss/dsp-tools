@@ -5,11 +5,11 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.clients.legal_info_client_live import _is_last_page
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import RequestParameters
 
 AUTH = Mock()
@@ -96,14 +96,14 @@ class TestPostCopyrightHolders:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         expected_response = Mock(status_code=404, ok=False, text="Not Found")
         client._post_and_log_request = Mock(return_value=expected_response)
-        with pytest.raises(FatalNonOkApiResponseCode):
+        with pytest.raises(FatalNonOkApiResponseCodeError):
             client.post_copyright_holders(["1"])
 
     def test_client_post_copyright_holders_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         request_error = RequestException("Connection timeout")
         client._post_and_log_request = Mock(side_effect=request_error)
-        with pytest.raises(DspToolsRequestException):
+        with pytest.raises(DspToolsRequestError):
             client.post_copyright_holders(["1"])
 
 
@@ -165,7 +165,7 @@ class TestGetEnabledLicenses:
         mock_response.headers = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 client._get_one_license_page(page_num=1, enabled_only=True)
 
     def test_request_exception(self):
@@ -173,7 +173,7 @@ class TestGetEnabledLicenses:
         request_error = RequestException("Connection timeout")
         with patch("dsp_tools.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.side_effect = request_error
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client._get_one_license_page(page_num=1, enabled_only=True)
 
 
@@ -218,14 +218,14 @@ class TestSetResourceSideLegalInfo:
         mock_response.json.return_value = {}
         with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.return_value = mock_response
-            with pytest.raises(FatalNonOkApiResponseCode):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
                 client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
 
     def test_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         with patch("dsp_tools.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.side_effect = RequestException("Connection timeout")
-            with pytest.raises(DspToolsRequestException):
+            with pytest.raises(DspToolsRequestError):
                 client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
 
 

@@ -38,7 +38,7 @@ from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.utils.exceptions import DspToolsRequestException
+from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import should_retry_request
 
@@ -196,7 +196,7 @@ def _execute_one_resource_data_upload(
     for retry_counter in range(num_of_retries):
         try:
             creation_result = resource_client.post_resource(resource_dict, bool(media_info))
-        except DspToolsRequestException:
+        except DspToolsRequestError:
             # the traceback was already logged when the request exception was converted
             log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=False)
             continue

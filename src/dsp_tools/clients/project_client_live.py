@@ -7,7 +7,7 @@ import requests
 from requests import RequestException
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCode
+from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.clients.exceptions import ProjectNotFoundError
 from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.error.exceptions import BadCredentialsError
@@ -40,7 +40,7 @@ class ProjectClientLive(ProjectClient):
             return cast(str, result["project"]["id"])
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def get_default_data_authorship(self, shortcode: str) -> list[str]:
         url = f"{self.server}/admin/projects/shortcode/{shortcode}"
@@ -57,7 +57,7 @@ class ProjectClientLive(ProjectClient):
             return cast(list[str], result["project"].get("defaultDataAuthorship", []))
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ProjectNotFoundError(f"The project with the shortcode {shortcode} does not exist on this server. ")
-        raise FatalNonOkApiResponseCode(url, response.status_code, response.text)
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
 
     def post_new_project(self, project_info: dict[str, Any]) -> str | ResponseCodeAndText:
         url = f"{self.server}/admin/projects"

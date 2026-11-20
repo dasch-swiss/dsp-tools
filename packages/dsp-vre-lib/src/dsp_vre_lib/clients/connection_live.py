@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from functools import partial
 from importlib.metadata import version
+from pathlib import Path
 from typing import Any
 from typing import Literal
 from typing import cast
@@ -15,16 +16,15 @@ from requests import Session
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.connection import Connection
 from dsp_vre_lib.clients.exceptions import InvalidInputError
-from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.utils.request_utils import PostFiles
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_request_failure_and_sleep
-from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.request_utils import print_and_raise_timeouts
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre_lib.clients.request_utils import PostFiles
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
+from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
+from dsp_vre_lib.clients.request_utils import should_retry_request
 
 HTTP_OK = 200
 
@@ -37,10 +37,12 @@ class ConnectionLive(Connection):
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
         token: session token received by the server after login
+        log_file: file with more information about failed requests, named in the error message
     """
 
     server: str
     authenticationClient: AuthenticationClient | None = None
+    log_file: Path | None = None
     session: Session = field(init=False, default=Session())
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
@@ -187,7 +189,9 @@ class ConnectionLive(Connection):
             self._handle_non_ok_responses(response, retry_counter)
 
         # if all attempts have failed, raise error
-        msg = f"Permanently unable to execute the network action. See {WARNINGS_SAVEPATH} for more information."
+        msg = "Permanently unable to execute the network action."
+        if self.log_file:
+            msg += f" See {self.log_file} for more information."
         raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:

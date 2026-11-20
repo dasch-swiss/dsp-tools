@@ -11,7 +11,6 @@ from http import HTTPStatus
 from typing import Any
 from typing import Literal
 from typing import Never
-from typing import Union
 
 from loguru import logger
 from requests import JSONDecodeError
@@ -19,11 +18,8 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.commands.get.legacy_models.context import Context
-from dsp_tools.commands.get.legacy_models.helpers import OntoIri
-from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
-from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
-from dsp_tools.utils.exceptions import DspToolsRequestError
+from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
 
 
 @dataclass
@@ -65,14 +61,10 @@ class PostFile:
 class SetEncoder(json.JSONEncoder):
     """Encoder used to serialize objects to JSON that would by default not be serializable"""
 
-    def default(self, o: Union[set[Any], Context, OntoIri]) -> Any:
+    def default(self, o: Any) -> Any:
         """Return a serializable object for o"""
         if isinstance(o, set):
             return list(o)
-        elif isinstance(o, Context):
-            return o.toJsonObj()
-        elif isinstance(o, OntoIri):
-            return {"iri": o.iri, "hashtag": o.hashtag}
         return json.JSONEncoder.default(self, o)
 
 
@@ -205,25 +197,28 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
 
 
 def print_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
+    """Print a message about the timeout, then re-raise it."""
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
     raise error
 
 
 def log_and_raise_request_exception(error: RequestException) -> Never:
+    """Log an exception of the requests library, and raise it as DspApiRequestError."""
     msg = (
         f"During an API call the following exception occurred. "
-        f"Please contact support@dasch.swiss with the log file at {LOGGER_SAVEPATH} "
-        f"if you required help resolving the issue.\n"
+        "Please contact support@dasch.swiss with the log file "
+        "if you required help resolving the issue.\n"
         f"Original exception name: {error.__class__.__name__}\n"
     )
     if error.request:
         msg += f"Original request: {error.request.method} {error.request.url}"
     logger.exception(msg)
-    raise DspToolsRequestError(msg) from None
+    raise DspApiRequestError(msg) from None
 
 
 def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str) -> None:
+    """Log and warn about an API response with a status code that the client does not handle."""
     resp_txt = response_text[:400] if len(response_text) > 400 else response_text
     msg = (
         "We got an unexpected API response during the following request. "
@@ -233,7 +228,7 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
         f"Original Message: {resp_txt}"
     )
     logger.warning(msg)
-    warnings.warn(DspToolsUnexpectedStatusCodeWarning(msg))
+    warnings.warn(DspVreLibUnexpectedStatusCodeWarning(msg))
 
 
 def should_retry_request(response: ResponseCodeAndText) -> bool:
@@ -251,10 +246,12 @@ def _is_retriable_status_code(status_code: int) -> bool:
 
 
 def is_server_error(status_code: int) -> bool:
+    """Return True if the status code is in the range of server errors (5xx)."""
     return HTTPStatus.INTERNAL_SERVER_ERROR <= status_code <= HTTPStatus.NETWORK_AUTHENTICATION_REQUIRED
 
 
 def parse_api_v3_error(response: Response) -> ResponseCodeAndText:
+    """Parse the error details of an API v3 response, if it has any."""
     v3_errors = None
     try:
         error_list = response.json()["errors"]

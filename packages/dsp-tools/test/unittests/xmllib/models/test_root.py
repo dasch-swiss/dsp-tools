@@ -8,8 +8,6 @@ from loguru import logger
 from lxml import etree
 from pytest_unordered import unordered
 
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_request
 from dsp_tools.xmllib.internal.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.internal.exceptions import XmllibInputError
 from dsp_tools.xmllib.internal.type_aliases import AnyResource
@@ -25,6 +23,8 @@ from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
 from dsp_tools.xmllib.models.root import _serialise_authorship
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_request
 
 
 @pytest.fixture

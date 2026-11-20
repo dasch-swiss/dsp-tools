@@ -7,12 +7,6 @@ from urllib.parse import quote_plus
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients import MappingClient
-from dsp_vre_lib.clients import MappingClientLive
-from dsp_vre_lib.clients import OntologyGetClientLive
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.find_mappings_to_delete import get_existing_mappings
 from dsp_tools.commands.mapping.find_mappings_to_delete import select_mappings_to_delete
@@ -33,8 +27,14 @@ from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import MappingClient
+from dsp_vre_lib.clients import MappingClientLive
+from dsp_vre_lib.clients import OntologyGetClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import should_retry_request
 
 RETRY_SLEEP_SECONDS = 5
 LIST_MESSAGE_SEPARATOR = "\n    - "

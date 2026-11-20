@@ -8,11 +8,11 @@ from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPer
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
 from dsp_tools.commands.create.models.parsed_project import ParsedPermissions
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_AUDIO_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_STILL_IMAGE_FILE_VALUE
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import ONTO_NAMESPACE_STR
 
 STILL_IMAGE_IRI = f"{ONTO_NAMESPACE_STR}ImageResource"

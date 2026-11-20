@@ -8,10 +8,10 @@ from requests import RequestException
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_vre_lib.clients.metadata_client import MetadataClient
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_and_warn_unexpected_non_ok_response
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
 
 TIMEOUT_120 = 120
 

@@ -4,8 +4,6 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_vre_lib.clients import ExportId
-from dsp_vre_lib.clients import ExportImportStatus
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
 from dsp_tools.commands.migration.export_download import _check_export_progress
@@ -15,6 +13,8 @@ from dsp_tools.commands.migration.export_download import export_and_download
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ExportImportStatus
 
 # yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
 # this is expected in tests and does not affect behaviour.

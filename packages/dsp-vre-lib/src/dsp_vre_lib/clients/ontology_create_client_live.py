@@ -6,21 +6,22 @@ from typing import cast
 import requests
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 from requests import RequestException
 from requests import Response
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_vre_lib.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.rdf_constants import KNORA_API
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
 
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 TIMEOUT_60 = 60
 
 

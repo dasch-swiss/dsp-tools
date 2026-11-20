@@ -5,10 +5,11 @@ from typing import cast
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients import BulkIngestClient
 from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
+from dsp_vre_lib.clients import BulkIngestClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
 
 MAPPING_RETRIEVAL_SLEEP = 60
 
@@ -26,7 +27,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
         success status
     """
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    bulk_ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode)
+    bulk_ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, log_file=LOGGER_SAVEPATH)
     bulk_ingest_client.trigger_ingest_process()
     sleep(5)
     mapping = _retrieve_mapping(bulk_ingest_client)

@@ -4,11 +4,11 @@ import unittest
 
 import pytest
 
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients import ConnectionLive
 from dsp_tools.commands.get.legacy_models.user import User
 from dsp_tools.legacy_models.langstring import Languages
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients import ConnectionLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

@@ -7,14 +7,14 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.mapping_update import mapping_update
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
-from dsp_tools.utils.exceptions import DspToolsRequestError
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
 
 SHORTCODE = "4124"
 ONTO_NAME = "testonto"
@@ -52,7 +52,7 @@ def _get_ontology_graph(ontology_namespace: str) -> Graph:
     url = ontology_namespace.rstrip("#")
     response = requests.get(url, headers={"Accept": "text/turtle"}, timeout=5)
     if not response.ok:
-        raise DspToolsRequestError(
+        raise DspApiRequestError(
             f"Non-ok response when requesting the ontology from the server.\n"
             f"Code: {response.status_code} Text: {response.text}"
         )

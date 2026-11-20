@@ -24,6 +24,7 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import logger_config
 from dsp_tools.setup.warnings_config import initialize_warnings
 from dsp_tools.utils.interactive import prompt_until_valid_answer
+from dsp_vre_lib.clients.exceptions import DspVreLibUserError
 
 
 def main() -> None:
@@ -71,7 +72,7 @@ def run(args: Sequence[str]) -> None:
     except KeyboardInterrupt:
         logger.info("User interrupted execution")
         sys.exit(130)
-    except UserError as err:
+    except (UserError, DspVreLibUserError) as err:
         logger.exception(f"User error: {err.message}")
         print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
         success = False

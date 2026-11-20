@@ -15,15 +15,23 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_tools.commands.ingest_xmlupload.exceptions import IngestError
-from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFoundError
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import IngestError
+from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
+
+
+@dataclass(frozen=True)
+class UploadFailure:
+    """Information on why the upload of a file to the ingest server failed."""
+
+    filepath: Path
+    reason: str
+    status_code: int | None = None
+    response_text: str | None = None
 
 
 @dataclass
@@ -34,6 +42,7 @@ class BulkIngestClient:
     auth: AuthenticationClient
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
+    log_file: Path | None = None
     session: Session = field(init=False)
     retrieval_failures = 0
 
@@ -183,9 +192,10 @@ class BulkIngestClient:
             elif res.status_code != HTTPStatus.OK or not res.text.startswith("original,derivative"):
                 self.retrieval_failures += 1
                 if self.retrieval_failures > 15:
-                    raise PermanentConnectionError(
-                        f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}."
-                    )
+                    msg = "There were too many server errors."
+                    if self.log_file:
+                        msg += f" Please check the logs at {self.log_file}."
+                    raise PermanentConnectionError(msg)
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

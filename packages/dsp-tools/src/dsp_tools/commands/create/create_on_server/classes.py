@@ -7,7 +7,6 @@ from rdflib import Literal
 from rdflib import URIRef
 from tqdm import tqdm
 
-from dsp_vre_lib.clients import OntologyCreateClient
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import should_retry_request
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
@@ -20,6 +19,7 @@ from dsp_tools.commands.create.models.server_project_info import CreatedIriColle
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
+from dsp_vre_lib.clients import OntologyCreateClient
 
 
 def create_all_classes(

@@ -5,11 +5,11 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.shacl_cli_validator import ShaclCliValidator
 from dsp_tools.commands.validate_data.validate_data import _validate_data
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument

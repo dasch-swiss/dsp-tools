@@ -15,13 +15,13 @@ from typing import Union
 
 import regex
 
-from dsp_vre_lib.clients import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import Cardinality
 from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
+from dsp_vre_lib.clients import Connection
 
 
 class HasProperty(Model):

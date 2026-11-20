@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from dsp_vre_lib.clients import AuthenticationClient
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import prepare_data_for_validation_from_parsed_resource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
+from dsp_vre_lib.clients import AuthenticationClient
 
 
 def prepare_data_for_validation_from_file(

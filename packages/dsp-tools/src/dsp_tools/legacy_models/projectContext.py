@@ -1,9 +1,10 @@
 from typing import Optional
 
-from dsp_vre_lib.clients import Connection
 from dsp_tools.commands.get.legacy_models.group import Group
 from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
 
 
 class ProjectContext:
@@ -22,7 +23,7 @@ class ProjectContext:
         self._inv_project_map: dict[str, str] = {x.iri: x.shortname for x in self._projects}
         try:
             self._groups = Group.getAllGroups(con=con)
-        except BaseError:
+        except (BaseError, DspVreLibBaseError):
             self._groups = None
         if self._groups:
             self._group_map: dict[str, str] = {

@@ -8,14 +8,14 @@ import requests
 from requests import RequestException
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.group_user_clients import GroupClient
 from dsp_vre_lib.clients.group_user_clients import UserClient
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
+from dsp_vre_lib.clients.request_utils import log_and_warn_unexpected_non_ok_response
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
 
 TIMEOUT_30 = 30
 

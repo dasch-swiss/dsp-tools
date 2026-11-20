@@ -4,7 +4,6 @@ from functools import partial
 
 from loguru import logger
 
-from dsp_vre_lib.clients import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses
@@ -17,8 +16,9 @@ from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_AUDIO_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_STILL_IMAGE_FILE_VALUE
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre_lib.clients import PermissionsClient
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import should_retry_request
 
 
 def create_default_permissions(

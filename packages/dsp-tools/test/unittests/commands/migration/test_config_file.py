@@ -5,13 +5,13 @@ from typing import Any
 import pytest
 import yaml
 
-from dsp_vre_lib.clients import ExportId
-from dsp_vre_lib.clients import ImportId
 from dsp_tools.commands.migration.config_file import create_migration_config
 from dsp_tools.commands.migration.config_file import parse_config_file
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFileError
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ImportId
 
 
 class TestCreateConfig:

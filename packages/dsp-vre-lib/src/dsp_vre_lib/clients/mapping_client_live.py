@@ -6,14 +6,14 @@ import requests
 from requests import RequestException
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.mapping_client import MappingClient
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import log_and_raise_request_exception
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.request_utils import parse_api_v3_error
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import parse_api_v3_error
 
 TIMEOUT_30 = 30
 

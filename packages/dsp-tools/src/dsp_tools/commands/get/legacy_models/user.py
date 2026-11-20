@@ -21,11 +21,11 @@ from typing import Optional
 from typing import Union
 from urllib.parse import quote_plus
 
-from dsp_vre_lib.clients import Connection
 from dsp_tools.commands.get.legacy_models.group import Group
 from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import Languages
+from dsp_vre_lib.clients import Connection
 
 
 class User(Model):

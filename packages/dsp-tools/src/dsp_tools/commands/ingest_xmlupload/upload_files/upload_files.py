@@ -4,16 +4,17 @@ from loguru import logger
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.exceptions import InvalidIngestInputFilesError
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
+from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from dsp_vre_lib.clients import BulkIngestClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.bulk_ingest_client import UploadFailure
 
 
 def upload_files(
@@ -41,7 +42,7 @@ def upload_files(
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
-    ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, imgdir)
+    ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode, imgdir, log_file=LOGGER_SAVEPATH)
 
     failures: list[UploadFailure] = []
     progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", dynamic_ncols=True)

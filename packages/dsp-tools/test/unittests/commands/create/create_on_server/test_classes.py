@@ -17,7 +17,7 @@ from dsp_tools.commands.create.models.parsed_ontology import ParsedClass
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MOD_2
 from test.unittests.commands.create.constants import LAST_MOD_3
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE

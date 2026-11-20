@@ -88,14 +88,6 @@ class UserDirectoryNotFoundError(UserError):
         super().__init__(msg)
 
 
-class PermanentConnectionError(InternalError):
-    """This error is raised when all attempts to reconnect to DSP have failed."""
-
-
-class BadCredentialsError(UserError):
-    """This error is raised when DSP-API doesn't accept the provided credentials."""
-
-
 class NonInteractiveContextCliError(UserError):
     """Used when we require an interactive input, but the process is not running in a context where this is possible."""
 

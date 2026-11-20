@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
+from dsp_vre_lib.clients.bulk_ingest_client import UploadFailure
 
 SHORTCODE = "0001"
 DSP_INGEST_URL = "https://ingest.test.dasch.swiss"

@@ -1,9 +1,4 @@
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
-
-
-class NoIngestFileFoundError(UserError):
-    """no files have been uploaded for ingest"""
 
 
 class InvalidIngestInputFilesError(UserError):
@@ -12,7 +7,3 @@ class InvalidIngestInputFilesError(UserError):
 
 class IngestIdForFileNotFoundError(UserError):
     """If the filepath in the XML is not in the ingest mapping"""
-
-
-class IngestError(InternalError):
-    """ingest call did not work"""

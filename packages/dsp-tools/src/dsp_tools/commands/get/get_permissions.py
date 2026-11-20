@@ -4,11 +4,11 @@ from typing import Literal
 import regex
 from loguru import logger
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import PermissionsClientLive
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import PermissionsClientLive
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 
 _KNORA_BASE = "http://www.knora.org/ontology/knora-base#"
 

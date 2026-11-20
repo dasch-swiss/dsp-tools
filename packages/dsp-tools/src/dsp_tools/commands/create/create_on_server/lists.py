@@ -4,11 +4,6 @@ from typing import Any
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.list_client import ListCreateClient
-from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
@@ -23,6 +18,11 @@ from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_CYAN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.list_client import ListCreateClient
+from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 
 
 def create_lists(

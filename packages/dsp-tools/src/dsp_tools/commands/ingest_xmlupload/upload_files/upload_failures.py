@@ -4,19 +4,11 @@ from pathlib import Path
 import pandas as pd
 import regex
 
+from dsp_vre_lib.clients.bulk_ingest_client import UploadFailure
+
 separator = "\n\n"
 list_separator = "\n- "
 list_separator_indented = "\n    - "
-
-
-@dataclass(frozen=True)
-class UploadFailure:
-    """Information on why the upload of a file to the ingest server failed."""
-
-    filepath: Path
-    reason: str
-    status_code: int | None = None
-    response_text: str | None = None
 
 
 @dataclass(frozen=True)

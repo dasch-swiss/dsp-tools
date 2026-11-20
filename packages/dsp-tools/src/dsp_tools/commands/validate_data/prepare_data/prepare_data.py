@@ -9,14 +9,6 @@ from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import LegalInfoClientLive
-from dsp_vre_lib.clients.list_client import ListInfo
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
-from dsp_vre_lib.clients import MetadataClientLive
-from dsp_vre_lib.clients import OntologyGetClient
-from dsp_vre_lib.clients import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup
@@ -37,6 +29,14 @@ from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients import LegalInfoClientLive
+from dsp_vre_lib.clients import MetadataClientLive
+from dsp_vre_lib.clients import OntologyGetClient
+from dsp_vre_lib.clients import OntologyGetClientLive
+from dsp_vre_lib.clients.list_client import ListInfo
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 
 
 def get_info_and_parsed_resources_from_file(

@@ -5,10 +5,6 @@ from typing import Any
 from loguru import logger
 from lxml import etree
 
-from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients import ConnectionLive
-from dsp_vre_lib.clients.list_client import ListGetClient
-from dsp_vre_lib.clients.list_client import ListInfo
 from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
@@ -19,11 +15,17 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.projectContext import ProjectContext
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_lookups import get_permissions_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients import ConnectionLive
+from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
+from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre_lib.clients.list_client import ListInfo
 
 LIST_SEPARATOR = "\n-    "
 
@@ -41,7 +43,7 @@ def get_parsed_resources_and_mappers(
 
 
 def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
-    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth)
+    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth, log_file=WARNINGS_SAVEPATH)
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)
@@ -56,7 +58,7 @@ def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> 
 def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
     try:
         proj_context = ProjectContext(con=connection, shortcode=shortcode)
-    except BaseError:
+    except (BaseError, DspVreLibBaseError):
         logger.exception("Unable to retrieve project context from DSP server")
         raise UnableToRetrieveProjectInfoError("Unable to retrieve project context from DSP server") from None
     return proj_context

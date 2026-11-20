@@ -1,6 +1,5 @@
 import pytest
 
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -15,6 +14,7 @@ from dsp_tools.commands.validate_data.process_validation_report.get_user_validat
 )
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import _shorten_input
 from dsp_tools.commands.validate_data.process_validation_report.get_user_validation_message import sort_user_problems
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
 
 METADATA_RETRIEVAL_SUCCESS = ExistingResourcesRetrieved.TRUE
 

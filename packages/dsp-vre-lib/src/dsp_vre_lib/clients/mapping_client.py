@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 
 
 class MappingClient(Protocol):

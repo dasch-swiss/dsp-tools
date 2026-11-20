@@ -104,7 +104,7 @@ Each package gets its own jobs (unit, integration, e2e).
 - The first version is 0.1.0. Version 1.0.0 comes when the interface is stable.
 - `dsp-vre-lib` states the `dsp-api` versions that it supports. It checks the server version when it connects.
 - `dsp-vre-lib` has its own release-please component and its own PyPI workflow (`publish-dsp-vre-lib-to-pypi.yml`).
-  The workflow uses PyPI trusted publishing.
+- All PyPI workflows use trusted publishing. Each workflow file is a registered trusted publisher on PyPI.
 - release-please opens one release PR for each package.
   The tags are `vX.Y.Z` for `dsp-tools` and `dsp-vre-lib-vX.Y.Z` for `dsp-vre-lib`.
   With `always-update`, release-please rebuilds each open release PR from `main` on each push to `main`.
@@ -122,7 +122,8 @@ Each package gets its own jobs (unit, integration, e2e).
   and `pip install -U dsp-tools` also upgrades `dsp-vre-lib`.
 - The CI job `vre-lib-lower-bound-on-pypi` fails on the `dsp-tools` release PR if the lower bound is not on PyPI.
   The job also protects a manual merge.
-- Dev releases: from the first import of `dsp_vre_lib` in `dsp-tools`, a push to `main` that changes `dsp-vre-lib`
+- Planned, not implemented: dev releases.
+  From the first import of `dsp_vre_lib` in `dsp-tools`, a push to `main` that changes `dsp-vre-lib`
   also publishes a `dsp-vre-lib` dev release.
   The `dsp-tools` dev release then pins this dev version.
   Without this, a `dsp-tools` dev release can require `dsp-vre-lib` code that is not on PyPI.

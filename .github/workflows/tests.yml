@@ -19,6 +19,8 @@ env:
 # dependency or resource file) arrive with a source change and are caught on the
 # PR that introduces them. The published artifact is checked at publish time
 # instead, in publish-release-to-pypi.yml.
+#
+# Exception: vre-lib-lower-bound-on-pypi runs only on the dsp-tools release PR.
 jobs:
   unittests:
     runs-on: ubuntu-latest

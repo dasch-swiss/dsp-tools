@@ -8,16 +8,12 @@ is shared by different commands,
 it is a candidate to be included in these utilities.
 
 **Caveat**: If the shared functionality is the HTTP interaction with a specific API route,
-then it belongs to `src/dsp_tools/clients/` rather than into these utilities.
+then it belongs to `dsp_vre_lib/clients/` (package `dsp-vre-lib`) rather than into these utilities.
 
 ## API Communication & Request Handling
 
-**`request_utils.py`**
-
-- HTTP request helpers with retry logic and exponential backoff
-- Request/response logging with sensitive data sanitization, ensures that logging is consistent
-- Error handling for timeouts, server errors, and connection issues
-- Used throughout: All commands that interact with DSP-API (create, xmlupload, get, etc.)
+The HTTP request helpers (retry logic, request and response logging) are in `dsp_vre_lib/clients/request_utils.py`
+of the package `dsp-vre-lib`. They are not in these utilities.
 
 ## User Interaction
 
@@ -178,8 +174,8 @@ This architecture prevents tight coupling and makes commands independent, testab
 
 ```text
 ✅ GOOD: Commands import from utils
-commands/xmlupload/ ──→ utils/request_utils.py
-commands/create/    ──→ utils/request_utils.py
+commands/xmlupload/ ──→ utils/xml_parsing/
+commands/create/    ──→ utils/json_parsing.py
 
 ❌ BAD: Commands import from each other
 commands/xmlupload/ ──→ commands/create/some_helper.py
@@ -210,7 +206,7 @@ Command Layer (independent):
   xmlupload/     validate-data/     create/     id2iri/
 
 Utils Layer (shared foundation):
-  request_utils.py   xml_parsing/   data_formats/   json_parsing.py
+  xml_parsing/   data_formats/   json_parsing.py
 ```
 
 **Key Rules:**
@@ -236,7 +232,7 @@ Utils Layer (shared foundation):
 
 **Request Functions:**
 
-- Never make direct HTTP requests without `request_utils.py`
+- Never make direct HTTP requests without `dsp_vre_lib/clients/request_utils.py`
 - Ensures consistent logging, error handling, and retry logic
 
 **XML Processing:**

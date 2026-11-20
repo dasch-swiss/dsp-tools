@@ -68,7 +68,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
     - **file_values.py**: Value models for Files
 - **lookup_models.py**: Lookup tables for IRIs and XML references
 - **upload_state.py**: State management for upload operations
-- **upload_clients.py**: Client collection for various services
+- **upload_clients.py**: Client collection for various services, and the `AssetClient` implementations
 - **permission.py**: Permission handling models
 - **bitstream_info.py**: Bitstream metadata models
 - **input_problems.py**: Input validation problem tracking
@@ -100,9 +100,11 @@ It handles the complete workflow from XML parsing and validation to resource cre
 
 - **iri_resolver.py**: IRI resolution utilities
 
-The HTTP clients that xmlupload uses live in `src/dsp_tools/clients/`:
+The HTTP clients that xmlupload uses live in `dsp_vre_lib/clients/` (package `dsp-vre-lib`):
 `resource_client.py` (`ResourceClient`, creates resources), `project_client.py` (`ProjectClient`),
-`list_client.py` (list node lookups), and `ingest.py` (file ingest).
+`list_client.py` (list node lookups), and `ingest.py` (file ingest, `DspIngestClientLive`).
+`models/upload_clients.py` wraps the ingest client in `DspIngestAssetClient`,
+which turns an ingested file into a `BitstreamInfo`.
 
 #### Utilities
 
@@ -295,7 +297,7 @@ When working on xmlupload functionality, these are the most important files to u
 - `models/processed/res.py` - Core ProcessedResource model
 - `stash/stash_circular_references.py` - Circular reference handling
 - `make_rdf_graph/make_resource_and_values.py` - RDF generation
-- `src/dsp_tools/clients/resource_client.py` - DSP-API resource creation
+- `dsp_vre_lib/clients/resource_client.py` (package `dsp-vre-lib`) - DSP-API resource creation
 
 ## Module Dependencies
 

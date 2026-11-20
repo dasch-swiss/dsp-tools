@@ -15,7 +15,7 @@ The clients should be as simple to initiate as possible and be stateless, if pos
 
 Protocol classes define the contract that implementations must follow:
 
-- **Location**: `src/dsp_tools/clients/`
+- **Location**: `src/dsp_vre_lib/clients/`
 - **Naming**: `<Domain>Client` (e.g., `AuthenticationClient`, `LegalInfoClient`)
 - **Implementation**: Use `typing.Protocol` for structural subtyping
 - **Purpose**: Define required attributes and method signatures without implementation
@@ -39,7 +39,7 @@ class AuthenticationClient(Protocol):
 
 Live implementations are concrete classes that interact with real DSP API endpoints:
 
-- **Location**: `src/dsp_tools/clients/`
+- **Location**: `src/dsp_vre_lib/clients/`
 - **Naming**: `<Domain>ClientLive` (e.g., `AuthenticationClientLive`, `LegalInfoClientLive`)
 - **Decorator**: Always use `@dataclass` decorator
 - **Inheritance**: Inherit from corresponding Protocol class
@@ -211,6 +211,10 @@ def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: b
 - **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
 - **Other API errors**: Raise `FatalNonOkApiResponseCodeError` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
+- **Exception classes**: All exceptions are in `exceptions.py` and subclass `DspVreLibUserError`
+  (the user can solve the problem) or `DspVreLibInternalError` (the user cannot).
+  Both subclass `DspVreLibBaseError`, which has a `message` attribute.
+  Do not import the exceptions of dsp-tools. dsp-tools catches these base classes in `cli/entry_point.py`.
 
 ### 401 vs 403: Authentication vs Authorization
 
@@ -226,7 +230,7 @@ It's crucial to distinguish between authentication failures (401) and authorizat
   to the project (`ensureProjectWritable` in
   [AuthorizationHandler.scala](https://github.com/dasch-swiss/dsp-api/blob/main/modules/ingest/src/main/scala/swiss/dasch/api/AuthorizationHandler.scala)).
   It also answers 401 when it rejects the token.
-  `DspIngestClientLive._ingest` and the `BulkIngestClient` methods `upload_file`, `trigger_ingest_process`
+  `DspIngestClientLive.ingest` and the `BulkIngestClient` methods `upload_file`, `trigger_ingest_process`
   and `retrieve_mapping_generator` therefore map 401 and 403 to `BadCredentialsError`,
   and their messages name both causes.
   `BulkIngestClient` raises on the first refusal and does not return an `UploadFailure`,
@@ -275,13 +279,11 @@ import requests
 from loguru import logger
 from requests import RequestException, Response
 
-from dsp_vre_lib.clients
-< protocol_file >
-import < ProtocolClass >
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.<protocol_file> import <ProtocolClass>
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.utils.request_utils import (
+from dsp_vre_lib.clients.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
     log_request,
@@ -318,7 +320,10 @@ def get_token(self) -> str:
 
 - **Mock implementations**: Create mock/fake clients implementing the Protocol for testing
 - **Dependency injection**: Pass Protocol types to consumers, not concrete implementations
-- **Unittesting**: Test live clients with mocked `requests` library
+- **Unittesting**: Test live clients with mocked `requests` library.
+  The tests are in `test/unittests/clients/` of this package. Run them with `just vre-lib-unittests`.
+- **String patch targets**: Patch a name in the module that uses it (`dsp_vre_lib.clients.<module>.<name>`),
+  not in the module that defines it. A patch on the defining module has no effect on a module that imported the name.
 - **End-to-end testing**: Test against DSP-API in a test container
 
 ## Client Dependencies
@@ -391,7 +396,7 @@ headers = {
 
 ## Example: Creating a New Client
 
-First: Define the Protocol in `src/dsp_tools/clients/<domain>_client.py`:
+First: Define the Protocol in `src/dsp_vre_lib/clients/<domain>_client.py`:
 
 ```python
 from typing import Protocol
@@ -405,7 +410,7 @@ class UserClient(Protocol):
         """Get user information by IRI"""
 ```
 
-Second: Implement the live client in `src/dsp_tools/clients/<domain>_client_live.py`:
+Second: Implement the live client in `src/dsp_vre_lib/clients/<domain>_client_live.py`:
 
 ```python
 from dataclasses import dataclass
@@ -415,11 +420,11 @@ from typing import Any
 import requests
 from requests import RequestException
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import UserClient
-from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.utils.request_utils import (
+from dsp_vre_lib.clients.group_user_clients import UserClient
+from dsp_vre_lib.clients.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
     log_request,
@@ -463,6 +468,6 @@ class UserClientLive(UserClient):
 
 ## Related Documentation
 
-- Request utilities: `src/dsp_tools/utils/request_utils.py`
-- Exception definitions: `src/dsp_tools/error/exceptions.py`
+- Request utilities: `src/dsp_vre_lib/clients/request_utils.py`
+- Exception definitions: `src/dsp_vre_lib/clients/exceptions.py`
 - Main project documentation: `/CLAUDE.md`

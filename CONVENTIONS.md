@@ -27,9 +27,9 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   shared HTTP-route interaction goes to `packages/dsp-vre-lib/src/dsp_vre_lib/clients`. See
   `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md`.
 - HTTP clients (`clients/`) are generic and reusable, and contain **no retry logic** (that lives in
-  `utils/request_utils.py`).
-- Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
-  sanitisation, error handling, and retries.
+  `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`).
+- Never make raw HTTP requests — always go through `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`
+  for consistent logging, sanitisation, error handling, and retries.
 - Build the HTTP call only from the `RequestParameters` object that `log_request()` received
   (`url=params.url`, `headers=params.headers`, `data=params.data_serialized`, `timeout=params.timeout`).
   Do not pass local variables or constants directly — the log must show the request that was actually sent.
@@ -159,7 +159,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | xmlupload | `packages/dsp-tools/src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
 | other commands | `packages/dsp-tools/src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
 | xmllib (public API) | `packages/dsp-tools/src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
-| utils / xml parsing | `packages/dsp-tools/src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
+| utils / xml parsing | `packages/dsp-tools/src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`. |
 | schema | `packages/dsp-tools/src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
 | dsp-vre-lib | `packages/dsp-vre-lib/` | Separate package: the Python client library for the DSP-API, empty for now. Must not import `dsp_tools` (ruff `TID251`). No file formats. A feature that changes server interaction later also lands here. |
 | docs | `packages/dsp-tools/docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |

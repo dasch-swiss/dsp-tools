@@ -457,6 +457,20 @@ requires-dist = [
 name = "dsp-vre-lib"
 version = "0.0.0"
 source = { editable = "packages/dsp-vre-lib" }
+dependencies = [
+    { name = "loguru" },
+    { name = "rdflib" },
+    { name = "regex" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loguru", specifier = "~=0.7.3" },
+    { name = "rdflib" },
+    { name = "regex" },
+    { name = "requests" },
+]
 
 [[package]]
 name = "et-xmlfile"

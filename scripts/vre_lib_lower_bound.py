@@ -11,6 +11,7 @@ Both do nothing if dsp-tools does not declare dsp-vre-lib.
 
 from __future__ import annotations
 
+import json
 import sys
 import urllib.error
 import urllib.request
@@ -20,11 +21,14 @@ import tomlkit
 from packaging.requirements import Requirement
 from packaging.specifiers import Specifier
 from packaging.specifiers import SpecifierSet
+from packaging.utils import canonicalize_name
 from packaging.version import Version
 
 PYPROJECT_PATH = Path("packages/dsp-tools/pyproject.toml")
 PACKAGE_NAME = "dsp-vre-lib"
 PYPI_URL = "https://pypi.org/pypi/dsp-vre-lib/{version}/json"
+# The form `>=X,<Y` (see the set-up document). Other operators make the lower bound unclear.
+ALLOWED_OPERATORS = {">=", "<", "<=", "!="}
 
 
 def main() -> None:
@@ -39,6 +43,7 @@ def main() -> None:
 
 def raise_lower_bound(dependency: str, version: str) -> str:
     """Return the dependency string with the lower bound `>=version`, if `version` is higher than the current bound."""
+    version = str(Version(version))
     requirement = Requirement(dependency)
     current = _lower_bound(requirement)
     if current is not None and current >= Version(version):
@@ -59,6 +64,8 @@ def raise_lower_bound_in_pyproject(pyproject: Path, version: str) -> None:
         print(f"dsp-tools does not declare {PACKAGE_NAME}: no change")
         return
     raised = raise_lower_bound(dependency, version)
+    if f'"{dependency}"' not in text:
+        sys.exit(f"The text '\"{dependency}\"' is not in {pyproject}. Change the dependency by hand.")
     pyproject.write_text(text.replace(f'"{dependency}"', f'"{raised}"', 1), encoding="utf-8")
     print(f"{PACKAGE_NAME} dependency: '{dependency}' -> '{raised}'")
 
@@ -77,10 +84,11 @@ def check_lower_bound_on_pypi(pyproject: Path) -> None:
 
 
 def is_on_pypi(version: str) -> bool:
+    """A yanked version counts as not on PyPI. Other errors than 404 propagate, so that CI fails loudly."""
     try:
         # PYPI_URL is a fixed https URL, thus no file: or custom scheme.
         with urllib.request.urlopen(PYPI_URL.format(version=version), timeout=30) as response:  # noqa: S310
-            return bool(response.status == 200)
+            return not json.load(response)["info"]["yanked"]
     except urllib.error.HTTPError as error:
         if error.code == 404:
             return False
@@ -89,11 +97,17 @@ def is_on_pypi(version: str) -> bool:
 
 def _find_dependency(pyproject_text: str) -> str | None:
     dependencies: list[str] = tomlkit.parse(pyproject_text)["project"].get("dependencies", [])
-    matches = [str(d) for d in dependencies if Requirement(str(d)).name == PACKAGE_NAME]
+    matches = [str(d) for d in dependencies if canonicalize_name(Requirement(str(d)).name) == PACKAGE_NAME]
+    if len(matches) > 1:
+        sys.exit(f"dsp-tools declares {PACKAGE_NAME} more than one time: {matches}. Change the dependency by hand.")
     return matches[0] if matches else None
 
 
 def _lower_bound(requirement: Requirement) -> Version | None:
+    other_operators = {s.operator for s in requirement.specifier} - ALLOWED_OPERATORS
+    if other_operators:
+        msg = f"The dependency '{requirement}' uses {sorted(other_operators)}. Use the form '{PACKAGE_NAME}>=X,<Y'."
+        raise ValueError(msg)
     bounds = [Version(s.version) for s in requirement.specifier if s.operator == ">="]
     return max(bounds) if bounds else None
 

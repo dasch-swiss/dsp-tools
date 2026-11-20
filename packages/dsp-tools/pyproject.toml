@@ -18,6 +18,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "argparse",
+    "dsp-vre-lib",
     "jinja2",
     "jsonpath-ng>=1.12",
     "jsonschema",
@@ -53,6 +54,10 @@ Repository = "https://github.com/dasch-swiss/dsp-tools.git"
 dsp-tools = "dsp_tools.cli.entry_point:main" # definition of the CLI entry point
 
 
+[tool.uv.sources]
+dsp-vre-lib = { workspace = true }
+
+
 [build-system]
 # Tells “frontend” build tools (like pip, build, or uv) what “backend” build tool to use.
 requires = ["uv_build>=0.8.13"]
@@ -63,6 +68,10 @@ build-backend = "uv_build"
 addopts = ["--import-mode=importlib"]
 # see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
 pythonpath = [".", "src", "test"]
+filterwarnings = [
+    # pytest looks up "_mock_name" on each module attribute, and the rdflib namespace XSD warns about unknown names.
+    "ignore:Code. _mock_name is not defined in namespace XSD:UserWarning",
+]
 
 
 [tool.mypy]

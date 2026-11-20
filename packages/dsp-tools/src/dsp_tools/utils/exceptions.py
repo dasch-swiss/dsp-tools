@@ -1,4 +1,3 @@
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -19,7 +18,3 @@ class DuplicateIdsInXmlAndId2IriMappingError(UserError):
 
 class MalformedPrefixedIriError(UserError):
     """If the input prefixed IRI is malformed"""
-
-
-class DspToolsRequestError(InternalError):
-    """Class for errors that are raised if any request exceptions happens."""

@@ -1,0 +1,132 @@
+import logging
+from dataclasses import dataclass
+from http import HTTPStatus
+from typing import Any
+
+import requests
+from requests import RequestException
+from requests import Response
+
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.legal_info_client import LegalInfoClient
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
+
+logger = logging.getLogger(__name__)
+
+TIMEOUT_60 = 60
+
+
+@dataclass
+class LegalInfoClientLive(LegalInfoClient):
+    server: str
+    project_shortcode: str
+    auth: AuthenticationClient
+
+    def post_copyright_holders(self, copyright_holders: list[str]) -> None:
+        """Send a list of new copyright holders to the API"""
+        logger.debug(f"POST {len(copyright_holders)} new copyright holders")
+        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/copyright-holders"
+        try:
+            response = self._post_and_log_request(url, copyright_holders)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        if response.ok:
+            return
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
+                "Your permissions are insufficient for this action."
+            )
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
+
+    def _post_and_log_request(self, url: str, data: list[str]) -> Response:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("POST", url, TIMEOUT_60, {"data": data}, headers)
+        log_request(params)
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+        log_response(response, status_code=response.status_code)
+        return response
+
+    def set_resource_side_legal_info(self, legal_info: dict[str, Any]) -> None:
+        logger.debug("PUT resource-side legal info")
+        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/resource"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("PUT", url, TIMEOUT_60, legal_info, headers)
+        log_request(params)
+        try:
+            response = requests.put(
+                url=params.url,
+                headers=params.headers,
+                data=params.data_serialized,
+                timeout=params.timeout,
+            )
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        log_response(response, status_code=response.status_code)
+        if response.ok:
+            return
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError(
+                "Only a SystemAdmin or ProjectAdmin can set the resource-side legal info of a project, "
+                "your permissions are insufficient for this action."
+            )
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
+
+    def get_licenses_of_a_project(self, enabled_only: bool = True) -> list[dict[str, Any]]:
+        logger.debug("GET enabled licenses of the project.")
+        page_num = 1
+        all_data = []
+        is_last_page = False
+        while not is_last_page:
+            response = self._get_one_license_page(page_num, enabled_only)
+            response_dict = response.json()
+            all_data.extend(response_dict["data"])
+            is_last_page = _is_last_page(response_dict)
+        return all_data
+
+    def _get_one_license_page(self, page_num: int, enabled_only: bool) -> Response:
+        enabled = str(enabled_only).lower()
+        url = (
+            f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/"
+            f"legal-info/licenses?page={page_num}&page-size=25&order=Asc&showOnlyEnabled={enabled}"
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters(method="GET", url=url, timeout=TIMEOUT_60, headers=headers)
+        log_request(params)
+        try:
+            response = requests.get(
+                url=params.url,
+                headers=params.headers,
+                timeout=params.timeout,
+            )
+            log_response(response, status_code=response.status_code)
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+        if response.ok:
+            return response
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
+
+
+def _is_last_page(response: dict[str, Any]) -> bool:
+    current_page = response["pagination"]["currentPage"]
+    total_page = response["pagination"]["totalPages"]
+    return bool(current_page == total_page)

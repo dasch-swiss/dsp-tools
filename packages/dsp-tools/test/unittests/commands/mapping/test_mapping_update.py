@@ -5,9 +5,6 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.mapping_update import RERUN_ADVICE
 from dsp_tools.commands.mapping.mapping_update import _add_classes_mappings
@@ -26,8 +23,11 @@ from dsp_tools.commands.mapping.models import MappingDeletions
 from dsp_tools.commands.mapping.models import MappingUploadFailure
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
-from dsp_tools.utils.request_utils import ApiV3ErrorDetails
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre_lib.clients.request_utils import ApiV3ErrorDetails
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 
 ONTO_NAME = "onto"
 SHORTCODE = "0001"

@@ -10,8 +10,6 @@ from rdflib import Graph
 from rdflib import URIRef
 from tqdm import tqdm
 
-from dsp_tools.clients.resource_client import ResourceClient
-from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
@@ -19,8 +17,10 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.exceptions import DspToolsRequestError
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients import ResourceClient
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.value_client import ValueClient
 
 
 def upload_stashed_xml_texts(
@@ -57,7 +57,7 @@ def upload_stashed_xml_texts(
                 continue
             else:
                 resource_in_triplestore = request_result
-        except DspToolsRequestError as err:
+        except DspApiRequestError as err:
             _log_unable_to_retrieve_resource(resource=res_id, msg=err.message)
             continue
 
@@ -131,7 +131,7 @@ def _upload_stash_item(
     )
     try:
         upload_problem = val_client.replace_existing_value(payload)
-    except DspToolsRequestError as err:
+    except DspApiRequestError as err:
         _log_unable_to_upload_xml_resource(err.message, stash_item.res_id, stash_item.value.prop_iri)
         return False
     if upload_problem:

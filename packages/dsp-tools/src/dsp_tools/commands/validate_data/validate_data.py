@@ -8,10 +8,6 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
@@ -48,6 +44,10 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "No validation errors found!   " + RESET_TO_DEFAULT

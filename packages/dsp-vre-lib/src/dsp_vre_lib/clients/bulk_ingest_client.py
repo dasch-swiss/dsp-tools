@@ -1,0 +1,214 @@
+import logging
+import urllib.parse
+from collections.abc import Iterator
+from dataclasses import dataclass
+from dataclasses import field
+from http import HTTPStatus
+from pathlib import Path
+
+import regex
+from requests import JSONDecodeError
+from requests import RequestException
+from requests import Response
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.adapters import Retry
+
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import IngestError
+from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import notify
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class UploadFailure:
+    """Information on why the upload of a file to the ingest server failed."""
+
+    filepath: Path
+    reason: str
+    status_code: int | None = None
+    response_text: str | None = None
+
+
+@dataclass
+class BulkIngestClient:
+    """Client to upload multiple files to the ingest server and monitor the ingest process."""
+
+    dsp_ingest_url: str
+    auth: AuthenticationClient
+    shortcode: str
+    imgdir: Path = field(default=Path.cwd())
+    log_file: Path | None = None
+    session: Session = field(init=False)
+    retrieval_failures = 0
+
+    def __post_init__(self) -> None:
+        retries = 6
+        self.session = Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=0.3,
+            allowed_methods=None,  # means all methods
+            status_forcelist=[HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE],
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+
+    def upload_file(
+        self,
+        filepath: Path,
+    ) -> UploadFailure | None:
+        """
+        Uploads a file to the ingest server.
+        The load balancer on DSP servers currently has a timeout of 10m,
+        so we need to use a slightly shorter timeout of 9m.
+        See https://linear.app/dasch/issue/INFRA-847/increase-traefik-readtimeout
+        A refusal that applies to every file of the project is raised, not returned.
+        # noqa: DAR101
+        # noqa: DAR201
+
+        Raises:
+            BadCredentialsError: If the server refuses the upload because the user has no write access to the project,
+                or because the token is invalid.
+        """
+        logger.debug(f"Uploading file '{filepath}'")
+        timeout = 9 * 60
+        url = self._build_url_for_bulk_ingest_ingest_route(filepath)
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        err_msg = f"Failed to upload '{filepath}' to '{url}'."
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
+        try:
+            with open(self.imgdir / filepath, "rb") as binary_io:
+                res = self.session.post(
+                    url=params.url,
+                    headers=params.headers,
+                    data=binary_io,  # https://requests.readthedocs.io/en/latest/user/advanced/#streaming-uploads
+                    timeout=params.timeout,
+                )
+            log_response(res, status_code=res.status_code)
+        except RequestException as e:
+            logger.exception(err_msg)
+            return UploadFailure(filepath, f"Exception of requests library: {e}")
+        except OSError as e:
+            err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
+            logger.error(err_msg)
+            return UploadFailure(filepath, err_msg)
+        _raise_if_no_write_access(res, f"The ingest server refused the upload to project {self.shortcode}.")
+        if res.status_code != HTTPStatus.OK:
+            logger.error(f"{err_msg}: Response {res.status_code}: {res.text}")
+            return UploadFailure(filepath, res.reason, res.status_code, res.text)
+        return None
+
+    def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
+        """
+        Remove the leading slash of absolute filepaths,
+        because the `/project/<shortcode>/bulk-ingest/ingest` route only accepts relative paths.
+        The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
+
+        Args:
+            filepath: filepath
+
+        Returns:
+            url
+        """
+        quoted = regex.sub(r"^%2F", "", urllib.parse.quote(str(filepath), safe=""))
+        return f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted}"
+
+    def trigger_ingest_process(self) -> None:
+        """Start the ingest process on the server."""
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        timeout = 5
+        headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+        params = RequestParameters("POST", url, timeout, headers=headers)
+        log_request(params)
+        res = self.session.post(params.url, timeout=params.timeout, headers=params.headers)
+        log_response(res, status_code=res.status_code)
+        _raise_if_no_write_access(
+            res, f"The ingest server refused to start the ingest process for project {self.shortcode}."
+        )
+        if res.status_code == HTTPStatus.NOT_FOUND:
+            raise NoIngestFileFoundError(f"No assets have been uploaded for project {self.shortcode}.")
+        if res.status_code == HTTPStatus.CONFLICT:
+            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            notify(logger, msg)
+            return
+        if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
+            raise PermanentConnectionError("Server is unavailable. Please try again later.")
+
+        try:
+            returned_shortcode = res.json().get("id")
+            failed: bool = returned_shortcode != self.shortcode
+        except JSONDecodeError:
+            failed = True
+        if failed:
+            raise IngestError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
+        notify(logger, f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+
+    def retrieve_mapping_generator(self) -> Iterator[str | bool]:
+        """
+        Try to retrieve the mapping CSV from the server.
+
+        Yields:
+            True if the ingest process is still running.
+            False if there is a server error.
+            The mapping CSV if the ingest process has completed.
+
+        Raises:
+            BadCredentialsError: if the server refuses the request, because the user has no write access
+                to the project, or because the token is invalid.
+            PermanentConnectionError: if there are too many server errors in a row.
+        """
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        timeout = 5
+        while True:
+            headers = {"Authorization": f"Bearer {self.auth.get_token()}"}
+            params = RequestParameters("GET", url, timeout, headers=headers)
+            log_request(params)
+            res = self.session.get(params.url, timeout=params.timeout, headers=params.headers)
+            log_response(res, status_code=res.status_code)
+            _raise_if_no_write_access(
+                res, f"The ingest server refused to send the mapping CSV for project {self.shortcode}."
+            )
+            if res.status_code == HTTPStatus.CONFLICT:
+                self.retrieval_failures = 0
+                logger.info("Ingest process is still running. Wait until it completes...")
+                yield True
+            elif res.status_code != HTTPStatus.OK or not res.text.startswith("original,derivative"):
+                self.retrieval_failures += 1
+                if self.retrieval_failures > 15:
+                    msg = "There were too many server errors."
+                    if self.log_file:
+                        msg += f" Please check the logs at {self.log_file}."
+                    raise PermanentConnectionError(msg)
+                msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
+                logger.error(msg)
+                yield False
+            else:
+                logger.info("Ingest process completed.")
+                break
+        yield res.content.decode("utf-8")
+
+
+def _raise_if_no_write_access(res: Response, refusal: str) -> None:
+    # As of 2026-10, DSP-INGEST answers 401, not 403, if the user lacks write access (see clients/CLAUDE.md).
+    if res.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        raise BadCredentialsError(
+            f"{refusal} "
+            "Either you have no write access to the project, or your login token is invalid or expired. "
+            "SystemAdmins always have write access. "
+            "By default, ProjectAdmins and all project members have it, too."
+        )

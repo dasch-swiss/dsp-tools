@@ -8,16 +8,12 @@ from lxml import etree
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.ingest import BulkIngestedAssetClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
+from dsp_tools.commands.xmlupload.models.upload_clients import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
@@ -32,6 +28,10 @@ from dsp_tools.utils.dsp_user_account_check import check_for_dsp_employee_accoun
 from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import LegalInfoClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 
 
 def ingest_xmlupload(

@@ -8,8 +8,6 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ImportId
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
 from dsp_tools.commands.migration.exceptions import MigrationImportFailureError
 from dsp_tools.commands.migration.migration import _import
@@ -17,6 +15,8 @@ from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ImportId
 
 PROJECT_IRI = "http://rdfh.ch/projects/0001"
 EXPORT_ID = ExportId("export-abc")

@@ -24,12 +24,13 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 ### Module boundaries
 
 - **Commands never import from other commands.** Shared logic goes to `packages/dsp-tools/src/dsp_tools/utils/`;
-  shared HTTP-route interaction goes to `packages/dsp-tools/src/dsp_tools/clients/`. See
+  shared HTTP-route interaction goes to `packages/dsp-vre-lib/src/dsp_vre_lib/clients`. See
   `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md`.
-- HTTP clients (`clients/`) are generic and reusable, and contain **no retry logic** (that lives in
-  `utils/request_utils.py`).
-- Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
-  sanitisation, error handling, and retries.
+- HTTP clients (`dsp_vre_lib/clients/`) are generic and reusable. The client classes contain **no retry loops**.
+  The commands own their retry loops. They use the retry and logging helpers in
+  `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`.
+- Never make raw HTTP requests — always go through `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`
+  for consistent logging, sanitisation, error handling, and retries.
 - Build the HTTP call only from the `RequestParameters` object that `log_request()` received
   (`url=params.url`, `headers=params.headers`, `data=params.data_serialized`, `timeout=params.timeout`).
   Do not pass local variables or constants directly — the log must show the request that was actually sent.
@@ -77,6 +78,8 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every feature that touches it.
 - **Exception classes end in `Error`** (`MultimediaFileNotFoundError`, not `MultimediaFileNotFound`).
   Ruff `N818` enforces it. The hierarchy is in `packages/dsp-tools/docs/developers/architecture/error-handling.md`.
+- **Catch errors around a client call with `ANY_DSP_ERROR` or `ANY_USER_ERROR`** (`dsp_tools/error/exceptions.py`),
+  never with `BaseError` or `UserError` alone. The errors of `dsp_vre_lib` do not subclass `BaseError`.
 
 - **User-facing command hints** (docs, CLI messages, exception messages) write `uvx dsp-tools <command>`,
   because users run DSP-TOOLS with `uvx`, not from an activated environment.
@@ -151,7 +154,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | Subsystem | Path | Role & cross-cutting wiring |
 | --- | --- | --- |
 | CLI | `packages/dsp-tools/src/dsp_tools/cli/` | Command wiring in **three places**: `create_parsers.py` (argparse), `call_action.py` (dispatch), `call_action_files_only.py` (thin file-only wrappers). A new command touches all three. |
-| clients | `packages/dsp-tools/src/dsp_tools/clients/` | Generic, reusable HTTP clients (no retry logic). |
+| clients | `packages/dsp-vre-lib/src/dsp_vre_lib/clients` | Generic, reusable HTTP clients (no retry loops). |
 | create | `packages/dsp-tools/src/dsp_tools/commands/create/` | JSON project file → server. Pipeline `parsing/` → `models/` → `serialisation/` → `create_on_server/`. Legal metadata (`data_license`, …) is sent via `LegalInfoClient`; `enabled_licenses` via the create payload. |
 | get | `packages/dsp-tools/src/dsp_tools/commands/get/` | Server → JSON project file (round-trip). Project modelling in `legacy_models/project.py`; permissions in `get_permissions.py`. |
 | excel2json | `packages/dsp-tools/src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
@@ -159,9 +162,9 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | xmlupload | `packages/dsp-tools/src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
 | other commands | `packages/dsp-tools/src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
 | xmllib (public API) | `packages/dsp-tools/src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
-| utils / xml parsing | `packages/dsp-tools/src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
+| utils / xml parsing | `packages/dsp-tools/src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `packages/dsp-vre-lib/src/dsp_vre_lib/clients/request_utils.py`. |
 | schema | `packages/dsp-tools/src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
-| dsp-vre-lib | `packages/dsp-vre-lib/` | Separate package: the Python client library for the DSP-API, empty for now. Must not import `dsp_tools` (ruff `TID251`). No file formats. A feature that changes server interaction later also lands here. |
+| dsp-vre-lib | `packages/dsp-vre-lib/` | Separate package: the Python client library for the DSP-API. It holds the HTTP clients (`dsp_vre_lib.clients`), their exceptions and `request_utils`. dsp-tools depends on it through the uv workspace. Must not import `dsp_tools` (ruff `TID251`). No file formats. A feature that changes server interaction also lands here. |
 | docs | `packages/dsp-tools/docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |
 | test data + tests | `packages/dsp-tools/testdata/`, `test/` | `packages/dsp-tools/test/unittests`, `packages/dsp-tools/test/integration`, `packages/dsp-tools/test/e2e`, `packages/dsp-tools/test/legacy_e2e`. Prefer extending the systematic project/XML over new fixtures; register shortcodes in `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md`. E2E needs the **three-place wiring** (test dir + `just` recipe + `tests-e2e.yml` job). |
 | external: `0854-daschland-scripts` | <https://github.com/dasch-swiss/0854-daschland-scripts> | DaSCH's **demo importer** (separate repo → separate PR). Depends on `dsp-tools` + the public `xmllib` API, with its own project ontology + generated XML. May need a companion PR when a change touches **`xmllib`, `excel2json`, `create`, or `xmlupload`** — **not** for validate-data-only changes. `change-blast-radius` flags it only; it does not trace it. |

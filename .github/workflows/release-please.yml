@@ -101,7 +101,6 @@ jobs:
             if [[ "$branch" == *"--components--dsp-tools" ]]; then
               # dsp-tools requires the latest released dsp-vre-lib.
               # release-please builds the branch from main, so the manifest holds that version.
-              # No change while dsp-tools does not declare dsp-vre-lib.
               # In the workspace, the locked dsp-vre-lib stays the source on main, so the tested code stays the same.
               vre_lib_version=$(jq -r '."packages/dsp-vre-lib"' .github/release-please-manifest.json)
               uv run python scripts/vre_lib_lower_bound.py raise "$vre_lib_version"

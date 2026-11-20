@@ -5,8 +5,6 @@ from unittest.mock import patch
 import pytest
 from rdflib import URIRef
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.resource_client import ResourceClient
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_data_upload
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_upload
@@ -17,14 +15,16 @@ from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedF
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.upload_clients import AssetClient
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.utils.exceptions import DspToolsRequestError
-from dsp_tools.utils.request_utils import ResponseCodeAndText
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
+from dsp_vre_lib.clients import ResourceClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 
 RES_ID = "res_id"
 RES_IRI = "http://iri/res_id"
@@ -94,7 +94,7 @@ def iri_lookups() -> IRILookups:
 
 @pytest.fixture(autouse=True)
 def patch_sleep():
-    with patch("dsp_tools.utils.request_utils.time.sleep"):
+    with patch("dsp_vre_lib.clients.request_utils.time.sleep"):
         yield
 
 
@@ -257,7 +257,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = [DspToolsRequestError("err"), RES_IRI]
+        resource_client.post_resource.side_effect = [DspApiRequestError("err"), RES_IRI]
         result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert result == RES_IRI
         assert resource_client.post_resource.call_count == 2
@@ -268,7 +268,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = [DspToolsRequestError("err"), RES_IRI]
+        resource_client.post_resource.side_effect = [DspApiRequestError("err"), RES_IRI]
         with patch("dsp_tools.commands.xmlupload.execute_upload.log_request_failure_and_sleep") as log_mock:
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         log_mock.assert_called_once_with("Connection Error", 0, exc_info=False)
@@ -279,7 +279,7 @@ class TestResourceDataUpload:
         resource_client: MagicMock,
         iri_lookups: IRILookups,
     ) -> None:
-        resource_client.post_resource.side_effect = DspToolsRequestError("err")
+        resource_client.post_resource.side_effect = DspApiRequestError("err")
         with pytest.raises(PermanentConnectionError):
             _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
         assert resource_client.post_resource.call_count == 24
@@ -292,7 +292,7 @@ class TestResourceDataUpload:
     ) -> None:
         # the retry evaluation function is programmed not to retry if it is in a testing environment,
         # since we want to ensure that we will retry, this needs to be patched here
-        with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "false"}):
+        with patch.dict(os.environ, {"DSP_VRE_LIB_NO_RETRY": "false"}):
             resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
             result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
             assert result == RES_IRI

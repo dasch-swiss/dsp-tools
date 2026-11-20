@@ -18,6 +18,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "argparse",
+    "dsp-vre-lib",
     "jinja2",
     "jsonpath-ng>=1.12",
     "jsonschema",
@@ -51,6 +52,10 @@ Repository = "https://github.com/dasch-swiss/dsp-tools.git"
 
 [project.scripts]
 dsp-tools = "dsp_tools.cli.entry_point:main" # definition of the CLI entry point
+
+
+[tool.uv.sources]
+dsp-vre-lib = { workspace = true }
 
 
 [build-system]

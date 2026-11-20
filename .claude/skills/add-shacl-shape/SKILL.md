@@ -16,12 +16,12 @@ Everything you need is here or linked. This workflow is an optional process: the
 from the *ordering* if you have a good reason.
 
 The **test-data conventions are not optional.** They are enforced by the tests and defined in the
-module's code guide, `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions"),
+module's code guide, `packages/dsp-tools/src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions"),
 which also describes how the existing code is structured. This skill references those conventions; it
 does not restate them. Change a convention in that file, not in this skill.
 
-> **Base directory for paths.** Unless a path starts with `src/`, `test/`, or `testdata/` (relative to the
-> repository root), every file path in this skill is relative to `src/dsp_tools/commands/validate_data/`.
+> **Base directory for paths.** Unless a path starts with `packages/` (relative to the
+> repository root), every file path in this skill is relative to `packages/dsp-tools/src/dsp_tools/commands/validate_data/`.
 
 ## What you are building, and when you are done
 
@@ -105,7 +105,7 @@ project ontology ──► SHACL shapes ──────┘        (3 runs)
 Write the test data before the shape. At least one resource must fail and one must pass. This gives
 cheap, objective feedback before you build anything.
 
-Follow the **"Test-data conventions" in `src/dsp_tools/commands/validate_data/CLAUDE.md`** for where
+Follow the **"Test-data conventions" in `packages/dsp-tools/src/dsp_tools/commands/validate_data/CLAUDE.md`** for where
 each file goes and what each contains. In short: add one violating resource to a `*_violation.xml` and
 one correct resource to the matching `*_correct.xml`, one violation per resource, with a descriptive
 `id` and an explaining XML comment.
@@ -134,7 +134,7 @@ A check may also need a new property or class in the project JSON, or an entry i
 
 Ask: **does the check depend on anything project-specific?**
 
-- **No → write it as a STATIC shape** in `src/dsp_tools/resources/validate_data/`. Prefer this. Use it
+- **No → write it as a STATIC shape** in `packages/dsp-tools/src/dsp_tools/resources/validate_data/`. Prefer this. Use it
   when the target/path/allowed-values are fixed `knora-api`/`api-shapes` concepts that exist for every
   project: value content (datatypes, regexes, ranges), file formats, DSP built-in resources
   (`LinkObj`, `Region`, `AudioSegment`, `VideoSegment`).
@@ -243,7 +243,7 @@ You must learn which `sh:sourceConstraintComponent` your shape triggers, because
 you touch Python at all. This you will find more difficult to anticipate, therefore just try it out first.
 
 Full loop (requires **Docker running**): run `validate-data` on your test file with the `--save-graphs`
-flag (defined in `src/dsp_tools/cli/create_parsers.py`, consumed in `validate_data.py`) — e.g.
+flag (defined in `packages/dsp-tools/src/dsp_tools/cli/create_parsers.py`, consumed in `validate_data.py`) — e.g.
 `dsp-tools validate-data --save-graphs <your-test-file.xml>`. The graphs are written to a `graphs/` folder
 next to the XML file. Open the saved report `.ttl`, find the `sh:ValidationResult` whose `sh:focusNode`
 is your resource, and
@@ -354,10 +354,10 @@ none of the existing `ProblemType`s fit.
 ## 7. Step 6 — Update and run the tests
 
 Update the e2e `expected_*` lists and the unit expectations per the "Test-data conventions" in
-`src/dsp_tools/commands/validate_data/CLAUDE.md` (which file per scenario, the tuple format, and the
+`packages/dsp-tools/src/dsp_tools/commands/validate_data/CLAUDE.md` (which file per scenario, the tuple format, and the
 aggregate-file two-list rule). Then run:
 
-- `just unittests test/unittests/commands/validate_data/` — fast, no Docker; covers the whole
+- `just dsp-tools-pytest packages/dsp-tools/test/unittests/commands/validate_data/` — fast, no Docker; covers the whole
   report-processing chain.
 - `just e2e-test-validate-data` — **requires Docker**; spins up a real DSP stack (testcontainers),
   creates the project, and validates the data end-to-end.
@@ -391,7 +391,7 @@ The review must consider, but is not limited to:
 
 1. [ ] Add test data per the module `CLAUDE.md` "Test-data conventions" (one violating + one correct
    resource, one error per resource, descriptive `id`, XML comment; new property/class in the project JSON).
-2. [ ] Decide static (`src/dsp_tools/resources/validate_data/*.ttl`, preferred) vs. dynamic (`sparql/*.py`)
+2. [ ] Decide static (`packages/dsp-tools/src/dsp_tools/resources/validate_data/*.ttl`, preferred) vs. dynamic (`sparql/*.py`)
    or combination. Write a clear `sh:message`.
 3. [ ] If a new static file or a new generator: wire it into `prepare_data/prepare_data.py`
    `_create_graphs` / `sparql/construct_shacl.py`, in the correct (content vs. cardinality) graph.
@@ -399,7 +399,7 @@ The review must consider, but is not limited to:
 5. [ ] Look it up in the Step 4 table. Already handled → skip to 6. New → do Step 5 (dispatch →
    ViolationType → reformat → ProblemType → mapper → message → unit tests → update this document).
 6. [ ] Add the e2e `(res_id, ProblemType)` tuples per those conventions.
-7. [ ] `just unittests test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`
+7. [ ] `just dsp-tools-pytest packages/dsp-tools/test/unittests/commands/validate_data/`, then `just e2e-test-validate-data`
    (needs Docker), then `just lint`.
 8. [ ] Spawn a review subagent (Step 7) to check reuse, simplicity, and the plumbing/completeness traps
    before handing back.

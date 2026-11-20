@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - main
+    # Only a change to dsp-tools makes a dsp-tools dev release.
+    paths:
+      - packages/dsp-tools/**
   workflow_dispatch:
 
 jobs:
@@ -26,10 +29,10 @@ jobs:
           enable-cache: true
       - name: Install just
         uses: taiki-e/install-action@just
-      - name: bump version in pyproject.toml
+      - name: bump version in packages/dsp-tools/pyproject.toml
         run: uv run scripts/bump_version.py
       - name: build wheel
-        run: uv build
+        run: uv build --package dsp-tools
       - name: publish new version to PyPI
         # PyPI trusted publishing: no long-lived token. See https://docs.pypi.org/trusted-publishers/
         run: uv publish --trusted-publishing always

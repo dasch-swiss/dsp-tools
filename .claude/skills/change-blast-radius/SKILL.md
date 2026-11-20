@@ -108,7 +108,7 @@ read off the diff), or **`n/a`** (touch point does not apply to this change).
 
 | Touch point                   | Anchor file(s)                                 | Status  | Note                                                                                    |
 |-------------------------------|------------------------------------------------|---------|-----------------------------------------------------------------------------------------|
-| excel2json ordered-keys check | `src/dsp_tools/commands/excel2json/project.py` | MISSING | new field missing from the ordered-keys list → raises `UnreachableCodeError` at runtime |
+| excel2json ordered-keys check | `packages/dsp-tools/src/dsp_tools/commands/excel2json/project.py` | MISSING | new field missing from the ordered-keys list → raises `UnreachableCodeError` at runtime |
 
 - **Planning mode** (no change yet): every applicable touch point is `TODO`.
 - **Verify mode** (a diff exists): mark each row `done` / `MISSING` / `n/a` by checking the diff
@@ -123,39 +123,39 @@ read off the diff), or **`n/a`** (touch point does not apply to this change).
 
 ---
 
-> Paths below are given from the repo root: source files under `src/dsp_tools/…`, test data under
-> `testdata/…`. Phase 3 re-verifies each against live code.
+> Paths below are given from the repo root: source files under `packages/dsp-tools/src/dsp_tools/…`, test data under
+> `packages/dsp-tools/testdata/…`. Phase 3 re-verifies each against live code.
 
 ## Playbook A — JSON project-definition change
 
 The project and ontology checklist (verify each against live code in Phase 3):
 
-- [ ] **Schema** — `src/dsp_tools/resources/schema/project.json` (and `properties-only.json` /
+- [ ] **Schema** — `packages/dsp-tools/src/dsp_tools/resources/schema/project.json` (and `properties-only.json` /
   `resources-only.json` / `lists-only.json` if the field lives in one of those sections). Model a fixed
   value set as an `enum`; give an IRI-valued field a `pattern` (see `CONVENTIONS.md`).
-- [ ] **create** — parse in `src/dsp_tools/commands/create/parsing/parse_project.py`; model in
-  `src/dsp_tools/commands/create/models/parsed_project.py`; serialise in
-  `src/dsp_tools/commands/create/serialisation/project.py`; send in
-  `src/dsp_tools/commands/create/create_on_server/project.py` (mind the project-create payload vs. the
+- [ ] **create** — parse in `packages/dsp-tools/src/dsp_tools/commands/create/parsing/parse_project.py`; model in
+  `packages/dsp-tools/src/dsp_tools/commands/create/models/parsed_project.py`; serialise in
+  `packages/dsp-tools/src/dsp_tools/commands/create/serialisation/project.py`; send in
+  `packages/dsp-tools/src/dsp_tools/commands/create/create_on_server/project.py` (mind the project-create payload vs. the
   separate legal-info path — `data_license` goes via legal-info, `enabled_licenses` via the create payload).
-- [ ] **get** (round-trip) — `src/dsp_tools/commands/get/legacy_models/project.py`; permissions via
-  `src/dsp_tools/commands/get/get_permissions.py`.
+- [ ] **get** (round-trip) — `packages/dsp-tools/src/dsp_tools/commands/get/legacy_models/project.py`; permissions via
+  `packages/dsp-tools/src/dsp_tools/commands/get/get_permissions.py`.
 - [ ] **excel2json — the historically missed spot.** Update
-  `src/dsp_tools/commands/excel2json/models/json_header.py`,
-  `src/dsp_tools/commands/excel2json/json_header.py`, and `src/dsp_tools/commands/excel2json/project.py` —
+  `packages/dsp-tools/src/dsp_tools/commands/excel2json/models/json_header.py`,
+  `packages/dsp-tools/src/dsp_tools/commands/excel2json/json_header.py`, and `packages/dsp-tools/src/dsp_tools/commands/excel2json/project.py` —
   where the ordered-keys check **raises `UnreachableCodeError` on any key it does not know**, so a field
   added everywhere else errors *here* at runtime. Follow the "Column Processing Pattern" in
-  `src/dsp_tools/commands/excel2json/CLAUDE.md`.
+  `packages/dsp-tools/src/dsp_tools/commands/excel2json/CLAUDE.md`.
 - [ ] **validate-data** — only if the field drives SHACL (as `enabled_licenses` does):
-  `src/dsp_tools/commands/validate_data/prepare_data/`,
-  `src/dsp_tools/commands/validate_data/models/api_responses.py`,
-  `src/dsp_tools/commands/validate_data/sparql/construct_shacl.py` / `legal_info_shacl.py`. A new
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/prepare_data/`,
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/models/api_responses.py`,
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/sparql/construct_shacl.py` / `legal_info_shacl.py`. A new
   RDF-mapped property must be threaded through the pipeline (see `CONVENTIONS.md`). **Authoring a shape? run
   the `add-shacl-shape` skill.**
 - [ ] **docs** — **run the `update-docs` skill**; do not decide docs here.
 - [ ] **tests + test data** — prefer extending the systematic project
-  (`testdata/json-project/systematic-project-4123.json`); register new shortcodes/shortnames in
-  `testdata/USED_SHORTCODE_SHORTNAMES.md`; add unit + integration + e2e coverage (mind the e2e three-place
+  (`packages/dsp-tools/testdata/json-project/systematic-project-4123.json`); register new shortcodes/shortnames in
+  `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md`; add unit + integration + e2e coverage (mind the e2e three-place
   wiring, see `CONVENTIONS.md`).
 - [ ] **external** — `0854-daschland-scripts` companion-PR flag (see Phase 4).
 
@@ -163,23 +163,23 @@ The project and ontology checklist (verify each against live code in Phase 3):
 
 The data side of the same fan-out. Checklist:
 
-- [ ] **Schema** — `src/dsp_tools/resources/schema/data.xsd`.
-- [ ] **XML parsing** — `src/dsp_tools/utils/xml_parsing/get_parsed_resources.py`,
-  `src/dsp_tools/utils/xml_parsing/models/parsed_resource.py`.
-- [ ] **xmlupload** — `src/dsp_tools/commands/xmlupload/` (`make_rdf_graph/`, `models/processed/`,
+- [ ] **Schema** — `packages/dsp-tools/src/dsp_tools/resources/schema/data.xsd`.
+- [ ] **XML parsing** — `packages/dsp-tools/src/dsp_tools/utils/xml_parsing/get_parsed_resources.py`,
+  `packages/dsp-tools/src/dsp_tools/utils/xml_parsing/models/parsed_resource.py`.
+- [ ] **xmlupload** — `packages/dsp-tools/src/dsp_tools/commands/xmlupload/` (`make_rdf_graph/`, `models/processed/`,
   `prepare_xml_input/`, `xmlupload.py`).
 - [ ] **validate-data** — the SHACL side:
-  `src/dsp_tools/commands/validate_data/prepare_data/get_rdf_like_data.py`,
-  `src/dsp_tools/commands/validate_data/mappers.py`,
-  `src/dsp_tools/commands/validate_data/models/rdf_like_data.py`,
-  `src/dsp_tools/resources/validate_data/api-shapes.ttl`. **Authoring a shape?
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/prepare_data/get_rdf_like_data.py`,
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/mappers.py`,
+  `packages/dsp-tools/src/dsp_tools/commands/validate_data/models/rdf_like_data.py`,
+  `packages/dsp-tools/src/dsp_tools/resources/validate_data/api-shapes.ttl`. **Authoring a shape?
   run the `add-shacl-shape` skill.** A new value type also needs a value-type violation case in
-  `testdata/validate-data/core_validation/value_type_violation.xml`.
-- [ ] **xmllib** — public API + serialisation: `src/dsp_tools/xmllib/__init__.py`,
-  `src/dsp_tools/xmllib/internal/serialise_resource.py`, `src/dsp_tools/xmllib/models/`.
-- [ ] **docs** — **run the `update-docs` skill** (`docs/data-file/xml-data-file.md`).
+  `packages/dsp-tools/testdata/validate-data/core_validation/value_type_violation.xml`.
+- [ ] **xmllib** — public API + serialisation: `packages/dsp-tools/src/dsp_tools/xmllib/__init__.py`,
+  `packages/dsp-tools/src/dsp_tools/xmllib/internal/serialise_resource.py`, `packages/dsp-tools/src/dsp_tools/xmllib/models/`.
+- [ ] **docs** — **run the `update-docs` skill** (`packages/dsp-tools/docs/data-file/xml-data-file.md`).
 - [ ] **tests + test data** — extend the systematic XML
-  (`testdata/xml-data/test-data-systematic-4123.xml`); a `validate-data` change needs **both** a conforming
+  (`packages/dsp-tools/testdata/xml-data/test-data-systematic-4123.xml`); a `validate-data` change needs **both** a conforming
   and a violating case; add unit + integration + e2e coverage.
 - [ ] **external** — `0854-daschland-scripts` companion-PR flag (see Phase 4).
 
@@ -189,13 +189,13 @@ For change kinds not laid out above, walk the `CONVENTIONS.md` inventory subsyst
 the nearest precedent (e.g. an existing command when adding a command). Worked hint for a **new CLI
 (sub)command** — the most common recurring case:
 
-- [ ] **cli — the three-place wiring:** `src/dsp_tools/cli/create_parsers.py` (argparse),
-  `src/dsp_tools/cli/call_action.py` (dispatch), and `src/dsp_tools/cli/call_action_files_only.py` (thin
+- [ ] **cli — the three-place wiring:** `packages/dsp-tools/src/dsp_tools/cli/create_parsers.py` (argparse),
+  `packages/dsp-tools/src/dsp_tools/cli/call_action.py` (dispatch), and `packages/dsp-tools/src/dsp_tools/cli/call_action_files_only.py` (thin
   wrapper, for file-only commands).
-- [ ] **docs** — run the `update-docs` skill (the command table in `docs/index.md`, the command's own page,
+- [ ] **docs** — run the `update-docs` skill (the command table in `packages/dsp-tools/docs/index.md`, the command's own page,
   the `mkdocs.yml` nav, and the command list near the top of the root `CLAUDE.md`).
 - [ ] **tests** — unit + e2e; a new e2e suite needs the **three-place wiring** (test dir under
-  `test/e2e/commands/`, a `just e2e-test-<command>` recipe, and a job in `.github/workflows/tests-e2e.yml`),
+  `packages/dsp-tools/test/e2e/commands/`, a `just e2e-test-<command>` recipe, and a job in `.github/workflows/tests-e2e.yml`),
   or it silently never runs.
 - [ ] **external** — `0854-daschland-scripts` companion-PR flag (see Phase 4).
 

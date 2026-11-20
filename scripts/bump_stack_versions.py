@@ -2,7 +2,7 @@
 Bumps the Docker image versions of DSP components. Meant to run in CI, not locally.
 
 Reads the release version and component versions from environment variables,
-writes src/dsp_tools/resources/start-stack/versions.env, creates a branch,
+writes packages/dsp-tools/src/dsp_tools/resources/start-stack/versions.env, creates a branch,
 commits, pushes, and opens a pull request. The docker-compose.yml interpolates
 the version values at `docker compose up` time via `--env-file versions.env`.
 
@@ -21,7 +21,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSIONS_ENV_PATH = Path("src/dsp_tools/resources/start-stack/versions.env")
+VERSIONS_ENV_PATH = Path("packages/dsp-tools/src/dsp_tools/resources/start-stack/versions.env")
 
 _RELEASE_RE: re.Pattern[str] = re.compile(r"\d{4}\.\d{2}\.\d{2}")
 
@@ -105,12 +105,12 @@ def _require_env(name: str) -> str:
 
 def _write_versions_env(release: str, versions: dict[str, str]) -> None:
     # POSIX-shell-sourceable. Consumed by:
-    #   - src/dsp_tools/resources/start-stack/docker-compose.yml at
+    #   - packages/dsp-tools/src/dsp_tools/resources/start-stack/docker-compose.yml at
     #     `docker compose --env-file versions.env up` time
     #     (image: daschswiss/knora-api:${API} etc.)
-    #   - src/dsp_tools/commands/start_stack/start_stack.py at runtime (reads API
+    #   - packages/dsp-tools/src/dsp_tools/commands/start_stack/start_stack.py at runtime (reads API
     #     to construct the dsp-api raw-content URL prefix)
-    #   - test/e2e/setup_testcontainers/setup.py for testcontainer image tags
+    #   - packages/dsp-tools/test/e2e/setup_testcontainers/setup.py for testcontainer image tags
     #   - .github/workflows/publish-release-to-pypi.yml (dispatcher) via
     #     `grep '^[A-Z]+=' >> $GITHUB_ENV` — keys flow into the dsp-docs bump
     #

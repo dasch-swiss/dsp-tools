@@ -67,15 +67,21 @@ testdata/test-list.json
 tmp/
 /out/
 /warnings.log
+/packages/dsp-tools/warnings.log
 /logging.log
+/packages/dsp-tools/logging.log
 /mapping-????.csv
-/test/warnings.log
+/packages/dsp-tools/test/warnings.log
 
-/testdata/e2e/tmp-dsp-ingest
-/testdata/e2e/images
-/testdata/e2e/ingest-db
-/testdata/e2e/tmp-dsp-sipi
-/testdata/e2e/sipi-config
-/testdata/e2e/sipi-cache
+/packages/dsp-tools/testdata/e2e/tmp-dsp-ingest
+/packages/dsp-tools/testdata/e2e/images
+/packages/dsp-tools/testdata/e2e/ingest-db
+/packages/dsp-tools/testdata/e2e/tmp-dsp-sipi
+/packages/dsp-tools/testdata/e2e/sipi-config
+/packages/dsp-tools/testdata/e2e/sipi-cache
 
-/testdata/e2e/testcontainer_port_lockfiles
+/packages/dsp-tools/testdata/e2e/testcontainer_port_lockfiles
+
+# coverage data of pytest-cov, in each package folder
+.coverage
+coverage.xml

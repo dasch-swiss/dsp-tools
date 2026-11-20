@@ -1,8 +1,9 @@
 # Conventions
 
 Agent reference card for the **work phase**. Pair with `REVIEW.md` (review phase).
-Authoritative detail lives in `docs/` (developer docs in `docs/developers/`) and in the per-module `CLAUDE.md`
-files under `src/dsp_tools/`. The root `CLAUDE.md` is only an overview that points here.
+Authoritative detail lives in `packages/dsp-tools/docs/` (developer docs in `packages/dsp-tools/docs/developers/`) and
+in the per-module `CLAUDE.md`
+files under `packages/dsp-tools/src/dsp_tools/`. The root `CLAUDE.md` is only an overview that points here.
 This card collects the conventions that are otherwise only enforced in review.
 
 ## Stack
@@ -18,12 +19,13 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 
 - Prefer **stateless functions** for behaviour. Use classes only to bundle data, via `@dataclass`.
 - Do not write classes that carry both a lot of state and behaviour.
-- Utilities (`src/dsp_tools/utils/`) are stateless with clear input/output contracts.
+- Utilities (`packages/dsp-tools/src/dsp_tools/utils/`) are stateless with clear input/output contracts.
 
 ### Module boundaries
 
-- **Commands never import from other commands.** Shared logic goes to `src/dsp_tools/utils/`;
-  shared HTTP-route interaction goes to `src/dsp_tools/clients/`. See `src/dsp_tools/utils/CLAUDE.md`.
+- **Commands never import from other commands.** Shared logic goes to `packages/dsp-tools/src/dsp_tools/utils/`;
+  shared HTTP-route interaction goes to `packages/dsp-tools/src/dsp_tools/clients/`. See
+  `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md`.
 - HTTP clients (`clients/`) are generic and reusable, and contain **no retry logic** (that lives in
   `utils/request_utils.py`).
 - Never make raw HTTP requests — always go through `utils/request_utils.py` for consistent logging,
@@ -32,11 +34,12 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   (`url=params.url`, `headers=params.headers`, `data=params.data_serialized`, `timeout=params.timeout`).
   Do not pass local variables or constants directly — the log must show the request that was actually sent.
   Exception: a streamed binary body (open file handle) goes in directly, because `RequestParameters` does not hold it.
-- **xmllib is the public API** for programmatic XML creation (see `src/dsp_tools/xmllib/CLAUDE.md`).
+- **xmllib is the public API** for programmatic XML creation (see `packages/dsp-tools/src/dsp_tools/xmllib/CLAUDE.md`).
   It must not import dsp-tools internals and does not know the JSON project file. The only exception:
-  xmllib may import shared constants and data-format utilities from `src/dsp_tools/utils/`.
+  xmllib may import shared constants and data-format utilities from `packages/dsp-tools/src/dsp_tools/utils/`.
 - **Literals and constants that xmllib and other parts of dsp-tools both use go in a shared constants file
-  in `src/dsp_tools/utils/`** (for example `utils/geolocation_constants.py`). Do not put them in an xmllib
+  in `packages/dsp-tools/src/dsp_tools/utils/`** (for example `utils/geolocation_constants.py`). Do not put them in an
+  xmllib
   module or a command module, and do not import them from there.
 - **User-facing docs and docstrings do not cite xmllib internals** — describe user input in the user's
   terms (XML elements, JSON fields), not in terms of library code.
@@ -50,7 +53,8 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   `xmllib/__init__.py` exports each class. Do not ask the user for an enum plus a tuple instead.
 - **New RDF-mapped properties must be threaded through the validate-data pipeline**
   (`get_rdf_like_data()` → property type → SHACL shape in
-  `src/dsp_tools/resources/validate_data/api-shapes.ttl`). The generic resource shape is closed: a new
+  `packages/dsp-tools/src/dsp_tools/resources/validate_data/api-shapes.ttl`). The generic resource shape is closed: a
+  new
   property needs an explicit cardinality declaration or xmlupload fails validation.
 
 ### Types and paths
@@ -72,7 +76,7 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - "Default" does **not** imply auto-application. If a `default_*` value is only a suggestion in some flows
   (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every feature that touches it.
 - **Exception classes end in `Error`** (`MultimediaFileNotFoundError`, not `MultimediaFileNotFound`).
-  Ruff `N818` enforces it. The hierarchy is in `docs/developers/architecture/error-handling.md`.
+  Ruff `N818` enforces it. The hierarchy is in `packages/dsp-tools/docs/developers/architecture/error-handling.md`.
 
 - **User-facing command hints** (docs, CLI messages, exception messages) write `uvx dsp-tools <command>`,
   because users run DSP-TOOLS with `uvx`, not from an activated environment.
@@ -84,7 +88,7 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - Keep: an invariant a reader would otherwise break, a non-obvious third-party contract (lifetime,
   ownership, error/return semantics), the public API contract. One or two sentences each.
 - Move out: what a change fixed or a test caught → commit body or PR; probe tables, benchmarks, corpus
-  counts → `docs/` or a learning; a rejected alternative → a docs page or ADR, leaving one line and a
+  counts → `packages/dsp-tools/docs/` or a learning; a rejected alternative → a docs page or ADR, leaving one line and a
   link in the source.
 - Delete: restatements of the code below, history ("previously", "now uses", "was changed to"), and any
   REQ id, user story, or plan-phase reference. A `TODO` without an issue id belongs in the tracker. A doc
@@ -101,7 +105,8 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - CI yaml, `.toml`, `.j2` and the justfiles have no doc-comment tool, so `#` comments carry the whole
   rule there, under the same bullets as `.py`.
 
-The rule binds every format: `.py`, CI yaml, config and `docs/` prose alike. Three notes on applying it here:
+The rule binds every format: `.py`, CI yaml, config and `packages/dsp-tools/docs/` prose alike. Three notes on applying
+it here:
 
 - Three phrasings pass the test routinely and are not findings: `used to` meaning *employed to* ("a parser
   used to parse the arguments"); a marker whose baseline **is** written down nearby
@@ -120,17 +125,20 @@ The rule binds every format: `.py`, CI yaml, config and `docs/` prose alike. Thr
 
 ### Dependencies
 
-- Never `pip install` globally. Add deps with `uv add <pkg>` (or `uv add --dev <pkg>`); install with
-  `uv sync --all-extras --dev`.
+- Never `pip install` globally. Add a runtime dependency with `uv add --package dsp-tools <pkg>`, a dev dependency
+  with `uv add --dev <pkg>` (root `pyproject.toml`, shared by all packages); install with
+  `uv sync --all-packages --all-extras --dev`.
 
 ### JSON Schema (project definition)
 
-- The project-definition schema is `src/dsp_tools/resources/schema/project.json`.
+- The project-definition schema is `packages/dsp-tools/src/dsp_tools/resources/schema/project.json`.
+- `src/dsp_tools/resources/schema/` at the repository root is a copy that keeps old schema URLs valid.
+  Never edit it. After a change to a schema file, run `just sync-schema-copy`. CI runs `just check-schema-copy`.
 - When a field accepts only a **fixed, known set of values**, model it as an `enum` (not a free `string` or
   a loose `pattern`) so validation fails client-side with an actionable message. Hard requirement, not a
   style choice.
 - **IRI-valued fields get a `pattern`** even when not enumerable
-  (precedent: `enabled_licenses` in `src/dsp_tools/resources/schema/project.json`).
+  (precedent: `enabled_licenses` in `packages/dsp-tools/src/dsp_tools/resources/schema/project.json`).
 
 ## dsp-tools subsystem inventory (blast-radius reference)
 
@@ -142,19 +150,20 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 
 | Subsystem | Path | Role & cross-cutting wiring |
 | --- | --- | --- |
-| CLI | `src/dsp_tools/cli/` | Command wiring in **three places**: `create_parsers.py` (argparse), `call_action.py` (dispatch), `call_action_files_only.py` (thin file-only wrappers). A new command touches all three. |
-| clients | `src/dsp_tools/clients/` | Generic, reusable HTTP clients (no retry logic). |
-| create | `src/dsp_tools/commands/create/` | JSON project file → server. Pipeline `parsing/` → `models/` → `serialisation/` → `create_on_server/`. Legal metadata (`data_license`, …) is sent via `LegalInfoClient`; `enabled_licenses` via the create payload. |
-| get | `src/dsp_tools/commands/get/` | Server → JSON project file (round-trip). Project modelling in `legacy_models/project.py`; permissions in `get_permissions.py`. |
-| excel2json | `src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
-| validate-data | `src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
-| xmlupload | `src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
-| other commands | `src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
-| xmllib (public API) | `src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
-| utils / xml parsing | `src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
-| schema | `src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
-| docs | `docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |
-| test data + tests | `testdata/`, `test/` | `test/unittests`, `test/integration`, `test/e2e`, `test/legacy_e2e`. Prefer extending the systematic project/XML over new fixtures; register shortcodes in `testdata/USED_SHORTCODE_SHORTNAMES.md`. E2E needs the **three-place wiring** (test dir + `just` recipe + `tests-e2e.yml` job). |
+| CLI | `packages/dsp-tools/src/dsp_tools/cli/` | Command wiring in **three places**: `create_parsers.py` (argparse), `call_action.py` (dispatch), `call_action_files_only.py` (thin file-only wrappers). A new command touches all three. |
+| clients | `packages/dsp-tools/src/dsp_tools/clients/` | Generic, reusable HTTP clients (no retry logic). |
+| create | `packages/dsp-tools/src/dsp_tools/commands/create/` | JSON project file → server. Pipeline `parsing/` → `models/` → `serialisation/` → `create_on_server/`. Legal metadata (`data_license`, …) is sent via `LegalInfoClient`; `enabled_licenses` via the create payload. |
+| get | `packages/dsp-tools/src/dsp_tools/commands/get/` | Server → JSON project file (round-trip). Project modelling in `legacy_models/project.py`; permissions in `get_permissions.py`. |
+| excel2json | `packages/dsp-tools/src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |
+| validate-data | `packages/dsp-tools/src/dsp_tools/commands/validate_data/` | SHACL validation before upload. New RDF-mapped properties must be threaded through the pipeline and get an explicit cardinality in `resources/validate_data/api-shapes.ttl`. Adding a shape → use the `add-shacl-shape` skill. |
+| xmlupload | `packages/dsp-tools/src/dsp_tools/commands/xmlupload/` | XML data → server. `make_rdf_graph/`, `models/processed/`, `prepare_xml_input/`, `xmlupload.py`. |
+| other commands | `packages/dsp-tools/src/dsp_tools/commands/` | `id2iri`, `update_legal`, `mapping`, `migration`, `start_stack` / `stop_stack`, and the deprecated `excel2xml`. |
+| xmllib (public API) | `packages/dsp-tools/src/dsp_tools/xmllib/` | Public library for programmatic XML creation. Must not import dsp-tools internals, except shared constants and data-format utilities from `utils/` (ADR 0002). Exports live in `xmllib/__init__.py`. |
+| utils / xml parsing | `packages/dsp-tools/src/dsp_tools/utils/` | Shared stateless helpers; XML parsing in `utils/xml_parsing/`. All HTTP goes through `utils/request_utils.py`. |
+| schema | `packages/dsp-tools/src/dsp_tools/resources/schema/` | `project.json`, `properties-only.json`, `resources-only.json`, `lists-only.json` (project definition) and `data.xsd` (XML data file). |
+| dsp-vre-lib | `packages/dsp-vre-lib/` | Separate package: the Python client library for the DSP-API, empty for now. Must not import `dsp_tools` (ruff `TID251`). No file formats. A feature that changes server interaction later also lands here. |
+| docs | `packages/dsp-tools/docs/` | User-facing docs (mkdocs). Whether and where to update them is gated by the **`update-docs`** skill. |
+| test data + tests | `packages/dsp-tools/testdata/`, `test/` | `packages/dsp-tools/test/unittests`, `packages/dsp-tools/test/integration`, `packages/dsp-tools/test/e2e`, `packages/dsp-tools/test/legacy_e2e`. Prefer extending the systematic project/XML over new fixtures; register shortcodes in `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md`. E2E needs the **three-place wiring** (test dir + `just` recipe + `tests-e2e.yml` job). |
 | external: `0854-daschland-scripts` | <https://github.com/dasch-swiss/0854-daschland-scripts> | DaSCH's **demo importer** (separate repo → separate PR). Depends on `dsp-tools` + the public `xmllib` API, with its own project ontology + generated XML. May need a companion PR when a change touches **`xmllib`, `excel2json`, `create`, or `xmlupload`** — **not** for validate-data-only changes. `change-blast-radius` flags it only; it does not trace it. |
 
 The recurring cross-cutting rules that go with this map — the **e2e three-place wiring**, the JSON-schema
@@ -171,33 +180,39 @@ threading — are detailed in the sections above and under "Testing Conventions"
 - **RDF-graph tests assert the *whole* graph, not just the triple under test.** When a test builds a graph
   (e.g. `_add_one_resource`, `_make_resource`), assert every triple that should be present (type, label,
   `attachedToProject`, the value(s) …) — asserting only the one new triple hides regressions in the rest.
-- Test locations: unit → `test/unittests/`; integration → `test/integration/`; E2E (testcontainers) →
-  `test/e2e/`; legacy E2E (needs a running stack) → `test/legacy_e2e/`.
+- Test locations: unit → `packages/dsp-tools/test/unittests/`; integration → `packages/dsp-tools/test/integration/`; E2E
+  (testcontainers) →
+  `packages/dsp-tools/test/e2e/`; legacy E2E (needs a running stack) → `packages/dsp-tools/test/legacy_e2e/`.
 
-### Test data (`testdata/`)
+### Test data (`packages/dsp-tools/testdata/`)
 
 - **Prefer extending the systematic test data over adding a new project file.** The systematic project
-  (`testdata/json-project/systematic-project-4123.json` + `testdata/xml-data/test-data-systematic-4123.xml`)
+  (`packages/dsp-tools/testdata/json-project/systematic-project-4123.json` +
+  `packages/dsp-tools/testdata/xml-data/test-data-systematic-4123.xml`)
   is meant to exercise *all* features. Add a new feature there rather than creating a dedicated
   `feature-XXXX.json/.xml`, to avoid an abundance of near-duplicate test files.
 - **Shortcodes and shortnames are registered.** Every project shortcode/shortname used in e2e test data is
-  listed in `testdata/USED_SHORTCODE_SHORTNAMES.md`; they must be unique. Add an entry when you introduce one,
+  listed in `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md`; they must be unique. Add an entry when you
+  introduce one,
   and follow the file-naming convention recorded there:
     - project JSON: `[shortname]-project-[shortcode].json`
     - XML data: `[free-to-choose]-[shortcode].xml`
     - invalid-project shortcodes start with `F`.
 - **`validate-data` test data covers all paths — happy *and* error.** For a validation feature, add both a
   conforming case and a violating case (see the `*_correct.xml` / `*_violation.xml` pairs under
-  `testdata/validate-data/core_validation/`). The mandatory test-data conventions for a new SHACL shape
-  are in `src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions").
+  `packages/dsp-tools/testdata/validate-data/core_validation/`). The mandatory test-data conventions for a new SHACL
+  shape
+  are in `packages/dsp-tools/src/dsp_tools/commands/validate_data/CLAUDE.md` (section "Test-data conventions").
 - **A new value type has a value-type violation test.** Add a resource to
-  `testdata/validate-data/core_validation/value_type_violation.xml` that uses a different value element on a
+  `packages/dsp-tools/testdata/validate-data/core_validation/value_type_violation.xml` that uses a different value
+  element on a
   property of the new type (rule 9 of the "Test-data conventions").
 
 ### E2E wiring
 
 - **E2E tests are not auto-discovered by CI.** Each e2e command suite is wired explicitly in three places:
-  a test directory under `test/e2e/commands/`, a `just e2e-test-<command>` recipe in the `justfile`, and a
+  a test directory under `packages/dsp-tools/test/e2e/commands/`, a `just e2e-test-<command>` recipe in the `justfile`,
+  and a
   matching job in `.github/workflows/tests-e2e.yml`. A new e2e test not registered in all three silently
   never runs.
 - **One `just` e2e recipe per test file / logical group** — do not append an unrelated test file to an
@@ -247,9 +262,9 @@ so that `git blame` skips the commits that only reformat code.
   blast-radius and boundary questions (a different concern from the subsystem inventory above).
 - `CONTEXT.md` — the project's domain vocabulary.
 - `docs/adr/` — architectural decision records.
-- `src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
-- `src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.
-- `src/dsp_tools/xmllib/CLAUDE.md` — xmllib public-API layering.
-- `docs/developers/` — developer documentation (mkdocs).
-- `docs/developers/architecture/error-handling.md` — exception hierarchy and catch-vs-fail rules.
-- `testdata/USED_SHORTCODE_SHORTNAMES.md` — the shortcode/shortname register.
+- `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md` — utils-vs-commands boundary rules.
+- `packages/dsp-tools/src/dsp_tools/commands/create/CLAUDE.md` — the `create` pipeline in detail.
+- `packages/dsp-tools/src/dsp_tools/xmllib/CLAUDE.md` — xmllib public-API layering.
+- `packages/dsp-tools/docs/developers/` — developer documentation (mkdocs).
+- `packages/dsp-tools/docs/developers/architecture/error-handling.md` — exception hierarchy and catch-vs-fail rules.
+- `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md` — the shortcode/shortname register.

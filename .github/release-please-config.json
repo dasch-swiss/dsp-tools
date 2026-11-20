@@ -1,14 +1,25 @@
 {
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "release-type": "python",
+    "separate-pull-requests": true,
+    "always-update": true,
     "packages": {
-        ".": {
+        "packages/dsp-tools": {
             "package-name": "dsp-tools",
-            "changelog-path": "CHANGELOG.md"
+            "component": "dsp-tools",
+            "changelog-path": "CHANGELOG.md",
+            "include-component-in-tag": false,
+            "pull-request-title-pattern": "chore: release ${version}"
+        },
+        "packages/dsp-vre-lib": {
+            "package-name": "dsp-vre-lib",
+            "component": "dsp-vre-lib",
+            "changelog-path": "CHANGELOG.md",
+            "include-component-in-tag": true,
+            "bump-minor-pre-major": true,
+            "pull-request-title-pattern": "chore: release ${component} ${version}"
         }
     },
-    "release-type": "python",
-    "pull-request-title-pattern": "chore: release ${version}",
-    "include-component-in-tag": false,
     "changelog-sections": [
         {
             "type": "feat",

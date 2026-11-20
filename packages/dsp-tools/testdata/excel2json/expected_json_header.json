@@ -1,0 +1,84 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "schema": "https://schema.org/",
+    "sdh": "https://ontome.net/ns/sdhss/",
+    "cidoc": "http://www.cidoc-crm.org/cidoc-crm/"
+  },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/packages/dsp-tools/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "0011",
+    "shortname": "daschland",
+    "longname": "Alice in DaSCHland",
+    "descriptions": {
+      "en": "Alice in DaSCHland. <br/>Testdata",
+      "fr": "Alice au Pays de DaSCH. <br/>Données test",
+      "de": "Alice im DaSCHland. <br/>Testdaten"
+    },
+    "keywords": [
+      "Alice",
+      "Beispiel",
+      "DaSCH",
+      "Data",
+      "Données",
+      "Example",
+      "Exemple",
+      "Test",
+      "animaux de compagnie",
+      "pet-friendly",
+      "tierfreundlich"
+    ],
+    "enabled_licenses": [
+      "http://rdfh.ch/licenses/cc-by-4.0",
+      "http://rdfh.ch/licenses/public-domain"
+    ],
+    "data_license": "http://rdfh.ch/licenses/cc-by-4.0",
+    "data_copyright_holder": "DaSCH",
+    "default_data_authorship": [
+      "Alice Liddell",
+      "Lewis Carroll"
+    ],
+    "default_permissions": "public",
+    "users": [
+      {
+        "username": "Alice",
+        "email": "alice@dasch.swiss",
+        "givenName": "Alice Pleasance",
+        "familyName": "Liddell",
+        "password": null,
+        "lang": "en",
+        "status": true,
+        "projects": [
+          ":admin",
+          ":member"
+        ]
+      },
+      {
+        "username": "Caterpillar",
+        "email": "caterpillar@dasch.swiss",
+        "givenName": "Caterpillar",
+        "familyName": "Wonderland",
+        "password": "alice7652",
+        "lang": "de",
+        "status": true,
+        "projects": [
+          ":member"
+        ]
+      },
+      {
+        "username": "WhiteRabbit",
+        "email": "white.rabbit@dasch.swiss",
+        "givenName": "White",
+        "familyName": "Rabbit",
+        "password": null,
+        "lang": "fr",
+        "status": true,
+        "projects": [
+          ":admin",
+          ":member"
+        ]
+      }
+    ]
+  }
+}

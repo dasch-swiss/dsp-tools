@@ -59,9 +59,9 @@ class ValidationResult:
 
 def main() -> None:
     """Main entry point for link validation."""
-    repo_root = Path(__file__).parent.parent
-    xmllib_dir = repo_root / "src" / "dsp_tools" / "xmllib"
-    docs_dir = repo_root / "docs"
+    package_root = Path(__file__).parent.parent / "packages" / "dsp-tools"
+    xmllib_dir = package_root / "src" / "dsp_tools" / "xmllib"
+    docs_dir = package_root / "docs"
 
     links = _find_urls_in_docstrings(xmllib_dir)
     if not links:

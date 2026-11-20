@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field
 from http import HTTPStatus
-from importlib.metadata import version
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
@@ -13,6 +12,7 @@ from requests import Session
 
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.request_utils import USER_AGENT
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
@@ -32,7 +32,7 @@ class ResourceClientLive(ResourceClient):
     _session: Session = field(init=False, default_factory=Session)
 
     def __post_init__(self) -> None:
-        self._session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
+        self._session.headers["User-Agent"] = USER_AGENT
 
     def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: bool) -> str | ResponseCodeAndText:
         url = f"{self.server}/v2/resources"

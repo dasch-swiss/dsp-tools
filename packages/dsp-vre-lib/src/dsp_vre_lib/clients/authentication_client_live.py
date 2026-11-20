@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from http import HTTPStatus
-from importlib.metadata import version
 from typing import Any
 from typing import cast
 
@@ -10,6 +9,7 @@ from requests import RequestException
 from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.request_utils import USER_AGENT
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
 from dsp_vre_lib.clients.request_utils import log_request
@@ -40,7 +40,7 @@ class AuthenticationClientLive(AuthenticationClient):
     def _get_token(self) -> str:
         url = f"{self.server}/v2/authentication"
         payload = {"email": self.email, "password": self.password}
-        headers = {"User-Agent": f"DSP-TOOLS/{version('dsp-tools')}"}
+        headers = {"User-Agent": USER_AGENT}
         request_params = RequestParameters("POST", url, data=payload, timeout=TIMEOUT_10, headers=headers)
         log_request(request_params)
         try:

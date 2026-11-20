@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
 from http import HTTPStatus
+from importlib.metadata import version
 from typing import Any
 from typing import Literal
 from typing import Never
@@ -20,6 +21,8 @@ from requests import Response
 
 from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
 from dsp_vre_lib.clients.exceptions import DspApiRequestError
+
+USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
 
 
 @dataclass

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field
 from functools import partial
-from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 from typing import Literal
@@ -17,6 +16,7 @@ from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.connection import Connection
 from dsp_vre_lib.clients.exceptions import InvalidInputError
 from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre_lib.clients.request_utils import USER_AGENT
 from dsp_vre_lib.clients.request_utils import PostFiles
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
@@ -50,7 +50,7 @@ class ConnectionLive(Connection):
     timeout_get: int = field(init=False, default=20)
 
     def __post_init__(self) -> None:
-        self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
+        self.session.headers["User-Agent"] = USER_AGENT
         if self.server.endswith("/"):
             self.server = self.server[:-1]
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
@@ -233,6 +233,6 @@ class ConnectionLive(Connection):
     def _renew_session(self) -> None:
         self.session.close()
         self.session = Session()
-        self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
+        self.session.headers["User-Agent"] = USER_AGENT
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"

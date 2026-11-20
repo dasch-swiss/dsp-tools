@@ -8,11 +8,11 @@ from requests import RequestException
 from requests_mock import Mocker
 
 from dsp_vre_lib.clients import BulkIngestClient
-from dsp_tools.commands.ingest_xmlupload.exceptions import IngestError
-from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFoundError
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import PermanentConnectionError
-from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import IngestError
+from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from test.unittests.clients.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
 SHORTCODE = "0001"

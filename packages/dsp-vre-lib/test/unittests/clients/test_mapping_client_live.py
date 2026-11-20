@@ -8,8 +8,8 @@ import pytest
 from requests.exceptions import JSONDecodeError as RequestsJSONDecodeError
 
 from dsp_vre_lib.clients import MappingClientLive
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="test-token")

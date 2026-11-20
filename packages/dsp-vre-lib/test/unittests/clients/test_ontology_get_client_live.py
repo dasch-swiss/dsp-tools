@@ -4,10 +4,10 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
+from dsp_vre_lib.clients import OntologyGetClientLive
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
-from dsp_vre_lib.clients import OntologyGetClientLive
-from dsp_tools.utils.exceptions import DspToolsRequestError
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ class TestOntologyClient:
     def test_get_ontology_iris_ok(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"project": {"ontologies": ["onto_iri"]}}
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get", return_value=mock_response) as mock_get:
             result = ontology_client._get_ontology_iris()
         assert result == ["onto_iri"]
         assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
@@ -32,21 +32,21 @@ class TestOntologyClient:
     def test_get_ontology_iris_non_ok_code(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="Not Found")
         mock_response.json.return_value = {}
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 ontology_client._get_ontology_iris()
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="text")
         mock_response.json.return_value = {"foo": "bar"}
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get", return_value=mock_response):
             with pytest.raises(ProjectOntologyNotFoundError):
                 ontology_client._get_ontology_iris()
 
     def test_get_one_ontology(self, ontology_client: OntologyGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")
         mock_response.json.return_value = {}
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get", return_value=mock_response) as mock_get:
             result = ontology_client._get_one_ontology("iri")
         assert result == "Turtle Text"
         assert mock_get.call_args_list[0][1]["url"] == "iri"
@@ -54,16 +54,16 @@ class TestOntologyClient:
 
     def test_get_ontology_iris_request_exception(self, ontology_client: OntologyGetClientLive) -> None:
         request_error = RequestException("Connection timeout")
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
-            with pytest.raises(DspToolsRequestError):
+            with pytest.raises(DspApiRequestError):
                 ontology_client._get_ontology_iris()
 
     def test_get_one_ontology_request_exception(self, ontology_client: OntologyGetClientLive) -> None:
         request_error = RequestException("Connection timeout")
-        with patch("dsp_tools.clients.ontology_get_client_live.requests.get") as mock_get:
+        with patch("dsp_vre_lib.clients.ontology_get_client_live.requests.get") as mock_get:
             mock_get.side_effect = request_error
-            with pytest.raises(DspToolsRequestError):
+            with pytest.raises(DspApiRequestError):
                 ontology_client._get_one_ontology("iri")
 
 

@@ -13,14 +13,12 @@ from requests import ReadTimeout
 from requests import Response
 
 from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_vre_lib.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_vre_lib.clients.ontology_create_client_live import _parse_last_modification_date
-from dsp_tools.commands.create.models.parsed_ontology import GuiElement
-from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestError
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
@@ -101,13 +99,17 @@ def sample_property_graph() -> dict[str, object]:
         ],
         "@graph": [
             {
-                "http://api.knora.org/ontology/knora-api/v2#objectType": {"@id": str(KnoraObjectType.TEXT)},
+                "http://api.knora.org/ontology/knora-api/v2#objectType": {
+                    "@id": "http://api.knora.org/ontology/knora-api/v2#TextValue"
+                },
                 "http://www.w3.org/2000/01/rdf-schema#label": {"@language": "en", "@value": "lbl"},
                 "http://www.w3.org/2000/01/rdf-schema#comment": {"@language": "en", "@value": "comment"},
                 "http://www.w3.org/2000/01/rdf-schema#subPropertyOf": [
                     {"@id": "http://api.knora.org/ontology/knora-api/v2#hasValue"}
                 ],
-                "http://api.knora.org/ontology/salsah-gui/v2#guiElement": {"@id": str(GuiElement.SIMPLETEXT)},
+                "http://api.knora.org/ontology/salsah-gui/v2#guiElement": {
+                    "@id": "http://api.knora.org/ontology/salsah-gui/v2#SimpleText"
+                },
                 "@id": str(TEST_PROP_IRI),
                 "@type": "http://www.w3.org/2002/07/owl#ObjectProperty",
             }
@@ -234,7 +236,7 @@ class TestCardinalities:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(DspToolsRequestError):
+        with pytest.raises(DspApiRequestError):
             ontology_client.post_resource_cardinalities(sample_cardinality_graph)
 
 
@@ -308,7 +310,7 @@ class TestProperties:
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
 
-        with pytest.raises(DspToolsRequestError):
+        with pytest.raises(DspApiRequestError):
             ontology_client.post_new_property(sample_property_graph)
 
 
@@ -379,7 +381,7 @@ class TestClasses:
             raise ReadTimeout("Connection timed out")
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-        with pytest.raises(DspToolsRequestError):
+        with pytest.raises(DspApiRequestError):
             ontology_client.post_new_class(sample_class_graph)
 
 
@@ -451,7 +453,7 @@ class TestOntology:
             raise ReadTimeout("Connection timed out")
 
         monkeypatch.setattr(ontology_client, "_post_and_log_request", mock_post_and_log_request)
-        with pytest.raises(DspToolsRequestError):
+        with pytest.raises(DspApiRequestError):
             ontology_client.post_new_ontology(sample_ontology_graph)
 
 
@@ -546,7 +548,7 @@ class TestUtilFunctions:
 
         monkeypatch.setattr(ontology_client, "_get_and_log_request", mock_get_and_log_request)
 
-        with pytest.raises(DspToolsRequestError):
+        with pytest.raises(DspApiRequestError):
             ontology_client.get_last_modification_date("http://0.0.0.0:3333/project/9999", str(ONTO_IRI))
 
 

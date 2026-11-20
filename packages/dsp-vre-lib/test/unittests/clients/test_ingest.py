@@ -8,9 +8,9 @@ import requests
 from requests_mock import Mocker
 
 from dsp_vre_lib.clients import DspIngestClientLive
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import PermanentConnectionError
-from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from test.unittests.clients.authentication_client_mock import AuthenticationClientMockBase
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def shortcode() -> str:
 
 @pytest.fixture
 def ingest_client(dsp_ingest_url: str, shortcode: str) -> DspIngestClientLive:
-    return DspIngestClientLive(dsp_ingest_url, AuthenticationClientMockBase(), shortcode, ".")
+    return DspIngestClientLive(dsp_ingest_url, AuthenticationClientMockBase(), shortcode)
 
 
 @pytest.fixture
@@ -43,13 +43,13 @@ def test_ingest_success(
 ) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), json={"internalFilename": tmp_file.name})
-    res = ingest_client._ingest(tmp_file)
+    res = ingest_client.ingest(tmp_file)
     assert res.internal_filename == tmp_file.name
 
 
 def test_ingest_failure_when_file_not_found(ingest_client: DspIngestClientLive, tmp_file: Path) -> None:
     with pytest.raises(FileNotFoundError):
-        ingest_client._ingest(tmp_file)
+        ingest_client.ingest(tmp_file)
 
 
 @pytest.mark.parametrize("status_code", [401, 403])
@@ -70,7 +70,7 @@ def test_ingest_failure_when_no_write_access(
         "By default, ProjectAdmins and all project members have it, too."
     )
     with pytest.raises(BadCredentialsError, match=expected):
-        ingest_client._ingest(tmp_file)
+        ingest_client.ingest(tmp_file)
 
 
 def test_ingest_failure_when_other_error(
@@ -79,7 +79,7 @@ def test_ingest_failure_when_other_error(
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=500)
     with pytest.raises(PermanentConnectionError):
-        ingest_client._ingest(tmp_file)
+        ingest_client.ingest(tmp_file)
 
 
 def test_ingest_logs_exception_on_request_failure(
@@ -87,7 +87,7 @@ def test_ingest_logs_exception_on_request_failure(
 ) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), exc=requests.exceptions.ConnectionError)
-    with patch("dsp_tools.clients.ingest.logger.exception") as mock_exc:
+    with patch("dsp_vre_lib.clients.ingest.logger.exception") as mock_exc:
         with pytest.raises(PermanentConnectionError):
-            ingest_client._ingest(tmp_file)
+            ingest_client.ingest(tmp_file)
     assert mock_exc.call_count == 1

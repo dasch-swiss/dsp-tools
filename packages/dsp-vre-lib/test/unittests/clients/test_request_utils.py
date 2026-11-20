@@ -7,12 +7,12 @@ from unittest.mock import patch
 import pytest
 from requests import Response
 
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import _is_retriable_status_code
-from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.request_utils import parse_api_v3_error
-from dsp_tools.utils.request_utils import print_and_raise_timeouts
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre_lib.clients.request_utils import _is_retriable_status_code
+from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import parse_api_v3_error
+from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
+from dsp_vre_lib.clients.request_utils import should_retry_request
 
 
 def _make_response(status_code: int, headers: dict[str, Any], text: str):
@@ -47,7 +47,7 @@ def test_log_response_debug() -> None:
         "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
         "content": {"foo": "bar"},
     }
-    with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
+    with patch("dsp_vre_lib.clients.request_utils.logger.debug") as debug_mock:
         log_response(response_mock, status_code=response_mock.status_code)
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
@@ -63,7 +63,7 @@ def test_log_response_warning() -> None:
         "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
         "content": {"foo": "bar"},
     }
-    with patch("dsp_tools.utils.request_utils.logger.warning") as warning_mock:
+    with patch("dsp_vre_lib.clients.request_utils.logger.warning") as warning_mock:
         log_response(response_mock, status_code=response_mock.status_code)
         warning_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 

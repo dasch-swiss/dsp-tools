@@ -7,9 +7,9 @@ from requests import JSONDecodeError
 from requests import RequestException
 
 from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.exceptions import BadCredentialsError
+from dsp_vre_lib.clients.exceptions import DspApiRequestError
 from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.utils.exceptions import DspToolsRequestError
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def test_get_token_success(auth_client: AuthenticationClientLive):
     mock_response = Mock(status_code=200, ok=True, headers={})
     mock_response.json.return_value = {"token": expected_token}
 
-    with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
+    with patch("dsp_vre_lib.clients.authentication_client_live.requests.post", return_value=mock_response):
         token = auth_client.get_token()
 
     assert token == expected_token
@@ -36,7 +36,7 @@ def test_get_token_uses_cached_token(auth_client: AuthenticationClientLive):
     cached_token = "cached-token-xyz"
     auth_client._token = cached_token
 
-    with patch("dsp_tools.clients.authentication_client_live.requests.post") as post_mock:
+    with patch("dsp_vre_lib.clients.authentication_client_live.requests.post") as post_mock:
         token = auth_client.get_token()
 
     assert token == cached_token
@@ -46,7 +46,7 @@ def test_get_token_uses_cached_token(auth_client: AuthenticationClientLive):
 def test_get_token_error_responses(auth_client: AuthenticationClientLive):
     mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, ok=False, text="Error", headers={})
     mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-    with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
+    with patch("dsp_vre_lib.clients.authentication_client_live.requests.post", return_value=mock_response):
         with pytest.raises(FatalNonOkApiResponseCodeError):
             auth_client.get_token()
 
@@ -54,13 +54,13 @@ def test_get_token_error_responses(auth_client: AuthenticationClientLive):
 def test_get_token_unauthorised_exception(auth_client: AuthenticationClientLive):
     mock_response = Mock(status_code=HTTPStatus.UNAUTHORIZED.value, ok=False, text="Error", headers={})
     mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-    with patch("dsp_tools.clients.authentication_client_live.requests.post", return_value=mock_response):
+    with patch("dsp_vre_lib.clients.authentication_client_live.requests.post", return_value=mock_response):
         with pytest.raises(BadCredentialsError):
             auth_client.get_token()
 
 
 def test_get_token_request_exception(auth_client: AuthenticationClientLive):
     request_error = RequestException("Connection timeout")
-    with patch("dsp_tools.clients.authentication_client_live.requests.post", side_effect=request_error):
-        with pytest.raises(DspToolsRequestError):
+    with patch("dsp_vre_lib.clients.authentication_client_live.requests.post", side_effect=request_error):
+        with pytest.raises(DspApiRequestError):
             auth_client.get_token()

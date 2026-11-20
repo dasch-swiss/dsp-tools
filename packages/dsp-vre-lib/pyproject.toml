@@ -71,3 +71,9 @@ extend = "../../pyproject.toml"
 # The dependency goes in one direction only: dsp-tools uses dsp-vre-lib, never the reverse.
 "dsp_tools".msg = "dsp_vre_lib must not import dsp_tools"
 "loguru".msg = "dsp_vre_lib logs with the standard logging module (ADR 0001)"
+
+
+[tool.vulture]
+paths = ["src/dsp_vre_lib", ".vulture_whitelist.py"]
+exclude = ["test/"]
+sort_by_size = true  # sort unused classes and functions by size

@@ -67,7 +67,7 @@ Two Python modules are public API:
 - Format the code: `just format`
 - Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly). It runs `just mypy-dsp-tools`,
   `just mypy-vre-lib` and `just mypy-scripts`, which also work alone.
-- Dead code: `just vulture`
+- Dead code: `just vulture` (runs `vulture-dsp-tools` and `vulture-vre-lib`)
 - Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint` (runs in Docker)
 
 ### Tests
@@ -97,8 +97,10 @@ Two Python modules are public API:
 - `packages/dsp-tools/src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a
   subdirectory.
 - `packages/dsp-tools/src/dsp_tools/xmllib/`: the public library to create XML data files.
-- `packages/dsp-vre-lib/`: the Python client library for the DSP-API of a DSP server. It has no public interface yet.
-  It never imports `dsp_tools`. See `packages/dsp-vre-lib/CLAUDE.md`.
+- `packages/dsp-vre-lib/`: the Python client library for the DSP-API of a DSP server. Its public interface is not
+  designed yet (`packages/dsp-vre-lib/docs/adr/0001-public-interface.md`).
+  `dsp_vre_lib.clients` re-exports the client names that dsp-tools uses. It never imports `dsp_tools`.
+  See `packages/dsp-vre-lib/CLAUDE.md`.
 - `packages/dsp-tools/src/dsp_tools/utils/`: shared, stateless helpers. `utils/CLAUDE.md` says which helper serves which
   purpose.
 

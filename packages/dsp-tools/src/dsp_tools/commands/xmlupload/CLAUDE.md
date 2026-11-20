@@ -304,7 +304,7 @@ When working on xmlupload functionality, these are the most important files to u
 The xmlupload package depends on:
 
 - Core DSP-TOOLS utilities (`utils/xml_parsing/`, `utils/data_formats/`)
-- Client libraries (`clients/`)
+- `dsp_vre_lib.clients` (package dsp-vre-lib)
 - Legacy models (`legacy_models/`)
 - Configuration and CLI args (`cli/args.py`)
 - External libraries: `lxml`, `rdflib`, `tqdm`, `loguru`

@@ -24,7 +24,7 @@ Flag anything below that a change violates.
       a deliberate deviation from `ARCH-MAP.md`'s stated boundary rules) has an ADR in `docs/adr/`
 - [ ] No command imports from another command — shared logic is in `utils/`, shared HTTP routes in `clients/`
 - [ ] Behaviour lives in stateless functions; classes only bundle data (`@dataclass`)
-- [ ] HTTP goes through `dsp_vre_lib/clients/request_utils.py` (no raw requests, no retry logic in `clients/`)
+- [ ] HTTP goes through `dsp_vre_lib/clients/request_utils.py` (no raw requests, no retry loops in the client classes)
 - [ ] The HTTP call takes only values from the logged `RequestParameters` (`params.url`, `params.timeout`, …),
       not local variables or constants
 - [ ] `pathlib.Path` used throughout — no `os.path`, no paths passed as strings

@@ -628,7 +628,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 ### dsp-vre-lib
 
 - **Paths**: `packages/dsp-vre-lib/**`
-- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`) that is the Python client library for the DSP-API of a DSP server.
+- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`):
+  the Python client library for the DSP-API of a DSP server.
   It has no public interface yet. The interface decisions are in
   `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
 - **Public interface**: none yet.

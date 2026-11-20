@@ -35,7 +35,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Local-context kit**: `entry_point.py`, `create_parsers.py`, `call_action.py`,
   `call_action_files_only.py`, `call_action_with_network.py`, `args.py`, `CLAUDE.md`
 - **Depends on**: every `commands/*` component except `excel2xml` (which has no CLI wiring), `error`,
-  `clients` (`entry_point.py` catches `DspVreLibUserError`), `setup` (ansi_colors, logger_config,
+  `setup` (ansi_colors, logger_config,
   warnings_config), `utils` (interactive, xml_parsing); true-external:
   the PyPI JSON API (version check), the DSP-API/ingest health endpoints, `docker`/`pip` subprocesses
 - **Used by**: the `dsp-tools` executable (external); `commands/*` import `cli.args` back, and
@@ -49,7 +49,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     inverted dependency (the callee layer reaching into the caller layer); tolerated today, not to be
     extended. (enforcement: docs-only; an import-linter contract could make it static-analysis)
 - **Durable state**: none — validates paths, then delegates writes to `commands/*`.
-- **Fingerprint**: `beb38939134d`
+- **Fingerprint**: `bd6936b08c60`
 
 ### clients
 
@@ -62,7 +62,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
   `BulkIngestClient`, `DspIngestClientLive`, `RequestParameters`, `should_retry_request`, `DspVreLibBaseError`,
-  `DspVreLibUserError`, `DspVreLibInternalError`, `notices`
+  `DspVreLibUserError`, `DspVreLibInternalError`, `notify`
 - **Public interface**: the names re-exported in `clients/__init__.py` (`__all__`), and each domain's
   `Protocol` plus its `*Live` class, imported and instantiated directly by the command that needs it — no
   factory or registry. Plus `clients/exceptions.py` (own hierarchy under `DspVreLibBaseError`, for example
@@ -73,7 +73,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `authentication_client_live.py`, `resource_client_live.py`
 - **Depends on**: true-external only: `requests`, `rdflib`, `regex` (declared in
   `packages/dsp-vre-lib/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
-- **Used by**: `cli` (exceptions), `create`, `get`, `validate-data`, `xmlupload`, `ingest-xmlupload` (incl.
+- **Used by**: `error` (`exceptions.py` imports the two base classes), `create`, `get`, `validate-data`, `xmlupload`,
+  `ingest-xmlupload` (incl.
   resume), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
   `client_warnings`), `legacy_models` (`projectContext.py` imports `Connection`), `tests`
 - **Boundary rules**:
@@ -81,8 +82,10 @@ this map found confirmed violations of both rules; see Conventions and each comp
     `packages/dsp-vre-lib/pyproject.toml`, plus `test_no_dsp_tools_import.py`, which imports every module
     in a fresh interpreter)
     - Logs only through the standard logger `dsp_vre_lib` (`logging.getLogger(__name__)`), never loguru or
-    `print`. A notice for the user of a long operation goes to `dsp_vre_lib.notices` at INFO. (enforcement:
-    static-analysis for loguru, ruff `TID251`; docs-only for `print`, `clients/CLAUDE.md`)
+    `print`. A notice for the user of a long operation is written only with `notify()` (`request_utils.py`):
+    it goes to the private, non-propagating logger `dsp_vre_lib.notices` at INFO, plus one record on the
+    module logger. (enforcement: static-analysis for loguru, ruff `TID251`; review for notices, `_notices` is
+    private to `request_utils.py`; docs-only for `print`, `clients/CLAUDE.md`)
     - Messages and exceptions name no dsp-tools commands; dsp-tools adds such hints where it catches the
     exception. (enforcement: docs-only, `clients/CLAUDE.md`)
     - A new client is added by dropping a `<domain>_client.py` (Protocol) + `<domain>_client_live.py` (Live)
@@ -99,7 +102,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
   until `_renew_session()` replaces it per instance; `__post_init__` and `_renew_session()` both write its
   headers — two writers on a shared mutable default.
-- **Fingerprint**: `2eb49ef83b92`
+- **Fingerprint**: `af52b2b23e8d`
 
 ### create
 
@@ -174,7 +177,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     admin-account check. This is a get→create file-format contract, not an import. (enforcement: docs-only)
 - **Durable state**: reads DSP server state; writes exactly one local JSON file at the user-given
   `outfile_path` (single writer: `get.py`'s `json.dump` call).
-- **Fingerprint**: `c14191d56c04`
+- **Fingerprint**: `a404522e22cd`
 
 ### excel2json
 
@@ -290,7 +293,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `_report_incomplete_upload` and `persist_state_for_resume`; read by `resume_xmlupload`. On every run,
   writes an ID→IRI mapping JSON twice: `./id2iri_<shortcode>_<server>_<ts>.json` and
   `~/.dsp-tools/id2iri/id2iri_<ts>_<shortcode>_<server>.json`.
-- **Fingerprint**: `989e8bb8fe09`
+- **Fingerprint**: `79bc79626ca8`
 
 ### ingest-xmlupload
 
@@ -448,7 +451,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: none. The only file write is the user-facing `xsd_validation_errors.csv`
   (`parse_clean_validate_xml.py`, more
   than 50 XSD errors).
-- **Fingerprint**: `5e85e97ea77d`
+- **Fingerprint**: `c8dd3aa987f3`
 
 ### resources
 
@@ -535,7 +538,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `a799aef8703f`
+- **Fingerprint**: `027897b6afc2`
 
 ### tests
 
@@ -578,7 +581,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (single writer: `packages/dsp-tools/test/e2e/setup_testcontainers/`). `get_containers` removes them in a `finally`
   block but
   ignores a `PermissionError`, so leftovers can remain; they are gitignored.
-- **Fingerprint**: `39fde7bf2ce6`
+- **Fingerprint**: `4dfc701f20ba`
 
 ### repo-tooling
 
@@ -594,10 +597,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
   application code, docs, or tests — plus repo-level policy, templates and developer config (security
   policy, PR template, `.env.example`, blame-ignore list).
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,
-  legacy-e2e-tests), release-please, `scripts/bump_version.py` (dev-release `.postN`),
+  legacy-e2e-tests, vulture-dsp-tools, vulture-vre-lib), release-please, `scripts/bump_version.py`
+  (dev-release `.postN`, per package),
   `scripts/bump_stack_versions.py` (start-stack version-bump PR), `scripts/merge_pr_when_green.py` and the
   composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lib_lower_bound.py`
-  (`dsp-vre-lib` lower bound of `dsp-tools` on the release PR), `readiness.yml`,
+  (the only writer of the `dsp-vre-lib` line of dsp-tools: lower bound on the release PR, exact pin in the
+  dev release), `.github/actions/setup-from-wheel` (builds and installs both wheels), `readiness.yml`,
   `.github/pull_request_template.md`, `.env.example` (the optional runtime env vars; never loaded by
   DSP-TOOLS itself)
 - **Public interface**: the justfile's recipe names, any `.github/workflows/*.yml` (auto-discovered by
@@ -632,12 +637,14 @@ this map found confirmed violations of both rules; see Conventions and each comp
   and `.github/release-please-manifest.json`, are written by the release-please GitHub Action (one release PR
   per package), not by hand; `.git-blame-ignore-revs` is
   maintained by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
-  inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). On the `dsp-tools` release PR,
+  inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). That workflow publishes a
+  dsp-vre-lib dev release first and pins dsp-tools to it (`vre_lib_lower_bound.py pin`). On the `dsp-tools`
+  release PR,
   `release-please.yml` also rewrites the `dsp-vre-lib` lower bound in `packages/dsp-tools/pyproject.toml`
   (`scripts/vre_lib_lower_bound.py raise`). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `f5c0b8e1c701`
+- **Fingerprint**: `b39d0a461b19`
 
 ### dsp-vre-lib
 
@@ -647,14 +654,15 @@ this map found confirmed violations of both rules; see Conventions and each comp
   the Python client library for the DSP-API of a DSP server. This entry holds its package files, docs and
   tests; its source today is the `clients` component. The interface decisions are in
   `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
-- **Key entities**: `test_no_dsp_tools_import.py`, `test/unittests/clients/` (the client tests),
-  `authentication_client_mock.py`
+- **Key entities**: `NullHandler` on the logger `dsp_vre_lib` (`src/dsp_vre_lib/__init__.py`),
+  `test_no_dsp_tools_import.py`, `test/unittests/clients/` (the client tests), `authentication_client_mock.py`,
+  `.vulture_whitelist.py`
 - **Public interface**: no designed interface yet; `dsp_vre_lib.clients.__all__` is the de facto one.
 - **Local-context kit**: `CLAUDE.md`, `pyproject.toml`, `docs/adr/0001-public-interface.md`,
-  `test/unittests/test_no_dsp_tools_import.py`
+  `test/unittests/test_no_dsp_tools_import.py`, `.vulture_whitelist.py`
 - **Depends on**: nothing in dsp-tools; test-only: pytest, `requests-mock` (root dev dependencies).
-- **Used by**: `dsp-tools` imports `clients` through the uv workspace. `packages/dsp-tools/pyproject.toml` does
-  not declare it as a dependency yet.
+- **Used by**: dsp-tools declares it as a dependency (`packages/dsp-tools/pyproject.toml`, source: the uv
+  workspace) and imports `clients`.
 - **Boundary rules**:
     - `dsp_vre_lib` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
     `packages/dsp-vre-lib/pyproject.toml`, plus `test_no_dsp_tools_import.py`)
@@ -663,8 +671,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - The tests run with `packages/dsp-vre-lib/` as the working directory (`just vre-lib-unittests`). The two
     top-level `test` packages cannot import each other, so shared test helpers are copied.
     (enforcement: structure)
+    - Without a handler of the caller, the package writes nothing (`NullHandler`). (enforcement:
+    static-analysis, `test_logging_setup.py`)
+    - `just vulture-vre-lib` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
+    `.vulture_whitelist.py`. (enforcement: static-analysis, `just vulture` in `lint-code.yml`)
 - **Durable state**: none.
-- **Fingerprint**: `e28baa8e05bd`
+- **Fingerprint**: `6e70c83f62dc`
 
 ## Cross-cutting concerns
 
@@ -683,17 +695,19 @@ bugs crash; Group A commands (`create`, `xmlupload`, `get`, …) fail fast, Grou
 `validate-data`, `xmllib`, …) collect every `Problem` into one aggregated `UserError`. Ten command modules
 define their own `exceptions.py` subclassing from here (so do `cli/`, `utils/` and `xmllib/internal/`).
 `clients` (package `dsp-vre-lib`) has its own parallel hierarchy (`DspVreLibBaseError` →
-`DspVreLibUserError`/`DspVreLibInternalError`); `cli/entry_point.py` shows a `DspVreLibUserError` like a
-`UserError`, and the `except BaseError` sites also catch `DspVreLibBaseError`. Imported by 71 files in
-`src/`, 95 including tests. No durable state.
+`DspVreLibUserError`/`DspVreLibInternalError`). `exceptions.py` imports their two base classes and defines
+`ANY_DSP_ERROR` and `ANY_USER_ERROR`, which name both roots. Every catch around a client call uses them
+(`cli/entry_point.py` for user errors). Imported by 71 files in `src/`, 96 including tests. No durable
+state.
 
-- **Fingerprint**: `8dc2d5bfcbcb`
+- **Fingerprint**: `27f3b4eacb37`
 
 ### setup/ (`packages/dsp-tools/src/dsp_tools/setup/**`)
 
 Process-startup wiring, not a component with request-level dependents: `logger_config()` (loguru sinks; it
-also passes the records of the standard logger `dsp_vre_lib` to loguru and prints `dsp_vre_lib.notices` on
-the terminal) and `initialize_warnings()` (routes `DspToolsWarning` and `DspVreLibUnexpectedStatusCodeWarning`
+also passes the records of the standard logger `dsp_vre_lib` to loguru, with the origin of each record, and
+prints `dsp_vre_lib.notices` on the terminal; `_replace_handler` keeps one handler of each type) and
+`initialize_warnings()` (routes `DspToolsWarning` and `DspVreLibUnexpectedStatusCodeWarning`
 through custom formatting) are each called once, in
 `cli/entry_point.py` (and once per session in `packages/dsp-tools/test/conftest.py`'s `pytest_sessionstart`;
 `packages/dsp-tools/test/unittests/setup/test_logger_config.py` calls `logger_config()` again and restores the sinks
@@ -704,7 +718,7 @@ and research data. `dotenv.py` loads a local `.env`; `ansi_colors.py` is termina
 by 36 files outside `setup/`. Durable state is the one-shot loguru sink registry and the two handlers on
 the `dsp_vre_lib` loggers, written once at process start (repeated calls replace the handlers).
 
-- **Fingerprint**: `ecaed9c47b0e`
+- **Fingerprint**: `3ff9ca5d2ed5`
 
 ### legacy_models/ (`legacy_models/**` in `packages/dsp-tools/src/dsp_tools/`)
 
@@ -716,7 +730,7 @@ lookups, built once from server data). Imported by `get`, `excel2xml`, `validate
 `utils`. Still raises `BaseError` directly rather than `UserError`/`InternalError` — a known legacy exemption
 per the error-handling doc. No durable state beyond each instance's own value.
 
-- **Fingerprint**: `173297585dcf`
+- **Fingerprint**: `1d8e659f0b09`
 
 ## Conventions
 
@@ -724,7 +738,8 @@ per the error-handling doc. No durable state beyond each instance's own value.
   more). (enforcement: review)
 - **One-way top-level dependency direction** (as designed; violated today in several places — see below):
   `cli` → `commands/*` → `utils`/`xmllib`/`resources` → `error`/`setup`/`legacy_models`, and everything in
-  dsp-tools → `clients` (package `dsp-vre-lib`), which imports nothing from dsp-tools. Nothing below a layer
+  dsp-tools, `error` included → `clients` (package `dsp-vre-lib`), which imports nothing from dsp-tools.
+  Nothing below a layer
   should import from above it. Besides the banned constructs below, top-level
   `legacy_models/projectContext.py` imports `clients.connection` and `commands/get/legacy_models`.
   (enforcement: docs-only; no import-linter contract exists)

@@ -12,7 +12,7 @@ then it belongs to `dsp_vre_lib/clients/` (package `dsp-vre-lib`) rather than in
 
 ## API Communication & Request Handling
 
-The HTTP request helpers (retry logic, request and response logging) are in `dsp_vre_lib/clients/request_utils.py`
+The HTTP request helpers (retry decisions, request and response logging) are in `dsp_vre_lib/clients/request_utils.py`
 of the package `dsp-vre-lib`. They are not in these utilities.
 
 ## User Interaction
@@ -233,7 +233,7 @@ Utils Layer (shared foundation):
 **Request Functions:**
 
 - Never make direct HTTP requests without `dsp_vre_lib/clients/request_utils.py`
-- Ensures consistent logging, error handling, and retry logic
+- Ensures consistent logging and error handling. The commands own their retry loops.
 
 **XML Processing:**
 

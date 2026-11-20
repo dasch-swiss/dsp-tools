@@ -60,7 +60,7 @@ def test_log_request_failure_and_sleep_writes_the_text_once_as_a_log_record_and_
     msg = "Transient Error: Try reconnecting to DSP server, next attempt in 4 seconds..."
     assert [(r.name, r.getMessage()) for r in notice_records] == [
         ("dsp_vre_lib.notices", msg),
-        ("dsp_vre_lib.clients.request_utils", f"{msg} (retry_counter=2)"),
+        ("dsp_vre_lib.clients.request_utils", msg),
     ]
     assert not capsys.readouterr().out
 

@@ -22,7 +22,7 @@ from dsp_vre_lib.clients.exceptions import PermanentConnectionError
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import notices
+from dsp_vre_lib.clients.request_utils import notify
 
 logger = logging.getLogger(__name__)
 
@@ -144,8 +144,7 @@ class BulkIngestClient:
             raise NoIngestFileFoundError(f"No assets have been uploaded for project {self.shortcode}.")
         if res.status_code == HTTPStatus.CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
-            notices.info(msg)
-            logger.info(msg)
+            notify(logger, msg)
             return
         if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
             raise PermanentConnectionError("Server is unavailable. Please try again later.")
@@ -157,9 +156,7 @@ class BulkIngestClient:
             failed = True
         if failed:
             raise IngestError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-        msg = f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes..."
-        notices.info(msg)
-        logger.info(msg)
+        notify(logger, f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
     def retrieve_mapping_generator(self) -> Iterator[str | bool]:
         """

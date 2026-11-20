@@ -297,8 +297,9 @@ Log only with the standard `logging` module, never with loguru or `print`.
 The module loggers are children of the logger `dsp_vre_lib`. The caller configures handlers, formats and files.
 A message for the user of a long operation (for example a retry or a timeout) goes to the logger
 `dsp_vre_lib.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
+Write a notice only with `notify(logger, msg)` from `request_utils.py`.
+It writes the notice and one record on the module logger.
 Notices do not propagate: the caller attaches a handler to `dsp_vre_lib.notices`.
-An event that must reach the log file also gets its own record on the module logger.
 Messages and exceptions do not name dsp-tools commands. dsp-tools adds such hints where it catches the exception.
 
 ## Constants
@@ -405,6 +406,9 @@ headers = {
 - **Helper methods**: `_<verb>_and_log_request` for HTTP helpers
 
 ## Example: Creating a New Client
+
+A client method that only dsp-tools calls is unused within this package.
+Add its name to `packages/dsp-vre-lib/.vulture_whitelist.py`, or `just vulture-vre-lib` fails.
 
 First: Define the Protocol in `src/dsp_vre_lib/clients/<domain>_client.py`:
 

@@ -23,10 +23,10 @@ from dsp_vre_lib.clients.exceptions import DspApiRequestError
 
 logger = logging.getLogger(__name__)
 # Messages for the user of a long operation, for example a retry. The caller decides where to show them.
-# They do not propagate, so that a caller who logs "dsp_vre_lib" does not get them a second time:
-# every event of a notice also has its own log record.
-notices = logging.getLogger("dsp_vre_lib.notices")
-notices.propagate = False
+# Write them only with notify(), which also writes the log record of the event.
+_notices = logging.getLogger("dsp_vre_lib.notices")
+_notices.propagate = False
+_notices.addHandler(logging.NullHandler())
 
 USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
 
@@ -169,6 +169,12 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
     return {k: _mask(k, v) for k, v in headers.items()}
 
 
+def notify(module_logger: logging.Logger, msg: str, level: int = logging.INFO, exc_info: bool = False) -> None:
+    """Show the message to the user of a long operation (logger "dsp_vre_lib.notices"), and log it once."""
+    _notices.info(msg)
+    module_logger.log(level, msg, exc_info=exc_info)
+
+
 def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
     """
     Log the reason for a request failure and sleep.
@@ -197,19 +203,13 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
     """
     sleep_time = min(2**retry_counter, 300)
     msg = f"{reason}: Try reconnecting to DSP server, next attempt in {sleep_time} seconds..."
-    notices.info(msg)
-    if exc_info:
-        logger.exception(f"{msg} ({retry_counter=:})")
-    else:
-        logger.error(f"{msg} ({retry_counter=:})")
+    notify(logger, msg, logging.ERROR, exc_info=exc_info)
     time.sleep(sleep_time)
 
 
 def notify_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     """Write a notice about the timeout, then re-raise it."""
-    msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
-    notices.info(msg)
-    logger.info(msg)
+    notify(logger, f"A '{error.__class__.__name__}' occurred during the connection to the DSP server.")
     raise error
 
 

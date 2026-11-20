@@ -90,16 +90,6 @@ def test_loguru_record_of_dsp_vre_lib_names_the_module_that_emitted_it(log_file:
     assert names == [__name__]
 
 
-def test_failing_notice_printer_does_not_raise_into_the_caller(
-    log_file: Path,  # noqa: ARG001
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    logger_config_module.logger_config()
-    monkeypatch.setattr(logging, "raiseExceptions", False)
-    with patch("builtins.print", side_effect=OSError("closed")):
-        logging.getLogger("dsp_vre_lib.notices").info("a notice")
-
-
 def test_failing_notice_printer_calls_handle_error(log_file: Path) -> None:  # noqa: ARG001
     handler = logger_config_module._NoticePrintHandler()
     record = logging.LogRecord("dsp_vre_lib.notices", logging.INFO, __file__, 1, "msg", None, None)

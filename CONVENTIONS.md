@@ -78,6 +78,8 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
   (e.g. not applied during `xmlupload`), say so explicitly in the user docs of every feature that touches it.
 - **Exception classes end in `Error`** (`MultimediaFileNotFoundError`, not `MultimediaFileNotFound`).
   Ruff `N818` enforces it. The hierarchy is in `packages/dsp-tools/docs/developers/architecture/error-handling.md`.
+- **Catch errors around a client call with `ANY_DSP_ERROR` or `ANY_USER_ERROR`** (`dsp_tools/error/exceptions.py`),
+  never with `BaseError` or `UserError` alone. The errors of `dsp_vre_lib` do not subclass `BaseError`.
 
 - **User-facing command hints** (docs, CLI messages, exception messages) write `uvx dsp-tools <command>`,
   because users run DSP-TOOLS with `uvx`, not from an activated environment.

@@ -15,7 +15,7 @@ class _ListHandler(logging.Handler):
 
 @pytest.fixture
 def notice_records() -> Iterator[list[logging.LogRecord]]:
-    """Collects the records of "dsp_vre_lib" and of its notices, which do not propagate to the parent."""
+    """Collects the records of "dsp_vre_lib" and of "dsp_vre_lib.notices", which does not propagate to the parent."""
     handler = _ListHandler()
     loggers = [logging.getLogger("dsp_vre_lib"), logging.getLogger("dsp_vre_lib.notices")]
     old_level = loggers[0].level

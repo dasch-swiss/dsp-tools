@@ -17,4 +17,5 @@ Run the commands from the repository root:
 
 - Unit tests: `just vre-lib-unittests`
 - Type checking: `just mypy-vre-lib`
+- Dead code: `just vulture-vre-lib`. A name that only dsp-tools or a Protocol uses goes into `.vulture_whitelist.py`.
 - Paths in this package are relative to `packages/dsp-vre-lib/`. The tests run with this folder as the working directory.

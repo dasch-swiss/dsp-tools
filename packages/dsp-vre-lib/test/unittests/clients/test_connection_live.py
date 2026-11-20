@@ -193,8 +193,8 @@ def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     log_response.assert_called_once_with(response_expected, status_code=200)
 
 
-@patch("dsp_vre_lib.clients.request_utils.log_response")
-def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> None:
+@patch("dsp_vre_lib.clients.connection_live.log_response")
+def test_try_network_action_timeout_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (TimeoutError(), ReadTimeout(), Mock(status_code=200))
@@ -203,6 +203,7 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
     with pytest.raises(TimeoutError):
         con._try_network_action(params)
+    log_response.assert_not_called()
 
 
 @patch("dsp_vre_lib.clients.connection_live.log_response")

@@ -63,6 +63,10 @@ build-backend = "uv_build"
 addopts = ["--import-mode=importlib"]
 # see https://docs.pytest.org/en/latest/explanation/goodpractices.html#tests-outside-application-code
 pythonpath = [".", "src", "test"]
+filterwarnings = [
+    # pytest looks up "_mock_name" on each module attribute, and the rdflib namespace XSD warns about unknown names.
+    "ignore:Code. _mock_name is not defined in namespace XSD:UserWarning",
+]
 
 
 [tool.mypy]

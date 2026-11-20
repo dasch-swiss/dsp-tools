@@ -10,6 +10,7 @@ from scripts import vre_lib_lower_bound
 from scripts.vre_lib_lower_bound import check_lower_bound_on_pypi
 from scripts.vre_lib_lower_bound import is_on_pypi
 from scripts.vre_lib_lower_bound import main
+from scripts.vre_lib_lower_bound import pin_in_pyproject
 from scripts.vre_lib_lower_bound import raise_lower_bound
 from scripts.vre_lib_lower_bound import raise_lower_bound_in_pyproject
 
@@ -188,8 +189,28 @@ class TestMain:
         with pytest.raises(SystemExit, match="is not on PyPI"):
             main()
 
-    @pytest.mark.parametrize("args", [[], ["raise"], ["unknown"]])
+    def test_pin(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        pyproject = _write_pyproject(tmp_path, '"dsp-vre-lib",')
+        monkeypatch.setattr(vre_lib_lower_bound, "PYPROJECT_PATH", pyproject)
+        monkeypatch.setattr("sys.argv", ["vre_lib_lower_bound.py", "pin", "0.0.0.post119"])
+        main()
+        assert '"dsp-vre-lib==0.0.0.post119",' in pyproject.read_text(encoding="utf-8")
+
+    @pytest.mark.parametrize("args", [[], ["raise"], ["pin"], ["unknown"]])
     def test_usage_error(self, monkeypatch: pytest.MonkeyPatch, args: list[str]) -> None:
         monkeypatch.setattr("sys.argv", ["vre_lib_lower_bound.py", *args])
         with pytest.raises(SystemExit, match="usage"):
             main()
+
+
+class TestPinInPyproject:
+    @pytest.mark.parametrize("vre_lib_line", ['"dsp-vre-lib",', '"dsp-vre-lib>=0.1,<0.2",'])
+    def test_replaces_any_form_with_the_exact_version(self, tmp_path: Path, vre_lib_line: str) -> None:
+        pyproject = _write_pyproject(tmp_path, vre_lib_line)
+        pin_in_pyproject(pyproject, "0.1.3.post2")
+        assert pyproject.read_text(encoding="utf-8") == PYPROJECT_TEMPLATE.format(vre_lib='"dsp-vre-lib==0.1.3.post2",')
+
+    def test_exits_if_not_declared(self, tmp_path: Path) -> None:
+        pyproject = _write_pyproject(tmp_path, "")
+        with pytest.raises(SystemExit, match="does not declare"):
+            pin_in_pyproject(pyproject, "0.1.3")

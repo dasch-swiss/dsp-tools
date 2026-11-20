@@ -8,13 +8,13 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  UV_PUBLISH_TOKEN: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
-
 jobs:
   publish-dev-release-to-pypi:
     if: startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'feat')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # for PyPI trusted publishing
     steps:
       - name: Check out repo
         uses: actions/checkout@v7
@@ -31,4 +31,5 @@ jobs:
       - name: build wheel
         run: uv build
       - name: publish new version to PyPI
-        run: uv publish
+        # PyPI trusted publishing: no long-lived token. See https://docs.pypi.org/trusted-publishers/
+        run: uv publish --trusted-publishing always

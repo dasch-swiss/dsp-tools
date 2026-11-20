@@ -13,10 +13,10 @@ from typing import Optional
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.get.legacy_models.model import Model
+from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
 
 
 class Project(Model):
@@ -249,5 +249,5 @@ class Project(Model):
         try:
             result = con.get(Project.ROUTE)
             return [Project.fromJsonObj(con, a) for a in result["projects"]]
-        except (BaseError, DspVreLibBaseError):
+        except ANY_DSP_ERROR:
             return []

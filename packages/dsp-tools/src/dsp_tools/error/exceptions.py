@@ -4,6 +4,8 @@ from pathlib import Path
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
+from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
+from dsp_vre_lib.clients.exceptions import DspVreLibUserError
 
 
 @dataclass
@@ -101,3 +103,10 @@ class NonInteractiveContextCliError(UserError):
 
 class DaschEmployeeAccountUsedForUploadError(UserError):
     """Class for errors when data is uploaded to a prod-like server with a DaSCH employee account."""
+
+
+# Catch with this tuple, so that errors of dsp-vre-lib are not missed.
+ANY_DSP_ERROR = (BaseError, DspVreLibBaseError)
+
+# Catch with this tuple, so that user errors of dsp-vre-lib are not missed.
+ANY_USER_ERROR = (UserError, DspVreLibUserError)

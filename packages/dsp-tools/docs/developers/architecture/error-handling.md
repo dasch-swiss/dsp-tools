@@ -99,7 +99,9 @@ Thus `dsp-vre-lib` has its own hierarchy, in `dsp_vre_lib/clients/exceptions.py`
 DspVreLibBaseError                            # Root. Dataclass with message: str attribute.
 ├── DspVreLibUserError                        # User can fix this themselves.
 │   ├── BadCredentialsError                   # DSP-API rejected credentials.
-│   └── InvalidInputError, ProjectNotFoundError, NoIngestFileFoundError, ...
+│   ├── InvalidInputError                     # Invalid input for a client.
+│   │   └── InvalidIngestFileNameError        # The ingest server rejects a file name.
+│   └── ProjectNotFoundError, NoIngestFileFoundError, ...
 └── DspVreLibInternalError                    # Requires developer assistance.
     ├── PermanentConnectionError              # All reconnection attempts failed.
     └── DspApiRequestError, FatalNonOkApiResponseCodeError, IngestError
@@ -107,7 +109,12 @@ DspVreLibBaseError                            # Root. Dataclass with message: st
 
 `entry_point.py` shows a `DspVreLibUserError` like a `UserError`.
 It wraps every other exception, `DspVreLibInternalError` included, in an `InternalError`.
-Where dsp-tools catches `BaseError`, it also catches `DspVreLibBaseError`.
+Two tuples in `dsp_tools/error/exceptions.py` name both roots:
+
+- `ANY_DSP_ERROR` is `(BaseError, DspVreLibBaseError)`.
+- `ANY_USER_ERROR` is `(UserError, DspVreLibUserError)`.
+
+Catch with these tuples wherever a client error can occur.
 
 **Choosing the right class:**
 

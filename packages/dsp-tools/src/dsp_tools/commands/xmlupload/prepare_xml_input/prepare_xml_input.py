@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_processed_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.legacy_models.projectContext import ProjectContext
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.spinners import get_default_spinner
@@ -23,7 +23,6 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_vre_lib.clients import Connection
 from dsp_vre_lib.clients import ConnectionLive
-from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
 from dsp_vre_lib.clients.list_client import ListGetClient
 from dsp_vre_lib.clients.list_client import ListInfo
 
@@ -58,7 +57,7 @@ def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> 
 def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
     try:
         proj_context = ProjectContext(con=connection, shortcode=shortcode)
-    except (BaseError, DspVreLibBaseError):
+    except ANY_DSP_ERROR:
         logger.exception("Unable to retrieve project context from DSP server")
         raise UnableToRetrieveProjectInfoError("Unable to retrieve project context from DSP server") from None
     return proj_context

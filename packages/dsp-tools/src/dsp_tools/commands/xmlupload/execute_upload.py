@@ -29,13 +29,12 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_vre_lib.clients import LegalInfoClient
 from dsp_vre_lib.clients import ResourceClient
 from dsp_vre_lib.clients.exceptions import BadCredentialsError
 from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import DspVreLibBaseError
 from dsp_vre_lib.clients.exceptions import PermanentConnectionError
 from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
@@ -170,7 +169,7 @@ def _execute_one_resource_upload(
         # The resource stays pending, so that 'resume-xmlupload' retries it once the credentials are fixed.
         raise
     except Exception as err:  # noqa: BLE001 (blind-except)
-        err_msg = err.message if isinstance(err, (BaseError, DspVreLibBaseError)) else None
+        err_msg = err.message if isinstance(err, ANY_DSP_ERROR) else None
         inform_about_resource_creation_failure(resource, err_msg)
 
     try:

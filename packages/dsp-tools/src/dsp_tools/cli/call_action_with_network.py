@@ -100,6 +100,7 @@ def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         skip_ontology_validation=args.skip_ontology_validation,
         id2iri_file=id2iri_file,
         do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
+        skip_iiif_validation=args.no_iiif_uri_validation,
     )
 
 

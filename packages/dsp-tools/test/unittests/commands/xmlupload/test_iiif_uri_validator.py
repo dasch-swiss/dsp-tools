@@ -5,6 +5,7 @@ import pytest
 from requests import RequestException
 from requests import Response
 
+from dsp_tools.commands.xmlupload.models.input_problems import IIIFProblemCategory
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 
@@ -122,6 +123,27 @@ def test_validate_with_failed_regex_good_status_code(
     assert not result.regex_has_passed
     assert result.status_code == 200
     assert not result.raised_exception_name
+
+
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.IIIFUriValidator._make_network_call")
+def test_validate_with_access_refused(mock_network_call: Mock, empty_validator: IIIFUriValidator) -> None:
+    response_403 = Response()
+    response_403.status_code = 403
+    mock_network_call.return_value = response_403
+    result = empty_validator.validate_one_uri(
+        "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
+    )
+    assert isinstance(result, IIIFUriProblem)
+    assert result.category == IIIFProblemCategory.ACCESS_REFUSED
+
+
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.requests.get")
+def test_network_call_sends_dsp_tools_headers(mock_get: Mock, empty_validator: IIIFUriValidator) -> None:
+    empty_validator._make_network_call("https://example.org/abcd1234/full/max/0/default.jpg")
+    headers = mock_get.call_args.kwargs["headers"]
+    assert headers["User-Agent"].startswith("DSP-TOOLS/")
+    assert headers["Accept"] == "application/ld+json"
+    assert "Content-Type" not in headers
 
 
 if __name__ == "__main__":

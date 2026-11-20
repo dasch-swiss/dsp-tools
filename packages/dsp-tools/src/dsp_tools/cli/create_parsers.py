@@ -10,6 +10,10 @@ username_text = "username (e-mail) used for authentication with the DSP-API"
 password_text = "password used for authentication with the DSP-API"
 dsp_server_text = "URL of the DSP server"
 verbose_text = "print more information about the progress to the console"
+no_iiif_uri_validation_text = (
+    "don't check if the IIIF links are valid URLs that can be reached online. "
+    "Use this for IIIF servers that refuse automated requests"
+)
 
 
 def make_parser(
@@ -245,6 +249,11 @@ def _add_ingest_xmlupload(
     subparser.add_argument("xml_file", help="path to XML file containing the data")
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
     subparser.add_argument(
+        "--no-iiif-uri-validation",
+        action="store_true",
+        help=no_iiif_uri_validation_text,
+    )
+    subparser.add_argument(
         "--skip-ontology-validation",
         action="store_true",
         help=(
@@ -301,7 +310,7 @@ def _add_xmlupload(
     subparser.add_argument(
         "--no-iiif-uri-validation",
         action="store_true",
-        help="don't check if the IIIF links are valid URLs that can be reached online",
+        help=no_iiif_uri_validation_text,
     )
     subparser.add_argument(
         "--ignore-duplicate-files-warning",

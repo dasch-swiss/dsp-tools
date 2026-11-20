@@ -4,12 +4,15 @@ from pathlib import Path
 
 import tomlkit
 
+PYPROJECT_PATH = Path("packages/dsp-tools/pyproject.toml")
+
 
 def main() -> None:
     """Get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml"""
 
-    # get the latest release tag from git history (e.g. "v9.0.2")
-    latest_tag = _make_sys_call("git describe --tags --abbrev=0")
+    # get the latest dsp-tools release tag from git history (e.g. "v9.0.2"),
+    # ignoring the tags of other packages in the workspace (e.g. "dsp-vre-lib-v0.1.0")
+    latest_tag = _make_sys_call("git describe --tags --abbrev=0 --match v[0-9]*")
 
     new_version = _calculate_new_version(latest_tag)
 
@@ -47,13 +50,12 @@ def _check_if_on_main_branch() -> None:
 
 
 def _write_new_version_into_pyproject_toml(old_version: str, new_version: str) -> None:
-    pyproject_pth = Path("pyproject.toml")
-    pyproject = tomlkit.parse(pyproject_pth.read_text(encoding="utf-8"))
+    pyproject = tomlkit.parse(PYPROJECT_PATH.read_text(encoding="utf-8"))
     if pyproject["project"]["version"] != old_version:
         msg = f"Version in pyproject.toml is '{pyproject['project']['version']}', but expected {old_version}"
         raise ValueError(msg)
     pyproject["project"]["version"] = new_version
-    pyproject_pth.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
+    PYPROJECT_PATH.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 
 
 def _make_sys_call(call: str) -> str:

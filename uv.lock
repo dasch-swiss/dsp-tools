@@ -13,6 +13,44 @@ resolution-markers = [
     "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
+[manifest]
+members = [
+    "dsp-tools",
+]
+
+[manifest.dependency-groups]
+dev = [
+    { name = "docker" },
+    { name = "mkdocs" },
+    { name = "mkdocs-include-markdown-plugin" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extras = ["python"] },
+    { name = "mypy" },
+    { name = "pandas-stubs" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-order" },
+    { name = "pytest-unordered" },
+    { name = "pytest-xdist" },
+    { name = "requests-mock" },
+    { name = "ruff" },
+    { name = "testcontainers" },
+    { name = "tomlkit" },
+    { name = "types-docker" },
+    { name = "types-jsonschema" },
+    { name = "types-lxml" },
+    { name = "types-networkx" },
+    { name = "types-openpyxl" },
+    { name = "types-pyyaml" },
+    { name = "types-regex" },
+    { name = "types-requests" },
+    { name = "types-tqdm" },
+    { name = "viztracer" },
+    { name = "vulture" },
+    { name = "yamllint" },
+]
+
 [[package]]
 name = "argparse"
 version = "1.4.0"
@@ -361,7 +399,7 @@ wheels = [
 [[package]]
 name = "dsp-tools"
 version = "19.3.4"
-source = { editable = "." }
+source = { editable = "packages/dsp-tools" }
 dependencies = [
     { name = "argparse" },
     { name = "jinja2" },
@@ -385,39 +423,6 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
     { name = "yaspin" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "docker" },
-    { name = "mkdocs" },
-    { name = "mkdocs-include-markdown-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "mypy" },
-    { name = "pandas-stubs" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-order" },
-    { name = "pytest-unordered" },
-    { name = "pytest-xdist" },
-    { name = "requests-mock" },
-    { name = "ruff" },
-    { name = "testcontainers" },
-    { name = "tomlkit" },
-    { name = "types-docker" },
-    { name = "types-jsonschema" },
-    { name = "types-lxml" },
-    { name = "types-networkx" },
-    { name = "types-openpyxl" },
-    { name = "types-pyyaml" },
-    { name = "types-regex" },
-    { name = "types-requests" },
-    { name = "types-tqdm" },
-    { name = "viztracer" },
-    { name = "vulture" },
-    { name = "yamllint" },
 ]
 
 [package.metadata]
@@ -444,39 +449,6 @@ requires-dist = [
     { name = "tqdm" },
     { name = "typing-extensions" },
     { name = "yaspin" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "docker" },
-    { name = "mkdocs" },
-    { name = "mkdocs-include-markdown-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extras = ["python"] },
-    { name = "mypy" },
-    { name = "pandas-stubs" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-order" },
-    { name = "pytest-unordered" },
-    { name = "pytest-xdist" },
-    { name = "requests-mock" },
-    { name = "ruff" },
-    { name = "testcontainers" },
-    { name = "tomlkit" },
-    { name = "types-docker" },
-    { name = "types-jsonschema" },
-    { name = "types-lxml" },
-    { name = "types-networkx" },
-    { name = "types-openpyxl" },
-    { name = "types-pyyaml" },
-    { name = "types-regex" },
-    { name = "types-requests" },
-    { name = "types-tqdm" },
-    { name = "viztracer" },
-    { name = "vulture" },
-    { name = "yamllint" },
 ]
 
 [[package]]

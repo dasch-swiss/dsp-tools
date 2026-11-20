@@ -26,7 +26,7 @@ This document is intended for developers who want to work with the code of DSP-T
 To get started quickly, without reading the details, just execute these commands.
 
 - `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- `uv sync --all-extras --dev`
+- `uv sync --all-packages --all-extras --dev`
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `brew install just parallel yamlfmt lychee`
@@ -77,38 +77,40 @@ Check out the respective section in the
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
 - Install uv with `curl -LsSf https://astral.sh/uv/install.sh | sh` 
-- Execute `uv sync --all-extras --dev`, which will: 
+- Execute `uv sync --all-packages --all-extras --dev`, which will: 
     - Install an appropriate Python version, if it doesn't find one on your machine.
     - Create a virtual environment in the folder `.venv` (if there isn't already one).
     - Install all dependencies (dev and non-dev) from `uv.lock`. 
-      If `uv.lock` doesn't exist, it installs the dependencies from `pyproject.toml` and creates a new `uv.lock`.
-    - Make an editable installation of DSP-TOOLS inside the virtual environment.
+      If `uv.lock` doesn't exist, it installs the dependencies from the `pyproject.toml` files and creates a new
+      `uv.lock`.
+    - Make an editable installation of each package of the workspace inside the virtual environment.
 
-There are two files defining the dependencies:
+The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/).
+Each package is in `packages/`, for example `packages/dsp-tools/`. These files define the dependencies:
 
-- `pyproject.toml` lists the direct dependencies, ordered in two sections:
-    - `[project.dependencies]` lists the dependencies used to run the software.
-    - `[tool.uv.dev-dependencies]` lists the dependencies used for developing and testing.
-- `uv.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
+- `packages/dsp-tools/pyproject.toml` lists the dependencies used to run DSP-TOOLS, in `[project.dependencies]`.
+- The root `pyproject.toml` lists the dependencies used for developing and testing, in `[dependency-groups]`.
+- `uv.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies
+  of all packages.
 
-If you want to install a new package, install it with `uv add package`.
+If you want to install a new package, install it with `uv add --package dsp-tools package`.
 If your new package is only used in test code, use `uv add --dev package` instead.
 
 This
 
 - Installs the package (incl. sub-dependencies) in your virtual environment,
-- Adds the package to the section `[project.dependencies]` of `pyproject.toml`,
+- Adds the package to the section `[project.dependencies]` of `packages/dsp-tools/pyproject.toml`,
 - Adds the pinned versions of the package and all sub-dependencies to `uv.lock`.
 
 If a package is only needed for development, 
 please install it with `uv add --dev package`,
-so it will be added to the `[tool.uv.dev-dependencies]` section of `pyproject.toml`.
+so it will be added to the `[dependency-groups]` section of the root `pyproject.toml`.
 
 GitHub's dependabot is configured to automatically create a version bumping PR if there is an update for a dependency.
 Version bumping PRs can also be created manually: run `uv lock --upgrade` and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `uv self update` to update uv, 
-and `uv sync --upgrade` to update the dependencies from `uv.lock`.
+and `uv sync --all-packages --all-extras --dev --upgrade` to update the dependencies from `uv.lock`.
 
 
 
@@ -172,7 +174,8 @@ During the weekly DSP release train, these two merges happen without human inter
 - After a production deployment, `bump-stack-versions.yml` opens the 
   `chore(start-stack): bump versions to <DSP>` PR and merges it once its required checks are green.
 - That merge is the only push to `main` that makes `release-please.yml` merge the release PR, too, 
-  after verifying that the PR title, `.github/release-please-manifest.json`, and `pyproject.toml` agree on the version. 
+  after verifying that the PR title, `.github/release-please-manifest.json`, and `packages/dsp-tools/pyproject.toml`
+  agree on the version. 
   Every other push to `main` leaves the release PR open, as described above.
 
 Both merges are performed by the DaSCH Bot App, 
@@ -202,26 +205,28 @@ DSP_USER_PASSWORD="password"
 
 The following are self-contained and can be run without further requirements:
 
-- `test/benchmarking`: Prevent that the stashing algorithm of the xmlupload becomes worse.
-- `test/distribution`: 
+- `packages/dsp-tools/test/benchmarking`: Prevent that the stashing algorithm of the xmlupload becomes worse.
+- `packages/dsp-tools/test/distribution`: 
   Make sure that the CLI entry point, all dependencies, and the resources are available on the end user's machine.
-- `test/unittests`: Pure unit tests of lower-level functions.
-- `test/integration`: Higher-level tests, with side effects like reading/writing operations on the file system.
-- `test/e2e`: Tests interacting with a DSP-API instance, powered by test containers.
+- `packages/dsp-tools/test/unittests`: Pure unit tests of lower-level functions.
+- `packages/dsp-tools/test/integration`: Higher-level tests, with side effects like reading/writing operations on the
+  file system.
+- `packages/dsp-tools/test/e2e`: Tests interacting with a DSP-API instance, powered by test containers.
 
 The following need a DSP stack running in the background.
 A DSP stack can be started with the command 
 [`dsp-tools start-stack`](https://docs.dasch.swiss/DSP-TOOLS/cli-commands/#start-stack).
 
-- `test/legacy-e2e`
+- `packages/dsp-tools/test/legacy_e2e`
   
   
 Tests can be run in three different ways:
 
-- Run all tests in a given folder: `pytest test/unittests`.
-- Run only the tests inside a single file: `pytest test/unittests/cli/test_helper_functions.py`.
+- Run all tests in a given folder: `just dsp-tools-pytest packages/dsp-tools/test/unittests`.
+- Run only the tests inside a single file:
+  `just dsp-tools-pytest packages/dsp-tools/test/unittests/cli/test_helper_functions.py`.
 - Run only the test for a single method: 
-  `pytest test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
+  `just dsp-tools-pytest packages/dsp-tools/test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.

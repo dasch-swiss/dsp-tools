@@ -33,7 +33,7 @@ jobs:
       - name: Install just
         uses: taiki-e/install-action@just
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-packages --all-extras --dev
       - name: Enable dsp-tools log file in cwd
         run: echo 'DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true' >> .env
       - name: Run ruff
@@ -51,5 +51,5 @@ jobs:
         if: always()
         with:
           name: logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0

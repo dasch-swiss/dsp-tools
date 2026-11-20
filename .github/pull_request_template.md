@@ -23,4 +23,4 @@ Describe the code and the diff, not the history of the branch.
 
 - [ ] The items in `REVIEW.md` that apply to this change are satisfied
 - [ ] Feature work: the blast radius is mapped (see the "dsp-tools subsystem inventory" in `CONVENTIONS.md`)
-- [ ] User-facing behaviour changed: the docs under `docs/` are updated
+- [ ] User-facing behaviour changed: the docs under `packages/dsp-tools/docs/` are updated

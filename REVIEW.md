@@ -38,10 +38,11 @@ Flag anything below that a change violates.
 - [ ] Control flow is as flat as the logic allows (early returns kept where they clarify; a helper that only
       applies to one branch lives in that branch, not the shared tail)
 - [ ] xmllib does not import dsp-tools internals and has no knowledge of the JSON project file; the only
-      exception is shared constants and data-format utilities from `src/dsp_tools/utils/`; user-facing
+      exception is shared constants and data-format utilities from `packages/dsp-tools/src/dsp_tools/utils/`;
+      user-facing
       docs and docstrings describe user input (XML elements, JSON fields), not xmllib internals
 - [ ] Literals and constants that xmllib and other parts of dsp-tools both use live in a shared constants file
-      in `src/dsp_tools/utils/`, not in an xmllib module or a command module
+      in `packages/dsp-tools/src/dsp_tools/utils/`, not in an xmllib module or a command module
 - [ ] A new xmllib `Resource.add_<value>` method family maps to one value type, or to one `gui_element` of
       `TextValue`, or to one XML file element (see `CONVENTIONS.md`)
 - [ ] An xmllib value whose parts depend on a variant takes one public, frozen dataclass per variant,
@@ -74,12 +75,13 @@ Flag anything below that a change violates.
 - [ ] `validate-data` changes add **both** a conforming and a violating test case (happy + error paths)
 - [ ] A new value type has a value-type violation case in `core_validation/value_type_violation.xml`
 - [ ] New test data prefers extending the **systematic** test project over a new standalone `feature-XXXX`
-      file; new shortcodes/shortnames are added to `testdata/USED_SHORTCODE_SHORTNAMES.md` and follow its
+      file; new shortcodes/shortnames are added to `packages/dsp-tools/testdata/USED_SHORTCODE_SHORTNAMES.md` and follow
+      its
       file-naming convention (`[shortname]-project-[shortcode].json`, `[free]-[shortcode].xml`, invalid → `F…`)
 
 ### E2E wiring
 
-- [ ] A new e2e command suite is registered in all three places: `test/e2e/commands/<command>/`,
+- [ ] A new e2e command suite is registered in all three places: `packages/dsp-tools/test/e2e/commands/<command>/`,
       a `just e2e-test-<command>` recipe, and a job in `.github/workflows/tests-e2e.yml` — otherwise it
       silently never runs in CI
 - [ ] E2E `just` recipes stay one-per-file/logical-group — a new e2e file gets its own recipe, not appended
@@ -89,7 +91,8 @@ Flag anything below that a change violates.
 
 ### Docs
 
-- [ ] `docs/` (mkdocs) updated where user-facing behaviour or the XML/JSON format changed; statements about
+- [ ] `packages/dsp-tools/docs/` (mkdocs) updated where user-facing behaviour or the XML/JSON format changed; statements
+      about
       the same feature do not contradict each other across pages
 
 ## Skip

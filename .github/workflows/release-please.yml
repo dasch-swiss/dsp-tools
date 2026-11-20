@@ -173,8 +173,8 @@ jobs:
           # disagreement means the PR was hand-edited or a run was interrupted —
           # never something to merge unattended.
           title_version="${PR_TITLE#chore: release }"
-          manifest_version=$(jq -r '."."' .github/release-please-manifest.json)
-          pyproject_version=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/^version = "(.*)"/\1/')
+          manifest_version=$(jq -r '."packages/dsp-tools"' .github/release-please-manifest.json)
+          pyproject_version=$(grep -m1 '^version = ' packages/dsp-tools/pyproject.toml | sed -E 's/^version = "(.*)"/\1/')
           echo "title=$title_version manifest=$manifest_version pyproject=$pyproject_version"
           if [[ "$title_version" != "$manifest_version" || "$title_version" != "$pyproject_version" ]]; then
             echo "::error::version mismatch on the release PR — refusing to merge"

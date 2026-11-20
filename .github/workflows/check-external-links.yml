@@ -26,5 +26,5 @@ jobs:
       - name: Check external links in docs
         uses: lycheeverse/lychee-action@v2
         with:
-          # Same ./docs scope and lychee.toml config as `just check-links`.
-          args: ./docs
+          # Same ./packages/dsp-tools/docs scope and lychee.toml config as `just check-links`.
+          args: ./packages/dsp-tools/docs

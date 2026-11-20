@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-unittests
-          path: coverage.xml
+          path: packages/dsp-tools/coverage.xml
 
   integration:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-integration
-          path: coverage.xml
+          path: packages/dsp-tools/coverage.xml
 
   upload-coverage:
     runs-on: ubuntu-latest
@@ -81,6 +81,17 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
+  scripts-tests:
+    runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v7
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: tests of the repository tooling in scripts/
+        run: just scripts-tests
+
   benchmarking:
     runs-on: ubuntu-latest
     if: ${{ !startsWith(github.head_ref, 'release-please--') }}
@@ -90,6 +101,7 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
+        working-directory: packages/dsp-tools
         run: uv run pytest -s test/benchmarking/
 
   distribution:
@@ -103,6 +115,7 @@ jobs:
       - name: start stack
         run: uv run dsp-tools start-stack --no-prune --with-test-data
       - name: distribution tests
+        working-directory: packages/dsp-tools
         run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests

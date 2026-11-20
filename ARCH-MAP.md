@@ -47,7 +47,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     inverted dependency (the callee layer reaching into the caller layer); tolerated today, not to be
     extended. (enforcement: docs-only; an import-linter contract could make it static-analysis)
 - **Durable state**: none — validates paths, then delegates writes to `commands/*`.
-- **Fingerprint**: `630337b26dda`
+- **Fingerprint**: `656e4b62b2d6`
 
 ### clients
 
@@ -85,7 +85,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
   until `_renew_session()` replaces it per instance; `__post_init__` and `_renew_session()` both write its
   headers — two writers on a shared mutable default.
-- **Fingerprint**: `7e161cef5c17`
+- **Fingerprint**: `9b8fcf25f9dd`
 
 ### create
 
@@ -123,7 +123,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: writes only to the DSP server (project, lists, groups, users, ontologies, classes,
   properties, cardinalities, DOAPs, legal-info) — one dedicated `create_on_server/*.py` module per resource
   type, sequenced for dependencies (single writer per type). No local file writes besides reading the input.
-- **Fingerprint**: `37f9af80336d`
+- **Fingerprint**: `8512f985df2d`
 
 ### get
 
@@ -162,7 +162,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     admin-account check. This is a get→create file-format contract, not an import. (enforcement: docs-only)
 - **Durable state**: reads DSP server state; writes exactly one local JSON file at the user-given
   `outfile_path` (single writer: `get.py`'s `json.dump` call).
-- **Fingerprint**: `5026114ffdbf`
+- **Fingerprint**: `410b7eec4bcd`
 
 ### excel2json
 
@@ -194,7 +194,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     (enforcement: review)
 - **Durable state**: reads `.xlsx` files from a user folder; each CLI entry point writes its own JSON output
   file at the path the user gives (one writer per output file, no shared state).
-- **Fingerprint**: `373241579908`
+- **Fingerprint**: `382be67462f1`
 
 ### validate-data
 
@@ -233,7 +233,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   Writes user-visible output next to the XML file, one writer each: `<stem>_validation_<severity>.csv`
   when there are many problems, `<timestamp>_validation_result.ttl`/`_shacl.ttl`/`_data.ttl` on unexpected
   results, and a `graphs/` directory when `save_graphs` is set.
-- **Fingerprint**: `5e199e99fd57`
+- **Fingerprint**: `f45c9c47b03e`
 
 ### xmlupload
 
@@ -277,7 +277,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `_report_incomplete_upload` and `persist_state_for_resume`; read by `resume_xmlupload`. On every run,
   writes an ID→IRI mapping JSON twice: `./id2iri_<shortcode>_<server>_<ts>.json` and
   `~/.dsp-tools/id2iri/id2iri_<ts>_<shortcode>_<server>.json`.
-- **Fingerprint**: `cfebcfe9b163`
+- **Fingerprint**: `47570ebebd92`
 
 ### ingest-xmlupload
 
@@ -313,12 +313,13 @@ this map found confirmed violations of both rules; see Conventions and each comp
   finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;
   `ingest-xmlupload` writes `UnusedMediaUploaded.csv` / `FilesNotUploaded.csv`
   (`create_resources/user_information.py`).
-- **Fingerprint**: `385107d8658f`
+- **Fingerprint**: `de6e909e529b`
 
 ### other-commands
 
-- **Paths**: `packages/dsp-tools/src/dsp_tools/commands/id2iri.py`, `update_legal/**`, `mapping/**`, `start_stack/**`,
-  `migration/**`, `excel2xml/**`
+- **Paths**: `packages/dsp-tools/src/dsp_tools/commands/id2iri.py`, `packages/dsp-tools/src/dsp_tools/commands/update_legal/**`,
+  `packages/dsp-tools/src/dsp_tools/commands/mapping/**`, `packages/dsp-tools/src/dsp_tools/commands/start_stack/**`,
+  `packages/dsp-tools/src/dsp_tools/commands/migration/**`, `packages/dsp-tools/src/dsp_tools/commands/excel2xml/**`
 - **Purpose**: Six small, largely independent commands bundled into one entry: `id2iri` (ID→IRI replacement
   in XML), `update-legal` (migrates legal metadata to bitstream attributes), `mapping config`/`update`
   (replaces an ontology's external mappings from Excel), `start-stack`/`stop-stack` (local DSP stack via
@@ -360,7 +361,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (writes `export-<shortcode>.zip` and `migration-references-<shortcode>.json` under
   `~/.dsp-tools/migration/` by default, plus a config template), `id2iri` (reads XML + JSON mapping file,
   writes XML), `excel2xml` (none — pure library).
-- **Fingerprint**: `3f360f5eafb9`
+- **Fingerprint**: `eedc2cd9ea4e`
 
 ### xmllib
 
@@ -399,7 +400,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     (enforcement: review)
 - **Durable state**: none persistent — writes XML files on demand (`models/root.py`) and, if
   `XMLLIB_WARNINGS_CSV_SAVEPATH` is set, a warnings CSV (single writer: `internal/xmllib_warnings_util.py`).
-- **Fingerprint**: `f80eb2c2f66e`
+- **Fingerprint**: `7d1c0028815c`
 
 ### utils
 
@@ -436,11 +437,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Durable state**: none — `request_utils.py`'s retry/backoff settings are static, not runtime-mutable.
   The only file write is the user-facing `xsd_validation_errors.csv` (`parse_clean_validate_xml.py`, more
   than 50 XSD errors).
-- **Fingerprint**: `e9885fad9474`
+- **Fingerprint**: `a5bcd67823d5`
 
 ### resources
 
-- **Paths**: `packages/dsp-tools/src/dsp_tools/resources/**`
+- **Paths**: `packages/dsp-tools/src/dsp_tools/resources/**`, `src/dsp_tools/resources/schema/**` (copy of `schema/`
+  at the old URL path)
 - **Purpose**: Static, non-Python assets: the project-definition JSON Schema family and the XML data-file
   XSD, SHACL shapes for validate-data, start-stack's Docker Compose/config templates, the pinned stack image
   versions (`versions.env`), and the SHACL-CLI image pin (`shacl-cli-image.yml`). No code of its own.
@@ -481,11 +483,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
     templates need explicit render logic). (enforcement: review)
 - **Durable state**: these files ARE the durable state; no runtime writer (`versions.env` is bot-written, see
   Boundary rules).
-- **Fingerprint**: `9321d98b0ca1`
+- **Fingerprint**: `ab0afda43a52`
 
 ### docs
 
-- **Paths**: `packages/dsp-tools/docs/**`, `docs/dsp-tools-split/**`, `mkdocs.yml`
+- **Paths**: `packages/dsp-tools/docs/**`, `docs/adr/**`, `docs/dsp-tools-split/**`, `mkdocs.yml`
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
   The ADRs are in `docs/adr/` at the repository root, outside the mkdocs `docs_dir`, because ADRs are a
@@ -522,7 +524,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `97e64dcab695`
+- **Fingerprint**: `6ce301b0fb83`
 
 ### tests
 
@@ -565,7 +567,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (single writer: `packages/dsp-tools/test/e2e/setup_testcontainers/`). `get_containers` removes them in a `finally`
   block but
   ignores a `PermissionError`, so leftovers can remain; they are gitignored.
-- **Fingerprint**: `20b433451688`
+- **Fingerprint**: `63e3b4155c88`
 
 ### repo-tooling
 
@@ -576,7 +578,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `README.md`, `SECURITY.md`, `.env.example`, `.git-blame-ignore-revs`, `packages/dsp-tools/.vulture_whitelist.py`,
   `CLAUDE.md`, `CONVENTIONS.md`, `REVIEW.md`, `CONTEXT.md`, `eng.yaml`, `packages/dsp-tools/src/dsp_tools/__init__.py`,
   `packages/dsp-tools/src/dsp_tools/py.typed`, `packages/dsp-tools/src/dsp_tools/commands/__init__.py`, `.claude/**`,
-  `src/dsp_tools/resources/schema/` (copy of the schema files at the old URL path, checked by `just check-schema-copy`)
+  `.python-version`, `packages/dsp-tools/CLAUDE.md`
 - **Purpose**: Repo-level build, lint, and CI tooling — everything a developer or CI runs that isn't
   application code, docs, or tests — plus repo-level policy, templates and developer config (security
   policy, PR template, `.env.example`, blame-ignore list).
@@ -621,7 +623,25 @@ this map found confirmed violations of both rules; see Conventions and each comp
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `0bb606e8e661`
+- **Fingerprint**: `669d7a9f74fa`
+
+### dsp-vre-lib
+
+- **Paths**: `packages/dsp-vre-lib/**`
+- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`):
+  the Python client library for the DSP-API of a DSP server.
+  It has no public interface yet. The interface decisions are in
+  `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
+- **Public interface**: none yet.
+- **Depends on**: nothing.
+- **Used by**: nothing yet. `dsp-tools` does not declare it as a dependency.
+- **Boundary rules**:
+    - `dsp_vre_lib` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
+    `packages/dsp-vre-lib/pyproject.toml`)
+    - No file formats (JSON project file, XML data file, Excel). (enforcement: docs-only,
+    `packages/dsp-vre-lib/CLAUDE.md`)
+- **Durable state**: none.
+- **Fingerprint**: `081f365b5d36`
 
 ## Cross-cutting concerns
 

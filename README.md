@@ -228,6 +228,8 @@ Tests can be run in three different ways:
 - Run only the test for a single method: 
   `just dsp-tools-pytest packages/dsp-tools/test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
 
+For `dsp-vre-lib`, use `just vre-lib-pytest packages/dsp-vre-lib/test/<path>` in the same way.
+
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.
 

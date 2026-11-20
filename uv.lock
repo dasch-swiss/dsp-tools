@@ -16,6 +16,7 @@ resolution-markers = [
 [manifest]
 members = [
     "dsp-tools",
+    "dsp-vre-lib",
 ]
 
 [manifest.dependency-groups]
@@ -450,6 +451,11 @@ requires-dist = [
     { name = "typing-extensions" },
     { name = "yaspin" },
 ]
+
+[[package]]
+name = "dsp-vre-lib"
+version = "0.0.0"
+source = { editable = "packages/dsp-vre-lib" }
 
 [[package]]
 name = "et-xmlfile"

@@ -17,6 +17,12 @@ overrides:
     commands:
       test_targeted: just dsp-tools-pytest {files}
 
+  - when: "packages/dsp-vre-lib/**"
+    conventions: [packages/dsp-vre-lib/CLAUDE.md]
+    commands:
+      test: just vre-lib-unittests
+      test_targeted: just vre-lib-pytest {files}
+
   - when: "packages/dsp-tools/src/dsp_tools/cli/**"
     conventions: [packages/dsp-tools/src/dsp_tools/cli/CLAUDE.md]
 
@@ -72,6 +78,9 @@ overrides:
     reviewers: ['eng:review:dune-reviewer']
 
   - when: "docs/adr/**"
+    reviewers: ['eng:review:dune-reviewer']
+
+  - when: "packages/dsp-vre-lib/docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
   - when: "eng.yaml"

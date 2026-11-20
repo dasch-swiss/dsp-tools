@@ -65,8 +65,8 @@ Two Python modules are public API:
 
 - All linters in parallel: `just lint`
 - Format the code: `just format`
-- Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly). It runs `just mypy-dsp-tools`
-  and `just mypy-scripts`, which also work alone.
+- Type checking: `just mypy` (run `dmypy restart` if mypy behaves unexpectedly). It runs `just mypy-dsp-tools`,
+  `just mypy-vre-lib` and `just mypy-scripts`, which also work alone.
 - Dead code: `just vulture`
 - Single linters: `just ruff-check`, `just ruff-format-check`, `just yamllint`, `just markdownlint` (runs in Docker)
 
@@ -78,6 +78,7 @@ Two Python modules are public API:
 - Legacy E2E tests (need a running DSP stack): `just legacy-e2e-tests`
 - One test: `just dsp-tools-pytest packages/dsp-tools/test/path/to/test.py::TestClass::test_method`
 - Tests of the repository tooling in `scripts/`: `just scripts-tests`
+- Unit tests of `dsp-vre-lib`: `just vre-lib-unittests`. One test: `just vre-lib-pytest packages/dsp-vre-lib/test/<path>`
 
 ### Other
 
@@ -96,6 +97,8 @@ Two Python modules are public API:
 - `packages/dsp-tools/src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a
   subdirectory.
 - `packages/dsp-tools/src/dsp_tools/xmllib/`: the public library to create XML data files.
+- `packages/dsp-vre-lib/`: the Python client library for the DSP-API of a DSP server. It has no public interface yet.
+  It never imports `dsp_tools`. See `packages/dsp-vre-lib/CLAUDE.md`.
 - `packages/dsp-tools/src/dsp_tools/utils/`: shared, stateless helpers. `utils/CLAUDE.md` says which helper serves which
   purpose.
 

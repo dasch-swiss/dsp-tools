@@ -7,8 +7,8 @@ date: 2026-11-11
 
 ## Summary
 
-`dsp-vre-lib` is a Python package for the DSP server.
-DaSCH tools, DaSCH services and external researchers use it for all server interaction.
+`dsp-vre-lib` is a Python client library for the DSP-API of a DSP server.
+DaSCH tools, DaSCH services and external researchers use it for all their access to the DSP-API.
 This ADR records the public interface of `dsp-vre-lib`: principles, package name, result model and domains.
 The internals are out of scope.
 
@@ -20,7 +20,7 @@ The clients also show API concepts (routes, JSON-LD, the separate ingest service
 
 The package has two user groups:
 
-- DaSCH tools and services, which use the package for all server interaction.
+- DaSCH tools and services, which use the package for all their access to the DSP-API.
 - External researchers, who use the package in scripts and notebooks.
 
 ## Decision
@@ -286,8 +286,7 @@ Each topic gets evaluated against one real bulk-create use case before a decisio
 
 ## Related Documents
 
-- Map of the `dsp-vre-lib` domains in `dsp-tools`
-  (`docs/dsp-tools-split/dsp-vre-lib-to-tools-map.md` at the repository root):
+- [Map: `dsp-vre-lib` domains in `dsp-tools`](../../../../docs/dsp-tools-split/dsp-vre-lib-to-tools-map.md):
   which `dsp-tools` command uses which domain, with the `dsp-tools create` worked example.
-- Set-up for the split (`docs/dsp-tools-split/dsp-tools-split-package-setup.md` at the repository root):
+- [Set-up for the split](../../../../docs/dsp-tools-split/dsp-tools-split-package-setup.md):
   repository layout, dependency direction and release timeline.

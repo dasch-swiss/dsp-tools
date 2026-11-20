@@ -1,7 +1,7 @@
 # Map: `dsp-vre-lib` Domains in `dsp-tools`
 
 This document shows which `dsp-tools` command needs which `dsp-vre-lib` domain.
-The domains and capabilities are in the [ADR for `dsp-vre-lib`](../../packages/dsp-tools/docs/dsp-tools-split/ADR-dsp-vre-lib.md).
+The domains and capabilities are in the [ADR for `dsp-vre-lib`](../../packages/dsp-vre-lib/docs/adr/0001-public-interface.md).
 The column "Client modules today" names the modules in `src/dsp_tools/clients/` that `dsp-vre-lib` replaces.
 
 ## Commands with Server Interaction
@@ -67,4 +67,4 @@ After that, it calls `set_up_project` one time.
 The call has one progress stream and one result.
 The result reports the created items, the skipped items that exist, and the failures (principles 6 and 7).
 The progress mechanism is an open decision in
-[Progress, Reporting and Continuation](../../packages/dsp-tools/docs/dsp-tools-split/ADR-dsp-vre-lib.md#progress-reporting-and-continuation).
+[Progress, Reporting and Continuation](../../packages/dsp-vre-lib/docs/adr/0001-public-interface.md#progress-reporting-and-continuation).

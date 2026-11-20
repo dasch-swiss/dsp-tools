@@ -1,6 +1,6 @@
 # CLAUDE.md for dsp-vre-lib
 
-`dsp-vre-lib` is the Python package for all interaction with a DSP server.
+`dsp-vre-lib` is the Python client library for the DSP-API of a DSP server.
 The decisions about its interface are in `docs/adr/` of this package, the interface of `create` in
 `docs/create-interface.md`.
 

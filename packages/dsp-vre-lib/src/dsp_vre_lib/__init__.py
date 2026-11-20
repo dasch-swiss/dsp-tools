@@ -1,1 +1,1 @@
-"""Python package for all interaction with a DSP server."""
+"""Python client library for the DSP-API of a DSP server."""

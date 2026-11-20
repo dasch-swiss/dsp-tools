@@ -4,3 +4,12 @@ coverage:
     project:
       default:
         threshold: 0.5%
+
+# pytest runs in the package folder, thus coverage.xml has paths relative to it.
+# Codecov needs paths relative to the repository root.
+fixes:
+  - "src/dsp_tools/::packages/dsp-tools/src/dsp_tools/"
+  - "src/dsp_vre_lib/::packages/dsp-vre-lib/src/dsp_vre_lib/"
+
+# Codecov posts no PR comments. The status checks stay.
+comment: false

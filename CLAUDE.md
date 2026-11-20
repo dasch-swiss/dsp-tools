@@ -97,7 +97,7 @@ Two Python modules are public API:
 - `packages/dsp-tools/src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a
   subdirectory.
 - `packages/dsp-tools/src/dsp_tools/xmllib/`: the public library to create XML data files.
-- `packages/dsp-vre-lib/`: the package for all interaction with a DSP server. It has no public interface yet.
+- `packages/dsp-vre-lib/`: the Python client library for the DSP-API of a DSP server. It has no public interface yet.
   It never imports `dsp_tools`. See `packages/dsp-vre-lib/CLAUDE.md`.
 - `packages/dsp-tools/src/dsp_tools/utils/`: shared, stateless helpers. `utils/CLAUDE.md` says which helper serves which
   purpose.

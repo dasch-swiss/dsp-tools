@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 import urllib
 from pathlib import Path
@@ -150,23 +151,24 @@ def test_trigger_wrong_shortcode(ingest_client: BulkIngestClient, requests_mock:
     ingest_client.shortcode = "9999"
     url = f"{DSP_INGEST_URL}/projects/9999/bulk-ingest"
     requests_mock.post(url, status_code=404)
-    err_msg = re.escape(
-        "No assets have been uploaded for project 9999. "
-        "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
-    )
-    with pytest.raises(NoIngestFileFoundError, match=err_msg):
+    with pytest.raises(NoIngestFileFoundError) as exc_info:
         ingest_client.trigger_ingest_process()
+    assert exc_info.value.message == "No assets have been uploaded for project 9999."
 
 
 def test_trigger_when_ingest_already_running(
-    ingest_client: BulkIngestClient, requests_mock: Mocker, capsys: pytest.CaptureFixture[str]
+    ingest_client: BulkIngestClient,
+    requests_mock: Mocker,
+    capsys: pytest.CaptureFixture[str],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=409)
-    ingest_client.trigger_ingest_process()
+    with caplog.at_level(logging.INFO, logger="dsp_vre_lib.notices"):
+        ingest_client.trigger_ingest_process()
     expected = f"Ingest process on the server {DSP_INGEST_URL} is already running. Wait until it completes..."
-    captured = capsys.readouterr().out.removesuffix("\n")
-    assert captured == expected
+    assert [r.getMessage() for r in caplog.records if r.name == "dsp_vre_lib.notices"] == [expected]
+    assert not capsys.readouterr().out
 
 
 def test_trigger_on_internal_server_error(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:

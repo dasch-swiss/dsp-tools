@@ -23,7 +23,7 @@ from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
 from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
+from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
 from dsp_vre_lib.clients.request_utils import should_retry_request
 
 HTTP_OK = 200
@@ -174,7 +174,7 @@ class ConnectionLive(Connection):
                 log_request(params, dict(self.session.headers))
                 response = action()
             except (TimeoutError, ReadTimeout) as err:
-                print_and_raise_timeouts(err)
+                notify_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
                 log_request_failure_and_sleep(

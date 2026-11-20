@@ -62,3 +62,12 @@ def test_repeated_configuration_adds_one_handler_to_dsp_vre_lib(log_file: Path) 
     logger_config_module.logger_config()
     vre_lib_logger = logging.getLogger("dsp_vre_lib")
     assert len(vre_lib_logger.handlers) == 1
+
+
+def test_notices_of_dsp_vre_lib_are_printed(log_file: Path, capsys: pytest.CaptureFixture[str]) -> None:  # noqa: ARG001
+    logger_config_module.logger_config()
+    logging.getLogger("dsp_vre_lib.notices").info("Kicked off the ingest process")
+    logging.getLogger("dsp_vre_lib.clients.some_client").info("not a notice")
+    out = capsys.readouterr().out
+    assert out.endswith(": Kicked off the ingest process\n")
+    assert "not a notice" not in out

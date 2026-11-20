@@ -48,6 +48,22 @@ class _LoguruInterceptHandler(logging.Handler):
             self._emitting.active = False
 
 
+class _NoticePrintHandler(logging.Handler):
+    """Prints the notices of dsp-vre-lib (for example a retry) on the terminal, with a time stamp."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        # print() looks up sys.stdout at each call, so that the capture of pytest also gets the notices.
+        print(f"{datetime.fromtimestamp(record.created)}: {record.getMessage()}")
+
+
+def _print_dsp_vre_lib_notices() -> None:
+    notices_logger = logging.getLogger("dsp_vre_lib.notices")
+    for handler in list(notices_logger.handlers):
+        if isinstance(handler, _NoticePrintHandler):
+            notices_logger.removeHandler(handler)
+    notices_logger.addHandler(_NoticePrintHandler())
+
+
 def _route_dsp_vre_lib_logs_to_loguru() -> None:
     vre_lib_logger = logging.getLogger("dsp_vre_lib")
     vre_lib_logger.setLevel(logging.DEBUG)
@@ -61,6 +77,7 @@ def logger_config() -> None:
     """
     This function configures the log files.
     The records of the package dsp-vre-lib (standard logger "dsp_vre_lib") go into the same sinks.
+    Its notices for the user (logger "dsp_vre_lib.notices") are also printed on the terminal.
     Currently, there are three sinks:
     - timestamp_logging.log in ~/.dsp-tools/logs/ contains the entire stack-trace
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
@@ -74,6 +91,7 @@ def logger_config() -> None:
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
     _route_dsp_vre_lib_logs_to_loguru()
+    _print_dsp_vre_lib_notices()
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"

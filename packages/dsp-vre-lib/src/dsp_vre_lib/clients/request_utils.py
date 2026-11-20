@@ -7,7 +7,6 @@ import time
 import warnings
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from http import HTTPStatus
 from importlib.metadata import version
 from typing import Any
@@ -23,6 +22,8 @@ from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWar
 from dsp_vre_lib.clients.exceptions import DspApiRequestError
 
 logger = logging.getLogger(__name__)
+# Messages for the user of a long operation, for example a retry. The caller decides where to show them.
+notices = logging.getLogger("dsp_vre_lib.notices")
 
 USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
 
@@ -193,7 +194,7 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
     """
     sleep_time = min(2**retry_counter, 300)
     msg = f"{reason}: Try reconnecting to DSP server, next attempt in {sleep_time} seconds..."
-    print(f"{datetime.now()}: {msg}")
+    notices.info(msg)
     if exc_info:
         logger.exception(f"{msg} ({retry_counter=:})")
     else:
@@ -201,10 +202,9 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
     time.sleep(sleep_time)
 
 
-def print_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
-    """Print a message about the timeout, then re-raise it."""
-    msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
-    print(f"{datetime.now()}: {msg}")
+def notify_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
+    """Write a notice about the timeout, then re-raise it."""
+    notices.info(f"A '{error.__class__.__name__}' occurred during the connection to the DSP server.")
     raise error
 
 
@@ -227,7 +227,7 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
     resp_txt = response_text[:400] if len(response_text) > 400 else response_text
     msg = (
         "We got an unexpected API response during the following request. "
-        "Please contact the dsp-tools development team (at support@dasch.swiss) with your log file "
+        "Please contact DaSCH support (at support@dasch.swiss) with your log file "
         "so that we can handle this more gracefully in the future.\n"
         f"Response status code: {status_code}\n"
         f"Original Message: {resp_txt}"

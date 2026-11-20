@@ -86,8 +86,7 @@ class MigrationExportExistsError(DspVreLibUserError):
         msg = (
             "An export for this project already exists on this server. "
             "It is not possible to create a second export before the first one has been downloaded. "
-            "Either continue with downloading the export, or remove the export from the server "
-            "with the command 'uvx dsp-tools migration clean-up'."
+            "Either continue with downloading the export, or remove the export from the server."
         )
         super().__init__(msg)
 
@@ -100,8 +99,7 @@ class MigrationImportExistsError(DspVreLibUserError):
             "An import for this project already exists on this server. "
             "It is not possible to import the same project again. "
             "If you want to re-import the project, you must first remove the previous import "
-            "with 'uvx dsp-tools migration clean-up', and then delete the project itself from the server. "
-            "If you are on localhost, you can also simply restart the stack with 'uvx dsp-tools start-stack'."
+            "and then delete the project itself from the server."
         )
         super().__init__(msg)
 

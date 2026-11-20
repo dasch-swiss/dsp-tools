@@ -295,6 +295,9 @@ logger = logging.getLogger(__name__)
 
 Log only with the standard `logging` module, never with loguru or `print`.
 The module loggers are children of the logger `dsp_vre_lib`. The caller configures handlers, formats and files.
+A message for the user of a long operation (for example a retry or a timeout) goes to the logger
+`dsp_vre_lib.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
+Messages and exceptions do not name dsp-tools commands. dsp-tools adds such hints where it catches the exception.
 
 ## Constants
 

@@ -18,7 +18,7 @@ from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
+from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
 from dsp_vre_lib.clients.resource_client import ResourceClient
 
 TIMEOUT_1800 = 1800
@@ -53,7 +53,7 @@ class ResourceClientLive(ResourceClient):
                 timeout=params.timeout,
             )
         except (TimeoutError, ReadTimeout) as err:
-            print_and_raise_timeouts(err)
+            notify_and_raise_timeouts(err)
         except RequestException as err:
             log_and_raise_request_exception(err)
         log_response(response, status_code=response.status_code)

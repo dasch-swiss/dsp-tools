@@ -41,3 +41,21 @@ class MigrationImportFailureError(InternalError):
             "Please contact Engineering for help."
         )
         super().__init__(msg)
+
+
+class MigrationExportOnServerError(UserError):
+    """An export of the project already exists on the server."""
+
+    def __init__(self, server_message: str) -> None:
+        super().__init__(f"{server_message} To remove the export, use 'uvx dsp-tools migration clean-up'.")
+
+
+class MigrationImportOnServerError(UserError):
+    """An import of the project already exists on the server."""
+
+    def __init__(self, server_message: str) -> None:
+        msg = (
+            f"{server_message} To remove the import, use 'uvx dsp-tools migration clean-up'. "
+            "If you are on localhost, you can also restart the stack with 'uvx dsp-tools start-stack'."
+        )
+        super().__init__(msg)

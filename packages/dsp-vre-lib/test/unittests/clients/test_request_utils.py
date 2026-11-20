@@ -11,9 +11,10 @@ from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from dsp_vre_lib.clients.request_utils import _is_retriable_status_code
 from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
 from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
 from dsp_vre_lib.clients.request_utils import parse_api_v3_error
-from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
 from dsp_vre_lib.clients.request_utils import should_retry_request
 
 
@@ -36,13 +37,28 @@ def test_log_request_writes_to_the_standard_logger_of_the_package(caplog: pytest
     assert caplog.records[0].getMessage().startswith("REQUEST: ")
 
 
-def test_print_and_raise_timeouts_no_redundant_log(caplog: pytest.LogCaptureFixture) -> None:
+def test_notify_and_raise_timeouts_writes_only_a_notice(
+    caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture[str]
+) -> None:
     error = TimeoutError("Request timed out")
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.DEBUG, logger="dsp_vre_lib"):
         with pytest.raises(TimeoutError) as exc_info:
-            print_and_raise_timeouts(error)
-    assert not caplog.records
+            notify_and_raise_timeouts(error)
+    assert [(r.name, r.levelno) for r in caplog.records] == [("dsp_vre_lib.notices", logging.INFO)]
+    assert "TimeoutError" in caplog.records[0].getMessage()
+    assert not capsys.readouterr().out
     assert exc_info.value is error
+
+
+def test_log_request_failure_and_sleep_writes_a_notice(
+    caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with patch("dsp_vre_lib.clients.request_utils.time.sleep"):
+        with caplog.at_level(logging.DEBUG, logger="dsp_vre_lib"):
+            log_request_failure_and_sleep("Transient Error", retry_counter=2, exc_info=False)
+    notices = [r.getMessage() for r in caplog.records if r.name == "dsp_vre_lib.notices"]
+    assert notices == ["Transient Error: Try reconnecting to DSP server, next attempt in 4 seconds..."]
+    assert not capsys.readouterr().out
 
 
 def test_log_response_debug() -> None:

@@ -4,6 +4,7 @@ from loguru import logger
 
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
+from dsp_tools.commands.migration.exceptions import MigrationImportOnServerError
 from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncompleteError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import ServerInfo
@@ -15,6 +16,7 @@ from dsp_vre_lib.clients import ExportImportStatus
 from dsp_vre_lib.clients import ImportId
 from dsp_vre_lib.clients import MigrationImportClient
 from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
 from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
 
 STATUS_CHECK_SLEEP_TIME = 5
@@ -46,6 +48,10 @@ def _upload_zip(client: MigrationImportClient, config: MigrationConfig) -> Impor
         logger.debug(start_text)
         try:
             import_id = client.post_import(config.export_savepath)
+        except MigrationImportExistsError as err:
+            sp.fail("✘")
+            logger.exception(err)
+            raise MigrationImportOnServerError(err.message) from None
         except Exception:
             sp.fail("✘")
             raise

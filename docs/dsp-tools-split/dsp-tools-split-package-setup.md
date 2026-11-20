@@ -107,11 +107,25 @@ Each package gets its own jobs (unit, integration, e2e).
   The workflow uses PyPI trusted publishing.
 - release-please opens one release PR for each package.
   The tags are `vX.Y.Z` for `dsp-tools` and `dsp-vre-lib-vX.Y.Z` for `dsp-vre-lib`.
-  Only the `dsp-tools` release PR takes part in the automatic merge of the release train.
+  With `always-update`, release-please rebuilds each open release PR from `main` on each push to `main`.
 - A merge of the `dsp-vre-lib` release PR publishes the package.
   The first release comes when the package has content.
 - A commit that changes only files outside `packages/` makes no release.
 - `dsp-tools` pins a compatible range of `dsp-vre-lib`.
+- The release train merges both release PRs, in this order:
+  1. The `dsp-vre-lib` release PR, if one is open.
+  2. A wait until the new `dsp-vre-lib` is on PyPI.
+  3. The `dsp-tools` release PR.
+- On the `dsp-tools` release PR, the release workflow raises the lower bound of `dsp-vre-lib`
+  to the latest released version (`scripts/vre_lib_lower_bound.py raise`).
+  Thus a `dsp-tools` release always requires the `dsp-vre-lib` code that it was tested with,
+  and `pip install -U dsp-tools` also upgrades `dsp-vre-lib`.
+- The CI job `vre-lib-lower-bound-on-pypi` fails on the `dsp-tools` release PR if the lower bound is not on PyPI.
+  The job also protects a manual merge.
+- Dev releases: from the first import of `dsp_vre_lib` in `dsp-tools`, a push to `main` that changes `dsp-vre-lib`
+  also publishes a `dsp-vre-lib` dev release.
+  The `dsp-tools` dev release then pins this dev version.
+  Without this, a `dsp-tools` dev release can require `dsp-vre-lib` code that is not on PyPI.
 
 ## Step Two: Move `dsp-vre-lib` into `dsp-api`
 

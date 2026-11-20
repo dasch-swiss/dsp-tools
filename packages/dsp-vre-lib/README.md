@@ -1,6 +1,6 @@
 # dsp-vre-lib
 
-`dsp-vre-lib` is a Python package for all interaction with a DaSCH Service Platform (DSP) server.
+`dsp-vre-lib` is a Python client library for the DSP-API of a DaSCH Service Platform (DSP) server.
 DaSCH tools, DaSCH services and researchers use it in their code.
 
 The package is in an early stage and has no public interface yet.

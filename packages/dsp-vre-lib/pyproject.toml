@@ -1,7 +1,7 @@
 [project]
 name = "dsp-vre-lib"
 version = "0.0.0"
-description = "dsp-vre-lib is a Python package for all interaction with a DaSCH Service Platform (DSP) server."
+description = "dsp-vre-lib is a Python client library for the DSP-API of a DaSCH Service Platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
 ]

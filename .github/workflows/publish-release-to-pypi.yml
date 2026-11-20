@@ -10,15 +10,15 @@ on:
 permissions:
   contents: read
 
-env:
-  UV_PUBLISH_TOKEN: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
-
 jobs:
   publish-release-to-pypi:
     # dsp-tools releases have the tags vX.Y.Z. Releases of other packages (for example dsp-vre-lib-vX.Y.Z)
     # are published by their own workflows.
     if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # for PyPI trusted publishing
     steps:
       - name: Check out repo
         uses: actions/checkout@v7
@@ -36,7 +36,8 @@ jobs:
       - name: check the wheel for correctness
         run: uvx check-wheel-contents dist/
       - name: publish new version to PyPI
-        run: uv publish
+        # PyPI trusted publishing: no long-lived token. See https://docs.pypi.org/trusted-publishers/
+        run: uv publish --trusted-publishing always
 
   notification:
     name: Google chat notification about release and published version

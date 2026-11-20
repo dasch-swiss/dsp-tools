@@ -170,6 +170,7 @@ This PR will follow semantic versioning and update the change log.
 Once all desired features are merged, the release can be published by merging this release pull request into `main`. 
 This will trigger actions that create a release on GitHub and on PyPI.
 On the `dsp-tools` release PR, the `dsp-vre-lib` lower bound of `dsp-tools` is raised to the latest released version.
+PyPI publishing uses [trusted publishing](https://docs.pypi.org/trusted-publishers/).
 
 During the weekly DSP release train, these two merges happen without human interaction:
 

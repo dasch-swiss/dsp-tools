@@ -1,6 +1,6 @@
+import inspect
 import logging
 import os
-import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -31,46 +31,40 @@ def _env_var_is_true(name: str) -> bool:
 class _LoguruInterceptHandler(logging.Handler):
     """Passes the records of a standard logger to loguru, so that they go into the same log files."""
 
-    _emitting = threading.local()
-
     def emit(self, record: logging.LogRecord) -> None:
-        # The test fixture caplog passes loguru records back to the standard loggers. Without this guard, they loop.
-        if getattr(self._emitting, "active", False):
-            return
-        self._emitting.active = True
         try:
             try:
                 level: str | int = logger.level(record.levelname).name
             except ValueError:
                 level = record.levelno
-            logger.opt(exception=record.exc_info).log(level, record.getMessage())
-        finally:
-            self._emitting.active = False
+            # The depth skips the frames of the logging module, so that loguru names the code that emitted the record.
+            frame, depth = inspect.currentframe(), 0
+            while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
+                frame = frame.f_back
+                depth += 1
+            logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        except Exception:  # noqa: BLE001
+            self.handleError(record)
 
 
 class _NoticePrintHandler(logging.Handler):
     """Prints the notices of dsp-vre-lib (for example a retry) on the terminal, with a time stamp."""
 
     def emit(self, record: logging.LogRecord) -> None:
-        # print() looks up sys.stdout at each call, so that the capture of pytest also gets the notices.
-        print(f"{datetime.fromtimestamp(record.created)}: {record.getMessage()}")
+        try:
+            # print() looks up sys.stdout at each call, so that the capture of pytest also gets the notices.
+            print(f"{datetime.fromtimestamp(record.created)}: {record.getMessage()}")
+        except Exception:  # noqa: BLE001
+            self.handleError(record)
 
 
-def _print_dsp_vre_lib_notices() -> None:
-    notices_logger = logging.getLogger("dsp_vre_lib.notices")
-    for handler in list(notices_logger.handlers):
-        if isinstance(handler, _NoticePrintHandler):
-            notices_logger.removeHandler(handler)
-    notices_logger.addHandler(_NoticePrintHandler())
-
-
-def _route_dsp_vre_lib_logs_to_loguru() -> None:
-    vre_lib_logger = logging.getLogger("dsp_vre_lib")
-    vre_lib_logger.setLevel(logging.DEBUG)
-    for handler in list(vre_lib_logger.handlers):
-        if isinstance(handler, _LoguruInterceptHandler):
-            vre_lib_logger.removeHandler(handler)
-    vre_lib_logger.addHandler(_LoguruInterceptHandler())
+def _replace_handler(logger_name: str, handler: logging.Handler) -> None:
+    """Make the handler the only one of its type on the logger."""
+    target = logging.getLogger(logger_name)
+    for existing in list(target.handlers):
+        if isinstance(existing, type(handler)):
+            target.removeHandler(existing)
+    target.addHandler(handler)
 
 
 def logger_config() -> None:
@@ -90,8 +84,9 @@ def logger_config() -> None:
     """
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
-    _route_dsp_vre_lib_logs_to_loguru()
-    _print_dsp_vre_lib_notices()
+    logging.getLogger("dsp_vre_lib").setLevel(logging.DEBUG)
+    _replace_handler("dsp_vre_lib", _LoguruInterceptHandler())
+    _replace_handler("dsp_vre_lib.notices", _NoticePrintHandler())
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"

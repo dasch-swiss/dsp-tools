@@ -23,7 +23,10 @@ from dsp_vre_lib.clients.exceptions import DspApiRequestError
 
 logger = logging.getLogger(__name__)
 # Messages for the user of a long operation, for example a retry. The caller decides where to show them.
+# They do not propagate, so that a caller who logs "dsp_vre_lib" does not get them a second time:
+# every event of a notice also has its own log record.
 notices = logging.getLogger("dsp_vre_lib.notices")
+notices.propagate = False
 
 USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
 
@@ -204,7 +207,9 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
 
 def notify_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     """Write a notice about the timeout, then re-raise it."""
-    notices.info(f"A '{error.__class__.__name__}' occurred during the connection to the DSP server.")
+    msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
+    notices.info(msg)
+    logger.info(msg)
     raise error
 
 

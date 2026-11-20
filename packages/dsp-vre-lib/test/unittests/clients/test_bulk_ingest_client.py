@@ -160,14 +160,14 @@ def test_trigger_when_ingest_already_running(
     ingest_client: BulkIngestClient,
     requests_mock: Mocker,
     capsys: pytest.CaptureFixture[str],
-    caplog: pytest.LogCaptureFixture,
+    notice_records: list[logging.LogRecord],
 ) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=409)
-    with caplog.at_level(logging.INFO, logger="dsp_vre_lib.notices"):
-        ingest_client.trigger_ingest_process()
+    ingest_client.trigger_ingest_process()
     expected = f"Ingest process on the server {DSP_INGEST_URL} is already running. Wait until it completes..."
-    assert [r.getMessage() for r in caplog.records if r.name == "dsp_vre_lib.notices"] == [expected]
+    assert [r.getMessage() for r in notice_records if r.name == "dsp_vre_lib.notices"] == [expected]
+    assert expected in [r.getMessage() for r in notice_records if r.name == "dsp_vre_lib.clients.bulk_ingest_client"]
     assert not capsys.readouterr().out
 
 

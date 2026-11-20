@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Iterator
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from loguru import logger
@@ -61,7 +62,8 @@ def test_repeated_configuration_adds_one_handler_to_dsp_vre_lib(log_file: Path) 
     logger_config_module.logger_config()
     logger_config_module.logger_config()
     vre_lib_logger = logging.getLogger("dsp_vre_lib")
-    assert len(vre_lib_logger.handlers) == 1
+    intercepts = [h for h in vre_lib_logger.handlers if isinstance(h, logger_config_module._LoguruInterceptHandler)]
+    assert len(intercepts) == 1
 
 
 def test_notices_of_dsp_vre_lib_are_printed(log_file: Path, capsys: pytest.CaptureFixture[str]) -> None:  # noqa: ARG001
@@ -71,3 +73,60 @@ def test_notices_of_dsp_vre_lib_are_printed(log_file: Path, capsys: pytest.Captu
     out = capsys.readouterr().out
     assert out.endswith(": Kicked off the ingest process\n")
     assert "not a notice" not in out
+
+
+def _emit_vre_lib_record() -> None:
+    logging.getLogger("dsp_vre_lib.clients.some_client").warning("record with an origin")
+
+
+def test_loguru_record_of_dsp_vre_lib_names_the_module_that_emitted_it(log_file: Path) -> None:  # noqa: ARG001
+    logger_config_module.logger_config()
+    names: list[str] = []
+    sink_id = logger.add(lambda message: names.append(message.record["name"] or ""), level="WARNING")
+    try:
+        _emit_vre_lib_record()
+    finally:
+        logger.remove(sink_id)
+    assert names == [__name__]
+
+
+def test_failing_notice_printer_does_not_raise_into_the_caller(
+    log_file: Path,  # noqa: ARG001
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    logger_config_module.logger_config()
+    monkeypatch.setattr(logging, "raiseExceptions", False)
+    with patch("builtins.print", side_effect=OSError("closed")):
+        logging.getLogger("dsp_vre_lib.notices").info("a notice")
+
+
+def test_failing_notice_printer_calls_handle_error(log_file: Path) -> None:  # noqa: ARG001
+    handler = logger_config_module._NoticePrintHandler()
+    record = logging.LogRecord("dsp_vre_lib.notices", logging.INFO, __file__, 1, "msg", None, None)
+    with patch("builtins.print", side_effect=OSError("closed")), patch.object(handler, "handleError") as handle_error:
+        handler.emit(record)
+    handle_error.assert_called_once_with(record)
+
+
+def test_failing_loguru_handler_calls_handle_error(log_file: Path) -> None:  # noqa: ARG001
+    handler = logger_config_module._LoguruInterceptHandler()
+    record = logging.LogRecord("dsp_vre_lib.x", logging.INFO, __file__, 1, "msg", None, None)
+    with (
+        patch.object(logger, "opt", side_effect=RuntimeError("broken")),
+        patch.object(handler, "handleError") as handle_error,
+    ):
+        handler.emit(record)
+    handle_error.assert_called_once_with(record)
+
+
+def test_replace_handler_keeps_one_handler_of_the_type() -> None:
+    target = logging.getLogger("dsp_vre_lib.test_replace_handler")
+    other = logging.NullHandler()
+    target.addHandler(other)
+    try:
+        logger_config_module._replace_handler(target.name, logging.StreamHandler())
+        replacement = logging.StreamHandler()
+        logger_config_module._replace_handler(target.name, replacement)
+        assert target.handlers == [other, replacement]
+    finally:
+        target.handlers.clear()

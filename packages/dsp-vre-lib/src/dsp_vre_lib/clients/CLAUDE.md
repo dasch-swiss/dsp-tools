@@ -1,6 +1,6 @@
 # Client Pattern Documentation
 
-This document describes the architectural pattern used for client classes in DSP-TOOLS.
+This document describes the architectural pattern used for client classes in dsp-vre-lib.
 These clients provide interfaces to interact with the DSP-API endpoints.
 
 ## Overview
@@ -297,6 +297,8 @@ Log only with the standard `logging` module, never with loguru or `print`.
 The module loggers are children of the logger `dsp_vre_lib`. The caller configures handlers, formats and files.
 A message for the user of a long operation (for example a retry or a timeout) goes to the logger
 `dsp_vre_lib.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
+Notices do not propagate: the caller attaches a handler to `dsp_vre_lib.notices`.
+An event that must reach the log file also gets its own record on the module logger.
 Messages and exceptions do not name dsp-tools commands. dsp-tools adds such hints where it catches the exception.
 
 ## Constants
@@ -478,4 +480,5 @@ class UserClientLive(UserClient):
 
 - Request utilities: `src/dsp_vre_lib/clients/request_utils.py`
 - Exception definitions: `src/dsp_vre_lib/clients/exceptions.py`
-- Main project documentation: `/CLAUDE.md`
+- Package documentation: `../../../CLAUDE.md` (dsp-vre-lib)
+- Repository documentation: `/CLAUDE.md`

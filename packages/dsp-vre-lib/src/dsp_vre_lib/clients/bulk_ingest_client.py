@@ -145,6 +145,7 @@ class BulkIngestClient:
         if res.status_code == HTTPStatus.CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             notices.info(msg)
+            logger.info(msg)
             return
         if res.status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.SERVICE_UNAVAILABLE]:
             raise PermanentConnectionError("Server is unavailable. Please try again later.")
@@ -156,7 +157,9 @@ class BulkIngestClient:
             failed = True
         if failed:
             raise IngestError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-        notices.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        msg = f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes..."
+        notices.info(msg)
+        logger.info(msg)
 
     def retrieve_mapping_generator(self) -> Iterator[str | bool]:
         """

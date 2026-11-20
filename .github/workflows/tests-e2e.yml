@@ -23,7 +23,7 @@ permissions:
 # packages/dsp-tools/test/e2e/setup_testcontainers/setup.py reads the image tags from, so this
 # suite is the only validation of dsp-tools against a newly released DSP stack.
 env:
-  DSP_TOOLS_TESTING: true
+  DSP_VRE_LIB_NO_RETRY: true
   # Literal, not a secret: Dependabot PRs cannot read Actions secrets, and this value only creates
   # a test user on an ephemeral DSP-API stack.
   DSP_USER_PASSWORD: pw

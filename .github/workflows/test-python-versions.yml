@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  DSP_TOOLS_TESTING: true
+  DSP_VRE_LIB_NO_RETRY: true
   # Literal, not a secret: Dependabot PRs cannot read Actions secrets, and this value only creates
   # a test user on an ephemeral DSP-API stack.
   DSP_USER_PASSWORD: pw

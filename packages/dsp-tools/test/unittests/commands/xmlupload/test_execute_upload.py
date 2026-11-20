@@ -292,7 +292,7 @@ class TestResourceDataUpload:
     ) -> None:
         # the retry evaluation function is programmed not to retry if it is in a testing environment,
         # since we want to ensure that we will retry, this needs to be patched here
-        with patch.dict(os.environ, {"DSP_TOOLS_TESTING": "false"}):
+        with patch.dict(os.environ, {"DSP_VRE_LIB_NO_RETRY": "false"}):
             resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
             result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
             assert result == RES_IRI

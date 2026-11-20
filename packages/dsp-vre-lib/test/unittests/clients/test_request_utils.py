@@ -105,9 +105,9 @@ def test_should_retry_request(
     expected: bool,
 ) -> None:
     if env_value is None:
-        monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)
+        monkeypatch.delenv("DSP_VRE_LIB_NO_RETRY", raising=False)
     else:
-        monkeypatch.setenv("DSP_TOOLS_TESTING", env_value)
+        monkeypatch.setenv("DSP_VRE_LIB_NO_RETRY", env_value)
     assert should_retry_request(response) == expected
 
 

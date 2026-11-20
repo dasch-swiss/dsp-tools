@@ -452,6 +452,13 @@ Notes:
 
 - Only _one_ `<iiif-uri>` element is allowed per `StillImageRepresentation`. 
 - If a resource has a `<iiif-uri>` element, it cannot have a `<bitstream>` element.
+- Before the upload, `xmlupload` and `ingest-xmlupload` validate each IIIF URI.
+  They check the URI syntax and send one request for the `info.json` of the image to the IIIF server.
+  The request shows if the image exists and if the server responds.
+  If a server refuses access (status code 401, 403 or 429), they do not call that server again.
+  The URIs of that server are not checked, and an info message names the server.
+  Some servers accept automated requests only from their own network or VPN.
+- To skip this check, use `--no-iiif-uri-validation`.
 
 Please consult the official documentation for details regarding the URI syntax:
 

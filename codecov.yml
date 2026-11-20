@@ -9,6 +9,7 @@ coverage:
 # Codecov needs paths relative to the repository root.
 fixes:
   - "src/dsp_tools/::packages/dsp-tools/src/dsp_tools/"
+  - "src/dsp_vre_lib/::packages/dsp-vre-lib/src/dsp_vre_lib/"
 
 # Codecov posts no PR comments. The status checks stay.
 comment: false

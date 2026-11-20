@@ -38,6 +38,7 @@ dev = [
     "vulture",
     "yamllint",
     "pytest-order",
+    "packaging>=26.3",
 ]
 
 

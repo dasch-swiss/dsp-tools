@@ -27,6 +27,7 @@ dev = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extras = ["python"] },
     { name = "mypy" },
+    { name = "packaging", specifier = ">=26.3" },
     { name = "pandas-stubs" },
     { name = "pre-commit" },
     { name = "pytest" },

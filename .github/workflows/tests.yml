@@ -19,6 +19,8 @@ env:
 # dependency or resource file) arrive with a source change and are caught on the
 # PR that introduces them. The published artifact is checked at publish time
 # instead, in publish-release-to-pypi.yml.
+#
+# Exception: vre-lib-lower-bound-on-pypi runs only on the dsp-tools release PR.
 jobs:
   unittests:
     runs-on: ubuntu-latest
@@ -119,6 +121,18 @@ jobs:
         uses: ./.github/actions/setup
       - name: tests of the repository tooling in scripts/
         run: just scripts-tests
+
+  # Runs only on the dsp-tools release PR: a dsp-tools release must not require a dsp-vre-lib that is not on PyPI.
+  vre-lib-lower-bound-on-pypi:
+    runs-on: ubuntu-latest
+    if: ${{ endsWith(github.head_ref, '--components--dsp-tools') }}
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v7
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: check that the dsp-vre-lib lower bound of dsp-tools is on PyPI
+        run: uv run python scripts/vre_lib_lower_bound.py check-on-pypi
 
   benchmarking:
     runs-on: ubuntu-latest

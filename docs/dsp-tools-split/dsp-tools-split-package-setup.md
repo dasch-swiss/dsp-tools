@@ -14,35 +14,60 @@ with two packages.
 
 ```text
 dsp-tools/                          # repository root, virtual workspace root
-├── pyproject.toml                  # [tool.uv.workspace] members = ["packages/*"], shared tool config
+├── pyproject.toml                  # [tool.uv.workspace] members = ["packages/*"], dev dependencies, ruff config
+├── .python-version                 # interpreter of the shared .venv
 ├── uv.lock                         # one lock file for both packages
 ├── justfile
+├── mkdocs.yml                      # docs_dir: packages/dsp-tools/docs
 ├── .github/workflows/
+├── docs/adr/                       # architectural decision records of the repository
+├── docs/dsp-tools-split/           # this document, map of dsp-vre-lib domains in dsp-tools commands
+├── scripts/                        # repository tooling, with its tests in scripts/test/
+├── src/dsp_tools/resources/schema/ # copy of the schema files, keeps the old schema URLs valid
 └── packages/
     ├── dsp-tools/
+    │   ├── CHANGELOG.md
     │   ├── docs/
-    │   ├── pyproject.toml          # name = "dsp-tools", CLI entry point
+    │   ├── pyproject.toml          # name = "dsp-tools", CLI entry point, pytest, mypy and vulture config
     │   ├── src/dsp_tools/
-    │   └── test/
+    │   ├── test/
+    │   └── testdata/
     └── dsp-vre-lib/
-        ├── docs/
-        ├── pyproject.toml          # name = "dsp-vre-lib"
+        ├── CHANGELOG.md            # written by release-please
+        ├── docs/                   # incl. adr/ (interface decisions) and create-interface.md
+        ├── pyproject.toml          # name = "dsp-vre-lib", pytest and mypy config
         ├── src/dsp_vre_lib/
         └── test/
 ```
 
 The root `pyproject.toml` has no `[project]` table.
-It holds the workspace definition and the shared configuration for ruff, mypy and pytest.
+It holds the workspace definition, the dev dependencies, the shared ruff configuration,
+and the pytest and mypy configuration for `scripts/`.
+The `pyproject.toml` of each package extends the ruff configuration with `extend = "../../pyproject.toml"`.
+
+The pytest and mypy configuration of each package is in the package:
+
+- The tests use paths relative to the working directory, for example `testdata/...`.
+  Thus the tests of each package run with the package folder as the working directory.
+  The `just` recipes do this, for example `just dsp-tools-pytest <path>`.
+  The `conftest.py` of `dsp-tools` stops a test run from another folder.
+- Two `test/` folders in one mypy run give the error "Duplicate module named test".
+  Thus mypy runs once for each package.
+
+The old schema URLs (`.../main/src/dsp_tools/resources/schema/...`) are in files of users.
+The copy at the old path keeps these URLs valid. `just sync-schema-copy` is the only writer of the copy.
+`just check-schema-copy` checks that the copy is equal.
 
 ### Dependency
 
-`dsp-tools` declares `dsp-vre-lib` as a normal dependency.
-In the workspace, uv resolves it to the local source:
+`dsp-tools` declares `dsp-vre-lib` as a normal dependency, from the first import of `dsp_vre_lib`.
+In the workspace, uv resolves it to the local source.
+During the versions 0.x, the range is `>=0.1,<0.2`. From version 1.0, the range is `>=1.0,<2.0`:
 
 ```toml
 # packages/dsp-tools/pyproject.toml
 [project]
-dependencies = ["dsp-vre-lib>=1.0,<2.0"]
+dependencies = ["dsp-vre-lib>=0.1,<0.2"]
 
 [tool.uv.sources]
 dsp-vre-lib = { workspace = true }
@@ -50,6 +75,7 @@ dsp-vre-lib = { workspace = true }
 
 The dependency goes in one direction only: `dsp_vre_lib` never imports `dsp_tools`.
 The ruff rule `TID251` (banned-api) in the `dsp-vre-lib` ruff configuration bans imports of `dsp_tools`.
+The rule bans the module and all its submodules.
 CI runs ruff, thus a violation blocks the merge.
 
 ### CI
@@ -77,8 +103,30 @@ Each package gets its own jobs (unit, integration, e2e).
 - `dsp-vre-lib` has its own semantic version in step one and in step two.
 - The first version is 0.1.0. Version 1.0.0 comes when the interface is stable.
 - `dsp-vre-lib` states the `dsp-api` versions that it supports. It checks the server version when it connects.
-- `dsp-vre-lib` has its own release-please component and its own PyPI workflow.
+- `dsp-vre-lib` has its own release-please component and its own PyPI workflow (`publish-dsp-vre-lib-to-pypi.yml`).
+- All PyPI workflows use trusted publishing. Each workflow file is a registered trusted publisher on PyPI.
+- release-please opens one release PR for each package.
+  The tags are `vX.Y.Z` for `dsp-tools` and `dsp-vre-lib-vX.Y.Z` for `dsp-vre-lib`.
+  With `always-update`, release-please rebuilds each open release PR from `main` on each push to `main`.
+- A merge of the `dsp-vre-lib` release PR publishes the package.
+  The first release comes when the package has content.
+- A commit that changes only files outside `packages/` makes no release.
 - `dsp-tools` pins a compatible range of `dsp-vre-lib`.
+- The release train merges both release PRs, in this order:
+  1. The `dsp-vre-lib` release PR, if one is open.
+  2. A wait until the new `dsp-vre-lib` is on PyPI.
+  3. The `dsp-tools` release PR.
+- On the `dsp-tools` release PR, the release workflow raises the lower bound of `dsp-vre-lib`
+  to the latest released version (`scripts/vre_lib_lower_bound.py raise`).
+  Thus a `dsp-tools` release always requires the `dsp-vre-lib` code that it was tested with,
+  and `pip install -U dsp-tools` also upgrades `dsp-vre-lib`.
+- The CI job `vre-lib-lower-bound-on-pypi` fails on the `dsp-tools` release PR if the lower bound is not on PyPI.
+  The job also protects a manual merge.
+- Planned, not implemented: dev releases.
+  From the first import of `dsp_vre_lib` in `dsp-tools`, a push to `main` that changes `dsp-vre-lib`
+  also publishes a `dsp-vre-lib` dev release.
+  The `dsp-tools` dev release then pins this dev version.
+  Without this, a `dsp-tools` dev release can require `dsp-vre-lib` code that is not on PyPI.
 
 ## Step Two: Move `dsp-vre-lib` into `dsp-api`
 

@@ -15,6 +15,9 @@ env:
 
 jobs:
   publish-release-to-pypi:
+    # dsp-tools releases have the tags vX.Y.Z. Releases of other packages (for example dsp-vre-lib-vX.Y.Z)
+    # are published by their own workflows.
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo

@@ -524,7 +524,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `6ce301b0fb83`
+- **Fingerprint**: `a879f958233e`
 
 ### tests
 
@@ -585,7 +585,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,
   legacy-e2e-tests), release-please, `scripts/bump_version.py` (dev-release `.postN`),
   `scripts/bump_stack_versions.py` (start-stack version-bump PR), `scripts/merge_pr_when_green.py` and the
-  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `readiness.yml`,
+  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lib_lower_bound.py`
+  (`dsp-vre-lib` lower bound of `dsp-tools` on the release PR), `readiness.yml`,
   `.github/pull_request_template.md`, `.env.example` (the optional runtime env vars; never loaded by
   DSP-TOOLS itself)
 - **Public interface**: the justfile's recipe names, any `.github/workflows/*.yml` (auto-discovered by
@@ -616,14 +617,16 @@ this map found confirmed violations of both rules; see Conventions and each comp
     stay in sync. (enforcement: review)
     - `.git-blame-ignore-revs` may list only commits that change formatting and nothing else.
     (enforcement: docs-only, its header comment)
-- **Durable state**: `packages/dsp-tools/CHANGELOG.md`, `.github/release-please-manifest.json` and
-  `packages/dsp-tools/pyproject.toml`'s version
-  field are written by the release-please GitHub Action, not by hand; `.git-blame-ignore-revs` is
+- **Durable state**: the `CHANGELOG.md` and the `pyproject.toml` version field of each package in `packages/`,
+  and `.github/release-please-manifest.json`, are written by the release-please GitHub Action (one release PR
+  per package), not by hand; `.git-blame-ignore-revs` is
   maintained by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
-  inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). `uv.lock` has three
+  inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). On the `dsp-tools` release PR,
+  `release-please.yml` also rewrites the `dsp-vre-lib` lower bound in `packages/dsp-tools/pyproject.toml`
+  (`scripts/vre_lib_lower_bound.py raise`). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
-- **Fingerprint**: `669d7a9f74fa`
+- **Fingerprint**: `8a3e6d457f69`
 
 ### dsp-vre-lib
 

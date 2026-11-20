@@ -1,3 +1,4 @@
+import logging
 import urllib.parse
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -6,7 +7,6 @@ from http import HTTPStatus
 from pathlib import Path
 
 import regex
-from loguru import logger
 from requests import JSONDecodeError
 from requests import RequestException
 from requests import Response
@@ -22,6 +22,8 @@ from dsp_vre_lib.clients.exceptions import PermanentConnectionError
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

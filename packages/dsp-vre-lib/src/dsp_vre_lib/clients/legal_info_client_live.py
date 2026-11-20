@@ -1,9 +1,9 @@
+import logging
 from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any
 
 import requests
-from loguru import logger
 from requests import RequestException
 from requests import Response
 
@@ -15,6 +15,8 @@ from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
+
+logger = logging.getLogger(__name__)
 
 TIMEOUT_60 = 60
 

@@ -7,8 +7,10 @@ from unittest.mock import patch
 import pytest
 from requests import Response
 
+from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
 from dsp_vre_lib.clients.request_utils import _is_retriable_status_code
+from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
 from dsp_vre_lib.clients.request_utils import parse_api_v3_error
 from dsp_vre_lib.clients.request_utils import print_and_raise_timeouts
@@ -25,6 +27,13 @@ def _make_response(status_code: int, headers: dict[str, Any], text: str):
     except json.JSONDecodeError as e:
         mock.json.side_effect = e
     return mock
+
+
+def test_log_request_writes_to_the_standard_logger_of_the_package(caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.DEBUG, logger="dsp_vre_lib"):
+        log_request(RequestParameters("GET", "http://example.com", 1))
+    assert [r.name for r in caplog.records] == ["dsp_vre_lib.clients.request_utils"]
+    assert caplog.records[0].getMessage().startswith("REQUEST: ")
 
 
 def test_print_and_raise_timeouts_no_redundant_log(caplog: pytest.LogCaptureFixture) -> None:

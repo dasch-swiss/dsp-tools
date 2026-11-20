@@ -1,4 +1,6 @@
+import logging
 import os
+import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -26,9 +28,39 @@ def _env_var_is_true(name: str) -> bool:
     return str(os.getenv(name)).lower() == "true"
 
 
+class _LoguruInterceptHandler(logging.Handler):
+    """Passes the records of a standard logger to loguru, so that they go into the same log files."""
+
+    _emitting = threading.local()
+
+    def emit(self, record: logging.LogRecord) -> None:
+        # The test fixture caplog passes loguru records back to the standard loggers. Without this guard, they loop.
+        if getattr(self._emitting, "active", False):
+            return
+        self._emitting.active = True
+        try:
+            try:
+                level: str | int = logger.level(record.levelname).name
+            except ValueError:
+                level = record.levelno
+            logger.opt(exception=record.exc_info).log(level, record.getMessage())
+        finally:
+            self._emitting.active = False
+
+
+def _route_dsp_vre_lib_logs_to_loguru() -> None:
+    vre_lib_logger = logging.getLogger("dsp_vre_lib")
+    vre_lib_logger.setLevel(logging.DEBUG)
+    for handler in list(vre_lib_logger.handlers):
+        if isinstance(handler, _LoguruInterceptHandler):
+            vre_lib_logger.removeHandler(handler)
+    vre_lib_logger.addHandler(_LoguruInterceptHandler())
+
+
 def logger_config() -> None:
     """
     This function configures the log files.
+    The records of the package dsp-vre-lib (standard logger "dsp_vre_lib") go into the same sinks.
     Currently, there are three sinks:
     - timestamp_logging.log in ~/.dsp-tools/logs/ contains the entire stack-trace
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
@@ -41,6 +73,7 @@ def logger_config() -> None:
     """
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
+    _route_dsp_vre_lib_logs_to_loguru()
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"

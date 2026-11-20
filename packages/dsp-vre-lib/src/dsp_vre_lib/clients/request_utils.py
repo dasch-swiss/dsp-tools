@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 import warnings
@@ -13,7 +14,6 @@ from typing import Any
 from typing import Literal
 from typing import Never
 
-from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import RequestException
@@ -21,6 +21,8 @@ from requests import Response
 
 from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
 from dsp_vre_lib.clients.exceptions import DspApiRequestError
+
+logger = logging.getLogger(__name__)
 
 USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
 

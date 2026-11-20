@@ -271,12 +271,12 @@ if response.status_code == HTTPStatus.FORBIDDEN:
 All live clients typically import:
 
 ```python
+import logging
 from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Any, cast
 
 import requests
-from loguru import logger
 from requests import RequestException, Response
 
 from dsp_vre_lib.clients.<protocol_file> import <ProtocolClass>
@@ -289,7 +289,12 @@ from dsp_vre_lib.clients.request_utils import (
     log_request,
     log_response,
 )
+
+logger = logging.getLogger(__name__)
 ```
+
+Log only with the standard `logging` module, never with loguru or `print`.
+The module loggers are children of the logger `dsp_vre_lib`. The caller configures handlers, formats and files.
 
 ## Constants
 

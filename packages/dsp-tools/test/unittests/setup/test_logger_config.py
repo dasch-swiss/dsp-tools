@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -48,3 +49,16 @@ def test_traceback_contains_variable_values_if_opted_in(log_file: Path, monkeypa
     _log_exception_with_password_in_frame()
     log_content = log_file.read_text(encoding="utf-8")
     assert PASSWORD in log_content
+
+
+def test_records_of_dsp_vre_lib_go_into_the_log_file(log_file: Path) -> None:
+    logger_config_module.logger_config()
+    logging.getLogger("dsp_vre_lib.clients.some_client").debug("vre-lib debug record")
+    assert "vre-lib debug record" in log_file.read_text(encoding="utf-8")
+
+
+def test_repeated_configuration_adds_one_handler_to_dsp_vre_lib(log_file: Path) -> None:  # noqa: ARG001
+    logger_config_module.logger_config()
+    logger_config_module.logger_config()
+    vre_lib_logger = logging.getLogger("dsp_vre_lib")
+    assert len(vre_lib_logger.handlers) == 1

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import urllib
 from dataclasses import dataclass
 from dataclasses import field
@@ -7,7 +8,6 @@ from http import HTTPStatus
 from pathlib import Path
 
 import requests
-from loguru import logger
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
@@ -19,6 +19,8 @@ from dsp_vre_lib.clients.exceptions import PermanentConnectionError
 from dsp_vre_lib.clients.request_utils import RequestParameters
 from dsp_vre_lib.clients.request_utils import log_request
 from dsp_vre_lib.clients.request_utils import log_response
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

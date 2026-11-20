@@ -5,10 +5,10 @@ from typing import Any
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client import ListInfo
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients import ConnectionLive
+from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre_lib.clients.list_client import ListInfo
 from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource

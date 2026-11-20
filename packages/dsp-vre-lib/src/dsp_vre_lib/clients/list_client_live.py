@@ -8,11 +8,11 @@ import requests
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.list_client import ListCreateClient
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client import ListInfo
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.list_client import ListCreateClient
+from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre_lib.clients.list_client import ListInfo
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception

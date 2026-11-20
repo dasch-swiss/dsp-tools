@@ -7,7 +7,7 @@ from typing import Union
 
 import regex
 
-from dsp_tools.clients.connection import Connection
+from dsp_vre_lib.clients import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import WithId
 from dsp_tools.commands.get.legacy_models.listnode import ListNode

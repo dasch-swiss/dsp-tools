@@ -1,7 +1,7 @@
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 
 
 class LegalInfoClient(Protocol):

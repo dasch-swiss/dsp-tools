@@ -1,7 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 import pytest
 
-from dsp_tools.clients.list_client import ListInfo
+from dsp_vre_lib.clients.list_client import ListInfo
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _create_list_and_node_name_to_iri_lookup
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import (
     _create_one_list_and_node_name_to_iri_lookup,

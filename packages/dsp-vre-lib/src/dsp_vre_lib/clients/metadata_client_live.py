@@ -5,9 +5,9 @@ import requests
 from loguru import logger
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.metadata_client import MetadataClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_vre_lib.clients.metadata_client import MetadataClient
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_warn_unexpected_non_ok_response
 from dsp_tools.utils.request_utils import log_request

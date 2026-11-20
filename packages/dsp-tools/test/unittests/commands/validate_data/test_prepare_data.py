@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.clients.list_client import ListInfo
+from dsp_vre_lib.clients.list_client import ListInfo
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import _format_metadata_export
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import _reformat_one_list
 

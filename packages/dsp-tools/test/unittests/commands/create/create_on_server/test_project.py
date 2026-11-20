@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
 from dsp_tools.commands.create.create_on_server.project import EXIT_CODE_PROJECT_ALREADY_EXISTS
 from dsp_tools.commands.create.create_on_server.project import create_project
 from dsp_tools.commands.create.exceptions import UnableToCreateProjectError

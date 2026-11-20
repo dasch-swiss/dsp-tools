@@ -7,12 +7,12 @@ from urllib.parse import quote_plus
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.mapping_client import MappingClient
-from dsp_tools.clients.mapping_client_live import MappingClientLive
-from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import MappingClient
+from dsp_vre_lib.clients import MappingClientLive
+from dsp_vre_lib.clients import OntologyGetClientLive
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.find_mappings_to_delete import get_existing_mappings
 from dsp_tools.commands.mapping.find_mappings_to_delete import select_mappings_to_delete

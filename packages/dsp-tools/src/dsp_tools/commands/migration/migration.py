@@ -1,7 +1,7 @@
 from typing import cast
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.commands.migration.clean_up import handle_local_clean_up
 from dsp_tools.commands.migration.exceptions import MigrationImportFailureError
 from dsp_tools.commands.migration.export_download import export_and_download

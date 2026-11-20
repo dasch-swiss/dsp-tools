@@ -6,8 +6,8 @@ import pytest
 from requests import JSONDecodeError
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestError
 

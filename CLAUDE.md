@@ -92,7 +92,7 @@ Two Python modules are public API:
 - `packages/dsp-tools/src/dsp_tools/cli/`: the entry point (`entry_point.py`), the argument parsers
   (`create_parsers.py`),
   and the dispatch to the command handlers (`call_action.py`).
-- `packages/dsp-tools/src/dsp_tools/clients/`: HTTP clients that several commands use. They are generic and contain no
+- `packages/dsp-vre-lib/src/dsp_vre_lib/clients`: HTTP clients that several commands use. They are generic and contain no
   retry logic.
 - `packages/dsp-tools/src/dsp_tools/commands/`: one subdirectory (or one file) per CLI command. Some commands share a
   subdirectory.

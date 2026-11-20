@@ -8,10 +8,10 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles
 from dsp_tools.commands.create.models.create_problems import CardinalitiesThatMayCreateAProblematicCircle
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning

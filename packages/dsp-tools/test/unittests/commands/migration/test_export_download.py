@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ExportImportStatus
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ExportImportStatus
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
 from dsp_tools.commands.migration.export_download import _check_export_progress

@@ -5,9 +5,9 @@ from typing import cast
 
 import pytest
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients import ConnectionLive
 from dsp_tools.commands.get.legacy_models.group import Group
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.legacy_models.langstring import Languages

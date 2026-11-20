@@ -4,11 +4,11 @@ from typing import Any
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.list_client import ListCreateClient
-from dsp_tools.clients.list_client_live import ListCreateClientLive
-from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.list_client import ListCreateClient
+from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem

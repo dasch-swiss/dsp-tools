@@ -6,10 +6,10 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText

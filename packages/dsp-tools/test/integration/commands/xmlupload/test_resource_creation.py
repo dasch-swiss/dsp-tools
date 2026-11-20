@@ -7,9 +7,9 @@ from uuid import uuid4
 
 import pytest
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.value_client_live import ValueClientLive
+from dsp_vre_lib.clients import AssetClient
+from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre_lib.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _upload_all_resources
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload

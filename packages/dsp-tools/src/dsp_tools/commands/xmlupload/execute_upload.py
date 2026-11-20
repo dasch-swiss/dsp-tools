@@ -7,12 +7,12 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from tqdm import tqdm
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
-from dsp_tools.clients.resource_client import ResourceClient
-from dsp_tools.clients.resource_client_live import ResourceClientLive
-from dsp_tools.clients.value_client_live import ValueClientLive
+from dsp_vre_lib.clients import AssetClient
+from dsp_vre_lib.clients import LegalInfoClient
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients import ResourceClient
+from dsp_vre_lib.clients.resource_client_live import ResourceClientLive
+from dsp_vre_lib.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt_during_creation

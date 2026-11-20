@@ -7,7 +7,7 @@ import rustworkx as rx
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import get_project_iri_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload

@@ -10,9 +10,9 @@ from rdflib import URIRef
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.rdf_constants import KNORA_API
 from dsp_tools.utils.request_utils import RequestParameters

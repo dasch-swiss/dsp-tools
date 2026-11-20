@@ -7,7 +7,7 @@ from rdflib import Literal
 from rdflib import URIRef
 from tqdm import tqdm
 
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_vre_lib.clients import OntologyCreateClient
 from dsp_tools.commands.create.create_on_server.onto_utils import get_modification_date_onto_lookup
 from dsp_tools.commands.create.create_on_server.onto_utils import should_retry_request
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload

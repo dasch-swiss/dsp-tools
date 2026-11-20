@@ -3,12 +3,12 @@ from typing import Any
 
 from loguru import logger
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.project_client import ProjectClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients import LegalInfoClient
+from dsp_vre_lib.clients import LegalInfoClientLive
+from dsp_vre_lib.clients import ProjectClient
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.exceptions import UnableToCreateProjectError
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 from dsp_tools.commands.create.serialisation.project import serialise_project

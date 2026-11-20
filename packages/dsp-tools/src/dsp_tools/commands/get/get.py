@@ -5,9 +5,9 @@ from typing import Any
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import Connection
+from dsp_vre_lib.clients import ConnectionLive
 from dsp_tools.commands.get.exceptions import InvalidProjectIdentifierError
 from dsp_tools.commands.get.get_permissions import get_default_permissions
 from dsp_tools.commands.get.legacy_models.group import Group

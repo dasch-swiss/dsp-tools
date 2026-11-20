@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
-from dsp_tools.clients.permissions_client_live import PermissionsClientLive
+from dsp_vre_lib.clients import PermissionsClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText

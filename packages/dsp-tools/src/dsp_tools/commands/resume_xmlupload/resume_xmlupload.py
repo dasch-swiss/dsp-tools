@@ -4,14 +4,14 @@ import sys
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.ingest import BulkIngestedAssetClient
-from dsp_tools.clients.ingest import DspIngestClientLive
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import AssetClient
+from dsp_vre_lib.clients import BulkIngestedAssetClient
+from dsp_vre_lib.clients import DspIngestClientLive
+from dsp_vre_lib.clients import LegalInfoClient
+from dsp_vre_lib.clients import LegalInfoClientLive
+from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState

@@ -5,10 +5,10 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.metadata_client_live import MetadataClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients import MetadataClientLive
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import ValidateDataResult

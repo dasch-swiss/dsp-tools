@@ -5,9 +5,9 @@ from uuid import uuid4
 
 import pytest
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.resource_client_live import ResourceClientLive
-from dsp_tools.clients.value_client_live import ValueClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.resource_client_live import ResourceClientLive
+from dsp_vre_lib.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.execute_upload import _upload_stash
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue

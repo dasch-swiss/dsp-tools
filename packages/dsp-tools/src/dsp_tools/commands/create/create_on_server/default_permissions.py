@@ -4,7 +4,7 @@ from functools import partial
 
 from loguru import logger
 
-from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_vre_lib.clients import PermissionsClient
 from dsp_tools.commands.create.models.parsed_project import DefaultPermissions
 from dsp_tools.commands.create.models.parsed_project import GlobalLimitedViewPermission
 from dsp_tools.commands.create.models.parsed_project import LimitedViewClasses

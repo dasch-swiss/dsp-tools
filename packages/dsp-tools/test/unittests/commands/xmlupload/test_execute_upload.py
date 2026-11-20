@@ -5,8 +5,8 @@ from unittest.mock import patch
 import pytest
 from rdflib import URIRef
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.resource_client import ResourceClient
+from dsp_vre_lib.clients import AssetClient
+from dsp_vre_lib.clients import ResourceClient
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_data_upload
 from dsp_tools.commands.xmlupload.execute_upload import _execute_one_resource_upload

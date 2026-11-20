@@ -5,8 +5,8 @@ from typing import Any
 import requests
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.value_client import ValueClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.value_client import ValueClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText

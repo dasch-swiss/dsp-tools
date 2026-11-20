@@ -12,10 +12,10 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
-from dsp_tools.clients.ontology_create_client_live import _parse_last_modification_date
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_vre_lib.clients.ontology_create_client_live import _parse_last_modification_date
 from dsp_tools.commands.create.models.parsed_ontology import GuiElement
 from dsp_tools.commands.create.models.parsed_ontology import KnoraObjectType
 from dsp_tools.error.exceptions import BadCredentialsError

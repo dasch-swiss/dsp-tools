@@ -6,9 +6,9 @@ import pytest
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.metadata_client_live import MetadataClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients import MetadataClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 
 

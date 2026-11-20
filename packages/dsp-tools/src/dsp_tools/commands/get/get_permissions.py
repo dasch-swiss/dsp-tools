@@ -4,8 +4,8 @@ from typing import Literal
 import regex
 from loguru import logger
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.permissions_client_live import PermissionsClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import PermissionsClientLive
 from dsp_tools.commands.get.get_permissions_legacy import parse_legacy_doaps
 from dsp_tools.commands.get.models.permissions_models import DoapCategories
 from dsp_tools.utils.request_utils import ResponseCodeAndText

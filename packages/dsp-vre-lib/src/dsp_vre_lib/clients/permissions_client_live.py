@@ -6,8 +6,8 @@ from urllib.parse import quote_plus
 import requests
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.permissions_client import PermissionsClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.permissions_client import PermissionsClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText

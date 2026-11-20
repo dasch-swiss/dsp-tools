@@ -60,7 +60,7 @@ The validate_data module uses clients from the shared `src/dsp_tools/clients/` m
 - **MetadataClient**: Retrieves project metadata
 - **LegalInfoClient**: Fetches legal information for validation
 
-See [src/dsp_tools/clients/CLAUDE.md](../../clients/CLAUDE.md) for client architecture details.
+See [src/dsp_tools/clients/CLAUDE.md](../../../../../dsp-vre-lib/src/dsp_vre_lib/clients/CLAUDE.md) for client architecture details.
 
 ### Models
 

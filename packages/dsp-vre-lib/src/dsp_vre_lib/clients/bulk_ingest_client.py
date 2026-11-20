@@ -14,7 +14,7 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestError
 from dsp_tools.commands.ingest_xmlupload.exceptions import NoIngestFileFoundError
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure

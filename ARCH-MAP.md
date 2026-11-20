@@ -51,7 +51,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 ### clients
 
-- **Paths**: `packages/dsp-tools/src/dsp_tools/clients/**`
+- **Paths**: `packages/dsp-vre-lib/src/dsp_vre_lib/clients`
 - **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
   legal-info, mapping, migration, metadata, ingest.

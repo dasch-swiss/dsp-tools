@@ -4,8 +4,8 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.lists_only import _execute_list_creation
 from dsp_tools.commands.create.models.parsed_project import ParsedProjectMetadata
 

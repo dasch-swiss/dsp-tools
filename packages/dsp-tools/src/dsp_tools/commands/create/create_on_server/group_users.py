@@ -3,10 +3,10 @@ from typing import Any
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.group_user_clients import GroupClient
-from dsp_tools.clients.group_user_clients import UserClient
-from dsp_tools.clients.group_user_clients_live import UserClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import GroupClient
+from dsp_vre_lib.clients import UserClient
+from dsp_vre_lib.clients import UserClientLive
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem

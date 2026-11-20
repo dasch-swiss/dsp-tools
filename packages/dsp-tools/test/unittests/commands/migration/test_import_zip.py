@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportImportStatus
-from dsp_tools.clients.migration_clients import ImportId
+from dsp_vre_lib.clients import ExportImportStatus
+from dsp_vre_lib.clients import ImportId
 from dsp_tools.commands.migration.import_zip import _check_import_progress
 from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig

@@ -3,9 +3,9 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.group_user_clients_live import GroupClientLive
-from dsp_tools.clients.permissions_client_live import PermissionsClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import GroupClientLive
+from dsp_vre_lib.clients import PermissionsClientLive
 from dsp_tools.commands.create.admin_account_check import check_dsp_admin_account_exists
 from dsp_tools.commands.create.communicate_problems import print_all_problem_collections
 from dsp_tools.commands.create.communicate_problems import print_msg_str_for_potential_problematic_circles

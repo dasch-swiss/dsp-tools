@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError
 from dsp_tools.commands.mapping.mapping_update import RERUN_ADVICE
 from dsp_tools.commands.mapping.mapping_update import _add_classes_mappings

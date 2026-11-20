@@ -7,7 +7,7 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
 from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundError

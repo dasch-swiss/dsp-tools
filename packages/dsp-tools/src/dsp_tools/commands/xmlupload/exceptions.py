@@ -1,4 +1,4 @@
-from dsp_tools.clients.exceptions import InvalidInputError
+from dsp_vre_lib.clients.exceptions import InvalidInputError
 from dsp_tools.commands.xmlupload.models.input_problems import MultimediaFileNotFoundProblem
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError

@@ -2,12 +2,12 @@ from pathlib import Path
 
 from loguru import logger
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ImportId
-from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
-from dsp_tools.clients.migration_clients_live import MigrationImportClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ImportId
+from dsp_vre_lib.clients.migration_clients_live import MigrationExportClientLive
+from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo

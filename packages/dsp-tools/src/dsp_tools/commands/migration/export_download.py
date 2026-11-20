@@ -4,12 +4,12 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ExportImportStatus
-from dsp_tools.clients.migration_clients import MigrationExportClient
-from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ExportImportStatus
+from dsp_vre_lib.clients import MigrationExportClient
+from dsp_vre_lib.clients.migration_clients_live import MigrationExportClientLive
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError

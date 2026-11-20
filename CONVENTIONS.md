@@ -24,7 +24,7 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 ### Module boundaries
 
 - **Commands never import from other commands.** Shared logic goes to `packages/dsp-tools/src/dsp_tools/utils/`;
-  shared HTTP-route interaction goes to `packages/dsp-tools/src/dsp_tools/clients/`. See
+  shared HTTP-route interaction goes to `packages/dsp-vre-lib/src/dsp_vre_lib/clients`. See
   `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md`.
 - HTTP clients (`clients/`) are generic and reusable, and contain **no retry logic** (that lives in
   `utils/request_utils.py`).
@@ -151,7 +151,7 @@ and reviewers reuse; keep it current when a subsystem is added, moved, or rename
 | Subsystem | Path | Role & cross-cutting wiring |
 | --- | --- | --- |
 | CLI | `packages/dsp-tools/src/dsp_tools/cli/` | Command wiring in **three places**: `create_parsers.py` (argparse), `call_action.py` (dispatch), `call_action_files_only.py` (thin file-only wrappers). A new command touches all three. |
-| clients | `packages/dsp-tools/src/dsp_tools/clients/` | Generic, reusable HTTP clients (no retry logic). |
+| clients | `packages/dsp-vre-lib/src/dsp_vre_lib/clients` | Generic, reusable HTTP clients (no retry logic). |
 | create | `packages/dsp-tools/src/dsp_tools/commands/create/` | JSON project file → server. Pipeline `parsing/` → `models/` → `serialisation/` → `create_on_server/`. Legal metadata (`data_license`, …) is sent via `LegalInfoClient`; `enabled_licenses` via the create payload. |
 | get | `packages/dsp-tools/src/dsp_tools/commands/get/` | Server → JSON project file (round-trip). Project modelling in `legacy_models/project.py`; permissions in `get_permissions.py`. |
 | excel2json | `packages/dsp-tools/src/dsp_tools/commands/excel2json/` | Excel → JSON project file. Project metadata in `models/json_header.py` + `json_header.py`. **`_sort_project_dict` in `project.py` raises `UnreachableCodeError` on any key not in its `ordered_keys` list** — a new top-level field must be added there or it errors at runtime. This is where `data_license` was missed. See `excel2json/CLAUDE.md` ("Column Processing Pattern"). |

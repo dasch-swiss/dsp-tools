@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.exceptions import InvalidIngestInputFilesError
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure

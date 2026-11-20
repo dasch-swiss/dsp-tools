@@ -3,9 +3,9 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.exceptions import ProjectNotFoundError
-from dsp_tools.clients.project_client_live import ProjectClientLive
+from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre_lib.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.lists import create_lists
 from dsp_tools.commands.create.models.parsed_project import ParsedList

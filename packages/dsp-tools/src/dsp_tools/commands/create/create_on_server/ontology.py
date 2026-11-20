@@ -3,7 +3,7 @@ import time
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
+from dsp_vre_lib.clients import OntologyCreateClient
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem

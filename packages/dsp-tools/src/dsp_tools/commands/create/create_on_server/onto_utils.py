@@ -9,9 +9,9 @@ from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.clients.exceptions import ProjectOntologyNotFoundError
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
+from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre_lib.clients import OntologyCreateClient
+from dsp_vre_lib.clients import OntologyGetClientLive
 from dsp_tools.commands.create.exceptions import CircularOntologyDependencyError
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup

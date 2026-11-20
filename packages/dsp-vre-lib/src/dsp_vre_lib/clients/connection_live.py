@@ -12,9 +12,9 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.exceptions import InvalidInputError
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.connection import Connection
+from dsp_vre_lib.clients.exceptions import InvalidInputError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.request_utils import PostFiles

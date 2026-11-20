@@ -9,14 +9,14 @@ from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.list_client import ListInfo
-from dsp_tools.clients.list_client_live import ListGetClientLive
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_tools.clients.metadata_client_live import MetadataClientLive
-from dsp_tools.clients.ontology_clients import OntologyGetClient
-from dsp_tools.clients.ontology_get_client_live import OntologyGetClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import LegalInfoClientLive
+from dsp_vre_lib.clients.list_client import ListInfo
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre_lib.clients import MetadataClientLive
+from dsp_vre_lib.clients import OntologyGetClient
+from dsp_vre_lib.clients import OntologyGetClientLive
 from dsp_tools.commands.validate_data.models.api_responses import EnabledLicenseIris
 from dsp_tools.commands.validate_data.models.api_responses import InfoForResourceInDB
 from dsp_tools.commands.validate_data.models.api_responses import ListLookup

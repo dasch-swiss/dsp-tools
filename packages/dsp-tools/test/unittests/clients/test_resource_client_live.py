@@ -9,7 +9,7 @@ import pytest
 from requests import ReadTimeout
 from requests import RequestException
 
-from dsp_tools.clients.resource_client_live import ResourceClientLive
+from dsp_vre_lib.clients.resource_client_live import ResourceClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestError
 from dsp_tools.utils.request_utils import ResponseCodeAndText

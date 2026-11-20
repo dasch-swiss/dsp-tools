@@ -7,10 +7,10 @@ import pytest
 import requests
 from requests import JSONDecodeError
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.list_client_live import ListCreateClientLive
-from dsp_tools.clients.list_client_live import ListGetClientLive
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
+from dsp_vre_lib.clients.list_client_live import ListGetClientLive
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.exceptions import DspToolsRequestError

@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ImportId
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ImportId
 from dsp_tools.commands.migration.clean_up import _clean_up_source_server
 from dsp_tools.commands.migration.clean_up import _clean_up_target_server
 from dsp_tools.commands.migration.clean_up import _handle_source_server_clean_up

@@ -11,8 +11,8 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Session
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.resource_client import ResourceClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.resource_client import ResourceClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import ResponseCodeAndText

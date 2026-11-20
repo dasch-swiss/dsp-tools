@@ -13,7 +13,7 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.exceptions import InvalidIngestFileNameError
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.permission import Permissions

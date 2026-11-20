@@ -8,16 +8,16 @@ from urllib.parse import quote
 import requests
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_tools.clients.exceptions import MigrationExportExistsError
-from dsp_tools.clients.exceptions import MigrationExportImportInProgressError
-from dsp_tools.clients.exceptions import MigrationImportExistsError
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ExportImportStatus
-from dsp_tools.clients.migration_clients import ImportId
-from dsp_tools.clients.migration_clients import MigrationExportClient
-from dsp_tools.clients.migration_clients import MigrationImportClient
+from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import MigrationExportExistsError
+from dsp_vre_lib.clients.exceptions import MigrationExportImportInProgressError
+from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
+from dsp_vre_lib.clients.migration_clients import ExportId
+from dsp_vre_lib.clients.migration_clients import ExportImportStatus
+from dsp_vre_lib.clients.migration_clients import ImportId
+from dsp_vre_lib.clients.migration_clients import MigrationExportClient
+from dsp_vre_lib.clients.migration_clients import MigrationImportClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_request_exception

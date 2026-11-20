@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_vre_lib.clients import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem

@@ -275,10 +275,12 @@ import requests
 from loguru import logger
 from requests import RequestException, Response
 
-from dsp_tools.clients.<protocol_file> import <ProtocolClass>
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients
+< protocol_file >
+import < ProtocolClass >
+from dsp_vre_lib.clients import AuthenticationClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
@@ -413,10 +415,10 @@ from typing import Any
 import requests
 from requests import RequestException
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.user_client import UserClient
+from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre_lib.clients import UserClient
 from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_tools.utils.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,

@@ -5,8 +5,8 @@ from typing import Any
 
 import yaml
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ImportId
+from dsp_vre_lib.clients import ExportId
+from dsp_vre_lib.clients import ImportId
 from dsp_tools.commands.migration.exceptions import InvalidMigrationConfigFileError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo

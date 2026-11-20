@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_vre_lib.clients import AuthenticationClient
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import TripleStores
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import get_info_and_parsed_resources_from_file

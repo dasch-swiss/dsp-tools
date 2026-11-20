@@ -7,8 +7,8 @@ on:
     inputs:
       merge_release_pr:
         description: >
-          Also merge the open release PR once its checks are green. Use this to
-          resume the release train after a transient check failure stranded it.
+          Also merge the open release PRs (dsp-vre-lib first) once their checks are green.
+          Use this to resume the release train after a transient check failure stranded it.
         type: boolean
         default: false
   push:
@@ -22,8 +22,15 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    # With always-update, each run rebuilds the release branches and pushes a uv.lock commit.
+    # Two parallel runs would reject each other's push.
+    concurrency:
+      group: release-please
+      cancel-in-progress: false
     outputs:
-      # Empty when release-please neither created nor updated a release PR in this run.
+      # Number of the dsp-tools release PR.
+      # Empty when no dsp-tools release PR is open.
+      # With always-update, release-please updates each open release PR on each run.
       release_pr_number: ${{ steps.release_pr.outputs.number }}
     steps:
       - uses: googleapis/release-please-action@v5
@@ -39,69 +46,91 @@ jobs:
           token: ${{ secrets.DASCHBOT_PAT }}
           config-file: .github/release-please-config.json
           manifest-file: .github/release-please-manifest.json
-      - name: Read the release PR reported by release-please
+      - name: Read the release PRs reported by release-please
         id: release_pr
         env:
-          RELEASE_PR: ${{ steps.release_please.outputs.pr }}
+          # JSON array with one entry per release PR that release-please created or updated.
+          # There is one release PR per package (separate-pull-requests in the config).
+          RELEASE_PRS: ${{ steps.release_please.outputs.prs }}
         run: |
           set -euo pipefail
-          echo "release-please pr output: ${RELEASE_PR:-<unset>}"
-          if [[ -z "$RELEASE_PR" ]]; then
+          echo "release-please prs output: ${RELEASE_PRS:-<unset>}"
+          if [[ -z "$RELEASE_PRS" || "$RELEASE_PRS" == "[]" ]]; then
             echo "::notice::release-please created or updated no release PR — skipping uv.lock update"
             exit 0
           fi
-          number=$(jq -r '.number // empty' <<<"$RELEASE_PR")
-          branch=$(jq -r '.headBranchName // empty' <<<"$RELEASE_PR")
-          # Fail here rather than let a bad number reach `gh pr view` or a bad
-          # branch reach `git checkout`, where the error would be cryptic.
-          if [[ ! "$number" =~ ^[0-9]+$ || -z "$branch" ]]; then
-            echo "::error::unexpected shape of the release-please pr output (see the line above)"
+          branches=$(jq -r '[.[].headBranchName // empty] | join(" ")' <<<"$RELEASE_PRS")
+          # Fail here rather than let a bad branch reach `git checkout`, where the error would be cryptic.
+          if [[ -z "$branches" || "$(jq 'length' <<<"$RELEASE_PRS")" != "$(wc -w <<<"$branches" | tr -d ' ')" ]]; then
+            echo "::error::unexpected shape of the release-please prs output (see the line above)"
+            exit 1
+          fi
+          # The release train (job auto-merge-release-pr) starts only if a dsp-tools release PR is open.
+          number=$(jq -r --arg suffix "--components--dsp-tools" \
+            '[.[] | select(.headBranchName | endswith($suffix))] | first | .number // empty' <<<"$RELEASE_PRS")
+          if [[ -n "$number" && ! "$number" =~ ^[0-9]+$ ]]; then
+            echo "::error::unexpected number of the dsp-tools release PR: $number"
             exit 1
           fi
           {
             echo "number=$number"
-            echo "branch=$branch"
+            echo "branches=$branches"
           } >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7
-        if: steps.release_pr.outputs.branch != ''
+        if: steps.release_pr.outputs.branches != ''
         with:
           fetch-depth: 0
           persist-credentials: false  # Disable default GITHUB_TOKEN credentials
       - name: Install uv
-        if: steps.release_pr.outputs.branch != ''
+        if: steps.release_pr.outputs.branches != ''
         uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
-      - name: Update uv.lock and commit it
-        if: steps.release_pr.outputs.branch != ''
+      - name: Update uv.lock on each release PR and commit it
+        if: steps.release_pr.outputs.branches != ''
         env:
           PAT: ${{ secrets.DASCHBOT_PAT }}
-          BRANCH: ${{ steps.release_pr.outputs.branch }}
+          BRANCHES: ${{ steps.release_pr.outputs.branches }}
         run: |
+          set -euo pipefail
           git config user.name "daschbot"
           git config user.email "daschbot@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${PAT}@github.com/dasch-swiss/dsp-tools.git"
-          git checkout "$BRANCH"
-          # Plain `uv lock` — never add `-U`/`--upgrade`. Without it the only diff
-          # here is dsp-tools' own version, which is what lets tests-e2e.yml skip
-          # the e2e suite on release PRs; an upgrade flag would let a release ship
-          # different dependencies with no e2e run behind it.
-          uv lock
-          git add uv.lock
-          git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
-          git push
+          for branch in $BRANCHES; do
+            git checkout "$branch"
+            if [[ "$branch" == *"--components--dsp-tools" ]]; then
+              # dsp-tools requires the latest released dsp-vre-lib.
+              # release-please builds the branch from main, so the manifest holds that version.
+              # No change while dsp-tools does not declare dsp-vre-lib.
+              # In the workspace, the locked dsp-vre-lib stays the source on main, so the tested code stays the same.
+              vre_lib_version=$(jq -r '."packages/dsp-vre-lib"' .github/release-please-manifest.json)
+              uv run python scripts/vre_lib_lower_bound.py raise "$vre_lib_version"
+              git add packages/dsp-tools/pyproject.toml
+            fi
+            # Plain `uv lock` — never add `-U`/`--upgrade`. Without it the only diffs
+            # here are the package's own version and the dsp-vre-lib lower bound above,
+            # which is what lets tests-e2e.yml skip the e2e suite on release PRs;
+            # an upgrade flag would let a release ship different dependencies with no e2e run behind it.
+            uv lock
+            git add uv.lock
+            git commit --allow-empty -m "update uv.lock with the new version of the package"
+            git push
+          done
+
 
   # Release-train leg: merging `chore(start-stack): bump versions to <DSP>` is
-  # the last step before a release, so the release PR it produces is merged
-  # automatically. Any other push to main leaves the release PR open, a
-  # deliberate human merge.
+  # the last step before a release, so the open release PRs are merged automatically.
+  # The dsp-vre-lib release PR goes first: dsp-tools can need the new dsp-vre-lib,
+  # thus dsp-vre-lib must be on PyPI before dsp-tools.
+  # Any other push to main leaves the release PRs open, a deliberate human merge.
+  # On a push, the train starts only if a dsp-tools release PR is open.
+  # The start-stack bump changes dsp-tools, thus this PR is always open after it.
   #
   # The workflow_dispatch arm is the only resume path: a manual re-run carries
-  # no head_commit, and release-please reports no PR number when it has nothing
-  # left to change, so both halves of the push condition are false on a second
-  # attempt.
+  # no head_commit. The job finds the open release PRs by their branch names,
+  # so a second attempt continues with the PRs that are still open.
   auto-merge-release-pr:
-    name: Auto-merge release PR (release train only)
+    name: Auto-merge release PRs (release train only)
     needs: [release-please]
     if: >-
       (github.event_name == 'push'
@@ -109,17 +138,22 @@ jobs:
       && needs.release-please.outputs.release_pr_number != '')
       || (github.event_name == 'workflow_dispatch' && inputs.merge_release_pr)
     runs-on: ubuntu-latest
+    # Two merges of up to 30 min each, plus up to 45 min wait for the dsp-vre-lib release.
+    timeout-minutes: 150
+    permissions:
+      actions: read  # gh run list
+      contents: read
+      pull-requests: read
     # Own group so the merge wait never serialises the release-please job above.
     concurrency:
       group: auto-merge-release-pr
       cancel-in-progress: false
     steps:
-      - name: Resolve the release PR (kill switch, idempotency guard)
-        id: find_pr
+      - name: Resolve the open release PRs (kill switch)
+        id: find_prs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ needs.release-please.outputs.release_pr_number }}
           # Evaluated in bash, not in a job-level `if:`: Actions expressions have
           # no tolower(), so a job-level check would catch only the casings it
           # enumerates and could leave one half of the kill switch enabled.
@@ -127,67 +161,75 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${AUTO_MERGE_ENABLED,,}" == "false" ]]; then
-            echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PR for a human to merge"
+            echo "::notice::RELEASE_AUTO_MERGE_ENABLED=false, leaving the release PRs for a human to merge"
             exit 0
           fi
-          # On the resume path release-please reports no PR number, because the
-          # PR it would point at already exists and needed no change.
-          if [[ -z "$PR_NUMBER" ]]; then
-            PR_NUMBER=$(gh pr list --repo "$REPO" --state open --limit 50 --json number,headRefName \
-              --jq '[.[] | select(.headRefName | startswith("release-please--"))] | first | .number // empty')
-            if [[ -z "$PR_NUMBER" ]]; then
-              echo "::notice::no open release PR to merge"
-              exit 0
+          # Read the PRs from the server, not from the action output:
+          # on the resume path release-please reports nothing, and a merged PR is no longer open.
+          open_prs=$(gh pr list --repo "$REPO" --state open --limit 50 --json url,headRefName,title)
+          for package in dsp-vre-lib dsp-tools; do
+            pr=$(jq -c --arg suffix "--components--$package" \
+              '[.[] | select(.headRefName | endswith($suffix))] | first // empty' <<<"$open_prs")
+            if [[ -z "$pr" ]]; then
+              echo "::notice::no open $package release PR"
+              continue
             fi
-            echo "::notice::resuming with release PR #$PR_NUMBER"
-          fi
-          # Read title and branch from the PR itself rather than from the action
-          # output, so the checks below are made against the server's state.
-          release_pr=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state,url,headRefName,title)
-          echo "$release_pr"
-          # Not open means a peer run already merged it — a no-op, not an error.
-          if [[ "$(jq -r .state <<<"$release_pr")" != "OPEN" ]]; then
-            echo "::notice::release PR #$PR_NUMBER is not open, nothing to merge"
-            exit 0
-          fi
-          {
-            echo "pr_url=$(jq -r .url <<<"$release_pr")"
-            echo "branch=$(jq -r .headRefName <<<"$release_pr")"
-            echo "title=$(jq -r .title <<<"$release_pr")"
-          } >> "$GITHUB_OUTPUT"
+            echo "$pr"
+            key="${package//-/_}"
+            {
+              echo "${key}_url=$(jq -r .url <<<"$pr")"
+              echo "${key}_branch=$(jq -r .headRefName <<<"$pr")"
+              echo "${key}_title=$(jq -r .title <<<"$pr")"
+            } >> "$GITHUB_OUTPUT"
+          done
 
       - uses: actions/checkout@v7
-        if: steps.find_pr.outputs.pr_url != ''
+        if: steps.find_prs.outputs.dsp_tools_url != '' || steps.find_prs.outputs.dsp_vre_lib_url != ''
         with:
-          ref: ${{ steps.find_pr.outputs.branch }}
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Verify the release PR is internally consistent
-        if: steps.find_pr.outputs.pr_url != ''
+      - name: Verify the release PRs are internally consistent
+        if: steps.find_prs.outputs.dsp_tools_url != '' || steps.find_prs.outputs.dsp_vre_lib_url != ''
         env:
-          PR_TITLE: ${{ steps.find_pr.outputs.title }}
+          VRE_LIB_BRANCH: ${{ steps.find_prs.outputs.dsp_vre_lib_branch }}
+          VRE_LIB_TITLE: ${{ steps.find_prs.outputs.dsp_vre_lib_title }}
+          TOOLS_BRANCH: ${{ steps.find_prs.outputs.dsp_tools_branch }}
+          TOOLS_TITLE: ${{ steps.find_prs.outputs.dsp_tools_title }}
         run: |
           set -euo pipefail
-          # release-please derives all three from the same conventional commits, so
-          # disagreement means the PR was hand-edited or a run was interrupted —
+          # release-please derives the title, the manifest and pyproject.toml from the same conventional commits.
+          # Disagreement means the PR was hand-edited or a run was interrupted —
           # never something to merge unattended.
-          title_version="${PR_TITLE#chore: release }"
-          manifest_version=$(jq -r '."."' .github/release-please-manifest.json)
-          pyproject_version=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/^version = "(.*)"/\1/')
-          echo "title=$title_version manifest=$manifest_version pyproject=$pyproject_version"
-          if [[ "$title_version" != "$manifest_version" || "$title_version" != "$pyproject_version" ]]; then
-            echo "::error::version mismatch on the release PR — refusing to merge"
-            exit 1
-          fi
+          verify() {
+            local branch=$1 title=$2 title_prefix=$3 package_path=$4
+            if [[ -z "$branch" ]]; then
+              return 0
+            fi
+            git fetch --depth=1 origin "$branch"
+            local title_version="${title#"$title_prefix"}"
+            local manifest_version pyproject_version
+            manifest_version=$(git show "FETCH_HEAD:.github/release-please-manifest.json" \
+              | jq -r --arg k "$package_path" '.[$k]')
+            pyproject_version=$(git show "FETCH_HEAD:$package_path/pyproject.toml" \
+              | grep -m1 '^version = ' | sed -E 's/^version = "(.*)"/\1/')
+            echo "$branch: title=$title_version manifest=$manifest_version pyproject=$pyproject_version"
+            if [[ "$manifest_version" != "$title_version" || "$pyproject_version" != "$title_version" ]]; then
+              echo "::error::version mismatch on the release PR of $package_path — refusing to merge"
+              return 1
+            fi
+          }
+          verify "$VRE_LIB_BRANCH" "$VRE_LIB_TITLE" "chore: release dsp-vre-lib " packages/dsp-vre-lib
+          verify "$TOOLS_BRANCH" "$TOOLS_TITLE" "chore: release " packages/dsp-tools
 
       # The App is a review-bypass actor, which is what lets a bot-authored PR
       # merge without a human approval; `actions: write` is what lets
       # merge-pr-when-green re-run a failed required check.
       # SHA-pinned since this action handles private-key material.
-      - name: Mint DaSCH Bot App token (write — dsp-tools only)
-        id: app-token
-        if: steps.find_pr.outputs.pr_url != ''
+      # An App token expires after 1 hour, thus each merge gets its own token.
+      - name: Mint DaSCH Bot App token for the dsp-vre-lib merge (write — dsp-tools only)
+        id: app-token-vre-lib
+        if: steps.find_prs.outputs.dsp_vre_lib_url != ''
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
         with:
           app-id: ${{ secrets.DASCH_BOT_APP_ID }}
@@ -198,24 +240,103 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
-      - name: Merge the release PR once its checks are green
-        if: steps.find_pr.outputs.pr_url != ''
+      - name: Merge the dsp-vre-lib release PR once its checks are green
+        if: steps.find_prs.outputs.dsp_vre_lib_url != ''
         uses: ./.github/actions/merge-pr-when-green
         with:
-          pr-url: ${{ steps.find_pr.outputs.pr_url }}
-          token: ${{ steps.app-token.outputs.token }}
+          pr-url: ${{ steps.find_prs.outputs.dsp_vre_lib_url }}
+          token: ${{ steps.app-token-vre-lib.outputs.token }}
+
+      # The merge is a push to main. Its release-please run tags and releases dsp-vre-lib,
+      # which starts publish-dsp-vre-lib-to-pypi.yml. The same run rebuilds the dsp-tools release branch
+      # from main (always-update) and raises the dsp-vre-lib lower bound on it.
+      - name: Wait until dsp-vre-lib is on PyPI and the dsp-tools release PR requires it
+        if: steps.find_prs.outputs.dsp_vre_lib_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_URL: ${{ steps.find_prs.outputs.dsp_vre_lib_url }}
+          VRE_LIB_TITLE: ${{ steps.find_prs.outputs.dsp_vre_lib_title }}
+        run: |
+          set -euo pipefail
+          version="${VRE_LIB_TITLE#chore: release dsp-vre-lib }"
+          merge_sha=$(gh pr view "$PR_URL" --repo "$REPO" --json mergeCommit --jq .mergeCommit.oid)
+          deadline=$((SECONDS + 45 * 60))
+          wait_for() {
+            local what=$1
+            shift
+            until "$@"; do
+              if (( SECONDS > deadline )); then
+                echo "::error::timeout: $what"
+                exit 1
+              fi
+              sleep 30
+            done
+            echo "::notice::done: $what"
+          }
+          release_please_run_status() {
+            gh run list --repo "$REPO" --workflow release-please.yml --commit "$merge_sha" \
+              --json status,conclusion --jq 'first | "\(.status) \(.conclusion)"'
+          }
+          release_please_run_completed() {
+            [[ "$(release_please_run_status)" == completed* ]]
+          }
+          on_pypi() {
+            curl -sf -o /dev/null "https://pypi.org/pypi/dsp-vre-lib/$version/json"
+          }
+          wait_for "release-please run of $merge_sha" release_please_run_completed
+          if [[ "$(release_please_run_status)" != "completed success" ]]; then
+            echo "::error::the release-please run of $merge_sha failed"
+            exit 1
+          fi
+          wait_for "dsp-vre-lib $version on PyPI" on_pypi
+
+      - name: Install uv
+        if: steps.find_prs.outputs.dsp_tools_url != ''
+        uses: astral-sh/setup-uv@v9.0.0
+
+      # Also the guard of the resume path: there, the dsp-vre-lib PR is already merged,
+      # and the wait step above does not run.
+      - name: Check that the dsp-vre-lib lower bound of the dsp-tools release PR is on PyPI
+        if: steps.find_prs.outputs.dsp_tools_url != ''
+        env:
+          TOOLS_BRANCH: ${{ steps.find_prs.outputs.dsp_tools_branch }}
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin "$TOOLS_BRANCH"
+          git checkout FETCH_HEAD -- packages/dsp-tools/pyproject.toml
+          uv run --no-project --with packaging --with tomlkit python scripts/vre_lib_lower_bound.py check-on-pypi
+
+      - name: Mint DaSCH Bot App token for the dsp-tools merge (write — dsp-tools only)
+        id: app-token-tools
+        if: steps.find_prs.outputs.dsp_tools_url != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          app-id: ${{ secrets.DASCH_BOT_APP_ID }}
+          private-key: ${{ secrets.DASCH_BOT_APP_PRIVATE_KEY }}
+          owner: dasch-swiss
+          repositories: dsp-tools
+          permission-actions: write
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Merge the dsp-tools release PR once its checks are green
+        if: steps.find_prs.outputs.dsp_tools_url != ''
+        uses: ./.github/actions/merge-pr-when-green
+        with:
+          pr-url: ${{ steps.find_prs.outputs.dsp_tools_url }}
+          token: ${{ steps.app-token-tools.outputs.token }}
 
       - name: Notify on failure (internal)
         if: failure()
         env:
           INTERNAL_WEBHOOK: ${{ secrets.GOOGLE_CHAT_DSP_RELEASE_INTERNAL_WEBHOOK_URL }}
-          PR_URL: ${{ steps.find_pr.outputs.pr_url }}
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
           run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
-          text="❌ auto-merge of the dsp-tools release PR (${PR_URL:-unknown}) failed · <$run_url|view run>"
+          text="❌ auto-merge of the release PRs failed · <$run_url|view run>"
           curl -fsSL -X POST -H 'Content-Type: application/json' \
             -d "$(jq -n --arg text "$text" '{text:$text}')" \
             "$INTERNAL_WEBHOOK"

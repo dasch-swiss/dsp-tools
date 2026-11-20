@@ -19,8 +19,8 @@ permissions:
 # The predicate keys on the HEAD BRANCH on purpose. Do NOT rewrite it as a
 # bot-author check: the start-stack bump PR (`chore/bump-version-*`) is
 # bot-authored too and is the one PR that MUST run these jobs. It changes
-# src/dsp_tools/resources/start-stack/versions.env, where
-# test/e2e/setup_testcontainers/setup.py reads the image tags from, so this
+# packages/dsp-tools/src/dsp_tools/resources/start-stack/versions.env, where
+# packages/dsp-tools/test/e2e/setup_testcontainers/setup.py reads the image tags from, so this
 # suite is the only validation of dsp-tools against a newly released DSP stack.
 env:
   DSP_TOOLS_TESTING: true
@@ -44,7 +44,7 @@ jobs:
         if: always()
         with:
           name: e2e-ingest-xmlupload-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   validate-data:
@@ -62,7 +62,7 @@ jobs:
         if: always()
         with:
           name: e2e-validate-data-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   xmlupload:
@@ -80,7 +80,7 @@ jobs:
         if: always()
         with:
           name: e2e-xmlupload-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   project:
@@ -98,7 +98,7 @@ jobs:
         if: always()
         with:
           name: e2e-project-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   mapping:
@@ -116,7 +116,7 @@ jobs:
         if: always()
         with:
           name: e2e-mapping-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   create-get-xmlupload:
@@ -134,7 +134,7 @@ jobs:
         if: always()
         with:
           name: e2e-create-get-xmlupload-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0
 
   legacy:
@@ -156,5 +156,5 @@ jobs:
         if: always()
         with:
           name: e2e-legacy-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0

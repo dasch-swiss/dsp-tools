@@ -33,5 +33,5 @@ jobs:
         if: always()
         with:
           name: latest-backend-components-logging.log
-          path: logging.log
+          path: packages/dsp-tools/logging.log
           compression-level: 0

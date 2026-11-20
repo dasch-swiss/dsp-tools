@@ -16,7 +16,7 @@ runs:
     - name: Install just
       uses: taiki-e/install-action@just
     - name: Install Python dependencies
-      run: uv sync --all-extras --dev
+      run: uv sync --all-packages --all-extras --dev
       shell: bash
     - name: Enable dsp-tools log file in cwd
       run: echo 'DSP_TOOLS_SAVE_ADDITIONAL_LOG_FILE_IN_CWD=true' >> .env

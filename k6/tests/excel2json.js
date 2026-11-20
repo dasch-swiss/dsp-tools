@@ -5,7 +5,7 @@ import { uuidv4 } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 const commandDurationTrend = new Trend('exec_command_duration', true);
 const commandsCounter = new Counter('exec_commands');
 
-const testDataDir = `${__ENV.ROOT_DIR}/../testdata/excel2json/excel2json_files/`;
+const testDataDir = `${__ENV.ROOT_DIR}/../packages/dsp-tools/testdata/excel2json/excel2json_files/`;
 const testOutputDir = `${__ENV.RUN_DIR}/excel2json/`;
 
 export const options = {

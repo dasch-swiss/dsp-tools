@@ -28,6 +28,8 @@ jobs:
         run: just mypy
       - name: Find dead code with vulture
         run: just vulture
+      - name: Check the copy of the schema files at the old URL path
+        run: just check-schema-copy
       - name: yamllint
         run: just yamllint
       - name: Check formatting of YAML files

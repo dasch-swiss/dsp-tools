@@ -15,6 +15,9 @@ env:
 
 jobs:
   publish-release-to-pypi:
+    # dsp-tools releases have the tags vX.Y.Z. Releases of other packages (for example dsp-vre-lib-vX.Y.Z)
+    # are published by their own workflows.
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -26,7 +29,7 @@ jobs:
         with:
           enable-cache: true
       - name: build wheel
-        run: uv build
+        run: uv build --package dsp-tools
       # A PyPI version cannot be re-uploaded, so this is the last reversible
       # moment, and the only look at the wheel: release PRs skip the
       # `distribution` job in tests.yml.
@@ -57,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
-          sparse-checkout: src/dsp_tools/resources/start-stack/versions.env
+          sparse-checkout: packages/dsp-tools/src/dsp_tools/resources/start-stack/versions.env
           sparse-checkout-cone-mode: false
           fetch-depth: 1
 
@@ -68,7 +71,7 @@ jobs:
         # to $GITHUB_ENV makes them visible to every subsequent step.
         run: |
           set -euo pipefail
-          grep -E '^[A-Z]+=' src/dsp_tools/resources/start-stack/versions.env >> "$GITHUB_ENV"
+          grep -E '^[A-Z]+=' packages/dsp-tools/src/dsp_tools/resources/start-stack/versions.env >> "$GITHUB_ENV"
           echo "TOOLS=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
 
       # SHA-pinned (v3 == bcd2ba4) since this action handles private-key material.

@@ -1,5 +1,17 @@
 # Changelog
 
+## [19.3.5](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.4...v19.3.5) (2026-11-20)
+
+
+### Bug Fixes
+
+* **xmlupload:** report IIIF servers that refuse access separately (DEV-7946) ([#2506](https://github.com/dasch-swiss/dsp-tools/issues/2506)) ([654dad1](https://github.com/dasch-swiss/dsp-tools/commit/654dad1b5165cc9a591a3ba6e724ae7fa9b67d43))
+
+
+### Maintenance
+
+* convert the repository into a uv workspace (DEV-7933) ([#2503](https://github.com/dasch-swiss/dsp-tools/issues/2503)) ([d606538](https://github.com/dasch-swiss/dsp-tools/commit/d606538a719abc428c7d65e2480dd12d8d829aca))
+
 ## [19.3.4](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.3...v19.3.4) (2026-11-18)
 
 

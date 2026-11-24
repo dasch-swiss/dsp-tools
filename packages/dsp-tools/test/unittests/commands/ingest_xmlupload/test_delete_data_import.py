@@ -97,12 +97,3 @@ def test_bad_credentials(tmp_path: Path, on_delete: bool) -> None:
         client = FakeClient(error)
     with pytest.raises(SystemAdminRequiredError, match="delete-data-import"):
         _run(client, "0001", IMPORT_ID, tmp_path)
-
-
-def test_failed_error_file_not_writable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    client = FakeClient(_status(DataImportStatusValue.FAILED, "bad data"))
-    assert _run(client, "0001", IMPORT_ID, tmp_path / "missing-folder") is True
-    assert client.deleted == [DataImportId(IMPORT_ID)]
-    out = capsys.readouterr().out
-    assert "bad data" in out
-    assert "was deleted" in out

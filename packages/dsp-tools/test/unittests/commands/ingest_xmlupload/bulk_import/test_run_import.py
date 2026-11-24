@@ -136,16 +136,6 @@ def test_failed_delete_fails(files: PayloadFiles, tmp_path: Path, capsys: pytest
     assert "uvx dsp-tools delete-data-import 0001 imp-1" in out
 
 
-def test_failed_error_file_not_writable(
-    files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    broken = PayloadFiles(files.payload, files.id2iri, tmp_path / "missing-folder" / "e.txt")
-    client = FakeClient(statuses=[FAILED])
-    assert _run(client, broken, tmp_path) is False
-    assert client.deleted == [IMPORT_ID]
-    assert "bad data" in capsys.readouterr().out
-
-
 @pytest.mark.parametrize(
     ("post_error", "expected", "text"),
     [
@@ -271,15 +261,3 @@ def test_failed_delete_internal_error(files: PayloadFiles, tmp_path: Path, capsy
     client = FakeClient(statuses=[FAILED], delete_error=DspApiRequestError("x"))
     assert _run(client, files, tmp_path) is False
     assert "uvx dsp-tools delete-data-import 0001 imp-1" in capsys.readouterr().out
-
-
-def test_completed_mapping_not_writable(
-    files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    client = FakeClient(statuses=[COMPLETED])
-    with patch(WRITE_MAPPING, side_effect=OSError("disk full")):
-        assert _run(client, files, tmp_path) is True
-    assert client.deleted == [IMPORT_ID]
-    assert not files.payload.exists()
-    assert files.id2iri.exists()
-    assert str(files.id2iri) in capsys.readouterr().out

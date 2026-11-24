@@ -74,10 +74,5 @@ def _print_in_progress(import_id: str) -> None:
 
 def _write_error_message(error_message: str | None, shortcode: str, import_id: str, error_folder: Path) -> None:
     target = error_folder / f"{shortcode}_{import_id}_error.txt"
-    try:
-        target.write_text(error_message or "", encoding="utf-8")
-    except OSError as err:
-        logger.exception(err)
-        print(f"The bulk data import failed. The error message could not be written to {target}:\n{error_message}")
-        return
+    target.write_text(error_message or "", encoding="utf-8")
     print(f"The bulk data import failed. The error message was written to {target}")

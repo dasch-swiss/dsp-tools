@@ -175,23 +175,9 @@ def _on_completed(
     diagnostics: DiagnosticsConfig,
 ) -> None:
     logger.info("Bulk data import completed.")
-    is_mapping_written = _write_mapping(id2iri_mapping, shortcode, diagnostics, files)
+    write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)
     _delete_task(client, import_id, shortcode)
-    files.payload.unlink(missing_ok=True)
-    if is_mapping_written:
-        files.id2iri.unlink(missing_ok=True)
-
-
-def _write_mapping(
-    id2iri_mapping: dict[str, str], shortcode: str, diagnostics: DiagnosticsConfig, files: PayloadFiles
-) -> bool:
-    try:
-        write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)
-    except OSError as err:
-        logger.exception(err)
-        print(f"The mapping of internal IDs to IRIs could not be written. It is kept at: {files.id2iri}")
-        return False
-    return True
+    delete_payload_files(files)
 
 
 def _on_failed(
@@ -205,8 +191,5 @@ def _on_failed(
     try:
         files.error.write_text(error_message or "", encoding="utf-8")
         print(f"The bulk data import failed. The error message was written to {files.error}")
-    except OSError as err:
-        logger.exception(err)
-        print(f"The bulk data import failed. The error message could not be written to {files.error}:\n{error_message}")
     finally:
         _delete_task(client, import_id, shortcode)

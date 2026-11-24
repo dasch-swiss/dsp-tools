@@ -1,0 +1,42 @@
+---
+
+name: Publish dsp-vre release to PyPI
+
+# Prerequisite: PyPI trusted publishing for the project dsp-vre,
+# with this repository and this workflow file as the trusted publisher.
+# See https://docs.pypi.org/trusted-publishers/
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # run it on a dsp-vre-vX.Y.Z tag
+
+permissions:
+  contents: read
+
+jobs:
+  publish-dsp-vre-to-pypi:
+    if: >-
+      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'dsp-vre-v'))
+      || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/dsp-vre-v'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # for PyPI trusted publishing
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+      - name: build wheel and sdist
+        run: uv build --package dsp-vre
+      # A PyPI version cannot be re-uploaded, so this is the last reversible moment.
+      - name: check the wheel for correctness
+        run: uvx check-wheel-contents dist/
+      - name: publish new version to PyPI
+        run: uv publish --trusted-publishing always

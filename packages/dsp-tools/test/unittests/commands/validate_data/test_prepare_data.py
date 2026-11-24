@@ -2,7 +2,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import _format_metadata_export
 from dsp_tools.commands.validate_data.prepare_data.prepare_data import _reformat_one_list
-from dsp_vre_lib.clients.list_client import ListInfo
+from dsp_vre.clients.list_client import ListInfo
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 

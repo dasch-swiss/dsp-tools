@@ -100,7 +100,7 @@ It handles the complete workflow from XML parsing and validation to resource cre
 
 - **iri_resolver.py**: IRI resolution utilities
 
-The HTTP clients that xmlupload uses live in `dsp_vre_lib/clients/` (package `dsp-vre-lib`):
+The HTTP clients that xmlupload uses live in `dsp_vre/clients/` (package `dsp-vre`):
 `resource_client.py` (`ResourceClient`, creates resources), `project_client.py` (`ProjectClient`),
 `list_client.py` (list node lookups), and `ingest.py` (file ingest, `DspIngestClientLive`).
 `models/upload_clients.py` wraps the ingest client in `DspIngestAssetClient`,
@@ -297,14 +297,14 @@ When working on xmlupload functionality, these are the most important files to u
 - `models/processed/res.py` - Core ProcessedResource model
 - `stash/stash_circular_references.py` - Circular reference handling
 - `make_rdf_graph/make_resource_and_values.py` - RDF generation
-- `dsp_vre_lib/clients/resource_client.py` (package `dsp-vre-lib`) - DSP-API resource creation
+- `dsp_vre/clients/resource_client.py` (package `dsp-vre`) - DSP-API resource creation
 
 ## Module Dependencies
 
 The xmlupload package depends on:
 
 - Core DSP-TOOLS utilities (`utils/xml_parsing/`, `utils/data_formats/`)
-- `dsp_vre_lib.clients` (package dsp-vre-lib)
+- `dsp_vre.clients` (package dsp-vre)
 - Legacy models (`legacy_models/`)
 - Configuration and CLI args (`cli/args.py`)
 - External libraries: `lxml`, `rdflib`, `tqdm`, `loguru`

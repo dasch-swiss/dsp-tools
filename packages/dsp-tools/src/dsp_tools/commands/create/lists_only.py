@@ -11,9 +11,9 @@ from dsp_tools.commands.create.project_validate import parse_and_validate_lists
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.project_client_live import ProjectClientLive
 
 
 def create_lists_only(project_file: Path, creds: ServerCredentials) -> bool:

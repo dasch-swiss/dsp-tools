@@ -11,9 +11,9 @@
             "include-component-in-tag": false,
             "pull-request-title-pattern": "chore: release ${version}"
         },
-        "packages/dsp-vre-lib": {
-            "package-name": "dsp-vre-lib",
-            "component": "dsp-vre-lib",
+        "packages/dsp-vre": {
+            "package-name": "dsp-vre",
+            "component": "dsp-vre",
             "changelog-path": "CHANGELOG.md",
             "include-component-in-tag": true,
             "bump-minor-pre-major": true,

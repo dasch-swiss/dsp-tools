@@ -12,7 +12,7 @@ from dsp_tools.commands.create.create_on_server.onto_utils import get_project_ir
 from dsp_tools.commands.create.create_on_server.onto_utils import sort_for_upload
 from dsp_tools.commands.create.exceptions import CircularOntologyDependencyError
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre.clients.exceptions import ProjectOntologyNotFoundError
 
 PROJECT_IRI = "http://rdfh.ch/projects/1234"
 API_URL = "http://0.0.0.0:3333"

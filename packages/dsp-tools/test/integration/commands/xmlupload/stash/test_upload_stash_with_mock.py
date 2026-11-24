@@ -17,9 +17,9 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.resource_client_live import ResourceClientLive
-from dsp_vre_lib.clients.value_client_live import ValueClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients.resource_client_live import ResourceClientLive
+from dsp_vre.clients.value_client_live import ValueClientLive
 
 SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
 LOCALHOST = "http://0.0.0.0:3333"

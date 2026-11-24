@@ -28,9 +28,9 @@ from dsp_tools.commands.validate_data.validation.get_validation_report import ge
 from dsp_tools.commands.validate_data.validation.python_checks import check_for_duplicate_files
 from dsp_tools.utils.rdf_constants import DASH
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import ExistingResourcesRetrieved
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
 from test.e2e.commands.validate_data.util import prepare_data_for_validation_from_file
 
 # ruff: noqa: ARG001 Unused function argument

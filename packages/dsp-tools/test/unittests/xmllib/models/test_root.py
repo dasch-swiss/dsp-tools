@@ -23,8 +23,8 @@ from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
 from dsp_tools.xmllib.models.root import _serialise_authorship
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_request
 
 
 @pytest.fixture

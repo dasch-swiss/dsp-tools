@@ -17,17 +17,17 @@ overrides:
     commands:
       test_targeted: just dsp-tools-pytest {files}
 
-  - when: "packages/dsp-vre-lib/**"
-    conventions: [packages/dsp-vre-lib/CLAUDE.md]
+  - when: "packages/dsp-vre/**"
+    conventions: [packages/dsp-vre/CLAUDE.md]
     commands:
-      test: just vre-lib-unittests
-      test_targeted: just vre-lib-pytest {files}
+      test: just vre-unittests
+      test_targeted: just vre-pytest {files}
 
   - when: "packages/dsp-tools/src/dsp_tools/cli/**"
     conventions: [packages/dsp-tools/src/dsp_tools/cli/CLAUDE.md]
 
-  - when: "packages/dsp-vre-lib/src/dsp_vre_lib/clients/**"
-    conventions: [packages/dsp-vre-lib/src/dsp_vre_lib/clients/CLAUDE.md]
+  - when: "packages/dsp-vre/src/dsp_vre/clients/**"
+    conventions: [packages/dsp-vre/src/dsp_vre/clients/CLAUDE.md]
     reviewers: ['eng:review:security-reviewer']
 
   - when: "packages/dsp-tools/src/dsp_tools/commands/create/**"
@@ -80,7 +80,7 @@ overrides:
   - when: "docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
-  - when: "packages/dsp-vre-lib/docs/adr/**"
+  - when: "packages/dsp-vre/docs/adr/**"
     reviewers: ['eng:review:dune-reviewer']
 
   - when: "eng.yaml"

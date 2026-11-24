@@ -8,12 +8,12 @@ is shared by different commands,
 it is a candidate to be included in these utilities.
 
 **Caveat**: If the shared functionality is the HTTP interaction with a specific API route,
-then it belongs to `dsp_vre_lib/clients/` (package `dsp-vre-lib`) rather than into these utilities.
+then it belongs to `dsp_vre/clients/` (package `dsp-vre`) rather than into these utilities.
 
 ## API Communication & Request Handling
 
-The HTTP request helpers (retry decisions, request and response logging) are in `dsp_vre_lib/clients/request_utils.py`
-of the package `dsp-vre-lib`. They are not in these utilities.
+The HTTP request helpers (retry decisions, request and response logging) are in `dsp_vre/clients/request_utils.py`
+of the package `dsp-vre`. They are not in these utilities.
 
 ## User Interaction
 
@@ -232,7 +232,7 @@ Utils Layer (shared foundation):
 
 **Request Functions:**
 
-- Never make direct HTTP requests without `dsp_vre_lib/clients/request_utils.py`
+- Never make direct HTTP requests without `dsp_vre/clients/request_utils.py`
 - Ensures consistent logging and error handling. The commands own their retry loops.
 
 **XML Processing:**

@@ -16,8 +16,8 @@ runs:
     - name: Build wheels
       run: |
         echo ########### STEP: BUILD WHEELS ###########
-        # dsp-tools depends on dsp-vre-lib, which is built from the same commit.
-        uv build --package dsp-vre-lib
+        # dsp-tools depends on dsp-vre, which is built from the same commit.
+        uv build --package dsp-vre
         uv build --package dsp-tools
       shell: bash
     - name: check the wheel for correctness, in dedicated venv
@@ -28,7 +28,7 @@ runs:
     - name: Install wheels globally
       run: |
         echo ########### STEP: INSTALL WHEELS GLOBALLY ###########
-        # One command for both wheels, so that dsp-tools resolves dsp-vre-lib from dist/ and not from PyPI.
+        # One command for both wheels, so that dsp-tools resolves dsp-vre from dist/ and not from PyPI.
         uv pip install --system dist/*.whl
       shell: bash
     - name: Install pytest globally

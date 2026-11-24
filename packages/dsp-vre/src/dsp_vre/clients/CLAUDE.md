@@ -1,0 +1,488 @@
+# Client Pattern Documentation
+
+This document describes the architectural pattern used for client classes in dsp-vre.
+These clients provide interfaces to interact with the DSP-API endpoints.
+
+## Overview
+
+The client architecture follows a **Protocol-based dependency injection pattern** that separates interface definitions
+from concrete implementations. This design enables testability, modularity, and clear contracts between components.
+The clients should be as simple to initiate as possible and be stateless, if possible.
+
+## Core Components
+
+### 1. Protocol Classes (Abstract Interfaces)
+
+Protocol classes define the contract that implementations must follow:
+
+- **Location**: `src/dsp_vre/clients/`
+- **Naming**: `<Domain>Client` (e.g., `AuthenticationClient`, `LegalInfoClient`)
+- **Implementation**: Use `typing.Protocol` for structural subtyping
+- **Purpose**: Define required attributes and method signatures without implementation
+
+Example:
+
+```python
+from typing import Protocol
+
+
+class AuthenticationClient(Protocol):
+    server: str
+    email: str
+    password: str
+
+    def get_token(self) -> str:
+        pass
+```
+
+### 2. Live Implementations
+
+Live implementations are concrete classes that interact with real DSP API endpoints:
+
+- **Location**: `src/dsp_vre/clients/`
+- **Naming**: `<Domain>ClientLive` (e.g., `AuthenticationClientLive`, `LegalInfoClientLive`)
+- **Decorator**: Always use `@dataclass` decorator
+- **Inheritance**: Inherit from corresponding Protocol class
+- **Purpose**: Implement actual HTTP communication with the DSP-API
+
+Example:
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class AuthenticationClientLive(AuthenticationClient):
+    server: str
+    email: str
+    password: str
+    _token: str | None = None
+
+    def get_token(self) -> str:
+        # Implementation here
+        pass
+```
+
+## Implementation Pattern
+
+### Required Attributes
+
+Live clients typically include:
+
+- **Server identification**: `api_url`
+- **Project identification**: `shortcode`, `project_shortcode`, `project_iri`
+- **Authentication**: `auth: AuthenticationClient` (for endpoints requiring auth)
+- **Private state**: Optional private attributes (e.g., `_token`)
+
+### Request Workflow
+
+There are three main patterns for handling non-ok API responses.
+
+In most cases `HTTPStatus.FORBIDDEN` will mean that a `BadCredentialsError` will be raised
+
+Pattern 1: If the request is not successfully, then an error is raised.
+
+```python
+def _make_request(self, url: str, data: dict[str, Any] | None = None) -> Response:
+    # 1. Prepare request parameters
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.auth.get_token()}",
+    }
+    params = RequestParameters("POST", url, TIMEOUT, data, headers)
+
+    # 2. Log the request
+    log_request(params)
+
+    # 3. Execute request with exception handling
+    try:
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+
+    # 4. Log the response
+    log_response(response)
+
+    # 5. Handle response status
+    if response.ok:
+        return response
+
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError(
+            "Only a SystemAdmin or ProjectAdmin can do ... Your permissions are insufficient for this action.."
+        )
+
+    raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
+```
+
+Pattern 2: If the request is not successful, then the user is warned and `None` is returned (non-fatal failure)
+
+```python
+def create_resource(self, resource_data: dict[str, Any]) -> str | None:
+    # 1. Prepare request parameters
+    url = f"{self.api_url}/v2/resources"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.auth.get_token()}",
+    }
+    params = RequestParameters("POST", url, TIMEOUT, resource_data, headers)
+
+    # 2. Log the request
+    log_request(params)
+
+    # 3. Execute request with exception handling
+    try:
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+
+    # 4. Log the response
+    log_response(response)
+
+    # 5. Handle response status
+    if response.ok:
+        result = response.json()
+        resource_iri = cast(str, result["@id"])
+        return resource_iri
+
+    # 6. Handle specific known error cases
+    if response.status_code == HTTPStatus.FORBIDDEN:
+        raise BadCredentialsError("You don't have permission to create resources in this project.")
+
+    # 7. Handle unexpected errors non-fatally
+    log_and_warn_unexpected_non_ok_response(response.status_code, response.text)
+    return None
+```
+
+Pattern 3: If the request is not successful, return a `ResponseCodeAndText` so the caller can decide how to handle it.
+Use this when the caller needs to inspect the status code and response text to apply retry logic or other strategies.
+
+```python
+def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: bool) -> str | ResponseCodeAndText:
+    url = f"{self.server}/v2/resources"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {self.auth.get_token()}",
+    }
+    params = RequestParameters("POST", url, TIMEOUT_1800, resource_json, headers)
+    log_request(params)
+    try:
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
+    except RequestException as err:
+        log_and_raise_request_exception(err)
+    log_response(response)
+    match response.status_code:
+        case HTTPStatus.OK:
+            return cast(str, response.json()["@id"])
+        case HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to create resources in this project.")
+        case _:
+            return ResponseCodeAndText(response.status_code, response.text)
+```
+
+### Key Steps
+
+1. **Prepare Request Parameters**: Create `RequestParameters` object with method, URL, timeout, data, and headers
+2. **Log Request**: Call `log_request(params)` before making the request
+3. **Execute Request**: Use `requests.<method>()` wrapped in try/except.
+   Take every argument from the logged `params` (`url=params.url`, `timeout=params.timeout`, ...),
+   so that the log shows the request that was actually sent
+4. **Log Response**: Call `log_response(response)` after receiving response
+5. **Handle Status**: Check response status and raise appropriate exceptions
+
+### Error Handling Strategy
+
+- **Network errors**: Catch `RequestException` and call `log_and_raise_request_exception(err)`
+- **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
+- **Other API errors**: Raise `FatalNonOkApiResponseCodeError` with URL, status code, and response text
+- **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
+- **Exception classes**: All exceptions are in `exceptions.py` and subclass `DspVreUserError`
+  (the user can solve the problem) or `DspVreInternalError` (the user cannot).
+  Both subclass `DspVreBaseError`, which has a `message` attribute.
+  Do not import the exceptions of dsp-tools. dsp-tools catches these base classes in `cli/entry_point.py`.
+
+### 401 vs 403: Authentication vs Authorization
+
+It's crucial to distinguish between authentication failures (401) and authorization failures (403):
+
+#### 401 Unauthorized - Authentication Failure
+
+- **Meaning**: "Who are you?" - The request lacks credentials, or the credentials are invalid/expired
+- **Example error message**: "Please ensure that an account for this email exists and that the password is correct."
+- **Where to handle this**: Only in the authentication client. All other clients depend on the authentication client,
+  so it's pointless to handle 401 there.
+- **Exception: the DSP-INGEST service.** As of 2026-10, it answers 401, not 403, when the user lacks write access
+  to the project (`ensureProjectWritable` in
+  [AuthorizationHandler.scala](https://github.com/dasch-swiss/dsp-api/blob/main/modules/ingest/src/main/scala/swiss/dasch/api/AuthorizationHandler.scala)).
+  It also answers 401 when it rejects the token.
+  `DspIngestClientLive.ingest` and the `BulkIngestClient` methods `upload_file`, `trigger_ingest_process`
+  and `retrieve_mapping_generator` therefore map 401 and 403 to `BadCredentialsError`,
+  and their messages name both causes.
+  `BulkIngestClient` raises on the first refusal and does not return an `UploadFailure`,
+  because every later request gets the same answer.
+
+#### 403 Forbidden - Authorization Failure
+
+- **Meaning**: "I know who you are, but you can't do that" - The user is authenticated but lacks sufficient permissions
+- **When to use**: Insufficient role/permissions, project membership required, admin-only actions
+- **Example error message**: "Only a SystemAdmin or ProjectAdmin can create new copyright holders."
+- **Naming roles**: Name a role in the message only after you read the check that DSP-API enforces for that route
+  (for example `auth.ensureSystemAdmin` or `ensureSystemAdminOrProjectAdmin`).
+  If you are not sure, write "Your permissions are insufficient for this action." and name no role.
+- **Where to handle this**: In all clients except the authentication client,
+  and except the clients that only access public endpoints.
+
+#### Code Examples
+
+Correct 401 handling (authentication):
+
+```python
+if response.status_code == HTTPStatus.UNAUTHORIZED:
+    raise BadCredentialsError("Authentication failed. Please check your credentials.")
+```
+
+Correct 403 handling (authorization):
+
+```python
+if response.status_code == HTTPStatus.FORBIDDEN:
+    raise BadCredentialsError(
+        "Only a SystemAdmin or ProjectAdmin can create new copyright holders. "
+        "Your permissions are insufficient for this action."
+    )
+```
+
+## Common Imports
+
+All live clients typically import:
+
+```python
+import logging
+from dataclasses import dataclass
+from http import HTTPStatus
+from typing import Any, cast
+
+import requests
+from requests import RequestException, Response
+
+from dsp_vre.clients.<protocol_file> import <ProtocolClass>
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.request_utils import (
+    RequestParameters,
+    log_and_raise_request_exception,
+    log_request,
+    log_response,
+)
+
+logger = logging.getLogger(__name__)
+```
+
+Log only with the standard `logging` module, never with loguru or `print`.
+The module loggers are children of the logger `dsp_vre`. The caller configures handlers, formats and files.
+A message for the user of a long operation (for example a retry or a timeout) goes to the logger
+`dsp_vre.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
+Write a notice only with `notify(logger, msg)` from `request_utils.py`.
+It writes the notice and one record on the module logger.
+Notices do not propagate: the caller attaches a handler to `dsp_vre.notices`.
+Messages and exceptions do not name dsp-tools commands. dsp-tools adds such hints where it catches the exception.
+
+## Constants
+
+- **Timeout values**: Define module-level constants for timeouts called `TIMEOUT_[number in seconds]`
+  (for example `TIMEOUT_10 = 10`)
+- **Default values**: Use module-level constants for commonly used values
+
+```python
+TIMEOUT = 60
+```
+
+## Type Safety
+
+- **Type hints**: All parameters, return types, and attributes must have type hints
+- **JSON responses**: Use `cast()` when extracting values from JSON responses
+- **Optional returns**: Use `| None` for methods that may return None
+
+Example:
+
+```python
+def get_token(self) -> str:
+    res_json: dict[str, Any] = response.json()
+    tkn = cast(str, res_json["token"])
+    return tkn
+```
+
+## Testing Strategy
+
+- **Mock implementations**: Create mock/fake clients implementing the Protocol for testing
+- **Dependency injection**: Pass Protocol types to consumers, not concrete implementations
+- **Unittesting**: Test live clients with mocked `requests` library.
+  The tests are in `test/unittests/clients/` of this package. Run them with `just vre-unittests`.
+- **String patch targets**: Patch a name in the module that uses it (`dsp_vre.clients.<module>.<name>`),
+  not in the module that defines it. A patch on the defining module has no effect on a module that imported the name.
+- **End-to-end testing**: Test against DSP-API in a test container
+
+## Client Dependencies
+
+Clients can depend on other clients (via their Protocol):
+
+```python
+@dataclass
+class LegalInfoClientLive(LegalInfoClient):
+    server: str
+    project_shortcode: str
+    auth: AuthenticationClient  # Protocol type, not concrete
+```
+
+This enables:
+
+- Testing with mock authentication clients
+- Flexibility in authentication strategy
+- Clear dependency contracts
+
+## Authentication Pattern
+
+Clients requiring authentication:
+
+1. Accept `auth: AuthenticationClient` as an attribute
+2. Call `self.auth.get_token()` to get bearer token
+3. Include token in `Authorization` header: `f"Bearer {self.auth.get_token()}"`
+
+Example:
+
+```python
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {self.auth.get_token()}",
+}
+```
+
+## Best Practices
+
+### DO
+
+- Use `@dataclass` decorator for all live implementations
+- Log all requests and responses using provided utilities
+- Provide descriptive, actionable error messages
+- Create custom Error Classes if it makes sense
+- Use module-level constants for timeouts
+- Handle specific HTTP status codes with appropriate exceptions
+- Type hint all parameters and return values
+- Use private methods (prefix with `_`) for internal helpers
+- Follow the standardized request workflow
+
+### DON'T
+
+- Skip request/response logging
+- Use generic error messages
+- Hardcode timeout values in method calls
+- Pass `url`, `timeout`, or other local variables to `requests.<method>()` directly instead of the `params` values
+- Catch exceptions without re-raising or logging
+- Return raw response objects from public methods
+- Mix business logic with HTTP communication
+
+## Naming Conventions
+
+- **Protocol files**: `<domain>_client.py`
+- **Protocol classes**: `<Domain>Client`
+- **Implementation files**: `<domain>_client_live.py`
+- **Implementation classes**: `<Domain>ClientLive`
+- **Private methods**: `_<method_name>`
+- **Helper methods**: `_<verb>_and_log_request` for HTTP helpers
+
+## Example: Creating a New Client
+
+A client method that only dsp-tools calls is unused within this package.
+Add its name to `packages/dsp-vre/.vulture_whitelist.py`, or `just vulture-vre` fails.
+
+First: Define the Protocol in `src/dsp_vre/clients/<domain>_client.py`:
+
+```python
+from typing import Protocol
+
+
+class UserClient(Protocol):
+    server: str
+    auth: AuthenticationClient
+
+    def get_user(self, user_iri: str) -> dict[str, Any]:
+        """Get user information by IRI"""
+```
+
+Second: Implement the live client in `src/dsp_vre/clients/<domain>_client_live.py`:
+
+```python
+from dataclasses import dataclass
+from http import HTTPStatus
+from typing import Any
+
+import requests
+from requests import RequestException
+
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.group_user_clients import UserClient
+from dsp_vre.clients.request_utils import (
+    RequestParameters,
+    log_and_raise_request_exception,
+    log_request,
+    log_response,
+)
+
+TIMEOUT = 60
+
+
+@dataclass
+class UserClientLive(UserClient):
+    server: str
+    auth: AuthenticationClient
+
+    def get_user(self, user_iri: str) -> dict[str, Any]:
+        url = f"{self.server}/admin/users/{user_iri}"
+        headers = {
+            "Authorization": f"Bearer {self.auth.get_token()}",
+        }
+        params = RequestParameters("GET", url, TIMEOUT, headers=headers)
+        log_request(params)
+
+        try:
+            response = requests.get(
+                url=params.url,
+                headers=params.headers,
+                timeout=params.timeout,
+            )
+        except RequestException as err:
+            log_and_raise_request_exception(err)
+
+        log_response(response)
+
+        if response.ok:
+            return response.json()
+
+        if response.status_code == HTTPStatus.FORBIDDEN:
+            raise BadCredentialsError("You don't have permission to access user information.")
+        raise FatalNonOkApiResponseCodeError(url, response.status_code, response.text)
+```
+
+## Related Documentation
+
+- Request utilities: `src/dsp_vre/clients/request_utils.py`
+- Exception definitions: `src/dsp_vre/clients/exceptions.py`
+- Package documentation: `../../../CLAUDE.md` (dsp-vre)
+- Repository documentation: `/CLAUDE.md`

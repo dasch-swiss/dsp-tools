@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  DSP_VRE_LIB_NO_RETRY: true
+  DSP_VRE_NO_RETRY: true
   # Literal, not a secret: Dependabot PRs cannot read Actions secrets, and this value only creates
   # a test user on an ephemeral DSP-API stack.
   DSP_USER_PASSWORD: pw
@@ -42,8 +42,8 @@ jobs:
         run: just mypy
       - name: Run unit tests
         run: just unittests
-      - name: Run dsp-vre-lib unit tests
-        run: just vre-lib-unittests
+      - name: Run dsp-vre unit tests
+        run: just vre-unittests
       - name: Run integration tests
         run: just integration-tests
       - name: Run e2e tests

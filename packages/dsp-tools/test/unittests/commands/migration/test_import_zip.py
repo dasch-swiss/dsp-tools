@@ -7,9 +7,9 @@ from dsp_tools.commands.migration.exceptions import MigrationImportOnServerError
 from dsp_tools.commands.migration.import_zip import _check_import_progress
 from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
-from dsp_vre_lib.clients import ExportImportStatus
-from dsp_vre_lib.clients import ImportId
-from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients import ImportId
+from dsp_vre.clients.exceptions import MigrationImportExistsError
 
 # yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
 # this is expected in tests and does not affect behaviour.

@@ -14,12 +14,12 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.setup.ansi_colors import RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.interactive import prompt_until_valid_answer
-from dsp_vre_lib.clients import LegalInfoClient
-from dsp_vre_lib.clients import LegalInfoClientLive
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.ingest import DspIngestClientLive
-from dsp_vre_lib.clients.list_client import ListGetClient
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
+from dsp_vre.clients import LegalInfoClient
+from dsp_vre.clients import LegalInfoClientLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.ingest import DspIngestClientLive
+from dsp_vre.clients.list_client import ListGetClient
+from dsp_vre.clients.list_client_live import ListGetClientLive
 
 
 def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:

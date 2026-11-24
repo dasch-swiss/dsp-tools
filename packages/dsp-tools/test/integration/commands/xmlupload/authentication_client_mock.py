@@ -1,4 +1,4 @@
-from dsp_vre_lib.clients import AuthenticationClient
+from dsp_vre.clients import AuthenticationClient
 
 
 class AuthenticationClientMockBase(AuthenticationClient):

@@ -9,9 +9,9 @@ from dsp_tools.commands.ingest_xmlupload.exceptions import NoFilesUploadedForIng
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
-from dsp_vre_lib.clients import BulkIngestClient
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
+from dsp_vre.clients import BulkIngestClient
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.exceptions import NoIngestFileFoundError
 
 MAPPING_RETRIEVAL_SLEEP = 60
 

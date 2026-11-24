@@ -21,10 +21,10 @@ from dsp_tools.utils.xml_parsing.get_lookups import get_authorship_lookup
 from dsp_tools.utils.xml_parsing.get_lookups import get_permissions_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
-from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients import ConnectionLive
-from dsp_vre_lib.clients.list_client import ListGetClient
-from dsp_vre_lib.clients.list_client import ListInfo
+from dsp_vre.clients import Connection
+from dsp_vre.clients import ConnectionLive
+from dsp_vre.clients.list_client import ListGetClient
+from dsp_vre.clients.list_client import ListInfo
 
 LIST_SEPARATOR = "\n-    "
 

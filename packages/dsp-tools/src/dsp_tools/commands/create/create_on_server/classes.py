@@ -19,7 +19,7 @@ from dsp_tools.commands.create.models.server_project_info import CreatedIriColle
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_class_graph_for_request
-from dsp_vre_lib.clients import OntologyCreateClient
+from dsp_vre.clients import OntologyCreateClient
 
 
 def create_all_classes(

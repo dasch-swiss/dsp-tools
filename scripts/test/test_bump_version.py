@@ -13,10 +13,10 @@ from scripts.bump_version import main
 
 DESCRIBE_CALL = "git describe --tags --abbrev=0 --match v[0-9]*"
 TAG_CALL = "git tag --merged main --list v[0-9]* --sort=-v:refname"
-VRE_LIB_TAG_CALL = "git tag --merged main --list dsp-vre-lib-v[0-9]* --sort=-v:refname"
+VRE_TAG_CALL = "git tag --merged main --list dsp-vre-v[0-9]* --sort=-v:refname"
 BRANCH_CALL = "git rev-parse --abbrev-ref HEAD"
 COUNT_CALL = "git rev-list --count main ^v9.0.2"
-VRE_LIB_COUNT_CALL = "git rev-list --count main ^dsp-vre-lib-v0.1.0"
+VRE_COUNT_CALL = "git rev-list --count main ^dsp-vre-v0.1.0"
 COUNT_ALL_CALL = "git rev-list --count main"
 
 PYPROJECT = """\
@@ -26,9 +26,9 @@ version = "9.0.2"  # keep this comment
 description = "DSP-TOOLS"
 """
 
-VRE_LIB_PYPROJECT = """\
+VRE_PYPROJECT = """\
 [project]
-name = "dsp-vre-lib"
+name = "dsp-vre"
 version = "{version}"
 """
 
@@ -40,10 +40,10 @@ def _write_pyproject(repo_root: Path) -> Path:
     return pyproject
 
 
-def _write_vre_lib_pyproject(repo_root: Path, version: str) -> Path:
-    pyproject = repo_root / "packages" / "dsp-vre-lib" / "pyproject.toml"
+def _write_vre_pyproject(repo_root: Path, version: str) -> Path:
+    pyproject = repo_root / "packages" / "dsp-vre" / "pyproject.toml"
     pyproject.parent.mkdir(parents=True)
-    pyproject.write_text(VRE_LIB_PYPROJECT.format(version=version), encoding="utf-8")
+    pyproject.write_text(VRE_PYPROJECT.format(version=version), encoding="utf-8")
     return pyproject
 
 
@@ -81,25 +81,23 @@ class TestMain:
         assert exc_info.value.code == 0
         assert pyproject.read_text(encoding="utf-8") == PYPROJECT
 
-    def test_vre_lib_counts_from_its_own_tag(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-        pyproject = _write_vre_lib_pyproject(tmp_path, "0.1.0")
+    def test_vre_counts_from_its_own_tag(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        pyproject = _write_vre_pyproject(tmp_path, "0.1.0")
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr("sys.argv", ["bump_version.py", "dsp-vre-lib"])
-        _patch_sys_call(
-            monkeypatch, {VRE_LIB_TAG_CALL: "dsp-vre-lib-v0.1.0", BRANCH_CALL: "main", VRE_LIB_COUNT_CALL: "3"}
-        )
+        monkeypatch.setattr("sys.argv", ["bump_version.py", "dsp-vre"])
+        _patch_sys_call(monkeypatch, {VRE_TAG_CALL: "dsp-vre-v0.1.0", BRANCH_CALL: "main", VRE_COUNT_CALL: "3"})
         main()
-        assert pyproject.read_text(encoding="utf-8") == VRE_LIB_PYPROJECT.format(version="0.1.0.post2")
+        assert pyproject.read_text(encoding="utf-8") == VRE_PYPROJECT.format(version="0.1.0.post2")
 
-    def test_vre_lib_without_release_counts_all_commits(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-        pyproject = _write_vre_lib_pyproject(tmp_path, "0.0.0")
+    def test_vre_without_release_counts_all_commits(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        pyproject = _write_vre_pyproject(tmp_path, "0.0.0")
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr("sys.argv", ["bump_version.py", "dsp-vre-lib"])
-        _patch_sys_call(monkeypatch, {VRE_LIB_TAG_CALL: "", BRANCH_CALL: "main", COUNT_ALL_CALL: "120"})
+        monkeypatch.setattr("sys.argv", ["bump_version.py", "dsp-vre"])
+        _patch_sys_call(monkeypatch, {VRE_TAG_CALL: "", BRANCH_CALL: "main", COUNT_ALL_CALL: "120"})
         main()
-        assert pyproject.read_text(encoding="utf-8") == VRE_LIB_PYPROJECT.format(version="0.0.0.post119")
+        assert pyproject.read_text(encoding="utf-8") == VRE_PYPROJECT.format(version="0.0.0.post119")
 
-    @pytest.mark.parametrize("args", [[], ["unknown"], ["dsp-tools", "dsp-vre-lib"]])
+    @pytest.mark.parametrize("args", [[], ["unknown"], ["dsp-tools", "dsp-vre"]])
     def test_usage_error(self, monkeypatch: pytest.MonkeyPatch, args: list[str]) -> None:
         monkeypatch.setattr("sys.argv", ["bump_version.py", *args])
         with pytest.raises(SystemExit, match="usage"):

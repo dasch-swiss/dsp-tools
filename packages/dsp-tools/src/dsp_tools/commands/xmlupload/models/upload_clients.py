@@ -7,11 +7,11 @@ from loguru import logger
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
-from dsp_vre_lib.clients.exceptions import InvalidIngestFileNameError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.ingest import DspIngestClientLive
-from dsp_vre_lib.clients.legal_info_client import LegalInfoClient
-from dsp_vre_lib.clients.list_client import ListGetClient
+from dsp_vre.clients.exceptions import InvalidIngestFileNameError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.ingest import DspIngestClientLive
+from dsp_vre.clients.legal_info_client import LegalInfoClient
+from dsp_vre.clients.list_client import ListGetClient
 
 
 class AssetClient(Protocol):

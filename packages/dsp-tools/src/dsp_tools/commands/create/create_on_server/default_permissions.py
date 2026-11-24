@@ -16,9 +16,9 @@ from dsp_tools.utils.rdf_constants import KNORA_ADMIN_PREFIX
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_AUDIO_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_MOVING_IMAGE_FILE_VALUE
 from dsp_tools.utils.rdf_constants import KNORA_API_HAS_STILL_IMAGE_FILE_VALUE
-from dsp_vre_lib.clients import PermissionsClient
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.request_utils import should_retry_request
+from dsp_vre.clients import PermissionsClient
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import should_retry_request
 
 
 def create_default_permissions(

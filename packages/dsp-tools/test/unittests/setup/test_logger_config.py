@@ -52,39 +52,39 @@ def test_traceback_contains_variable_values_if_opted_in(log_file: Path, monkeypa
     assert PASSWORD in log_content
 
 
-def test_records_of_dsp_vre_lib_go_into_the_log_file(log_file: Path) -> None:
+def test_records_of_dsp_vre_go_into_the_log_file(log_file: Path) -> None:
     logger_config_module.logger_config()
-    logging.getLogger("dsp_vre_lib.clients.some_client").debug("vre-lib debug record")
-    assert "vre-lib debug record" in log_file.read_text(encoding="utf-8")
+    logging.getLogger("dsp_vre.clients.some_client").debug("vre debug record")
+    assert "vre debug record" in log_file.read_text(encoding="utf-8")
 
 
-def test_repeated_configuration_adds_one_handler_to_dsp_vre_lib(log_file: Path) -> None:  # noqa: ARG001
+def test_repeated_configuration_adds_one_handler_to_dsp_vre(log_file: Path) -> None:  # noqa: ARG001
     logger_config_module.logger_config()
     logger_config_module.logger_config()
-    vre_lib_logger = logging.getLogger("dsp_vre_lib")
-    intercepts = [h for h in vre_lib_logger.handlers if isinstance(h, logger_config_module._LoguruInterceptHandler)]
+    vre_logger = logging.getLogger("dsp_vre")
+    intercepts = [h for h in vre_logger.handlers if isinstance(h, logger_config_module._LoguruInterceptHandler)]
     assert len(intercepts) == 1
 
 
-def test_notices_of_dsp_vre_lib_are_printed(log_file: Path, capsys: pytest.CaptureFixture[str]) -> None:  # noqa: ARG001
+def test_notices_of_dsp_vre_are_printed(log_file: Path, capsys: pytest.CaptureFixture[str]) -> None:  # noqa: ARG001
     logger_config_module.logger_config()
-    logging.getLogger("dsp_vre_lib.notices").info("Kicked off the ingest process")
-    logging.getLogger("dsp_vre_lib.clients.some_client").info("not a notice")
+    logging.getLogger("dsp_vre.notices").info("Kicked off the ingest process")
+    logging.getLogger("dsp_vre.clients.some_client").info("not a notice")
     out = capsys.readouterr().out
     assert out.endswith(": Kicked off the ingest process\n")
     assert "not a notice" not in out
 
 
-def _emit_vre_lib_record() -> None:
-    logging.getLogger("dsp_vre_lib.clients.some_client").warning("record with an origin")
+def _emit_vre_record() -> None:
+    logging.getLogger("dsp_vre.clients.some_client").warning("record with an origin")
 
 
-def test_loguru_record_of_dsp_vre_lib_names_the_module_that_emitted_it(log_file: Path) -> None:  # noqa: ARG001
+def test_loguru_record_of_dsp_vre_names_the_module_that_emitted_it(log_file: Path) -> None:  # noqa: ARG001
     logger_config_module.logger_config()
     names: list[str] = []
     sink_id = logger.add(lambda message: names.append(message.record["name"] or ""), level="WARNING")
     try:
-        _emit_vre_lib_record()
+        _emit_vre_record()
     finally:
         logger.remove(sink_id)
     assert names == [__name__]
@@ -92,7 +92,7 @@ def test_loguru_record_of_dsp_vre_lib_names_the_module_that_emitted_it(log_file:
 
 def test_failing_notice_printer_calls_handle_error(log_file: Path) -> None:  # noqa: ARG001
     handler = logger_config_module._NoticePrintHandler()
-    record = logging.LogRecord("dsp_vre_lib.notices", logging.INFO, __file__, 1, "msg", None, None)
+    record = logging.LogRecord("dsp_vre.notices", logging.INFO, __file__, 1, "msg", None, None)
     with patch("builtins.print", side_effect=OSError("closed")), patch.object(handler, "handleError") as handle_error:
         handler.emit(record)
     handle_error.assert_called_once_with(record)
@@ -100,7 +100,7 @@ def test_failing_notice_printer_calls_handle_error(log_file: Path) -> None:  # n
 
 def test_failing_loguru_handler_calls_handle_error(log_file: Path) -> None:  # noqa: ARG001
     handler = logger_config_module._LoguruInterceptHandler()
-    record = logging.LogRecord("dsp_vre_lib.x", logging.INFO, __file__, 1, "msg", None, None)
+    record = logging.LogRecord("dsp_vre.x", logging.INFO, __file__, 1, "msg", None, None)
     with (
         patch.object(logger, "opt", side_effect=RuntimeError("broken")),
         patch.object(handler, "handleError") as handle_error,
@@ -110,7 +110,7 @@ def test_failing_loguru_handler_calls_handle_error(log_file: Path) -> None:  # n
 
 
 def test_replace_handler_keeps_one_handler_of_the_type() -> None:
-    target = logging.getLogger("dsp_vre_lib.test_replace_handler")
+    target = logging.getLogger("dsp_vre.test_replace_handler")
     other = logging.NullHandler()
     target.addHandler(other)
     try:

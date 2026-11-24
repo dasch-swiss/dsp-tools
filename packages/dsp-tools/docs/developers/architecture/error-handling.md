@@ -92,27 +92,27 @@ BaseError                                     # Root. Dataclass with message: st
     └── UnreachableCodeError                  # Code path that must never execute.
 ```
 
-The HTTP clients are in the package `dsp-vre-lib`, which must not import `dsp-tools`.
-Thus `dsp-vre-lib` has its own hierarchy, in `dsp_vre_lib/clients/exceptions.py`:
+The HTTP clients are in the package `dsp-vre`, which must not import `dsp-tools`.
+Thus `dsp-vre` has its own hierarchy, in `dsp_vre/clients/exceptions.py`:
 
 ```text
-DspVreLibBaseError                            # Root. Dataclass with message: str attribute.
-├── DspVreLibUserError                        # User can fix this themselves.
+DspVreBaseError                            # Root. Dataclass with message: str attribute.
+├── DspVreUserError                        # User can fix this themselves.
 │   ├── BadCredentialsError                   # DSP-API rejected credentials.
 │   ├── InvalidInputError                     # Invalid input for a client.
 │   │   └── InvalidIngestFileNameError        # The ingest server rejects a file name.
 │   └── ProjectNotFoundError, NoIngestFileFoundError, ...
-└── DspVreLibInternalError                    # Requires developer assistance.
+└── DspVreInternalError                    # Requires developer assistance.
     ├── PermanentConnectionError              # All reconnection attempts failed.
     └── DspApiRequestError, FatalNonOkApiResponseCodeError, IngestError
 ```
 
-`entry_point.py` shows a `DspVreLibUserError` like a `UserError`.
-It wraps every other exception, `DspVreLibInternalError` included, in an `InternalError`.
+`entry_point.py` shows a `DspVreUserError` like a `UserError`.
+It wraps every other exception, `DspVreInternalError` included, in an `InternalError`.
 Two tuples in `dsp_tools/error/exceptions.py` name both roots:
 
-- `ANY_DSP_ERROR` is `(BaseError, DspVreLibBaseError)`.
-- `ANY_USER_ERROR` is `(UserError, DspVreLibUserError)`.
+- `ANY_DSP_ERROR` is `(BaseError, DspVreBaseError)`.
+- `ANY_USER_ERROR` is `(UserError, DspVreUserError)`.
 
 Catch with these tuples wherever a client error can occur.
 

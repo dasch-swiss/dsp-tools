@@ -1,0 +1,182 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class DspVreBaseError(Exception):
+    """
+    Base class of all errors of dsp-vre.
+
+    Attributes:
+        message: A message that describes the error
+    """
+
+    message: str = ""
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class DspVreUserError(DspVreBaseError):
+    """Base class of the errors that the user can solve, for example wrong input or wrong credentials."""
+
+
+class DspVreInternalError(DspVreBaseError):
+    """Base class of the errors that the user cannot solve."""
+
+
+class BadCredentialsError(DspVreUserError):
+    """This error is raised when DSP-API doesn't accept the provided credentials."""
+
+
+class PermanentConnectionError(DspVreInternalError):
+    """This error is raised when all attempts to reconnect to DSP have failed."""
+
+
+class DspApiRequestError(DspVreInternalError):
+    """This error is raised if an exception of the requests library occurs during an API call."""
+
+
+class IngestError(DspVreInternalError):
+    """ingest call did not work"""
+
+
+class NoIngestFileFoundError(DspVreUserError):
+    """no files have been uploaded for ingest"""
+
+
+class FatalNonOkApiResponseCodeError(DspVreInternalError):
+    """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
+
+    def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
+        resp_txt = response_text[:200] if len(response_text) > 200 else response_text
+        msg = (
+            f"We currently do not support the following API response code for this request.\n"
+            f"Status code: {status_code}\n"
+            f"Request URL: {request_url}\n"
+            f"Original Response: {resp_txt}\n"
+            "Please contact support@dasch.swiss."
+        )
+        super().__init__(msg)
+
+
+class InvalidInputError(DspVreUserError):
+    """This error is raised if the API responds with a permanent error because of invalid input data"""
+
+
+class InvalidIngestFileNameError(InvalidInputError):
+    """This error is raised if INGEST rejects a file due to its name."""
+
+
+class ProjectOntologyNotFoundError(DspVreUserError):
+    """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
+
+    def __init__(self, shortcode: str) -> None:
+        msg = f"The project with the shortcode '{shortcode}' does not have any ontologies."
+        super().__init__(msg)
+
+
+class ProjectNotFoundError(DspVreUserError):
+    """Class if a project is expected to exist but could not be found."""
+
+
+class MigrationExportExistsError(DspVreUserError):
+    """Class if an export for a project already exists."""
+
+    def __init__(self) -> None:
+        msg = (
+            "An export for this project already exists on this server. "
+            "It is not possible to create a second export before the first one has been downloaded. "
+            "Either continue with downloading the export, or remove the export from the server."
+        )
+        super().__init__(msg)
+
+
+class MigrationImportExistsError(DspVreUserError):
+    """Class if an import for a project already exists."""
+
+    def __init__(self) -> None:
+        msg = (
+            "An import for this project already exists on this server. "
+            "It is not possible to import the same project again. "
+            "If you want to re-import the project, you must first remove the previous import "
+            "and then delete the project itself from the server."
+        )
+        super().__init__(msg)
+
+
+class MigrationExportImportInProgressError(DspVreUserError):
+    """Class to raise if an import or export is in progress and the requested action is not possible."""
+
+    def __init__(self, detail_msg: str) -> None:
+        generic_msg = "An export or import is in progress on this server."
+        super().__init__(f"{generic_msg} {detail_msg}")
+
+
+class DataImportNotEnabledError(DspVreUserError):
+    """The server has the bulk data import turned off."""
+
+
+class OnBehalfOfUserNotFoundError(DspVreUserError):
+    """The on-behalf-of user of a bulk data import does not exist on the server."""
+
+    def __init__(self, user: str, message: str) -> None:
+        super().__init__(message)
+        self.user = user
+
+
+class OnBehalfOfUserIneligibleError(DspVreUserError):
+    """The on-behalf-of user of a bulk data import is not eligible. `reason` is the code that the server gives."""
+
+    def __init__(self, user: str, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.user = user
+        self.reason = reason
+
+
+class DataImportPayloadTooLargeError(DspVreUserError):
+    """
+    The payload of a bulk data import is larger than the server limit.
+    The sizes are in bytes. They are None if the server did not send them.
+    """
+
+    def __init__(self, size: int | None, max_size: int | None, message: str) -> None:
+        super().__init__(message)
+        self.size = size
+        self.max_size = max_size
+
+
+class DataImportPreconditionError(DspVreUserError):
+    """The project is not in a state that permits a bulk data import. `error_code` is the code that the server gives."""
+
+    def __init__(self, error_code: str, message: str) -> None:
+        super().__init__(message)
+        self.error_code = error_code
+
+
+class DataImportRunningError(DspVreUserError):
+    """Another bulk data import runs on the server."""
+
+
+class DataImportExistsError(DspVreUserError):
+    """A bulk data import task exists for the project."""
+
+    def __init__(self, import_id: str, project_iri: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id
+        self.project_iri = project_iri
+
+
+class DataImportNotFoundError(DspVreUserError):
+    """The bulk data import task does not exist on the server."""
+
+    def __init__(self, import_id: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id
+
+
+class DataImportInProgressError(DspVreUserError):
+    """The bulk data import task is still in progress, and the requested action is not possible."""
+
+    def __init__(self, import_id: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id

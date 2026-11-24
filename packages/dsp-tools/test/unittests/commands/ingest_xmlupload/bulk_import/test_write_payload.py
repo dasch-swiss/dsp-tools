@@ -5,8 +5,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import import write_payload as write_payload_module
@@ -141,8 +143,11 @@ def test_bitstream_filename(tmp_path):
         ),
     )
     target, _ = _write([_resource("a", file_value=file_value)], tmp_path)
-    filenames = set(_parse(target).objects(None, KNORA_API.fileValueHasFilename))
+    graph = _parse(target)
+    filenames = set(graph.objects(None, KNORA_API.fileValueHasFilename))
     assert {str(f) for f in filenames} == {"internal.jp2"}
+    file_node = next(graph.subjects(KNORA_API.fileValueHasFilename, None))
+    assert graph.value(file_node, KNORA_API.valueHasOrder) == Literal(0, datatype=XSD.integer)
 
 
 def test_missing_iri_raises(tmp_path):

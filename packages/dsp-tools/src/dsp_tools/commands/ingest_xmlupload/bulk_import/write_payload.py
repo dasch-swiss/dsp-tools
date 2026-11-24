@@ -3,6 +3,10 @@ from pathlib import Path
 from typing import Any
 from typing import TextIO
 
+from rdflib import RDF
+from rdflib import XSD
+from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import make_value_iri
@@ -13,6 +17,7 @@ from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.utils.rdf_constants import KNORA_API
 
 
 def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, target: Path) -> None:
@@ -61,6 +66,7 @@ def _make_resource_nodes(res: ProcessedResource, lookups: IRILookups) -> list[di
         res_node=URIRef(res_iri),
         make_value_node=lambda: URIRef(make_value_iri(res_iri)),
     )
+    _add_file_value_order(graph)
     return serialise_json(graph)
 
 
@@ -68,3 +74,10 @@ def _get_bitstream_info(res: ProcessedResource) -> BitstreamInfo | None:
     if (file_value := res.file_value) and isinstance(file_value.value, ProcessedFileBitstream):
         return BitstreamInfo(file_value.value.value, file_value.metadata.permissions)
     return None
+
+
+def _add_file_value_order(graph: Graph) -> None:
+    # The bulk data import needs `valueHasOrder` on every value. The graph builders omit it on the file value.
+    for node, value_type in list(graph.subject_objects(RDF.type)):
+        if str(value_type).endswith("FileValue") and graph.value(node, KNORA_API.valueHasOrder) is None:
+            graph.add((node, KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)))

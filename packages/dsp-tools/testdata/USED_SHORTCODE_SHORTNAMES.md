@@ -29,6 +29,8 @@ File naming conventions:
 | 9999      | core-validation     | testdata/validate-data/core_validation/core-validation-project-9999.json   | `validate-data`, `xmlupload` |
 | 0011      | complex-inheritance | testdata/validate-data/inheritance/complex-inheritance-project-0011.json   | `validate-data`              |
 | 0012      | special-characters  | testdata/validate-data/special_characters/special-characters-project.json  | `validate-data`              |
+| 0013      | parity-a            | testdata/dsp-ingest-data/parity/parity-project-0013.json                   | `ingest-xmlupload` parity    |
+| 0014      | parity-b            | derived from the project of 0013 in the parity test                        | `ingest-xmlupload` parity    |
 
 ## Invalid Projects
 

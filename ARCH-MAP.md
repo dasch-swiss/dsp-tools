@@ -56,12 +56,13 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Paths**: `packages/dsp-vre-lib/src/dsp_vre_lib/clients/**`
 - **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, metadata, ingest. Part of the package `dsp-vre-lib`; the shared HTTP helpers
-  (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
+  legal-info, mapping, migration, data import, metadata, ingest. Part of the package `dsp-vre-lib`; the shared HTTP
+  helpers (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
-  `BulkIngestClient`, `DspIngestClientLive`, `RequestParameters`, `should_retry_request`, `DspVreLibBaseError`,
+  `BulkIngestClient`, `DspIngestClientLive`, `DataImportClient`/`DataImportClientLive`,
+  `RequestParameters`, `should_retry_request`, `DspVreLibBaseError`,
   `DspVreLibUserError`, `DspVreLibInternalError`, `notify`
 - **Public interface**: the names re-exported in `clients/__init__.py` (`__all__`), and each domain's
   `Protocol` plus its `*Live` class, imported and instantiated directly by the command that needs it — no

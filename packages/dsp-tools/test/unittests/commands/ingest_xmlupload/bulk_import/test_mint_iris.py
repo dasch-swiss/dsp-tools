@@ -1,6 +1,5 @@
-import re
-
 import pytest
+import regex
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import make_resource_iri
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import make_value_iri
@@ -24,7 +23,7 @@ def _resource(res_id: str, iri: str | None = None) -> ProcessedResource:
 
 
 def test_make_resource_iri() -> None:
-    assert re.fullmatch(r"http://rdfh\.ch/1234/[A-Za-z0-9_-]{22}", make_resource_iri("1234"))
+    assert regex.fullmatch(r"http://rdfh\.ch/1234/[A-Za-z0-9_-]{22}", make_resource_iri("1234"))
 
 
 def test_make_resource_iri_upper_cases_shortcode() -> None:
@@ -37,7 +36,7 @@ def test_make_resource_iri_is_unique() -> None:
 
 def test_make_value_iri() -> None:
     res_iri = make_resource_iri("1234")
-    assert re.fullmatch(re.escape(res_iri) + r"/values/[A-Za-z0-9_-]{22}", make_value_iri(res_iri))
+    assert regex.fullmatch(regex.escape(res_iri) + r"/values/[A-Za-z0-9_-]{22}", make_value_iri(res_iri))
 
 
 def test_make_value_iri_is_unique() -> None:
@@ -47,7 +46,7 @@ def test_make_value_iri_is_unique() -> None:
 
 def test_mint_resource_without_metadata() -> None:
     resolver = mint_resource_iris([_resource("a")], "1234")
-    assert re.fullmatch(r"http://rdfh\.ch/1234/[A-Za-z0-9_-]{22}", resolver.get("a") or "")
+    assert regex.fullmatch(r"http://rdfh\.ch/1234/[A-Za-z0-9_-]{22}", resolver.get("a") or "")
 
 
 def test_mint_resource_keeps_preset_iri() -> None:

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import datetime as dt
-import re
 from argparse import ArgumentParser
 from argparse import ArgumentTypeError
 from argparse import _SubParsersAction
 from importlib.metadata import version
+
+import regex
 
 # help texts
 username_text = "username (e-mail) used for authentication with the DSP-API"
@@ -237,7 +238,7 @@ def _add_ingest_files(
 def _import_id(value: str) -> str:
     # dsp-api import IDs are Base64url UUIDs without padding. The check also keeps out an ID made only of dots,
     # which requests would remove from the URL, so the request would address another path.
-    if not re.fullmatch(r"[A-Za-z0-9_-]{22}", value):
+    if not regex.fullmatch(r"[A-Za-z0-9_-]{22}", value):
         raise ArgumentTypeError(
             f"invalid import ID '{value}': it must be the 22-character ID that ingest-xmlupload printed"
         )

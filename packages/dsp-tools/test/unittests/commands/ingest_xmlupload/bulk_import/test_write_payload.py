@@ -1,10 +1,10 @@
 import json
-import re
 import warnings
 from pathlib import Path
 from typing import Any
 
 import pytest
+import regex
 from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
@@ -88,8 +88,8 @@ def test_iri_shapes(tmp_path):
     target, iris = _write([_resource("a", [ProcessedSimpleText("x", f"{ONTO}hasText", None, None, 0)])], tmp_path)
     nodes = json.loads(target.read_text(encoding="utf-8"))
     ids = [n["@id"] for n in nodes]
-    res_ids = [i for i in ids if re.fullmatch(rf"http://rdfh\.ch/{SHORTCODE}/{UUID_RE}", i)]
-    val_ids = [i for i in ids if re.fullmatch(rf"{re.escape(iris['a'])}/values/{UUID_RE}", i)]
+    res_ids = [i for i in ids if regex.fullmatch(rf"http://rdfh\.ch/{SHORTCODE}/{UUID_RE}", i)]
+    val_ids = [i for i in ids if regex.fullmatch(rf"{regex.escape(iris['a'])}/values/{UUID_RE}", i)]
     assert res_ids == [iris["a"]]
     assert len(val_ids) == 1
     assert len(ids) == NUM_NODES_RES_WITH_ONE_VALUE

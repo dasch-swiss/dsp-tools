@@ -1,8 +1,8 @@
 import json
-import re
 from pathlib import Path
 
 import pytest
+import regex
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import data_imports_folder
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import make_payload_files
@@ -19,7 +19,7 @@ def test_make_payload_files(tmp_path: Path) -> None:
     folder = tmp_path / ".dsp-tools" / "data-imports" / "localhost"
     assert folder.is_dir()
     assert files.payload.parent == folder
-    assert re.fullmatch(r"0001_\d{4}-\d{2}-\d{2}_\d{6}\.jsonld", files.payload.name)
+    assert regex.fullmatch(r"0001_\d{4}-\d{2}-\d{2}_\d{6}\.jsonld", files.payload.name)
     assert files.id2iri.name == f"{files.payload.stem}_id2iri.json"
     assert files.error.name == f"{files.payload.stem}_error.txt"
 

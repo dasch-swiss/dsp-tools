@@ -127,6 +127,7 @@ def _raise_for_data_import_error(response: Response, url: str) -> Never:
     if response.status_code == HTTPStatus.FORBIDDEN:
         raise BadCredentialsError("Only system admins can run a bulk data import.")
     v3_errors = parse_api_v3_error(response).v3_errors
+    # As of dsp-api v41.0.0, every data-import rejection carries exactly one v3 error.
     error = v3_errors[0] if v3_errors else None
     if response.status_code == HTTPStatus.REQUEST_ENTITY_TOO_LARGE:
         raise _payload_too_large(error)
@@ -137,7 +138,9 @@ def _raise_for_data_import_error(response: Response, url: str) -> Never:
 
 def _payload_too_large(error: ApiV3ErrorDetails | None) -> DataImportPayloadTooLargeError:
     if error is None:
-        # A chunked body above the 1 MiB server cap gets a bare 413 without a v3 error body.
+        # The limit is 250 MiB, and dsp-api answers with a v3 `payload_too_large` error. This client always sends
+        # Content-Length. A bare 413 comes only from a chunked body (dsp-api caps it at 1 MiB) or from a proxy in front
+        # of dsp-api.
         msg = "The server rejected the payload because it is too large."
         return DataImportPayloadTooLargeError(size=None, max_size=None, message=msg)
     size, max_size = error.details.get("size"), error.details.get("max")

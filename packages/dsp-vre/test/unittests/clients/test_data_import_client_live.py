@@ -79,7 +79,7 @@ class TestPostImport:
     def test_accepted_returns_import_id(self, client: DataImportClientLive, payload_path: Path) -> None:
         with patch(f"{MODULE}.requests.post", return_value=_response(HTTPStatus.ACCEPTED, _status_body("in_progress"))):
             result = client.post_import(payload_path, "user@example.org")
-        assert result == IMPORT_ID
+        assert result.id_ == "import-123"
 
     def test_request_url_encodes_on_behalf_of_user(self, client: DataImportClientLive, payload_path: Path) -> None:
         response = _response(HTTPStatus.ACCEPTED, _status_body("in_progress"))

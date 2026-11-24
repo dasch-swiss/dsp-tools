@@ -8,7 +8,7 @@ from dsp_vre.clients.authentication_client import AuthenticationClient
 
 @dataclass(frozen=True)
 class DataImportId:
-    id: str
+    id_: str
 
 
 class DataImportStatusValue(Enum):

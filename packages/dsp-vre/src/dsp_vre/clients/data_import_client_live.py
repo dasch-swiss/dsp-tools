@@ -99,7 +99,7 @@ class DataImportClientLive(DataImportClient):
         return f"{self.server}/v3/projects/{quote(self.project_iri, safe='')}/data-imports"
 
     def _import_url(self, import_id: DataImportId) -> str:
-        return f"{self._base_url()}/{quote(import_id.id, safe='')}"
+        return f"{self._base_url()}/{quote(import_id.id_, safe='')}"
 
     def _headers(self) -> dict[str, str]:
         return {

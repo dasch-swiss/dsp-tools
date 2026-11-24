@@ -8,6 +8,7 @@ _.children
 _.details
 _.error_code
 _.error_message
+_.id
 _.internal_filename
 _.listinfo
 _.status

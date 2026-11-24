@@ -2,6 +2,10 @@ from dsp_vre_lib.clients.authentication_client import AuthenticationClient
 from dsp_vre_lib.clients.bulk_ingest_client import BulkIngestClient
 from dsp_vre_lib.clients.connection import Connection
 from dsp_vre_lib.clients.connection_live import ConnectionLive
+from dsp_vre_lib.clients.data_import_client import DataImportClient
+from dsp_vre_lib.clients.data_import_client import DataImportId
+from dsp_vre_lib.clients.data_import_client import DataImportStatus
+from dsp_vre_lib.clients.data_import_client import DataImportStatusValue
 from dsp_vre_lib.clients.group_user_clients import GroupClient
 from dsp_vre_lib.clients.group_user_clients import UserClient
 from dsp_vre_lib.clients.group_user_clients_live import GroupClientLive
@@ -31,6 +35,10 @@ __all__ = [
     "BulkIngestClient",
     "Connection",
     "ConnectionLive",
+    "DataImportClient",
+    "DataImportId",
+    "DataImportStatus",
+    "DataImportStatusValue",
     "DspIngestClientLive",
     "ExistingResourcesRetrieved",
     "ExportId",

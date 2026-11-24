@@ -7,11 +7,14 @@ _: Any = None
 _.children
 _.details
 _.error_code
+_.error_message
 _.internal_filename
 _.listinfo
+_.status
 
 # Live client classes: instantiated by dsp-tools only.
 _.AuthenticationClientLive
+_.DataImportClientLive
 _.ListCreateClientLive
 _.ListGetClientLive
 _.MigrationExportClientLive

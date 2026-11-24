@@ -103,7 +103,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
   until `_renew_session()` replaces it per instance; `__post_init__` and `_renew_session()` both write its
   headers — two writers on a shared mutable default.
-- **Fingerprint**: `af52b2b23e8d`
+- **Fingerprint**: `fac5fa207e57`
 
 ### create
 
@@ -677,7 +677,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - `just vulture-vre-lib` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
     `.vulture_whitelist.py`. (enforcement: static-analysis, `just vulture` in `lint-code.yml`)
 - **Durable state**: none.
-- **Fingerprint**: `6e70c83f62dc`
+- **Fingerprint**: `e5abb559d5e8`
 
 ## Cross-cutting concerns
 

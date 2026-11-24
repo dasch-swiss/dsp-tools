@@ -172,6 +172,8 @@ of the package `dsp-vre`. They are not in these utilities.
 
 **Commands should NEVER import from other commands.**
 If two commands need the same functionality, that functionality belongs in utils.
+The one accepted exception is `ingest_xmlupload` → `xmlupload` (ADR 0006 at the repository root,
+`docs/adr/0006-ingest-xmlupload-uses-bulk-data-import.md`). Do not extend it to other commands.
 
 This architecture prevents tight coupling and makes commands independent, testable, and maintainable.
 

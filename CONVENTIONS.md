@@ -26,6 +26,9 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 - **Commands never import from other commands.** Shared logic goes to `packages/dsp-tools/src/dsp_tools/utils/`;
   shared HTTP-route interaction goes to `packages/dsp-vre/src/dsp_vre/clients`. See
   `packages/dsp-tools/src/dsp_tools/utils/CLAUDE.md`.
+  One accepted exception: `ingest_xmlupload` imports from `xmlupload` (preparation, graph building, copyright
+  holders), because both commands must produce the same data ([ADR 0006](docs/adr/0006-ingest-xmlupload-uses-bulk-data-import.md)).
+  Do not extend it to other commands.
 - HTTP clients (`dsp_vre/clients/`) are generic and reusable. The client classes contain **no retry loops**.
   The commands own their retry loops. They use the retry and logging helpers in
   `packages/dsp-vre/src/dsp_vre/clients/request_utils.py`.

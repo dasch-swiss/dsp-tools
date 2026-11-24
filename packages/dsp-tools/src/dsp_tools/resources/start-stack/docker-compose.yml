@@ -63,7 +63,6 @@ services:
       - JWT_SECRET=dev-only-insecure-jwt-secret-change-me
       - SIPI_USE_LOCAL_DEV=false
       - ALLOW_ERASE_PROJECTS=true
-      - ALLOW_PROJECT_DATA_IMPORT=true
       - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
       - DSP_API_URL=http://host.docker.internal:3333
 

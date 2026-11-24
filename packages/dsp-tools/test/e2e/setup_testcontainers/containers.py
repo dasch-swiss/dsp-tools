@@ -122,7 +122,6 @@ def _get_ingest(
         .with_env("JWT_SECRET", "dev-only-insecure-jwt-secret-change-me")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
-        .with_env("ALLOW_PROJECT_DATA_IMPORT", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
         .with_volume_mapping(artifact_dirs.sipi_images, "/opt/images", "rw")
         .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/tmp", "rw")

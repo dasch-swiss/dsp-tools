@@ -273,12 +273,13 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `utils` entry); `ingest-xmlupload` (heavy reach-in, see Boundary rules); `validate-data` (two-way, see that
   entry)
 - **Boundary rules**:
-    - `ingest_xmlupload` and `resume_xmlupload` bypass the `xmlupload()` entry point and call
-    `execute_upload()` and internal modules directly: ingest uses `models/` and `prepare_xml_input/`, resume
-    uses `models/` (upload_clients, upload_state). The two components are really one tightly-coupled upload
-    pipeline split across two CLI surfaces. (enforcement: docs-only; strong candidate for a `dune-grill`
-    ADR — either merge the map entries or promote `execute_upload()`/`upload_config.py` to a documented
-    shared interface)
+    - `ingest_xmlupload` reuses the preparation (`prepare_xml_input/`, `models/`), the graph builders
+    (`make_rdf_graph/`), `upload_copyright_holders`, `resolve_project_default_authorship`,
+    `transform_server_url_to_foldername` and `write_id2iri_mapping`, but not `execute_upload()`.
+    ADR 0006 accepts this reuse: both commands must produce the same data, and the parity e2e test
+    (`test/e2e/commands/ingest_xmlupload/test_ingest_xmlupload_parity.py`) checks it. (enforcement: review)
+    - `resume_xmlupload` bypasses the `xmlupload()` entry point and calls `execute_upload()` and `models/`
+    (upload_clients, upload_state) directly. (enforcement: docs-only; violated)
     - New value/property type touches six places: a `KnoraValueType` member
     (`utils/xml_parsing/models/parsed_resource.py`, outside this component), a `TYPE_TRANSFORMER_MAPPER`
     entry (`prepare_xml_input/get_processed_resources.py`), usually a transformer function in
@@ -752,8 +753,8 @@ per the error-handling doc. No durable state beyond each instance's own value.
   (enforcement: docs-only; no import-linter contract exists)
 - **Commands never import from other commands** (stated in `utils/CLAUDE.md` and `CONVENTIONS.md`;
   enforcement: docs-only; currently violated): `mapping`→`excel2json`, `validate-data`↔`create`,
-  `validate-data`↔`xmlupload`, `ingest-xmlupload`/`resume-xmlupload`→`xmlupload`. Shared logic belongs in
-  `utils/` instead.
+  `validate-data`↔`xmlupload`, `resume-xmlupload`→`xmlupload`. Shared logic belongs in
+  `utils/` instead. Accepted exception: `ingest-xmlupload`→`xmlupload` (ADR 0006).
 - **Wiring convention**: a new CLI command touches three files — `cli/create_parsers.py`,
   `cli/call_action.py`, and either `cli/call_action_files_only.py` or `cli/call_action_with_network.py`
   depending on whether it needs network/Docker access. (enforcement: review)
@@ -763,7 +764,7 @@ per the error-handling doc. No durable state beyond each instance's own value.
 
 | Pattern | Why it couples globally | Alternative | Enforcement |
 | --- | --- | --- | --- |
-| A command imports directly from another command's package | Spreads blast radius silently; contradicts the stated rule | Move the shared logic into `utils/` or a new neutral module | docs-only (violated: `mapping`→`excel2json`, `validate-data`↔`create`, `validate-data`↔`xmlupload`, `ingest-xmlupload`/`resume-xmlupload`→`xmlupload`) |
+| A command imports directly from another command's package | Spreads blast radius silently; contradicts the stated rule | Move the shared logic into `utils/` or a new neutral module | docs-only (violated: `mapping`→`excel2json`, `validate-data`↔`create`, `validate-data`↔`xmlupload`, `resume-xmlupload`→`xmlupload`; accepted by ADR 0006: `ingest-xmlupload`→`xmlupload`) |
 | A command imports from `cli/` | Inverts the `cli` → `commands/*` direction; CLI-argument types leak into command code | Define the shared argument type outside `cli/` (for example in `utils/`) and let `cli` build it | docs-only (violated: 14 files import `cli.args`, `mapping/config_file.py` imports `cli.utils` — see the `cli` entry) |
 | `utils/` importing from `commands/` | Inverts `utils`' leaf-dependency role; real circular-import risk since every command also imports `utils` | Move the shared type/constant into `utils/` itself | docs-only (violated: 5 files / 9 import sites — see the `utils` entry) |
 | `clients/` importing anything from `dsp_tools` | `clients/` is the separate package `dsp-vre`; an import of `dsp_tools` makes the dependency two-way | Define the shared type in `clients/`, or convert at the call site in dsp-tools | static-analysis (ruff `TID251` in `packages/dsp-vre/pyproject.toml`, `test_no_dsp_tools_import.py`; no violations) |

@@ -309,6 +309,19 @@ The xmlupload package depends on:
 - Configuration and CLI args (`cli/args.py`)
 - External libraries: `lxml`, `rdflib`, `tqdm`, `loguru`
 
+## Consumers Outside This Command
+
+`ingest_xmlupload` builds its bulk data import from this command's code (ADR 0006 at the repository root).
+A change to one of these symbols changes the bulk payload too:
+
+- `prepare_xml_input/` (`get_parsed_resources_and_mappers`, `get_processed_resources`) and `models/processed/`
+- `make_rdf_graph/make_resource_and_values.py` `create_resource_with_values`, `make_rdf_graph/jsonld_utils.py` `serialise_json`
+- `iri_resolver.py` `IriResolver`, `models/lookup_models.py` `IRILookups`
+- `execute_upload.py` `upload_copyright_holders`, `xmlupload.py` `resolve_project_default_authorship`
+- `upload_config.py` `transform_server_url_to_foldername`, `write_diagnostic_info.py` `write_id2iri_mapping`
+
+`test/e2e/commands/ingest_xmlupload/test_ingest_xmlupload_parity.py` checks that both commands create the same data.
+
 ## Integration Points
 
 - **CLI Integration**: Called from `dsp-tools xmlupload` command

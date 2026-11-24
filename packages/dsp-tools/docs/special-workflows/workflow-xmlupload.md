@@ -159,7 +159,6 @@ Use `ingest-xmlupload` only for the first import of data into a project.
 
 DSP-TOOLS validates the data, then sends all resources to the server in one bulk data import.
 The server creates the resources, values, and files together, or none of them.
-DSP-TOOLS creates the IRIs of the resources and values before it sends the data.
 If a resource has a preset IRI or ARK in the XML file, DSP-TOOLS keeps it. 
 It must belong to the project.
 

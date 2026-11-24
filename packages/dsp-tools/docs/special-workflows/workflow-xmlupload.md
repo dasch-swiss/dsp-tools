@@ -129,6 +129,16 @@ The most frequently used options are:
 - `--no-iiif-uri-validation` (optional): do not validate the IIIF URIs
 - `--skip-ontology-validation` (optional): validate only the data, not the data model
 
+!!! info "The on-behalf-of user decides the default permissions"
+
+    The data belongs to the on-behalf-of user, not to the system admin who runs the command.
+    If a resource or a value in the XML file has no permissions, 
+    DSP-API gives it the default permissions of the project for the role of this user
+    (see [Permissions](../permissions-guide.md)).
+    Thus, a project admin and a project member as on-behalf-of user can lead to different permissions.
+    If the project has no default permissions for the role of this user, 
+    the data gets `CR knora-admin:Creator`: apart from admins, only the on-behalf-of user can see and change it.
+
 To see all possible options, type `uvx dsp-tools ingest-xmlupload --help`.
 
 The defaults are intended for local testing: 

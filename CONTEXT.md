@@ -74,7 +74,9 @@ and not a migration import (project transfer between servers, `MigrationImportCl
 
 **On-behalf-of user**:
 The project user who becomes the creator of the data of a **Bulk data import**, set with
-`ingest-xmlupload --on-behalf-of-user`. The system admin who runs the command is not the creator.
+`ingest-xmlupload --on-behalf-of-user`. The system admin who runs the command is not the creator:
+only a system admin can start a bulk data import, but the data must belong to a person of the project.
+The role of this user in the project decides the default permissions of the data. It must not be a system admin.
 On a prod-like server, the user is `<shortname>@admin.dasch.swiss` unless the system admin confirms otherwise.
 
 ### Identifiers

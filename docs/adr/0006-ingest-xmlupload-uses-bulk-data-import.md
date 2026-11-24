@@ -20,6 +20,12 @@ resources, values and files of a project as one task
   to IRIs and removes its files. If the task fails, DSP-TOOLS writes the error message to a file and deletes the
   task. If the command is interrupted or loses the connection, the task stays on the server, and
   `delete-data-import` removes it.
+- `ingest-xmlupload` requires `--on-behalf-of-user`. Only a system admin can start a bulk data import.
+  Without an on-behalf-of user, DSP-API attaches all data (`attachedToUser`) to that system admin, a DaSCH account,
+  and not to a person of the project. The on-behalf-of user must not be a system admin: DSP-API treats a system admin
+  as a project admin when it resolves the default object access permissions, so the project-admin permissions
+  would win, and the data would again belong to a DaSCH account. DSP-API rejects such a user
+  ([API docs](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v3/project-data-import/)).
 - `ingest-xmlupload` imports from `commands/xmlupload/` (preparation, graph building, copyright holders).
   This is accepted: `ingest-xmlupload` is the bulk variant of `xmlupload`, and both must produce the same data.
 

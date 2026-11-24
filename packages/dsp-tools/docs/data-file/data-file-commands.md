@@ -134,7 +134,6 @@ and an upload that stops because of a failure (e.g. the server became unreachabl
     We only guarantee this for `uvx dsp-tools xmlupload --interrupt-after`.
 
 This command resumes a previously interrupted `xmlupload`.
-It cannot resume `ingest-xmlupload`, which has no resume.
 
 ```bash
 uvx dsp-tools resume-xmlupload [options]

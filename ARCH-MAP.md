@@ -585,8 +585,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,
   legacy-e2e-tests), release-please, `scripts/bump_version.py` (dev-release `.postN`),
   `scripts/bump_stack_versions.py` (start-stack version-bump PR), `scripts/merge_pr_when_green.py` and the
-  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lib_lower_bound.py`
-  (`dsp-vre-lib` lower bound of `dsp-tools` on the release PR), `readiness.yml`,
+  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lower_bound.py`
+  (`dsp-vre` lower bound of `dsp-tools` on the release PR), `readiness.yml`,
   `.github/pull_request_template.md`, `.env.example` (the optional runtime env vars; never loaded by
   DSP-TOOLS itself)
 - **Public interface**: the justfile's recipe names, any `.github/workflows/*.yml` (auto-discovered by
@@ -622,27 +622,27 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per package), not by hand; `.git-blame-ignore-revs` is
   maintained by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). On the `dsp-tools` release PR,
-  `release-please.yml` also rewrites the `dsp-vre-lib` lower bound in `packages/dsp-tools/pyproject.toml`
-  (`scripts/vre_lib_lower_bound.py raise`). `uv.lock` has three
+  `release-please.yml` also rewrites the `dsp-vre` lower bound in `packages/dsp-tools/pyproject.toml`
+  (`scripts/vre_lower_bound.py raise`). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
 - **Fingerprint**: `8a3e6d457f69`
 
-### dsp-vre-lib
+### dsp-vre
 
-- **Paths**: `packages/dsp-vre-lib/**`
-- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`):
+- **Paths**: `packages/dsp-vre/**`
+- **Purpose**: Separate workspace package (PyPI name `dsp-vre`):
   the Python client library for the DSP-API of a DSP server.
   It has no public interface yet. The interface decisions are in
-  `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
+  `packages/dsp-vre/docs/adr/0001-public-interface.md`.
 - **Public interface**: none yet.
 - **Depends on**: nothing.
 - **Used by**: nothing yet. `dsp-tools` does not declare it as a dependency.
 - **Boundary rules**:
-    - `dsp_vre_lib` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
-    `packages/dsp-vre-lib/pyproject.toml`)
+    - `dsp_vre` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
+    `packages/dsp-vre/pyproject.toml`)
     - No file formats (JSON project file, XML data file, Excel). (enforcement: docs-only,
-    `packages/dsp-vre-lib/CLAUDE.md`)
+    `packages/dsp-vre/CLAUDE.md`)
 - **Durable state**: none.
 - **Fingerprint**: `081f365b5d36`
 

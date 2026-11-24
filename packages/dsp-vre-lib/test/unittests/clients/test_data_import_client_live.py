@@ -261,34 +261,19 @@ class TestErrorMapping:
             (HTTPStatus.NOT_FOUND, _v3_error("project_not_found", {"id": PROJECT_IRI}), ProjectNotFoundError),
         ],
     )
-    def test_get_status_error_types(
+    @pytest.mark.parametrize(("verb", "method"), [("get", "get_status"), ("delete", "delete_import")])
+    def test_import_id_error_types(
         self,
         client: DataImportClientLive,
+        verb: str,
+        method: str,
         status_code: int,
         body: dict[str, Any] | None,
         expected_error: type[Exception],
     ) -> None:
-        with patch(f"{MODULE}.requests.get", return_value=_response(status_code, body)):
+        with patch(f"{MODULE}.requests.{verb}", return_value=_response(status_code, body)):
             with pytest.raises(expected_error):
-                client.get_status(IMPORT_ID)
-
-    @pytest.mark.parametrize(
-        ("status_code", "body", "expected_error"),
-        [
-            (HTTPStatus.FORBIDDEN, None, BadCredentialsError),
-            (HTTPStatus.NOT_FOUND, _v3_error("project_not_found", {"id": PROJECT_IRI}), ProjectNotFoundError),
-        ],
-    )
-    def test_delete_import_error_types(
-        self,
-        client: DataImportClientLive,
-        status_code: int,
-        body: dict[str, Any] | None,
-        expected_error: type[Exception],
-    ) -> None:
-        with patch(f"{MODULE}.requests.delete", return_value=_response(status_code, body)):
-            with pytest.raises(expected_error):
-                client.delete_import(IMPORT_ID)
+                getattr(client, method)(IMPORT_ID)
 
     def test_delete_import_not_found(self, client: DataImportClientLive) -> None:
         body = _v3_error("import_not_found", {"id": "import-123", "projectIri": PROJECT_IRI})

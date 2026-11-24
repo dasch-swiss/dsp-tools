@@ -239,13 +239,17 @@ def _add_ingest_xmlupload(
 ) -> None:
     subparser = subparsers.add_parser(
         name="ingest-xmlupload",
-        help="For internal use only: create resources with files already uploaded through dsp-ingest",
+        help="For system admins: create resources with files already uploaded through dsp-ingest",
     )
     subparser.set_defaults(action="ingest-xmlupload")
     subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
+    subparser.add_argument(
+        "--on-behalf-of-user",
+        required=True,
+        help="email or username of the user who becomes the creator of the resources",
+    )
     subparser.add_argument("xml_file", help="path to XML file containing the data")
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
     subparser.add_argument(
@@ -259,20 +263,6 @@ def _add_ingest_xmlupload(
         help=(
             "don't validate the data model itself, only the data. "
             "This is intended for projects that are already on the production server"
-        ),
-    )
-    subparser.add_argument(
-        "--id2iri-file",
-        help=(
-            "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
-            "by IRIs provided in this mapping file"
-        ),
-    )
-    subparser.add_argument(
-        "--do-not-request-resource-metadata-from-db",
-        action="store_true",
-        help=(
-            "Do not request IRIs of existing resources from the db (references to existing resources won't be checked)"
         ),
     )
 

@@ -21,6 +21,7 @@ EXIT_CODE_TWO = 2
 PROJECT_JSON_PATH = Path("testdata/json-project/systematic-project-4123.json")
 ID_2_IRI_JSON_PATH = "testdata/id2iri/test-id2iri-mapping.json"
 DATA_XML_PATH = "testdata/xml-data/test-data-systematic-4123.xml"
+ON_BEHALF_OF_USER = "my-proj@admin.dasch.swiss"
 MIGRATION_YAML_COMPLETE_PATH = "testdata/migration/migration-4125_complete.yaml"
 MIGRATION_EXPORT_PATH = Path("testdata/migration/export-4125.zip")
 MIGRATION_REFERENCE_PATH = Path("testdata/migration/migration-references-4125.json")
@@ -570,7 +571,7 @@ class TestIngestUploads:
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_localhost(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"ingest-xmlupload {DATA_XML_PATH}".split()
+        args = f"ingest-xmlupload --on-behalf-of-user {ON_BEHALF_OF_USER} {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -581,19 +582,16 @@ class TestIngestUploads:
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
             creds=creds,
-            interrupt_after=None,
+            on_behalf_of_user=ON_BEHALF_OF_USER,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=False,
             skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_skip_validation(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        skip_validation = "--skip-validation"
-        args = f"ingest-xmlupload {skip_validation} {DATA_XML_PATH}".split()
+        args = f"ingest-xmlupload --on-behalf-of-user {ON_BEHALF_OF_USER} --skip-validation {DATA_XML_PATH}".split()
         entry_point.run(args)
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -604,18 +602,18 @@ class TestIngestUploads:
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
             creds=creds,
-            interrupt_after=None,
+            on_behalf_of_user=ON_BEHALF_OF_USER,
             skip_validation=True,
             skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=False,
             skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_no_iiif(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"ingest-xmlupload --no-iiif-uri-validation {DATA_XML_PATH}".split()
+        args = (
+            f"ingest-xmlupload --on-behalf-of-user {ON_BEHALF_OF_USER} --no-iiif-uri-validation {DATA_XML_PATH}".split()
+        )
         entry_point.run(args)
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -626,34 +624,10 @@ class TestIngestUploads:
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
             creds=creds,
-            interrupt_after=None,
+            on_behalf_of_user=ON_BEHALF_OF_USER,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=False,
             skip_iiif_validation=True,
-        )
-
-    @patch("dsp_tools.cli.utils._check_network_health")
-    @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
-    def test_ingest_xmlupload_interrupt_after(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"ingest-xmlupload --interrupt-after=1 {DATA_XML_PATH}".split()
-        entry_point.run(args)
-        creds = ServerCredentials(
-            server="http://0.0.0.0:3333",
-            user="root@example.com",
-            password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
-        )
-        ingest_xmlupload.assert_called_once_with(
-            xml_file=Path(DATA_XML_PATH),
-            creds=creds,
-            interrupt_after=1,
-            skip_validation=False,
-            skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=False,
-            skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
@@ -662,7 +636,10 @@ class TestIngestUploads:
         server = "https://api.test.dasch.swiss"
         user = "first-name.second-name@dasch.swiss"
         password = "foobar"
-        args = f"ingest-xmlupload --server={server} --user {user} --password={password} {DATA_XML_PATH}".split()
+        args = (
+            f"ingest-xmlupload --server={server} --user {user} --password={password} "
+            f"--on-behalf-of-user {ON_BEHALF_OF_USER} {DATA_XML_PATH}"
+        ).split()
         entry_point.run(args)
         creds = ServerCredentials(
             server=server,
@@ -673,59 +650,32 @@ class TestIngestUploads:
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),
             creds=creds,
-            interrupt_after=None,
+            on_behalf_of_user=ON_BEHALF_OF_USER,
             skip_validation=False,
             skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=False,
             skip_iiif_validation=False,
         )
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
-    def test_ingest_xmlupload_id2iri_file(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
-        args = f"ingest-xmlupload --id2iri-file {ID_2_IRI_JSON_PATH} {DATA_XML_PATH}".split()
-        entry_point.run(args)
-        creds = ServerCredentials(
-            server="http://0.0.0.0:3333",
-            user="root@example.com",
-            password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
-        )
-        ingest_xmlupload.assert_called_once_with(
-            xml_file=Path(DATA_XML_PATH),
-            creds=creds,
-            interrupt_after=None,
-            skip_validation=False,
-            skip_ontology_validation=False,
-            id2iri_file=ID_2_IRI_JSON_PATH,
-            do_not_request_resource_metadata_from_db=False,
-            skip_iiif_validation=False,
-        )
+    def test_ingest_xmlupload_missing_on_behalf_of_user(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:
+        with pytest.raises(SystemExit):
+            entry_point.run(f"ingest-xmlupload {DATA_XML_PATH}".split())
+        ingest_xmlupload.assert_not_called()
 
+    @pytest.mark.parametrize(
+        "dropped_flag",
+        ["--interrupt-after=1", f"--id2iri-file={ID_2_IRI_JSON_PATH}", "--do-not-request-resource-metadata-from-db"],
+    )
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
-    def test_ingest_xmlupload_do_not_request_resource_metadata_from_db(
-        self, ingest_xmlupload: Mock, check_docker: Mock
+    def test_ingest_xmlupload_dropped_flags(
+        self, ingest_xmlupload: Mock, check_docker: Mock, dropped_flag: str
     ) -> None:
-        args = f"ingest-xmlupload {DATA_XML_PATH} --do-not-request-resource-metadata-from-db".split()
-        entry_point.run(args)
-        creds = ServerCredentials(
-            server="http://0.0.0.0:3333",
-            user="root@example.com",
-            password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
-        )
-        ingest_xmlupload.assert_called_once_with(
-            xml_file=Path(DATA_XML_PATH),
-            creds=creds,
-            interrupt_after=None,
-            skip_validation=False,
-            skip_ontology_validation=False,
-            id2iri_file=None,
-            do_not_request_resource_metadata_from_db=True,
-            skip_iiif_validation=False,
-        )
+        args = f"ingest-xmlupload --on-behalf-of-user {ON_BEHALF_OF_USER} {dropped_flag} {DATA_XML_PATH}".split()
+        with pytest.raises(SystemExit):
+            entry_point.run(args)
+        ingest_xmlupload.assert_not_called()
 
 
 class TestStartStack:

@@ -80,26 +80,19 @@ def call_ingest_files(args: argparse.Namespace) -> bool:
 
 def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xml_file)
-    required_files = [xml_path]
-    id2iri_file = args.id2iri_file
-    if id2iri_file:
-        required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(
         args.server, always_requires_docker=always_requires_docker, ingest_url=args.dsp_ingest_url
     )
-    path_deps = PathDependencies(required_files)
+    path_deps = PathDependencies([xml_path])
     check_input_dependencies(path_deps, [network_requirements])
 
-    interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
         creds=get_creds(args),
-        interrupt_after=interrupt_after,
+        on_behalf_of_user=args.on_behalf_of_user,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_file=id2iri_file,
-        do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
         skip_iiif_validation=args.no_iiif_uri_validation,
     )
 

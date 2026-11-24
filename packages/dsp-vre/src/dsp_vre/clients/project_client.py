@@ -12,6 +12,9 @@ class ProjectClient(Protocol):
     def get_project_iri(self, shortcode: str) -> str:
         """Get the IRI of a project via shortcode."""
 
+    def get_project_shortname(self, shortcode: str) -> str:
+        """Get the shortname of a project via shortcode."""
+
     def get_default_data_authorship(self, shortcode: str) -> list[str]:
         """Get the project-wide default data authorship via shortcode. Empty list if none is defined."""
 

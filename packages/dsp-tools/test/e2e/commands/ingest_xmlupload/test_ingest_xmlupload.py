@@ -93,7 +93,7 @@ def _test_ingest_step(
 
 
 def _test_xmlupload_step(creds: ServerCredentials) -> None:
-    success = ingest_xmlupload(XML_FILE, creds)
+    success = ingest_xmlupload(XML_FILE, creds, on_behalf_of_user="root@example.com")
     assert success
     id2iri_file = list(Path.cwd().glob(f"id2iri_{SHORTCODE}_localhost*.json"))[-1]  # choose the most recent one
     id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))

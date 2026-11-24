@@ -75,7 +75,7 @@ def xmlupload(
     # verify that a project with the shortcode exists
     project_client.get_project_iri(shortcode)
     check_for_dsp_employee_account_email_for_data_upload(creds.user, creds.server)
-    project_default_authorship = _resolve_project_default_authorship(root, project_client, shortcode)
+    project_default_authorship = resolve_project_default_authorship(root, project_client, shortcode)
 
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
@@ -115,7 +115,7 @@ def xmlupload(
     return execute_upload(clients, state)
 
 
-def _resolve_project_default_authorship(
+def resolve_project_default_authorship(
     root: etree._Element, project_client: ProjectClient, shortcode: str
 ) -> list[str] | None:
     """

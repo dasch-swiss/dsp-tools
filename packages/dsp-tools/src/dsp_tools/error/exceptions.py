@@ -105,6 +105,10 @@ class DaschEmployeeAccountUsedForUploadError(UserError):
     """Class for errors when data is uploaded to a prod-like server with a DaSCH employee account."""
 
 
+class OnBehalfOfUserNotProjectAdminAccountError(UserError):
+    """Class for errors when a data import on a prod-like server is not run on behalf of the project admin account."""
+
+
 # Catch with this tuple, so that errors of dsp-vre are not missed.
 ANY_DSP_ERROR = (BaseError, DspVreBaseError)
 

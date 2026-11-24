@@ -7,9 +7,9 @@ from urllib.parse import quote_plus
 import pytest
 from requests.exceptions import JSONDecodeError as RequestsJSONDecodeError
 
-from dsp_vre_lib.clients import MappingClientLive
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import MappingClientLive
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="test-token")

@@ -7,15 +7,15 @@ from unittest.mock import patch
 import pytest
 from requests import Response
 
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.request_utils import _is_retriable_status_code
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
-from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
-from dsp_vre_lib.clients.request_utils import parse_api_v3_error
-from dsp_vre_lib.clients.request_utils import should_retry_request
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import _is_retriable_status_code
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_request_failure_and_sleep
+from dsp_vre.clients.request_utils import log_response
+from dsp_vre.clients.request_utils import notify_and_raise_timeouts
+from dsp_vre.clients.request_utils import parse_api_v3_error
+from dsp_vre.clients.request_utils import should_retry_request
 
 
 def _make_response(status_code: int, headers: dict[str, Any], text: str):
@@ -31,9 +31,9 @@ def _make_response(status_code: int, headers: dict[str, Any], text: str):
 
 
 def test_log_request_writes_to_the_standard_logger_of_the_package(caplog: pytest.LogCaptureFixture) -> None:
-    with caplog.at_level(logging.DEBUG, logger="dsp_vre_lib"):
+    with caplog.at_level(logging.DEBUG, logger="dsp_vre"):
         log_request(RequestParameters("GET", "http://example.com", 1))
-    assert [r.name for r in caplog.records] == ["dsp_vre_lib.clients.request_utils"]
+    assert [r.name for r in caplog.records] == ["dsp_vre.clients.request_utils"]
     assert caplog.records[0].getMessage().startswith("REQUEST: ")
 
 
@@ -44,8 +44,8 @@ def test_notify_and_raise_timeouts_writes_a_notice_and_a_log_record(
     with pytest.raises(TimeoutError) as exc_info:
         notify_and_raise_timeouts(error)
     assert [(r.name, r.levelno) for r in notice_records] == [
-        ("dsp_vre_lib.notices", logging.INFO),
-        ("dsp_vre_lib.clients.request_utils", logging.INFO),
+        ("dsp_vre.notices", logging.INFO),
+        ("dsp_vre.clients.request_utils", logging.INFO),
     ]
     assert all("TimeoutError" in r.getMessage() for r in notice_records)
     assert not capsys.readouterr().out
@@ -55,12 +55,12 @@ def test_notify_and_raise_timeouts_writes_a_notice_and_a_log_record(
 def test_log_request_failure_and_sleep_writes_the_text_once_as_a_log_record_and_once_as_a_notice(
     notice_records: list[logging.LogRecord], capsys: pytest.CaptureFixture[str]
 ) -> None:
-    with patch("dsp_vre_lib.clients.request_utils.time.sleep"):
+    with patch("dsp_vre.clients.request_utils.time.sleep"):
         log_request_failure_and_sleep("Transient Error", retry_counter=2, exc_info=False)
     msg = "Transient Error: Try reconnecting to DSP server, next attempt in 4 seconds..."
     assert [(r.name, r.getMessage()) for r in notice_records] == [
-        ("dsp_vre_lib.notices", msg),
-        ("dsp_vre_lib.clients.request_utils", msg),
+        ("dsp_vre.notices", msg),
+        ("dsp_vre.clients.request_utils", msg),
     ]
     assert not capsys.readouterr().out
 
@@ -76,7 +76,7 @@ def test_log_response_debug() -> None:
         "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
         "content": {"foo": "bar"},
     }
-    with patch("dsp_vre_lib.clients.request_utils.logger.debug") as debug_mock:
+    with patch("dsp_vre.clients.request_utils.logger.debug") as debug_mock:
         log_response(response_mock, status_code=response_mock.status_code)
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
@@ -92,7 +92,7 @@ def test_log_response_warning() -> None:
         "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
         "content": {"foo": "bar"},
     }
-    with patch("dsp_vre_lib.clients.request_utils.logger.warning") as warning_mock:
+    with patch("dsp_vre.clients.request_utils.logger.warning") as warning_mock:
         log_response(response_mock, status_code=response_mock.status_code)
         warning_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
@@ -134,9 +134,9 @@ def test_should_retry_request(
     expected: bool,
 ) -> None:
     if env_value is None:
-        monkeypatch.delenv("DSP_VRE_LIB_NO_RETRY", raising=False)
+        monkeypatch.delenv("DSP_VRE_NO_RETRY", raising=False)
     else:
-        monkeypatch.setenv("DSP_VRE_LIB_NO_RETRY", env_value)
+        monkeypatch.setenv("DSP_VRE_NO_RETRY", env_value)
     assert should_retry_request(response) == expected
 
 

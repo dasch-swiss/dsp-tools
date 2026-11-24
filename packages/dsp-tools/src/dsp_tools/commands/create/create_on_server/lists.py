@@ -18,11 +18,11 @@ from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_CYAN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.list_client import ListCreateClient
-from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.list_client import ListCreateClient
+from dsp_vre.clients.list_client_live import ListCreateClientLive
+from dsp_vre.clients.list_client_live import ListGetClientLive
 
 
 def create_lists(

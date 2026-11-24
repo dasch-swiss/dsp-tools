@@ -48,7 +48,7 @@ class _LoguruInterceptHandler(logging.Handler):
 
 
 class _NoticePrintHandler(logging.Handler):
-    """Prints the notices of dsp-vre-lib (for example a retry) on the terminal, with a time stamp."""
+    """Prints the notices of dsp-vre (for example a retry) on the terminal, with a time stamp."""
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
@@ -70,8 +70,8 @@ def _replace_handler(logger_name: str, handler: logging.Handler) -> None:
 def logger_config() -> None:
     """
     This function configures the log files.
-    The records of the package dsp-vre-lib (standard logger "dsp_vre_lib") go into the same sinks.
-    Its notices for the user (logger "dsp_vre_lib.notices") are also printed on the terminal.
+    The records of the package dsp-vre (standard logger "dsp_vre") go into the same sinks.
+    Its notices for the user (logger "dsp_vre.notices") are also printed on the terminal.
     Currently, there are three sinks:
     - timestamp_logging.log in ~/.dsp-tools/logs/ contains the entire stack-trace
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
@@ -84,9 +84,9 @@ def logger_config() -> None:
     """
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
-    logging.getLogger("dsp_vre_lib").setLevel(logging.DEBUG)
-    _replace_handler("dsp_vre_lib", _LoguruInterceptHandler())
-    _replace_handler("dsp_vre_lib.notices", _NoticePrintHandler())
+    logging.getLogger("dsp_vre").setLevel(logging.DEBUG)
+    _replace_handler("dsp_vre", _LoguruInterceptHandler())
+    _replace_handler("dsp_vre.notices", _NoticePrintHandler())
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"

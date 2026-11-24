@@ -4,7 +4,7 @@ from typing import TextIO
 from dsp_tools.error.custom_warnings import DspToolsUnexpectedStatusCodeWarning
 from dsp_tools.error.custom_warnings import DspToolsWarning
 from dsp_tools.xmllib.internal.xmllib_warnings import XmllibUserInfoBase
-from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
+from dsp_vre.clients.client_warnings import DspVreUnexpectedStatusCodeWarning
 
 
 def initialize_warnings() -> None:
@@ -26,7 +26,7 @@ def initialize_warnings() -> None:
     ) -> None:
         if issubclass(category, DspToolsWarning):
             category.showwarning(str(message))
-        elif issubclass(category, DspVreLibUnexpectedStatusCodeWarning):
+        elif issubclass(category, DspVreUnexpectedStatusCodeWarning):
             DspToolsUnexpectedStatusCodeWarning.showwarning(str(message))
         elif issubclass(category, XmllibUserInfoBase):
             category.showwarning(str(message))

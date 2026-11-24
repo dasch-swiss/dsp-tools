@@ -12,9 +12,9 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileBitstream
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
-from dsp_vre_lib.clients import BulkIngestClient
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.bulk_ingest_client import UploadFailure
+from dsp_vre.clients import BulkIngestClient
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.bulk_ingest_client import UploadFailure
 
 
 def upload_files(

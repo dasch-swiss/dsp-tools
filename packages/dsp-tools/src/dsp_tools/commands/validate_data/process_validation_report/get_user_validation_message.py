@@ -12,7 +12,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
+from dsp_vre.clients import ExistingResourcesRetrieved
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"

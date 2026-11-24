@@ -25,7 +25,7 @@ Flag anything below that a change violates.
 - [ ] No command imports from another command — shared logic is in `utils/`, shared HTTP routes in `clients/`
 - [ ] Behaviour lives in stateless functions; classes only bundle data (`@dataclass`)
 - [ ] A catch around a client call uses `ANY_DSP_ERROR` / `ANY_USER_ERROR`, not `BaseError` / `UserError` alone
-- [ ] HTTP goes through `dsp_vre_lib/clients/request_utils.py` (no raw requests, no retry loops in the client classes)
+- [ ] HTTP goes through `dsp_vre/clients/request_utils.py` (no raw requests, no retry loops in the client classes)
 - [ ] The HTTP call takes only values from the logged `RequestParameters` (`params.url`, `params.timeout`, …),
       not local variables or constants
 - [ ] `pathlib.Path` used throughout — no `os.path`, no paths passed as strings

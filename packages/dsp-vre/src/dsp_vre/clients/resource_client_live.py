@@ -10,16 +10,16 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Session
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.request_utils import USER_AGENT
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
-from dsp_vre_lib.clients.resource_client import ResourceClient
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.request_utils import USER_AGENT
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import log_and_raise_request_exception
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
+from dsp_vre.clients.request_utils import notify_and_raise_timeouts
+from dsp_vre.clients.resource_client import ResourceClient
 
 TIMEOUT_1800 = 1800
 TIMEOUT_30 = 30

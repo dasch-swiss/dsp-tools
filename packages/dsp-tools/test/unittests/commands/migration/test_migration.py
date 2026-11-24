@@ -15,8 +15,8 @@ from dsp_tools.commands.migration.migration import migration
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
-from dsp_vre_lib.clients import ExportId
-from dsp_vre_lib.clients import ImportId
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ImportId
 
 PROJECT_IRI = "http://rdfh.ch/projects/0001"
 EXPORT_ID = ExportId("export-abc")

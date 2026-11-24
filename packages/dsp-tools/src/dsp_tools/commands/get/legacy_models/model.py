@@ -1,4 +1,4 @@
-from dsp_vre_lib.clients import Connection
+from dsp_vre.clients import Connection
 
 
 class Model:

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.authentication_client import AuthenticationClient
 
 
 @dataclass

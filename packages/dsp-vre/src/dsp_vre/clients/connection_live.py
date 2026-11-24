@@ -12,19 +12,19 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.connection import Connection
-from dsp_vre_lib.clients.exceptions import InvalidInputError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.request_utils import USER_AGENT
-from dsp_vre_lib.clients.request_utils import PostFiles
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
-from dsp_vre_lib.clients.request_utils import log_response
-from dsp_vre_lib.clients.request_utils import notify_and_raise_timeouts
-from dsp_vre_lib.clients.request_utils import should_retry_request
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.connection import Connection
+from dsp_vre.clients.exceptions import InvalidInputError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.request_utils import USER_AGENT
+from dsp_vre.clients.request_utils import PostFiles
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_request_failure_and_sleep
+from dsp_vre.clients.request_utils import log_response
+from dsp_vre.clients.request_utils import notify_and_raise_timeouts
+from dsp_vre.clients.request_utils import should_retry_request
 
 HTTP_OK = 200
 

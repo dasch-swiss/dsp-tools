@@ -44,10 +44,10 @@ from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.data_formats.uri_util import is_prod_like_server
 from dsp_tools.utils.spinners import get_default_spinner
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import ExistingResourcesRetrieved
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.project_client_live import ProjectClientLive
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_RED + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 NO_VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_GREEN + "No validation errors found!   " + RESET_TO_DEFAULT

@@ -14,9 +14,9 @@ from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.commands.get.legacy_models.user import User
 from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
-from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients import ConnectionLive
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients import Connection
+from dsp_vre.clients import ConnectionLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
 
 
 def get_project(

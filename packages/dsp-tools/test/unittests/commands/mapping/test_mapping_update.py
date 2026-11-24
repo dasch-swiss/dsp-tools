@@ -23,11 +23,11 @@ from dsp_tools.commands.mapping.models import MappingDeletions
 from dsp_tools.commands.mapping.models import MappingUploadFailure
 from dsp_tools.commands.mapping.models import ResolvedClassMapping
 from dsp_tools.commands.mapping.models import ResolvedPropertyMapping
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
-from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
-from dsp_vre_lib.clients.request_utils import ApiV3ErrorDetails
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre.clients.request_utils import ApiV3ErrorDetails
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 ONTO_NAME = "onto"
 SHORTCODE = "0001"

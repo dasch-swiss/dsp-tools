@@ -5,10 +5,10 @@ from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.upload_clients import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import DspIngestAssetClient
-from dsp_vre_lib.clients.exceptions import InvalidIngestFileNameError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.ingest import DspIngestClientLive
-from dsp_vre_lib.clients.ingest import IngestResponse
+from dsp_vre.clients.exceptions import InvalidIngestFileNameError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.ingest import DspIngestClientLive
+from dsp_vre.clients.ingest import IngestResponse
 
 FILE_INFO = ProcessedFileBitstream(value="images/test.jpg", res_id="res_1")
 

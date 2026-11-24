@@ -12,13 +12,13 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.ontology_create_client_live import OntologyCreateClientLive
-from dsp_vre_lib.clients.ontology_create_client_live import _parse_last_modification_date
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_vre.clients.ontology_create_client_live import _parse_last_modification_date
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 from test.unittests.clients.constants import PROJECT_IRI
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")

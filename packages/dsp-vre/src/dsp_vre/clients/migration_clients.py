@@ -4,7 +4,7 @@ from enum import auto
 from pathlib import Path
 from typing import Protocol
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.authentication_client import AuthenticationClient
 
 
 class ExportImportStatus(Enum):

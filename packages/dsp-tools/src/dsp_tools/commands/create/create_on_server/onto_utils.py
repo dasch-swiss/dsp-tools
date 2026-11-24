@@ -12,10 +12,10 @@ from rdflib import URIRef
 from dsp_tools.commands.create.exceptions import CircularOntologyDependencyError
 from dsp_tools.commands.create.models.server_project_info import OntoLastModDateLookup
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_vre_lib.clients import OntologyCreateClient
-from dsp_vre_lib.clients import OntologyGetClientLive
-from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import OntologyCreateClient
+from dsp_vre.clients import OntologyGetClientLive
+from dsp_vre.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 
 def should_retry_request(response: ResponseCodeAndText) -> bool:

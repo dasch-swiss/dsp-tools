@@ -2,9 +2,9 @@
 
 name: Publish dev-release to PyPI
 
-# dsp-tools requires dsp-vre-lib. A dsp-tools dev release thus always comes with a dsp-vre-lib dev release
+# dsp-tools requires dsp-vre. A dsp-tools dev release thus always comes with a dsp-vre dev release
 # from the same commit, and requires exactly that version.
-# Prerequisite: PyPI trusted publishing for the project dsp-vre-lib,
+# Prerequisite: PyPI trusted publishing for the projects dsp-vre and dsp-tools,
 # with this repository and this workflow file as a trusted publisher.
 # See https://docs.pypi.org/trusted-publishers/
 
@@ -14,7 +14,7 @@ on:
       - main
     paths:
       - packages/dsp-tools/**
-      - packages/dsp-vre-lib/**
+      - packages/dsp-vre/**
   workflow_dispatch:
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write  # for PyPI trusted publishing of dsp-vre-lib
+      id-token: write  # for PyPI trusted publishing
     steps:
       - name: Check out repo
         uses: actions/checkout@v7
@@ -38,24 +38,22 @@ jobs:
           enable-cache: true
       - name: Install just
         uses: taiki-e/install-action@just
-      - name: bump version in packages/dsp-vre-lib/pyproject.toml
-        run: uv run scripts/bump_version.py dsp-vre-lib
-      - name: bump version in packages/dsp-tools/pyproject.toml, and pin dsp-vre-lib to the version above
+      - name: bump version in packages/dsp-vre/pyproject.toml
+        run: uv run scripts/bump_version.py dsp-vre
+      - name: bump version in packages/dsp-tools/pyproject.toml, and pin dsp-vre to the version above
         run: |
           uv run scripts/bump_version.py dsp-tools
-          vre_lib_version=$(uv version --package dsp-vre-lib --short)
-          uv run scripts/vre_lib_lower_bound.py pin "$vre_lib_version"
+          vre_version=$(uv version --package dsp-vre --short)
+          uv run scripts/vre_lower_bound.py pin "$vre_version"
       - name: build wheels
         run: |
-          uv build --package dsp-vre-lib
+          uv build --package dsp-vre
           uv build --package dsp-tools
       # A PyPI version cannot be re-uploaded, so this is the last reversible moment.
       - name: check the wheels for correctness
         run: uvx check-wheel-contents dist/
-      # dsp-vre-lib goes first: the dsp-tools dev release requires it.
-      - name: publish dsp-vre-lib to PyPI
-        run: uv publish --trusted-publishing always "dist/dsp_vre_lib-*"
+      # dsp-vre goes first: the dsp-tools dev release requires it.
+      - name: publish dsp-vre to PyPI
+        run: uv publish --trusted-publishing always "dist/dsp_vre-*"
       - name: publish dsp-tools to PyPI
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
-        run: uv publish "dist/dsp_tools-*"
+        run: uv publish --trusted-publishing always "dist/dsp_tools-*"

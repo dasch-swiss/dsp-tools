@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 
 env:
-  DSP_VRE_LIB_NO_RETRY: true
+  DSP_VRE_NO_RETRY: true
 
 # A release-please PR changes no source, so these jobs skip it.
 #

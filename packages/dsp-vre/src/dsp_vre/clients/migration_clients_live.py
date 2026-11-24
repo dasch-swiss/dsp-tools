@@ -8,21 +8,21 @@ from urllib.parse import quote
 import requests
 from requests import RequestException
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.exceptions import MigrationExportExistsError
-from dsp_vre_lib.clients.exceptions import MigrationExportImportInProgressError
-from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
-from dsp_vre_lib.clients.migration_clients import ExportId
-from dsp_vre_lib.clients.migration_clients import ExportImportStatus
-from dsp_vre_lib.clients.migration_clients import ImportId
-from dsp_vre_lib.clients.migration_clients import MigrationExportClient
-from dsp_vre_lib.clients.migration_clients import MigrationImportClient
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.exceptions import MigrationExportExistsError
+from dsp_vre.clients.exceptions import MigrationExportImportInProgressError
+from dsp_vre.clients.exceptions import MigrationImportExistsError
+from dsp_vre.clients.migration_clients import ExportId
+from dsp_vre.clients.migration_clients import ExportImportStatus
+from dsp_vre.clients.migration_clients import ImportId
+from dsp_vre.clients.migration_clients import MigrationExportClient
+from dsp_vre.clients.migration_clients import MigrationImportClient
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_and_raise_request_exception
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
 
 TIMEOUT_60 = 60
 

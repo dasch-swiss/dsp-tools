@@ -17,10 +17,10 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_vre_lib.clients import ResourceClient
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.value_client import ValueClient
+from dsp_vre.clients import ResourceClient
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.value_client import ValueClient
 
 
 def upload_stashed_xml_texts(

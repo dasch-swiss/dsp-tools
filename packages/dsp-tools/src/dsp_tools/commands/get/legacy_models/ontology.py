@@ -34,7 +34,7 @@ from dsp_tools.commands.get.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.get.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_vre_lib.clients import Connection
+from dsp_vre.clients import Connection
 
 
 class Ontology(Model):

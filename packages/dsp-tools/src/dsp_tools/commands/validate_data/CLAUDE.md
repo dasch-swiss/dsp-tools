@@ -53,14 +53,14 @@ whether or not the skill is used.
 
 ### API Client Usage
 
-The validate_data module uses clients from `dsp_vre_lib/clients/` of the package `dsp-vre-lib`:
+The validate_data module uses clients from `dsp_vre/clients/` of the package `dsp-vre`:
 
 - **OntologyGetClient**: Fetches project ontologies and knora-api ontology from DSP server
 - **ListGetClient**: Retrieves and reformats project lists for validation
 - **MetadataClient**: Retrieves project metadata
 - **LegalInfoClient**: Fetches legal information for validation
 
-See [dsp_vre_lib/clients/CLAUDE.md](../../../../../dsp-vre-lib/src/dsp_vre_lib/clients/CLAUDE.md)
+See [dsp_vre/clients/CLAUDE.md](../../../../../dsp-vre/src/dsp_vre/clients/CLAUDE.md)
 for client architecture details.
 
 ### Models

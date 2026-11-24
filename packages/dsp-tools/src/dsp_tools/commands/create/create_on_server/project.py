@@ -11,13 +11,13 @@ from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.interactive import prompt_until_valid_answer
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import LegalInfoClient
-from dsp_vre_lib.clients import LegalInfoClientLive
-from dsp_vre_lib.clients import ProjectClient
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
-from dsp_vre_lib.clients.request_utils import is_server_error
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import LegalInfoClient
+from dsp_vre.clients import LegalInfoClientLive
+from dsp_vre.clients import ProjectClient
+from dsp_vre.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients.request_utils import is_server_error
 
 EXIT_CODE_PROJECT_ALREADY_EXISTS = 3
 

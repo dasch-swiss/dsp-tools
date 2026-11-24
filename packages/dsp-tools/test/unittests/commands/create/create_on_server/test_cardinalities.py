@@ -14,8 +14,8 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_vre_lib.clients.ontology_create_client_live import OntologyCreateClientLive
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI

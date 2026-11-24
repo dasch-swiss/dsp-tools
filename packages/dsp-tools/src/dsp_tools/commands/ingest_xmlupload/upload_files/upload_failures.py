@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import regex
 
-from dsp_vre_lib.clients.bulk_ingest_client import UploadFailure
+from dsp_vre.clients.bulk_ingest_client import UploadFailure
 
 separator = "\n\n"
 list_separator = "\n- "

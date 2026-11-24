@@ -7,9 +7,9 @@ import pytest
 import requests
 from requests_mock import Mocker
 
-from dsp_vre_lib.clients import DspIngestClientLive
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients import DspIngestClientLive
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import PermanentConnectionError
 from test.unittests.clients.authentication_client_mock import AuthenticationClientMockBase
 
 
@@ -87,7 +87,7 @@ def test_ingest_logs_exception_on_request_failure(
 ) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), exc=requests.exceptions.ConnectionError)
-    with patch("dsp_vre_lib.clients.ingest.logger.exception") as mock_exc:
+    with patch("dsp_vre.clients.ingest.logger.exception") as mock_exc:
         with pytest.raises(PermanentConnectionError):
             ingest_client.ingest(tmp_file)
     assert mock_exc.call_count == 1

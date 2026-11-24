@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 
 @dataclass
-class DspVreLibBaseError(Exception):
+class DspVreBaseError(Exception):
     """
-    Base class of all errors of dsp-vre-lib.
+    Base class of all errors of dsp-vre.
 
     Attributes:
         message: A message that describes the error
@@ -16,35 +16,35 @@ class DspVreLibBaseError(Exception):
         return self.message
 
 
-class DspVreLibUserError(DspVreLibBaseError):
+class DspVreUserError(DspVreBaseError):
     """Base class of the errors that the user can solve, for example wrong input or wrong credentials."""
 
 
-class DspVreLibInternalError(DspVreLibBaseError):
+class DspVreInternalError(DspVreBaseError):
     """Base class of the errors that the user cannot solve."""
 
 
-class BadCredentialsError(DspVreLibUserError):
+class BadCredentialsError(DspVreUserError):
     """This error is raised when DSP-API doesn't accept the provided credentials."""
 
 
-class PermanentConnectionError(DspVreLibInternalError):
+class PermanentConnectionError(DspVreInternalError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
-class DspApiRequestError(DspVreLibInternalError):
+class DspApiRequestError(DspVreInternalError):
     """This error is raised if an exception of the requests library occurs during an API call."""
 
 
-class IngestError(DspVreLibInternalError):
+class IngestError(DspVreInternalError):
     """ingest call did not work"""
 
 
-class NoIngestFileFoundError(DspVreLibUserError):
+class NoIngestFileFoundError(DspVreUserError):
     """no files have been uploaded for ingest"""
 
 
-class FatalNonOkApiResponseCodeError(DspVreLibInternalError):
+class FatalNonOkApiResponseCodeError(DspVreInternalError):
     """This error is raised when the API gives an unexpected response, that we cannot anticipate and handle cleanly."""
 
     def __init__(self, request_url: str, status_code: int, response_text: str) -> None:
@@ -59,7 +59,7 @@ class FatalNonOkApiResponseCodeError(DspVreLibInternalError):
         super().__init__(msg)
 
 
-class InvalidInputError(DspVreLibUserError):
+class InvalidInputError(DspVreUserError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
@@ -67,7 +67,7 @@ class InvalidIngestFileNameError(InvalidInputError):
     """This error is raised if INGEST rejects a file due to its name."""
 
 
-class ProjectOntologyNotFoundError(DspVreLibUserError):
+class ProjectOntologyNotFoundError(DspVreUserError):
     """Class for errors that are raised if a project is expected to have 1 or more ontologies, but none were found."""
 
     def __init__(self, shortcode: str) -> None:
@@ -75,11 +75,11 @@ class ProjectOntologyNotFoundError(DspVreLibUserError):
         super().__init__(msg)
 
 
-class ProjectNotFoundError(DspVreLibUserError):
+class ProjectNotFoundError(DspVreUserError):
     """Class if a project is expected to exist but could not be found."""
 
 
-class MigrationExportExistsError(DspVreLibUserError):
+class MigrationExportExistsError(DspVreUserError):
     """Class if an export for a project already exists."""
 
     def __init__(self) -> None:
@@ -91,7 +91,7 @@ class MigrationExportExistsError(DspVreLibUserError):
         super().__init__(msg)
 
 
-class MigrationImportExistsError(DspVreLibUserError):
+class MigrationImportExistsError(DspVreUserError):
     """Class if an import for a project already exists."""
 
     def __init__(self) -> None:
@@ -104,7 +104,7 @@ class MigrationImportExistsError(DspVreLibUserError):
         super().__init__(msg)
 
 
-class MigrationExportImportInProgressError(DspVreLibUserError):
+class MigrationExportImportInProgressError(DspVreUserError):
     """Class to raise if an import or export is in progress and the requested action is not possible."""
 
     def __init__(self, detail_msg: str) -> None:

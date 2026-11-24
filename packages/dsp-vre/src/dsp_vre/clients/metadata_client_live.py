@@ -5,13 +5,13 @@ from http import HTTPStatus
 import requests
 from requests import RequestException
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.metadata_client import ExistingResourcesRetrieved
-from dsp_vre_lib.clients.metadata_client import MetadataClient
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_and_warn_unexpected_non_ok_response
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.metadata_client import ExistingResourcesRetrieved
+from dsp_vre.clients.metadata_client import MetadataClient
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_and_warn_unexpected_non_ok_response
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
 
 logger = logging.getLogger(__name__)
 

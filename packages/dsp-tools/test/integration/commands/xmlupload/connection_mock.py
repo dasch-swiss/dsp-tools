@@ -3,8 +3,8 @@ from typing import Any
 
 import pytest
 
-from dsp_vre_lib.clients import Connection
-from dsp_vre_lib.clients.request_utils import PostFiles
+from dsp_vre.clients import Connection
+from dsp_vre.clients.request_utils import PostFiles
 
 # ruff: noqa: ARG002 (unused-method-argument)
 

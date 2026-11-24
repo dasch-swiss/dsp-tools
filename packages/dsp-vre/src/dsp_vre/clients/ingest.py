@@ -12,13 +12,13 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import InvalidIngestFileNameError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import InvalidIngestFileNameError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
 
 logger = logging.getLogger(__name__)
 

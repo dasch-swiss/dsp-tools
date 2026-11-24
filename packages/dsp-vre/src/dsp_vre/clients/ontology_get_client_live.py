@@ -5,13 +5,13 @@ from typing import cast
 import requests
 from requests import RequestException
 
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.exceptions import ProjectOntologyNotFoundError
-from dsp_vre_lib.clients.ontology_clients import OntologyGetClient
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_and_raise_request_exception
-from dsp_vre_lib.clients.request_utils import log_request
-from dsp_vre_lib.clients.request_utils import log_response
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.exceptions import ProjectOntologyNotFoundError
+from dsp_vre.clients.ontology_clients import OntologyGetClient
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_and_raise_request_exception
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
 
 TIMEOUT_10 = 10
 TIMEOUT_30 = 30

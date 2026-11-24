@@ -32,7 +32,7 @@ from dsp_tools.commands.get.legacy_models.model import Model
 from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
-from dsp_vre_lib.clients import Connection
+from dsp_vre.clients import Connection
 
 
 class Group(Model):

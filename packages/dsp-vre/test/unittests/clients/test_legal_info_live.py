@@ -5,12 +5,12 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
-from dsp_vre_lib.clients import LegalInfoClientLive
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.legal_info_client_live import _is_last_page
-from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre.clients import LegalInfoClientLive
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.legal_info_client_live import _is_last_page
+from dsp_vre.clients.request_utils import RequestParameters
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="tkn")
@@ -45,8 +45,8 @@ PAGE_2_OF_2 = {"data": [LICENSE_2], "pagination": {"pageSize": 1, "totalItems": 
 
 
 class TestPostCopyrightHolders:
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_response")
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_request")
+    @patch("dsp_vre.clients.legal_info_client_live.log_response")
+    @patch("dsp_vre.clients.legal_info_client_live.log_request")
     def test_log_request(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         url = "http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders"
@@ -56,7 +56,7 @@ class TestPostCopyrightHolders:
             data={"data": ["1"]},
             timeout=60,
         )
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.post") as post_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.post") as post_mock:
             post_mock.return_value = Mock(status_code=200, ok=True)
             response = client._post_and_log_request(url, ["1"])
         assert response.status_code == 200
@@ -66,8 +66,8 @@ class TestPostCopyrightHolders:
         del log_request_call_params.headers
         assert log_request_call_params == params
 
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_response")
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_request")
+    @patch("dsp_vre.clients.legal_info_client_live.log_response")
+    @patch("dsp_vre.clients.legal_info_client_live.log_request")
     def test_post_ok(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         url = "http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders"
@@ -78,7 +78,7 @@ class TestPostCopyrightHolders:
             timeout=60,
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
         )
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.post") as post_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.post") as post_mock:
             post_mock.return_value = Mock(status_code=200, ok=True)
             client._post_and_log_request(url, ["1"])
             post_mock.assert_called_once_with(
@@ -140,8 +140,8 @@ class TestGetEnabledLicenses:
             response = client.get_licenses_of_a_project(enabled_only=True)
             assert response == []
 
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_response")
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_request")
+    @patch("dsp_vre.clients.legal_info_client_live.log_response")
+    @patch("dsp_vre.clients.legal_info_client_live.log_request")
     def test_get_one_license_page(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
@@ -150,7 +150,7 @@ class TestGetEnabledLicenses:
             timeout=60,
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
         )
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.get") as get_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.get") as get_mock:
             mock_response = Mock(status_code=200, ok=True)
             mock_response.json.return_value = DATA_PAGE_1_OF_1
             get_mock.return_value = mock_response
@@ -163,7 +163,7 @@ class TestGetEnabledLicenses:
         mock_response = Mock(status_code=404, ok=False, text="Not Found")
         mock_response.json.return_value = {}
         mock_response.headers = {}
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.get") as get_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.return_value = mock_response
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 client._get_one_license_page(page_num=1, enabled_only=True)
@@ -171,7 +171,7 @@ class TestGetEnabledLicenses:
     def test_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         request_error = RequestException("Connection timeout")
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.get") as get_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.get") as get_mock:
             get_mock.side_effect = request_error
             with pytest.raises(DspApiRequestError):
                 client._get_one_license_page(page_num=1, enabled_only=True)
@@ -185,8 +185,8 @@ RESOURCE_SIDE_LEGAL_INFO = {
 
 
 class TestSetResourceSideLegalInfo:
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_response")
-    @patch("dsp_vre_lib.clients.legal_info_client_live.log_request")
+    @patch("dsp_vre.clients.legal_info_client_live.log_response")
+    @patch("dsp_vre.clients.legal_info_client_live.log_request")
     def test_put_ok(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
@@ -196,7 +196,7 @@ class TestSetResourceSideLegalInfo:
             data=RESOURCE_SIDE_LEGAL_INFO,
             headers={"Content-Type": "application/json", "Authorization": "Bearer tkn"},
         )
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.put") as put_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.return_value = Mock(status_code=200, ok=True)
             client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
             put_mock.assert_called_once_with(
@@ -207,7 +207,7 @@ class TestSetResourceSideLegalInfo:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False, headers={})
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.put") as put_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.return_value = mock_response
             with pytest.raises(BadCredentialsError):
                 client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
@@ -216,14 +216,14 @@ class TestSetResourceSideLegalInfo:
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         mock_response = Mock(status_code=404, ok=False, text="Not Found", headers={})
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.put") as put_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.return_value = mock_response
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)
 
     def test_request_exception(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        with patch("dsp_vre_lib.clients.legal_info_client_live.requests.put") as put_mock:
+        with patch("dsp_vre.clients.legal_info_client_live.requests.put") as put_mock:
             put_mock.side_effect = RequestException("Connection timeout")
             with pytest.raises(DspApiRequestError):
                 client.set_resource_side_legal_info(RESOURCE_SIDE_LEGAL_INFO)

@@ -21,9 +21,9 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BOLD_GREEN
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.dotenv import read_dotenv_if_exists
-from dsp_vre_lib.clients import GroupClientLive
-from dsp_vre_lib.clients import PermissionsClientLive
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients import GroupClientLive
+from dsp_vre.clients import PermissionsClientLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
 
 read_dotenv_if_exists()
 

@@ -20,11 +20,11 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraFileValueType
-from dsp_vre_lib.clients import ResourceClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import ResourceClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 RES_ID = "res_id"
 RES_IRI = "http://iri/res_id"
@@ -94,7 +94,7 @@ def iri_lookups() -> IRILookups:
 
 @pytest.fixture(autouse=True)
 def patch_sleep():
-    with patch("dsp_vre_lib.clients.request_utils.time.sleep"):
+    with patch("dsp_vre.clients.request_utils.time.sleep"):
         yield
 
 
@@ -292,7 +292,7 @@ class TestResourceDataUpload:
     ) -> None:
         # the retry evaluation function is programmed not to retry if it is in a testing environment,
         # since we want to ensure that we will retry, this needs to be patched here
-        with patch.dict(os.environ, {"DSP_VRE_LIB_NO_RETRY": "false"}):
+        with patch.dict(os.environ, {"DSP_VRE_NO_RETRY": "false"}):
             resource_client.post_resource.side_effect = [ResponseCodeAndText(503, "please try again later"), RES_IRI]
             result = _execute_one_resource_data_upload(resource, None, resource_client, iri_lookups)
             assert result == RES_IRI

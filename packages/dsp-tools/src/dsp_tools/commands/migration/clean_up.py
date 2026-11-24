@@ -10,12 +10,12 @@ from dsp_tools.commands.migration.models import ServerInfo
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
-from dsp_vre_lib.clients import ExportId
-from dsp_vre_lib.clients import ImportId
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
-from dsp_vre_lib.clients.migration_clients_live import MigrationExportClientLive
-from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ImportId
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.migration_clients_live import MigrationExportClientLive
+from dsp_vre.clients.migration_clients_live import MigrationImportClientLive
 
 
 def clean_up(info: MigrationInfo) -> bool:

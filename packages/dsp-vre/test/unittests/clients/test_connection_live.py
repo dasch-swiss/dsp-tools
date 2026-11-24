@@ -13,12 +13,12 @@ import pytest
 from requests import ReadTimeout
 from requests import RequestException
 
-from dsp_vre_lib.clients import ConnectionLive
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.request_utils import PostFile
-from dsp_vre_lib.clients.request_utils import PostFiles
-from dsp_vre_lib.clients.request_utils import RequestParameters
-from dsp_vre_lib.clients.request_utils import log_request
+from dsp_vre.clients import ConnectionLive
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.request_utils import PostFile
+from dsp_vre.clients.request_utils import PostFiles
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_request
 
 
 @dataclass
@@ -179,8 +179,8 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
-@patch("dsp_vre_lib.clients.connection_live.log_request")
+@patch("dsp_vre.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_request")
 def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)
@@ -193,9 +193,9 @@ def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     log_response.assert_called_once_with(response_expected, status_code=200)
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_response")
 def test_try_network_action_timeout_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("DSP_VRE_LIB_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
+    monkeypatch.delenv("DSP_VRE_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (TimeoutError(), ReadTimeout(), Mock(status_code=200))
     session_mock = SessionMock(responses, headers={})
@@ -206,19 +206,19 @@ def test_try_network_action_timeout_error(log_response: Mock, monkeypatch: pytes
     log_response.assert_not_called()
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
-@patch("dsp_vre_lib.clients.connection_live.log_request")
+@patch("dsp_vre.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_request")
 def test_try_network_action_connection_error(
     log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.delenv("DSP_VRE_LIB_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
+    monkeypatch.delenv("DSP_VRE_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._renew_session = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_vre_lib.clients.request_utils.time.sleep") as sleep_mock:
+    with patch("dsp_vre.clients.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4]
     assert con._renew_session.call_count == len(session_mock.responses) - 1
@@ -228,16 +228,16 @@ def test_try_network_action_connection_error(
     assert response == last_response
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
-@patch("dsp_vre_lib.clients.connection_live.log_request")
+@patch("dsp_vre.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_request")
 def test_try_network_action_non_200(log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("DSP_VRE_LIB_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
+    monkeypatch.delenv("DSP_VRE_NO_RETRY", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""), Mock(status_code=506, text=""), Mock(status_code=200, text=""))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_vre_lib.clients.request_utils.time.sleep") as sleep_mock:
+    with patch("dsp_vre.clients.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2]
     assert [x.args[0] for x in log_request.call_args_list] == [params] * len(session_mock.responses)
@@ -245,32 +245,32 @@ def test_try_network_action_non_200(log_request: Mock, log_response: Mock, monke
     assert response == session_mock.responses[-1]
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
-@patch("dsp_vre_lib.clients.connection_live.log_request")
+@patch("dsp_vre.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_request")
 def test_try_network_action_in_testing_environment(
     log_request: Mock,  # noqa: ARG001
     log_response: Mock,  # noqa: ARG001
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("DSP_VRE_LIB_NO_RETRY", "true")  # automatically set in CI, but not locally
+    monkeypatch.setenv("DSP_VRE_NO_RETRY", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""), Mock(status_code=404, text=""), Mock(status_code=200, text=""))
     con.session = SessionMock(responses, {})  # type: ignore[assignment]
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
-    with patch("dsp_vre_lib.clients.connection_live.log_request_failure_and_sleep") as sleep_mock:
+    with patch("dsp_vre.clients.connection_live.log_request_failure_and_sleep") as sleep_mock:
         with pytest.raises(PermanentConnectionError):
             con._try_network_action(params)
         sleep_mock.assert_not_called()
 
 
-@patch("dsp_vre_lib.clients.connection_live.log_response")
-@patch("dsp_vre_lib.clients.connection_live.log_request")
+@patch("dsp_vre.clients.connection_live.log_response")
+@patch("dsp_vre.clients.connection_live.log_request")
 def test_try_network_action_permanent_connection_error(
     log_request: Mock,  # noqa: ARG001
     log_response: Mock,  # noqa: ARG001
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("DSP_VRE_LIB_NO_RETRY", "true")  # automatically set in CI, but not locally
+    monkeypatch.setenv("DSP_VRE_NO_RETRY", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""),) * 7
     con.session = SessionMock(responses, {})  # type: ignore[assignment]
@@ -296,16 +296,16 @@ def test_log_request() -> None:
         "headers": {"Authorization": "Bearer ***", "request-header": "request-value"},
         "data": {"password": "***", "foo": "bar"},
     }
-    with patch("dsp_vre_lib.clients.request_utils.logger.debug") as debug_mock:
+    with patch("dsp_vre.clients.request_utils.logger.debug") as debug_mock:
         log_request(params, con.session.headers)
         debug_mock.assert_called_once_with(f"REQUEST: {json.dumps(expected_output)}")
 
 
 def test_renew_session() -> None:
     con = ConnectionLive("http://example.com/")
-    assert con.session.headers["User-Agent"] == f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
+    assert con.session.headers["User-Agent"] == f"DSP-VRE/{version('dsp-vre')}"
     con._renew_session()
-    assert con.session.headers["User-Agent"] == f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
+    assert con.session.headers["User-Agent"] == f"DSP-VRE/{version('dsp-vre')}"
 
 
 @pytest.mark.parametrize(

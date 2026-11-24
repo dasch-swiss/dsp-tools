@@ -13,8 +13,8 @@ from dsp_tools.commands.mapping.exceptions import OntologyReferencedNotFoundErro
 from dsp_tools.commands.mapping.mapping_update import mapping_update
 from dsp_tools.commands.mapping.models import MappingInfo
 from dsp_tools.utils.data_formats.iri_util import make_dsp_ontology_prefix
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import ProjectNotFoundError
 
 SHORTCODE = "4124"
 ONTO_NAME = "testonto"

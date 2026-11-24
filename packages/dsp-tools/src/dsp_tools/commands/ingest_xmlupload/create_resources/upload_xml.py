@@ -28,10 +28,10 @@ from dsp_tools.utils.dsp_user_account_check import check_for_dsp_employee_accoun
 from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import LegalInfoClientLive
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import LegalInfoClientLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.list_client_live import ListGetClientLive
 
 
 def ingest_xmlupload(

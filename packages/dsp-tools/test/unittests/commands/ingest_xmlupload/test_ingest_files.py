@@ -5,7 +5,7 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.exceptions import NoFilesUploadedForIngestError
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
-from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
+from dsp_vre.clients.exceptions import NoIngestFileFoundError
 
 MODULE = "dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files"
 CREDS = ServerCredentials(server="http://0.0.0.0:3333", user="u", password="p", dsp_ingest_url="http://0.0.0.0:3340")

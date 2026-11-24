@@ -6,10 +6,10 @@ import pytest
 from requests import RequestException
 from requests import Response
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import ExistingResourcesRetrieved
-from dsp_vre_lib.clients import MetadataClientLive
-from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import ExistingResourcesRetrieved
+from dsp_vre.clients import MetadataClientLive
+from dsp_vre.clients.client_warnings import DspVreUnexpectedStatusCodeWarning
 
 
 @pytest.fixture
@@ -28,8 +28,8 @@ def metadata_client(mock_auth_client: Mock) -> MetadataClientLive:
     )
 
 
-@patch("dsp_vre_lib.clients.metadata_client_live.log_response")
-@patch("dsp_vre_lib.clients.metadata_client_live.log_request")
+@patch("dsp_vre.clients.metadata_client_live.log_response")
+@patch("dsp_vre.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_client):  # noqa: ARG001
     expected_data = [
         {
@@ -47,7 +47,7 @@ def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_
     mock_response.status_code = 200
     mock_response.json.return_value = expected_data
 
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
@@ -55,15 +55,15 @@ def test_get_resource_metadata_ok_with_data(log_request, log_response, metadata_
     assert data == expected_data
 
 
-@patch("dsp_vre_lib.clients.metadata_client_live.log_response")
-@patch("dsp_vre_lib.clients.metadata_client_live.log_request")
+@patch("dsp_vre.clients.metadata_client_live.log_response")
+@patch("dsp_vre.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = True
     mock_response.status_code = 200
     mock_response.json.return_value = []
 
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
@@ -71,16 +71,16 @@ def test_get_resource_metadata_ok_no_data(log_request, log_response, metadata_cl
     assert data == []
 
 
-@pytest.mark.filterwarnings("ignore::dsp_vre_lib.clients.client_warnings.DspVreLibUnexpectedStatusCodeWarning")
-@patch("dsp_vre_lib.clients.metadata_client_live.log_response")
-@patch("dsp_vre_lib.clients.metadata_client_live.log_request")
+@pytest.mark.filterwarnings("ignore::dsp_vre.clients.client_warnings.DspVreUnexpectedStatusCodeWarning")
+@patch("dsp_vre.clients.metadata_client_live.log_response")
+@patch("dsp_vre.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client):  # noqa: ARG001
     mock_response = Mock(spec=Response)
     mock_response.ok = False
     mock_response.status_code = 404
     mock_response.text = {"message": "Some message from the API."}
 
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("9999")
 
@@ -88,9 +88,9 @@ def test_get_resource_metadata_non_ok(log_request, log_response, metadata_client
     assert data == []
 
 
-@patch("dsp_vre_lib.clients.metadata_client_live.log_request")
+@patch("dsp_vre.clients.metadata_client_live.log_request")
 def test_get_resource_metadata_error_raised(log_request, metadata_client):  # noqa: ARG001
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.side_effect = RequestException("Connection error")
         response_type, data = metadata_client.get_resource_metadata("4124")
 
@@ -104,7 +104,7 @@ def test_get_resource_metadata_forbidden_no_warning(metadata_client):
     mock_response.status_code = HTTPStatus.FORBIDDEN.value
     mock_response.text = "Forbidden"
 
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
         response_type, data = metadata_client.get_resource_metadata("4124")
 
@@ -117,9 +117,9 @@ def test_get_resource_metadata_unexpected_status_logs_warning(metadata_client):
     mock_response.ok = False
     mock_response.status_code = 500
     mock_response.text = "Internal Server Error"
-    with patch("dsp_vre_lib.clients.metadata_client_live.requests.get") as get_mock:
+    with patch("dsp_vre.clients.metadata_client_live.requests.get") as get_mock:
         get_mock.return_value = mock_response
-        with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with pytest.warns(DspVreUnexpectedStatusCodeWarning):
             response_type, data = metadata_client.get_resource_metadata("9999")
     assert response_type == ExistingResourcesRetrieved.FALSE
     assert data == []

@@ -1,6 +1,6 @@
 # Client Pattern Documentation
 
-This document describes the architectural pattern used for client classes in dsp-vre-lib.
+This document describes the architectural pattern used for client classes in dsp-vre.
 These clients provide interfaces to interact with the DSP-API endpoints.
 
 ## Overview
@@ -15,7 +15,7 @@ The clients should be as simple to initiate as possible and be stateless, if pos
 
 Protocol classes define the contract that implementations must follow:
 
-- **Location**: `src/dsp_vre_lib/clients/`
+- **Location**: `src/dsp_vre/clients/`
 - **Naming**: `<Domain>Client` (e.g., `AuthenticationClient`, `LegalInfoClient`)
 - **Implementation**: Use `typing.Protocol` for structural subtyping
 - **Purpose**: Define required attributes and method signatures without implementation
@@ -39,7 +39,7 @@ class AuthenticationClient(Protocol):
 
 Live implementations are concrete classes that interact with real DSP API endpoints:
 
-- **Location**: `src/dsp_vre_lib/clients/`
+- **Location**: `src/dsp_vre/clients/`
 - **Naming**: `<Domain>ClientLive` (e.g., `AuthenticationClientLive`, `LegalInfoClientLive`)
 - **Decorator**: Always use `@dataclass` decorator
 - **Inheritance**: Inherit from corresponding Protocol class
@@ -211,9 +211,9 @@ def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: b
 - **Authentication/Authorization (401/403)**: Raise `BadCredentialsError` with context-specific message
 - **Other API errors**: Raise `FatalNonOkApiResponseCodeError` with URL, status code, and response text
 - **Expected failures**: Use `log_and_warn_unexpected_non_ok_response()` when failure is non-fatal
-- **Exception classes**: All exceptions are in `exceptions.py` and subclass `DspVreLibUserError`
-  (the user can solve the problem) or `DspVreLibInternalError` (the user cannot).
-  Both subclass `DspVreLibBaseError`, which has a `message` attribute.
+- **Exception classes**: All exceptions are in `exceptions.py` and subclass `DspVreUserError`
+  (the user can solve the problem) or `DspVreInternalError` (the user cannot).
+  Both subclass `DspVreBaseError`, which has a `message` attribute.
   Do not import the exceptions of dsp-tools. dsp-tools catches these base classes in `cli/entry_point.py`.
 
 ### 401 vs 403: Authentication vs Authorization
@@ -279,11 +279,11 @@ from typing import Any, cast
 import requests
 from requests import RequestException, Response
 
-from dsp_vre_lib.clients.<protocol_file> import <ProtocolClass>
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.request_utils import (
+from dsp_vre.clients.<protocol_file> import <ProtocolClass>
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
     log_request,
@@ -294,12 +294,12 @@ logger = logging.getLogger(__name__)
 ```
 
 Log only with the standard `logging` module, never with loguru or `print`.
-The module loggers are children of the logger `dsp_vre_lib`. The caller configures handlers, formats and files.
+The module loggers are children of the logger `dsp_vre`. The caller configures handlers, formats and files.
 A message for the user of a long operation (for example a retry or a timeout) goes to the logger
-`dsp_vre_lib.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
+`dsp_vre.notices` at level INFO (`notices` in `request_utils.py`). dsp-tools prints this logger on the terminal.
 Write a notice only with `notify(logger, msg)` from `request_utils.py`.
 It writes the notice and one record on the module logger.
-Notices do not propagate: the caller attaches a handler to `dsp_vre_lib.notices`.
+Notices do not propagate: the caller attaches a handler to `dsp_vre.notices`.
 Messages and exceptions do not name dsp-tools commands. dsp-tools adds such hints where it catches the exception.
 
 ## Constants
@@ -332,8 +332,8 @@ def get_token(self) -> str:
 - **Mock implementations**: Create mock/fake clients implementing the Protocol for testing
 - **Dependency injection**: Pass Protocol types to consumers, not concrete implementations
 - **Unittesting**: Test live clients with mocked `requests` library.
-  The tests are in `test/unittests/clients/` of this package. Run them with `just vre-lib-unittests`.
-- **String patch targets**: Patch a name in the module that uses it (`dsp_vre_lib.clients.<module>.<name>`),
+  The tests are in `test/unittests/clients/` of this package. Run them with `just vre-unittests`.
+- **String patch targets**: Patch a name in the module that uses it (`dsp_vre.clients.<module>.<name>`),
   not in the module that defines it. A patch on the defining module has no effect on a module that imported the name.
 - **End-to-end testing**: Test against DSP-API in a test container
 
@@ -408,9 +408,9 @@ headers = {
 ## Example: Creating a New Client
 
 A client method that only dsp-tools calls is unused within this package.
-Add its name to `packages/dsp-vre-lib/.vulture_whitelist.py`, or `just vulture-vre-lib` fails.
+Add its name to `packages/dsp-vre/.vulture_whitelist.py`, or `just vulture-vre` fails.
 
-First: Define the Protocol in `src/dsp_vre_lib/clients/<domain>_client.py`:
+First: Define the Protocol in `src/dsp_vre/clients/<domain>_client.py`:
 
 ```python
 from typing import Protocol
@@ -424,7 +424,7 @@ class UserClient(Protocol):
         """Get user information by IRI"""
 ```
 
-Second: Implement the live client in `src/dsp_vre_lib/clients/<domain>_client_live.py`:
+Second: Implement the live client in `src/dsp_vre/clients/<domain>_client_live.py`:
 
 ```python
 from dataclasses import dataclass
@@ -434,11 +434,11 @@ from typing import Any
 import requests
 from requests import RequestException
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.group_user_clients import UserClient
-from dsp_vre_lib.clients.request_utils import (
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.group_user_clients import UserClient
+from dsp_vre.clients.request_utils import (
     RequestParameters,
     log_and_raise_request_exception,
     log_request,
@@ -482,7 +482,7 @@ class UserClientLive(UserClient):
 
 ## Related Documentation
 
-- Request utilities: `src/dsp_vre_lib/clients/request_utils.py`
-- Exception definitions: `src/dsp_vre_lib/clients/exceptions.py`
-- Package documentation: `../../../CLAUDE.md` (dsp-vre-lib)
+- Request utilities: `src/dsp_vre/clients/request_utils.py`
+- Exception definitions: `src/dsp_vre/clients/exceptions.py`
+- Package documentation: `../../../CLAUDE.md` (dsp-vre)
 - Repository documentation: `/CLAUDE.md`

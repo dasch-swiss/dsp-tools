@@ -18,17 +18,17 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
-from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.client_warnings import DspVreUnexpectedStatusCodeWarning
+from dsp_vre.clients.exceptions import DspApiRequestError
 
 logger = logging.getLogger(__name__)
 # Messages for the user of a long operation, for example a retry. The caller decides where to show them.
 # Write them only with notify(), which also writes the log record of the event.
-_notices = logging.getLogger("dsp_vre_lib.notices")
+_notices = logging.getLogger("dsp_vre.notices")
 _notices.propagate = False
 _notices.addHandler(logging.NullHandler())
 
-USER_AGENT = f"DSP-VRE-LIB/{version('dsp-vre-lib')}"
+USER_AGENT = f"DSP-VRE/{version('dsp-vre')}"
 
 
 @dataclass
@@ -170,7 +170,7 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
 
 
 def notify(module_logger: logging.Logger, msg: str, level: int = logging.INFO, exc_info: bool = False) -> None:
-    """Show the message to the user of a long operation (logger "dsp_vre_lib.notices"), and log it once."""
+    """Show the message to the user of a long operation (logger "dsp_vre.notices"), and log it once."""
     _notices.info(msg)
     module_logger.log(level, msg, exc_info=exc_info)
 
@@ -238,14 +238,14 @@ def log_and_warn_unexpected_non_ok_response(status_code: int, response_text: str
         f"Original Message: {resp_txt}"
     )
     logger.warning(msg)
-    warnings.warn(DspVreLibUnexpectedStatusCodeWarning(msg))
+    warnings.warn(DspVreUnexpectedStatusCodeWarning(msg))
 
 
 def should_retry_request(response: ResponseCodeAndText) -> bool:
     """Returns the decision if a retry of a request is sensible."""
     retriable_status = _is_retriable_status_code(response.status_code)
     try_again_later = "try again later" in response.text.lower()
-    retries_off = os.getenv("DSP_VRE_LIB_NO_RETRY") == "true"  # set in the test workflows in .github/workflows/
+    retries_off = os.getenv("DSP_VRE_NO_RETRY") == "true"  # set in the test workflows in .github/workflows/
     return (retriable_status or try_again_later) and not retries_off
 
 

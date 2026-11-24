@@ -7,13 +7,13 @@ import pytest
 import requests
 from requests import JSONDecodeError
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.list_client_live import ListCreateClientLive
-from dsp_vre_lib.clients.list_client_live import ListGetClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients.client_warnings import DspVreUnexpectedStatusCodeWarning
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.list_client_live import ListCreateClientLive
+from dsp_vre.clients.list_client_live import ListGetClientLive
 
 PROJECT_IRI = "http://rdfh.ch/projects/projectIRI"
 PARENT_NODE_IRI = "http://rdfh.ch/lists/0001/parent-iri"
@@ -112,7 +112,7 @@ class TestListClient:
     def test_get_all_list_iris(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"lists": []}
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.list_client_live.requests.get", return_value=mock_response) as mock_get:
             result = list_client._get_all_list_iris()
         assert result == {"lists": []}
         assert mock_get.call_args_list[0][1]["url"] == f"{list_client.api_url}/admin/lists?projectShortcode=9999"
@@ -120,19 +120,19 @@ class TestListClient:
     def test_get_all_list_iris_non_ok_code(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.list_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 list_client._get_all_list_iris()
 
     def test_get_all_list_iris_timeout(self, list_client: ListGetClientLive) -> None:
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+        with patch("dsp_vre.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 list_client._get_all_list_iris()
 
     def test_get_one_list(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"type": "ListGetResponseADM", "list": {}}
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.list_client_live.requests.get", return_value=mock_response) as mock_get:
             result = list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
         assert result == {"type": "ListGetResponseADM", "list": {}}
         url_expected = f"{list_client.api_url}/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
@@ -141,12 +141,12 @@ class TestListClient:
     def test_get_one_list_non_ok_code(self, list_client: ListGetClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.list_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
     def test_get_one_list_timeout(self, list_client: ListGetClientLive) -> None:
-        with patch("dsp_vre_lib.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+        with patch("dsp_vre.clients.list_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 
@@ -191,7 +191,7 @@ class TestListCreateClient:
                 },
             }
         }
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
             result = list_create_client.create_new_list(list_info)
         assert result == "http://rdfh.ch/lists/0001/test-list-iri"
         assert mock_post.call_count == 1
@@ -209,7 +209,7 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError, match="Only a SystemAdmin or ProjectAdmin"):
                 list_create_client.create_new_list(list_info)
 
@@ -219,7 +219,7 @@ class TestListCreateClient:
             "name": "test-list",
             "labels": [{"value": "Test List", "language": "en"}],
         }
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
+        with patch("dsp_vre.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 list_create_client.create_new_list(list_info)
 
@@ -231,8 +231,8 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = list_create_client.create_new_list(list_info)
         assert result is None
 
@@ -253,7 +253,7 @@ class TestListCreateClient:
                 "position": 1,
             }
         }
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response) as mock_post:
             result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
         assert result == "http://rdfh.ch/lists/0001/test-node-iri"
@@ -274,7 +274,7 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError, match="Only a SystemAdmin or ProjectAdmin"):
                 list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
@@ -285,7 +285,7 @@ class TestListCreateClient:
             "name": "test-node",
             "labels": [{"value": "Test Node", "language": "en"}],
         }
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
+        with patch("dsp_vre.clients.list_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
 
@@ -298,8 +298,8 @@ class TestListCreateClient:
         }
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.list_client_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.list_client_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = list_create_client.add_list_node(node_info, PARENT_NODE_IRI)
         assert result is None
 

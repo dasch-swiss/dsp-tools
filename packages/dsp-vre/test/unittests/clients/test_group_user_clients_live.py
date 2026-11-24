@@ -6,12 +6,12 @@ import pytest
 import requests
 from requests import JSONDecodeError
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import GroupClientLive
-from dsp_vre_lib.clients import UserClientLive
-from dsp_vre_lib.clients.client_warnings import DspVreLibUnexpectedStatusCodeWarning
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import GroupClientLive
+from dsp_vre.clients import UserClientLive
+from dsp_vre.clients.client_warnings import DspVreUnexpectedStatusCodeWarning
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
 from test.unittests.clients.constants import API_URL
 from test.unittests.clients.constants import GROUP_IRI
 from test.unittests.clients.constants import PROJECT_IRI
@@ -87,7 +87,7 @@ class TestGroupClientLiveGetGroup:
                 },
             ]
         }
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
             result = group_client.get_all_groups()
         assert len(result) == 2
         assert result[0]["name"] == "testgroup"
@@ -99,22 +99,20 @@ class TestGroupClientLiveGetGroup:
     def test_get_all_groups_empty(self, group_client: GroupClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"groups": []}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response):
             result = group_client.get_all_groups()
         assert result == []
 
     def test_get_all_groups_timeout(self, group_client: GroupClientLive) -> None:
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")
-        ):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 group_client.get_all_groups()
 
     def test_get_all_groups_server_error(self, group_client: GroupClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = group_client.get_all_groups()
         assert result == []
 
@@ -133,16 +131,14 @@ class TestGroupClientCreateNewGroup:
                 "project": {"id": PROJECT_IRI},
             }
         }
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response
-        ) as mock_post:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = group_client.create_new_group(new_group)
         assert result == GROUP_IRI
         assert mock_post.call_args[0][0] == f"{group_client.api_url}/admin/groups"
 
     def test_request_exception(self, group_client: GroupClientLive, new_group) -> None:
         with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
+            "dsp_vre.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspApiRequestError):
                 group_client.create_new_group(new_group)
@@ -150,15 +146,15 @@ class TestGroupClientCreateNewGroup:
     def test_non_ok_response(self, group_client: GroupClientLive, new_group) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = group_client.create_new_group(new_group)
         assert result is None
 
     def test_forbidden(self, group_client: GroupClientLive, new_group) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 group_client.create_new_group(new_group)
 
@@ -168,7 +164,7 @@ class TestUserClientLiveGetAllUsers:
         users = [{"id": USER_IRI, "username": "testuser", "email": "test@example.com"}]
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"users": users}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response) as mock_get:
             result = user_client.get_all_users()
         assert result == users
         assert mock_get.call_args[1]["url"] == f"{user_client.api_url}/admin/users"
@@ -176,29 +172,27 @@ class TestUserClientLiveGetAllUsers:
     def test_not_found(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="No users found")
         mock_response.json.return_value = {"message": "No users found"}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response):
             result = user_client.get_all_users()
         assert result == []
 
     def test_forbidden(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 user_client.get_all_users()
 
     def test_timeout(self, user_client: UserClientLive) -> None:
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")
-        ):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 user_client.get_all_users()
 
     def test_server_error(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.get", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.get", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.get_all_users()
         assert result == []
 
@@ -207,9 +201,7 @@ class TestUserClientLivePostNewUser:
     def test_success(self, user_client: UserClientLive, new_user) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI, "username": "testuser"}}
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response
-        ) as mock_post:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = user_client.post_new_user(new_user)
         assert result == USER_IRI
         assert mock_post.call_args[1]["url"] == f"{user_client.api_url}/admin/users"
@@ -217,21 +209,21 @@ class TestUserClientLivePostNewUser:
     def test_bad_request(self, user_client: UserClientLive, new_user) -> None:
         mock_response = Mock(status_code=400, ok=False, headers={}, text="User already exists")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.post_new_user(new_user)
         assert result is None
 
     def test_forbidden(self, user_client: UserClientLive, new_user) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 user_client.post_new_user(new_user)
 
     def test_timeout(self, user_client: UserClientLive, new_user) -> None:
         with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
+            "dsp_vre.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspApiRequestError):
                 user_client.post_new_user(new_user)
@@ -239,8 +231,8 @@ class TestUserClientLivePostNewUser:
     def test_server_error(self, user_client: UserClientLive, new_user) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.post_new_user(new_user)
         assert result is None
 
@@ -249,9 +241,7 @@ class TestUserClientLiveAddUserToProject:
     def test_success(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response
-        ) as mock_post:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
         assert result is True
         expected_url = (
@@ -263,13 +253,13 @@ class TestUserClientLiveAddUserToProject:
     def test_forbidden(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
 
     def test_timeout(self, user_client: UserClientLive) -> None:
         with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
+            "dsp_vre.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspApiRequestError):
                 user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
@@ -277,8 +267,8 @@ class TestUserClientLiveAddUserToProject:
     def test_server_error(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.add_user_as_project_member(USER_IRI, PROJECT_IRI)
         assert result is False
 
@@ -287,9 +277,7 @@ class TestUserClientLiveAddUserAsProjectAdmin:
     def test_success(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response
-        ) as mock_post:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = user_client.add_user_as_project_admin(USER_IRI, PROJECT_IRI)
         assert result is True
         expected_url = (
@@ -301,13 +289,13 @@ class TestUserClientLiveAddUserAsProjectAdmin:
     def test_forbidden(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 user_client.add_user_as_project_admin(USER_IRI, PROJECT_IRI)
 
     def test_timeout(self, user_client: UserClientLive) -> None:
         with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
+            "dsp_vre.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspApiRequestError):
                 user_client.add_user_as_project_admin(USER_IRI, PROJECT_IRI)
@@ -315,8 +303,8 @@ class TestUserClientLiveAddUserAsProjectAdmin:
     def test_server_error(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.add_user_as_project_admin(USER_IRI, PROJECT_IRI)
         assert result is False
 
@@ -325,7 +313,7 @@ class TestUserClientLiveAddUserToCustomGroup:
     def test_all_success(self, user_client: UserClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             result = user_client.add_user_to_custom_groups(
                 USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
             )
@@ -336,10 +324,8 @@ class TestUserClientLiveAddUserToCustomGroup:
         mock_success.json.return_value = {"user": {"id": USER_IRI}}
         mock_failure = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_failure.json.return_value = {}
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=[mock_success, mock_failure]
-        ):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", side_effect=[mock_success, mock_failure]):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.add_user_to_custom_groups(
                     USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
                 )
@@ -348,8 +334,8 @@ class TestUserClientLiveAddUserToCustomGroup:
     def test_all_failure(self, user_client: UserClientLive) -> None:
         mock_failure = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_failure.json.return_value = {}
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_failure):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_failure):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client.add_user_to_custom_groups(
                     USER_IRI, [GROUP_IRI, "http://rdfh.ch/groups/4123/iri-testgroup2"]
                 )
@@ -365,9 +351,7 @@ class TestUserClientLiveAddUserToOneGroup:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"user": {"id": USER_IRI}}
         user_iri_encoded = "http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
-        with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response
-        ) as mock_post:
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = user_client._add_user_to_one_group(user_iri_encoded, GROUP_IRI)
         assert result is True
         expected_url = (
@@ -380,14 +364,14 @@ class TestUserClientLiveAddUserToOneGroup:
         mock_response = Mock(status_code=403, ok=False, headers={}, text="forbidden")
         mock_response.json.side_effect = JSONDecodeError("Expecting value", "", 0)
         user_iri_encoded = "http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 user_client._add_user_to_one_group(user_iri_encoded, GROUP_IRI)
 
     def test_timeout(self, user_client: UserClientLive) -> None:
         user_iri_encoded = "http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
         with patch(
-            "dsp_vre_lib.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
+            "dsp_vre.clients.group_user_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
         ):
             with pytest.raises(DspApiRequestError):
                 user_client._add_user_to_one_group(user_iri_encoded, GROUP_IRI)
@@ -396,8 +380,8 @@ class TestUserClientLiveAddUserToOneGroup:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
         user_iri_encoded = "http%3A%2F%2Frdfh.ch%2Fusers%2Ftestuser-iri"
-        with patch("dsp_vre_lib.clients.group_user_clients_live.requests.post", return_value=mock_response):
-            with pytest.warns(DspVreLibUnexpectedStatusCodeWarning):
+        with patch("dsp_vre.clients.group_user_clients_live.requests.post", return_value=mock_response):
+            with pytest.warns(DspVreUnexpectedStatusCodeWarning):
                 result = user_client._add_user_to_one_group(user_iri_encoded, GROUP_IRI)
         assert result is False
 

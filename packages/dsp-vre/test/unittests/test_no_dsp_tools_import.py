@@ -7,9 +7,9 @@ import importlib
 import pkgutil
 import sys
 
-import dsp_vre_lib
+import dsp_vre
 
-for module_info in pkgutil.walk_packages(dsp_vre_lib.__path__, prefix="dsp_vre_lib."):
+for module_info in pkgutil.walk_packages(dsp_vre.__path__, prefix="dsp_vre."):
     importlib.import_module(module_info.name)
 print(sorted(m for m in sys.modules if m == "dsp_tools" or m.startswith("dsp_tools.")))
 """

@@ -18,9 +18,9 @@ from dsp_tools.commands.create.models.server_project_info import ProjectIriLooku
 from dsp_tools.commands.create.serialisation.ontology import serialise_cardinality_graph_for_request
 from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.utils.data_formats.iri_util import from_dsp_iri_to_prefixed_iri
-from dsp_vre_lib.clients import OntologyCreateClient
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
-from dsp_vre_lib.clients.request_utils import log_and_warn_unexpected_non_ok_response
+from dsp_vre.clients import OntologyCreateClient
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import log_and_warn_unexpected_non_ok_response
 
 
 def add_all_cardinalities(

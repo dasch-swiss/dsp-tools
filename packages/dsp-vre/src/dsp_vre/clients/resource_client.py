@@ -1,8 +1,8 @@
 from typing import Any
 from typing import Protocol
 
-from dsp_vre_lib.clients.authentication_client import AuthenticationClient
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.authentication_client import AuthenticationClient
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 
 class ResourceClient(Protocol):

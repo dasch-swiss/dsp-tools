@@ -13,8 +13,8 @@ class Package:
 
 
 DSP_TOOLS = Package(Path("packages/dsp-tools/pyproject.toml"), "v")
-DSP_VRE_LIB = Package(Path("packages/dsp-vre-lib/pyproject.toml"), "dsp-vre-lib-v")
-PACKAGES = {"dsp-tools": DSP_TOOLS, "dsp-vre-lib": DSP_VRE_LIB}
+DSP_VRE = Package(Path("packages/dsp-vre/pyproject.toml"), "dsp-vre-v")
+PACKAGES = {"dsp-tools": DSP_TOOLS, "dsp-vre": DSP_VRE}
 
 
 def main() -> None:
@@ -46,7 +46,7 @@ def _calculate_new_version(package: Package) -> tuple[str, str]:
 
 
 def _latest_release_tag(tag_prefix: str) -> str | None:
-    """The highest release tag of the package on main, for example "v9.0.2" or "dsp-vre-lib-v0.1.0"."""
+    """The highest release tag of the package on main, for example "v9.0.2" or "dsp-vre-v0.1.0"."""
     tags = _make_sys_call(f"git tag --merged main --list {tag_prefix}[0-9]* --sort=-v:refname")
     return tags.splitlines()[0] if tags else None
 

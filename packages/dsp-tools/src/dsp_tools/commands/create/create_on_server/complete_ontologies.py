@@ -14,9 +14,9 @@ from dsp_tools.commands.create.models.server_project_info import ProjectIriLooku
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import OntologyCreateClient
-from dsp_vre_lib.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import OntologyCreateClient
+from dsp_vre.clients.ontology_create_client_live import OntologyCreateClientLive
 
 
 def create_ontologies(

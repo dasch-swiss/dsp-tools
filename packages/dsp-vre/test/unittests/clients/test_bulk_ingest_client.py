@@ -8,11 +8,11 @@ import pytest
 from requests import RequestException
 from requests_mock import Mocker
 
-from dsp_vre_lib.clients import BulkIngestClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import IngestError
-from dsp_vre_lib.clients.exceptions import NoIngestFileFoundError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients import BulkIngestClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import IngestError
+from dsp_vre.clients.exceptions import NoIngestFileFoundError
+from dsp_vre.clients.exceptions import PermanentConnectionError
 from test.unittests.clients.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
@@ -166,8 +166,8 @@ def test_trigger_when_ingest_already_running(
     requests_mock.post(url, status_code=409)
     ingest_client.trigger_ingest_process()
     expected = f"Ingest process on the server {DSP_INGEST_URL} is already running. Wait until it completes..."
-    assert [r.getMessage() for r in notice_records if r.name == "dsp_vre_lib.notices"] == [expected]
-    assert expected in [r.getMessage() for r in notice_records if r.name == "dsp_vre_lib.clients.bulk_ingest_client"]
+    assert [r.getMessage() for r in notice_records if r.name == "dsp_vre.notices"] == [expected]
+    assert expected in [r.getMessage() for r in notice_records if r.name == "dsp_vre.clients.bulk_ingest_client"]
     assert not capsys.readouterr().out
 
 

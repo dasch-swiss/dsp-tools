@@ -31,16 +31,16 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_s
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
-from dsp_vre_lib.clients import LegalInfoClient
-from dsp_vre_lib.clients import ResourceClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import PermanentConnectionError
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
-from dsp_vre_lib.clients.request_utils import log_request_failure_and_sleep
-from dsp_vre_lib.clients.request_utils import should_retry_request
-from dsp_vre_lib.clients.resource_client_live import ResourceClientLive
-from dsp_vre_lib.clients.value_client_live import ValueClientLive
+from dsp_vre.clients import LegalInfoClient
+from dsp_vre.clients import ResourceClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients.request_utils import log_request_failure_and_sleep
+from dsp_vre.clients.request_utils import should_retry_request
+from dsp_vre.clients.resource_client_live import ResourceClientLive
+from dsp_vre.clients.value_client_live import ValueClientLive
 
 
 def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:

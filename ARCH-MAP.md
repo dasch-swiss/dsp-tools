@@ -11,7 +11,7 @@ date: 2026-11-20
 DSP-TOOLS is a CLI (`dsp-tools`) that creates a DSP project's data model on a server and bulk-imports
 data into it, plus a standalone `xmllib` library for programmatic XML-data-file authoring. `cli/` parses
 arguments and dispatches each subcommand to its own module under `commands/`; commands share HTTP clients
-(`clients/`, in the workspace package `dsp-vre-lib`, which never imports `dsp_tools`), stateless helpers
+(`clients/`, in the workspace package `dsp-vre`, which never imports `dsp_tools`), stateless helpers
 (`utils/`), static schema/shape assets (`resources/`), and a common exception hierarchy (`error/`).
 The two largest workflows are `create`/`get` (JSON project file ↔ server)
 and `xmlupload`/`ingest-xmlupload` (XML data file → server, either in one pass or via a resumable,
@@ -53,37 +53,37 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 ### clients
 
-- **Paths**: `packages/dsp-vre-lib/src/dsp_vre_lib/clients/**`
+- **Paths**: `packages/dsp-vre/src/dsp_vre/clients/**`
 - **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, metadata, ingest. Part of the package `dsp-vre-lib`; the shared HTTP helpers
+  legal-info, mapping, migration, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP helpers
   (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
-  `BulkIngestClient`, `DspIngestClientLive`, `RequestParameters`, `should_retry_request`, `DspVreLibBaseError`,
-  `DspVreLibUserError`, `DspVreLibInternalError`, `notify`
+  `BulkIngestClient`, `DspIngestClientLive`, `RequestParameters`, `should_retry_request`, `DspVreBaseError`,
+  `DspVreUserError`, `DspVreInternalError`, `notify`
 - **Public interface**: the names re-exported in `clients/__init__.py` (`__all__`), and each domain's
   `Protocol` plus its `*Live` class, imported and instantiated directly by the command that needs it — no
-  factory or registry. Plus `clients/exceptions.py` (own hierarchy under `DspVreLibBaseError`, for example
+  factory or registry. Plus `clients/exceptions.py` (own hierarchy under `DspVreBaseError`, for example
   `BadCredentialsError`, `PermanentConnectionError`, `DspApiRequestError`, `ProjectNotFoundError`,
   `FatalNonOkApiResponseCodeError`), `clients/request_utils.py` (also used by dsp-tools commands for their own
   retries) and `clients/client_warnings.py`.
 - **Local-context kit**: `CLAUDE.md`, `request_utils.py`, `exceptions.py`, `connection_live.py`,
   `authentication_client_live.py`, `resource_client_live.py`
 - **Depends on**: true-external only: `requests`, `rdflib`, `regex` (declared in
-  `packages/dsp-vre-lib/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
+  `packages/dsp-vre/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
 - **Used by**: `error` (`exceptions.py` imports the two base classes), `create`, `get`, `validate-data`, `xmlupload`,
   `ingest-xmlupload` (incl.
   resume), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
   `client_warnings`), `legacy_models` (`projectContext.py` imports `Connection`), `tests`
 - **Boundary rules**:
     - Never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
-    `packages/dsp-vre-lib/pyproject.toml`, plus `test_no_dsp_tools_import.py`, which imports every module
+    `packages/dsp-vre/pyproject.toml`, plus `test_no_dsp_tools_import.py`, which imports every module
     in a fresh interpreter)
-    - Logs only through the standard logger `dsp_vre_lib` (`logging.getLogger(__name__)`), never loguru or
+    - Logs only through the standard logger `dsp_vre` (`logging.getLogger(__name__)`), never loguru or
     `print`. A notice for the user of a long operation is written only with `notify()` (`request_utils.py`):
-    it goes to the private, non-propagating logger `dsp_vre_lib.notices` at INFO, plus one record on the
+    it goes to the private, non-propagating logger `dsp_vre.notices` at INFO, plus one record on the
     module logger. (enforcement: static-analysis for loguru, ruff `TID251`; review for notices, `_notices` is
     private to `request_utils.py`; docs-only for `print`, `clients/CLAUDE.md`)
     - Messages and exceptions name no dsp-tools commands; dsp-tools adds such hints where it catches the
@@ -96,7 +96,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - DSP-INGEST answers 401 (not 403) for missing write access, so the ingest clients map both 401 and 403
     to `BadCredentialsError`; every other client handles 401 only in the authentication client.
     (enforcement: docs-only, `clients/CLAUDE.md`)
-    - The env var `DSP_VRE_LIB_NO_RETRY=true` turns off the retries of `should_retry_request` (set in the CI
+    - The env var `DSP_VRE_NO_RETRY=true` turns off the retries of `should_retry_request` (set in the CI
     workflows). (enforcement: docs-only, `.env.example`)
 - **Durable state**: `AuthenticationClientLive._token` (bearer-token cache, single writer `_get_token()`,
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
@@ -597,11 +597,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
   application code, docs, or tests — plus repo-level policy, templates and developer config (security
   policy, PR template, `.env.example`, blame-ignore list).
 - **Key entities**: `just` recipes (lint, mypy, vulture, unittests, integration-tests, e2e-tests,
-  legacy-e2e-tests, vulture-dsp-tools, vulture-vre-lib), release-please, `scripts/bump_version.py`
+  legacy-e2e-tests, vulture-dsp-tools, vulture-vre), release-please, `scripts/bump_version.py`
   (dev-release `.postN`, per package),
   `scripts/bump_stack_versions.py` (start-stack version-bump PR), `scripts/merge_pr_when_green.py` and the
-  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lib_lower_bound.py`
-  (the only writer of the `dsp-vre-lib` line of dsp-tools: lower bound on the release PR, exact pin in the
+  composite action `.github/actions/merge-pr-when-green` (bot-PR auto-merge), `scripts/vre_lower_bound.py`
+  (the only writer of the `dsp-vre` line of dsp-tools: lower bound on the release PR, exact pin in the
   dev release), `.github/actions/setup-from-wheel` (builds and installs both wheels), `readiness.yml`,
   `.github/pull_request_template.md`, `.env.example` (the optional runtime env vars; never loaded by
   DSP-TOOLS itself)
@@ -638,42 +638,42 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per package), not by hand; `.git-blame-ignore-revs` is
   maintained by hand; `scripts/bump_version.py` also rewrites the version to `X.Y.Z.postN`, but only
   inside the CI checkout of `publish-dev-release-to-pypi.yml` (never committed). That workflow publishes a
-  dsp-vre-lib dev release first and pins dsp-tools to it (`vre_lib_lower_bound.py pin`). On the `dsp-tools`
+  dsp-vre dev release first and pins dsp-tools to it (`vre_lower_bound.py pin`). On the `dsp-tools`
   release PR,
-  `release-please.yml` also rewrites the `dsp-vre-lib` lower bound in `packages/dsp-tools/pyproject.toml`
-  (`scripts/vre_lib_lower_bound.py raise`). `uv.lock` has three
+  `release-please.yml` also rewrites the `dsp-vre` lower bound in `packages/dsp-tools/pyproject.toml`
+  (`scripts/vre_lower_bound.py raise`). `uv.lock` has three
   writers, all through the uv resolver: developers (`uv sync`/`uv add`), `release-please.yml` (`uv lock`
   plus commit), and dependabot.
 - **Fingerprint**: `b39d0a461b19`
 
-### dsp-vre-lib
+### dsp-vre
 
-- **Paths**: `packages/dsp-vre-lib/**`
-    - exclude: `packages/dsp-vre-lib/src/dsp_vre_lib/clients/**` (the `clients` component)
-- **Purpose**: Separate workspace package (PyPI name `dsp-vre-lib`):
+- **Paths**: `packages/dsp-vre/**`
+    - exclude: `packages/dsp-vre/src/dsp_vre/clients/**` (the `clients` component)
+- **Purpose**: Separate workspace package (PyPI name `dsp-vre`):
   the Python client library for the DSP-API of a DSP server. This entry holds its package files, docs and
   tests; its source today is the `clients` component. The interface decisions are in
-  `packages/dsp-vre-lib/docs/adr/0001-public-interface.md`.
-- **Key entities**: `NullHandler` on the logger `dsp_vre_lib` (`src/dsp_vre_lib/__init__.py`),
+  `packages/dsp-vre/docs/adr/0001-public-interface.md`.
+- **Key entities**: `NullHandler` on the logger `dsp_vre` (`src/dsp_vre/__init__.py`),
   `test_no_dsp_tools_import.py`, `test/unittests/clients/` (the client tests), `authentication_client_mock.py`,
   `.vulture_whitelist.py`
-- **Public interface**: no designed interface yet; `dsp_vre_lib.clients.__all__` is the de facto one.
+- **Public interface**: no designed interface yet; `dsp_vre.clients.__all__` is the de facto one.
 - **Local-context kit**: `CLAUDE.md`, `pyproject.toml`, `docs/adr/0001-public-interface.md`,
   `test/unittests/test_no_dsp_tools_import.py`, `.vulture_whitelist.py`
 - **Depends on**: nothing in dsp-tools; test-only: pytest, `requests-mock` (root dev dependencies).
 - **Used by**: dsp-tools declares it as a dependency (`packages/dsp-tools/pyproject.toml`, source: the uv
   workspace) and imports `clients`.
 - **Boundary rules**:
-    - `dsp_vre_lib` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
-    `packages/dsp-vre-lib/pyproject.toml`, plus `test_no_dsp_tools_import.py`)
+    - `dsp_vre` never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
+    `packages/dsp-vre/pyproject.toml`, plus `test_no_dsp_tools_import.py`)
     - No file formats (JSON project file, XML data file, Excel). (enforcement: docs-only,
-    `packages/dsp-vre-lib/CLAUDE.md`)
-    - The tests run with `packages/dsp-vre-lib/` as the working directory (`just vre-lib-unittests`). The two
+    `packages/dsp-vre/CLAUDE.md`)
+    - The tests run with `packages/dsp-vre/` as the working directory (`just vre-unittests`). The two
     top-level `test` packages cannot import each other, so shared test helpers are copied.
     (enforcement: structure)
     - Without a handler of the caller, the package writes nothing (`NullHandler`). (enforcement:
     static-analysis, `test_logging_setup.py`)
-    - `just vulture-vre-lib` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
+    - `just vulture-vre` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
     `.vulture_whitelist.py`. (enforcement: static-analysis, `just vulture` in `lint-code.yml`)
 - **Durable state**: none.
 - **Fingerprint**: `6e70c83f62dc`
@@ -694,8 +694,8 @@ your own
 bugs crash; Group A commands (`create`, `xmlupload`, `get`, …) fail fast, Group B commands (`excel2json`,
 `validate-data`, `xmllib`, …) collect every `Problem` into one aggregated `UserError`. Ten command modules
 define their own `exceptions.py` subclassing from here (so do `cli/`, `utils/` and `xmllib/internal/`).
-`clients` (package `dsp-vre-lib`) has its own parallel hierarchy (`DspVreLibBaseError` →
-`DspVreLibUserError`/`DspVreLibInternalError`). `exceptions.py` imports their two base classes and defines
+`clients` (package `dsp-vre`) has its own parallel hierarchy (`DspVreBaseError` →
+`DspVreUserError`/`DspVreInternalError`). `exceptions.py` imports their two base classes and defines
 `ANY_DSP_ERROR` and `ANY_USER_ERROR`, which name both roots. Every catch around a client call uses them
 (`cli/entry_point.py` for user errors). Imported by 71 files in `src/`, 96 including tests. No durable
 state.
@@ -705,9 +705,9 @@ state.
 ### setup/ (`packages/dsp-tools/src/dsp_tools/setup/**`)
 
 Process-startup wiring, not a component with request-level dependents: `logger_config()` (loguru sinks; it
-also passes the records of the standard logger `dsp_vre_lib` to loguru, with the origin of each record, and
-prints `dsp_vre_lib.notices` on the terminal; `_replace_handler` keeps one handler of each type) and
-`initialize_warnings()` (routes `DspToolsWarning` and `DspVreLibUnexpectedStatusCodeWarning`
+also passes the records of the standard logger `dsp_vre` to loguru, with the origin of each record, and
+prints `dsp_vre.notices` on the terminal; `_replace_handler` keeps one handler of each type) and
+`initialize_warnings()` (routes `DspToolsWarning` and `DspVreUnexpectedStatusCodeWarning`
 through custom formatting) are each called once, in
 `cli/entry_point.py` (and once per session in `packages/dsp-tools/test/conftest.py`'s `pytest_sessionstart`;
 `packages/dsp-tools/test/unittests/setup/test_logger_config.py` calls `logger_config()` again and restores the sinks
@@ -716,7 +716,7 @@ test). The log sinks write variable values into tracebacks (loguru `diagnose`) o
 `DSP_TOOLS_LOG_VARIABLE_VALUES=true` is set in the `.env`, because the values can contain passwords, tokens
 and research data. `dotenv.py` loads a local `.env`; `ansi_colors.py` is terminal color constants. Imported
 by 36 files outside `setup/`. Durable state is the one-shot loguru sink registry and the two handlers on
-the `dsp_vre_lib` loggers, written once at process start (repeated calls replace the handlers).
+the `dsp_vre` loggers, written once at process start (repeated calls replace the handlers).
 
 - **Fingerprint**: `3ff9ca5d2ed5`
 
@@ -738,7 +738,7 @@ per the error-handling doc. No durable state beyond each instance's own value.
   more). (enforcement: review)
 - **One-way top-level dependency direction** (as designed; violated today in several places — see below):
   `cli` → `commands/*` → `utils`/`xmllib`/`resources` → `error`/`setup`/`legacy_models`, and everything in
-  dsp-tools, `error` included → `clients` (package `dsp-vre-lib`), which imports nothing from dsp-tools.
+  dsp-tools, `error` included → `clients` (package `dsp-vre`), which imports nothing from dsp-tools.
   Nothing below a layer
   should import from above it. Besides the banned constructs below, top-level
   `legacy_models/projectContext.py` imports `clients.connection` and `commands/get/legacy_models`.
@@ -759,5 +759,5 @@ per the error-handling doc. No durable state beyond each instance's own value.
 | A command imports directly from another command's package | Spreads blast radius silently; contradicts the stated rule | Move the shared logic into `utils/` or a new neutral module | docs-only (violated: `mapping`→`excel2json`, `validate-data`↔`create`, `validate-data`↔`xmlupload`, `ingest-xmlupload`/`resume-xmlupload`→`xmlupload`) |
 | A command imports from `cli/` | Inverts the `cli` → `commands/*` direction; CLI-argument types leak into command code | Define the shared argument type outside `cli/` (for example in `utils/`) and let `cli` build it | docs-only (violated: 14 files import `cli.args`, `mapping/config_file.py` imports `cli.utils` — see the `cli` entry) |
 | `utils/` importing from `commands/` | Inverts `utils`' leaf-dependency role; real circular-import risk since every command also imports `utils` | Move the shared type/constant into `utils/` itself | docs-only (violated: 5 files / 9 import sites — see the `utils` entry) |
-| `clients/` importing anything from `dsp_tools` | `clients/` is the separate package `dsp-vre-lib`; an import of `dsp_tools` makes the dependency two-way | Define the shared type in `clients/`, or convert at the call site in dsp-tools | static-analysis (ruff `TID251` in `packages/dsp-vre-lib/pyproject.toml`, `test_no_dsp_tools_import.py`; no violations) |
+| `clients/` importing anything from `dsp_tools` | `clients/` is the separate package `dsp-vre`; an import of `dsp_tools` makes the dependency two-way | Define the shared type in `clients/`, or convert at the call site in dsp-tools | static-analysis (ruff `TID251` in `packages/dsp-vre/pyproject.toml`, `test_no_dsp_tools_import.py`; no violations) |
 | `xmllib` importing `dsp_tools.error`/`setup`, or `utils` outside shared constants and data-format utilities | ADR 0002 keeps `xmllib` conceptually independent of the rest of dsp-tools | Vendor the helper into `xmllib/internal/`. Shared constants and data-format utilities go in `utils/` and xmllib imports them from there (ADR 0002 exception) | docs-only (violated: 7 files — see the `xmllib` entry) |

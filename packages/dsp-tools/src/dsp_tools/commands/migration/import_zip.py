@@ -12,12 +12,12 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
-from dsp_vre_lib.clients import ExportImportStatus
-from dsp_vre_lib.clients import ImportId
-from dsp_vre_lib.clients import MigrationImportClient
-from dsp_vre_lib.clients.authentication_client_live import AuthenticationClientLive
-from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
-from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients import ImportId
+from dsp_vre.clients import MigrationImportClient
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.exceptions import MigrationImportExistsError
+from dsp_vre.clients.migration_clients_live import MigrationImportClientLive
 
 STATUS_CHECK_SLEEP_TIME = 5
 

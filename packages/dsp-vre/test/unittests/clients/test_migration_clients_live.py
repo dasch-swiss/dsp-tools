@@ -7,20 +7,20 @@ import pytest
 import requests
 from requests import JSONDecodeError
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients import ExportId
-from dsp_vre_lib.clients import ExportImportStatus
-from dsp_vre_lib.clients import ImportId
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.exceptions import MigrationExportExistsError
-from dsp_vre_lib.clients.exceptions import MigrationExportImportInProgressError
-from dsp_vre_lib.clients.exceptions import MigrationImportExistsError
-from dsp_vre_lib.clients.migration_clients_live import MigrationExportClientLive
-from dsp_vre_lib.clients.migration_clients_live import MigrationImportClientLive
-from dsp_vre_lib.clients.migration_clients_live import _make_delete_call
-from dsp_vre_lib.clients.request_utils import RequestParameters
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients import ImportId
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.exceptions import MigrationExportExistsError
+from dsp_vre.clients.exceptions import MigrationExportImportInProgressError
+from dsp_vre.clients.exceptions import MigrationImportExistsError
+from dsp_vre.clients.migration_clients_live import MigrationExportClientLive
+from dsp_vre.clients.migration_clients_live import MigrationImportClientLive
+from dsp_vre.clients.migration_clients_live import _make_delete_call
+from dsp_vre.clients.request_utils import RequestParameters
 
 
 @pytest.fixture
@@ -56,7 +56,7 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
         expected_url = "http://0.0.0.0:3333/v3/projects/http%3A%2F%2Frdfh.ch%2Fprojects%2F0001/exports?skipAssets=false"
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = export_client.post_export(False)
         assert result == ExportId("export-123")
         assert mock_post.call_args.kwargs["url"] == expected_url
@@ -65,7 +65,7 @@ class TestMigrationExportClientLive:
         mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
         expected_url = "http://0.0.0.0:3333/v3/projects/http%3A%2F%2Frdfh.ch%2Fprojects%2F0001/exports?skipAssets=true"
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = export_client.post_export(True)
         assert result == ExportId("export-123")
         assert mock_post.call_args.kwargs["url"] == expected_url
@@ -73,63 +73,61 @@ class TestMigrationExportClientLive:
     def test_post_export_forbidden(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 export_client.post_export(False)
 
     def test_post_export_conflict(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(MigrationExportExistsError):
                 export_client.post_export(False)
 
     def test_post_export_server_error(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.post_export(False)
 
     def test_post_export_request_exception(self, export_client: MigrationExportClientLive) -> None:
-        with patch(
-            "dsp_vre_lib.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
-        ):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 export_client.post_export(False)
 
     def test_get_status_success(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "completed"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = export_client.get_status(ExportId("export-123"))
         assert result == ExportImportStatus.COMPLETED
 
     def test_get_status_in_progress(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "in_progress"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = export_client.get_status(ExportId("export-123"))
         assert result == ExportImportStatus.IN_PROGRESS
 
     def test_get_status_failed(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "export-123", "status": "failed"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = export_client.get_status(ExportId("export-123"))
         assert result == ExportImportStatus.FAILED
 
     def test_get_status_forbidden(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 export_client.get_status(ExportId("export-123"))
 
     def test_get_status_server_error(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.get_status(ExportId("export-123"))
 
@@ -137,7 +135,7 @@ class TestMigrationExportClientLive:
         destination = tmp_path / "export.zip"
         zip_content = b"fake zip content"
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={}, content=zip_content)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             export_client.get_download(ExportId("export-123"), destination)
         assert destination.exists()
         assert destination.read_bytes() == zip_content
@@ -145,41 +143,41 @@ class TestMigrationExportClientLive:
     def test_get_download_forbidden(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
         destination = tmp_path / "export.zip"
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 export_client.get_download(ExportId("export-123"), destination)
 
     def test_get_download_conflict(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
         destination = tmp_path / "export.zip"
         mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(MigrationExportImportInProgressError):
                 export_client.get_download(ExportId("export-123"), destination)
 
     def test_get_download_server_error(self, export_client: MigrationExportClientLive, tmp_path: Path) -> None:
         destination = tmp_path / "export.zip"
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.get_download(ExportId("export-123"), destination)
 
     def test_delete_export_success(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.NO_CONTENT, ok=True, headers={}, text="")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             export_client.delete_export(ExportId("export-123"))
 
     def test_delete_export_forbidden(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 export_client.delete_export(ExportId("export-123"))
 
     def test_delete_export_server_error(self, export_client: MigrationExportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 export_client.delete_export(ExportId("export-123"))
 
@@ -190,7 +188,7 @@ class TestMigrationImportClientLive:
         zip_file.write_bytes(b"fake zip content")
         mock_response = Mock(status_code=HTTPStatus.ACCEPTED, ok=True, headers={})
         mock_response.json.return_value = {"id": "import-456", "status": "in_progress"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response) as mock_post:
             result = import_client.post_import(zip_file)
         assert result == ImportId("import-456")
         assert mock_post.call_args.kwargs["headers"]["Content-Type"] == "application/zip"
@@ -201,7 +199,7 @@ class TestMigrationImportClientLive:
         zip_file.write_bytes(b"fake zip content")
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 import_client.post_import(zip_file)
 
@@ -210,7 +208,7 @@ class TestMigrationImportClientLive:
         zip_file.write_bytes(b"fake zip content")
         mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(MigrationImportExistsError):
                 import_client.post_import(zip_file)
 
@@ -219,71 +217,69 @@ class TestMigrationImportClientLive:
         zip_file.write_bytes(b"fake zip content")
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.post_import(zip_file)
 
     def test_post_import_request_exception(self, import_client: MigrationImportClientLive, tmp_path: Path) -> None:
         zip_file = tmp_path / "import.zip"
         zip_file.write_bytes(b"fake zip content")
-        with patch(
-            "dsp_vre_lib.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
-        ):
+        with patch("dsp_vre.clients.migration_clients_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 import_client.post_import(zip_file)
 
     def test_get_status_success(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "import-456", "status": "completed"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = import_client.get_status(ImportId("import-456"))
         assert result == ExportImportStatus.COMPLETED
 
     def test_get_status_in_progress(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "import-456", "status": "in_progress"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = import_client.get_status(ImportId("import-456"))
         assert result == ExportImportStatus.IN_PROGRESS
 
     def test_get_status_failed(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.OK, ok=True, headers={})
         mock_response.json.return_value = {"id": "import-456", "status": "failed"}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             result = import_client.get_status(ImportId("import-456"))
         assert result == ExportImportStatus.FAILED
 
     def test_get_status_forbidden(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 import_client.get_status(ImportId("import-456"))
 
     def test_get_status_server_error(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.get_status(ImportId("import-456"))
 
     def test_delete_import_success(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.NO_CONTENT, ok=True, headers={}, text="")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             import_client.delete_import(ImportId("import-456"))
 
     def test_delete_import_forbidden(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN, ok=False, headers={}, text="Forbidden")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 import_client.delete_import(ImportId("import-456"))
 
     def test_delete_import_server_error(self, import_client: MigrationImportClientLive) -> None:
         mock_response = Mock(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, ok=False, headers={}, text="Server Error")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 import_client.delete_import(ImportId("import-456"))
 
@@ -296,13 +292,13 @@ class TestMakeDeleteCall:
     def test_not_found_returns_silently(self, delete_params: RequestParameters) -> None:
         mock_response = Mock(status_code=HTTPStatus.NOT_FOUND, ok=False, headers={}, text="Not Found")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             _make_delete_call(delete_params, "export")
 
     def test_conflict_raises_error(self, delete_params: RequestParameters) -> None:
         mock_response = Mock(status_code=HTTPStatus.CONFLICT, ok=False, headers={}, text="Conflict")
         mock_response.json.side_effect = JSONDecodeError("No JSON", "", 0)
-        with patch("dsp_vre_lib.clients.migration_clients_live.requests.delete", return_value=mock_response):
+        with patch("dsp_vre.clients.migration_clients_live.requests.delete", return_value=mock_response):
             with pytest.raises(MigrationExportImportInProgressError):
                 _make_delete_call(delete_params, "export")
 

@@ -6,13 +6,13 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from dsp_vre_lib.clients import AuthenticationClient
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.exceptions import FatalNonOkApiResponseCodeError
-from dsp_vre_lib.clients.exceptions import ProjectNotFoundError
-from dsp_vre_lib.clients.project_client_live import ProjectClientLive
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
+from dsp_vre.clients.exceptions import ProjectNotFoundError
+from dsp_vre.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 
 @pytest.fixture
@@ -56,7 +56,7 @@ class TestProjectGetIri:
                 "shortname": "test-project",
             }
         }
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
             result = project_client.get_project_iri("0001")
         assert result == "http://rdfh.ch/projects/0001"
         assert mock_get.call_args[0][0] == f"{project_client.server}/admin/projects/shortcode/0001"
@@ -64,19 +64,19 @@ class TestProjectGetIri:
     def test_get_project_iri_not_found(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
             with pytest.raises(ProjectNotFoundError):
                 project_client.get_project_iri("9999")
 
     def test_get_project_iri_timeout(self, project_client: ProjectClientLive) -> None:
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+        with patch("dsp_vre.clients.project_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 project_client.get_project_iri("0001")
 
     def test_get_project_iri_other_error(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
             with pytest.raises(FatalNonOkApiResponseCodeError):
                 project_client.get_project_iri("0001")
 
@@ -87,7 +87,7 @@ class TestGetDefaultDataAuthorship:
         mock_response.json.return_value = {
             "project": {"id": "http://rdfh.ch/projects/0001", "defaultDataAuthorship": ["Daisy Duck", "Donald Duck"]}
         }
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
             result = project_client.get_default_data_authorship("0001")
         assert result == ["Daisy Duck", "Donald Duck"]
         assert mock_get.call_args[0][0] == f"{project_client.server}/admin/projects/shortcode/0001"
@@ -95,14 +95,14 @@ class TestGetDefaultDataAuthorship:
     def test_absent_returns_empty(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"project": {"id": "http://rdfh.ch/projects/0001"}}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
             result = project_client.get_default_data_authorship("0001")
         assert result == []
 
     def test_not_found(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={}, text="")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.get", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
             with pytest.raises(ProjectNotFoundError):
                 project_client.get_default_data_authorship("9999")
 
@@ -117,22 +117,20 @@ class TestPostNewProject:
                 "shortname": "test-proj",
             }
         }
-        with patch("dsp_vre_lib.clients.project_client_live.requests.post", return_value=mock_response) as mock_post:
+        with patch("dsp_vre.clients.project_client_live.requests.post", return_value=mock_response) as mock_post:
             result = project_client.post_new_project(project_info)
         assert result == "http://rdfh.ch/projects/0003"
         assert mock_post.call_args.args[0] == f"{project_client.server}/admin/projects"
 
     def test_exception(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
-        with patch(
-            "dsp_vre_lib.clients.project_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")
-        ):
+        with patch("dsp_vre.clients.project_client_live.requests.post", side_effect=requests.ReadTimeout("Timeout")):
             with pytest.raises(DspApiRequestError):
                 project_client.post_new_project(project_info)
 
     def test_bad_credentials(self, project_client: ProjectClientLive, project_info: dict[str, Any]) -> None:
         mock_response = Mock(status_code=HTTPStatus.FORBIDDEN.value, ok=False, headers={}, text="Forbidden")
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.post", return_value=mock_response):
             with pytest.raises(BadCredentialsError):
                 project_client.post_new_project(project_info)
 
@@ -141,7 +139,7 @@ class TestPostNewProject:
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, ok=False, headers={}, text="Internal Server Error"
         )
         mock_response.json.return_value = {}
-        with patch("dsp_vre_lib.clients.project_client_live.requests.post", return_value=mock_response):
+        with patch("dsp_vre.clients.project_client_live.requests.post", return_value=mock_response):
             result = project_client.post_new_project(project_info)
         assert isinstance(result, ResponseCodeAndText)
         assert result.status_code == HTTPStatus.INTERNAL_SERVER_ERROR

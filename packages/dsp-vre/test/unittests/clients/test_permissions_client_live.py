@@ -6,10 +6,10 @@ from unittest.mock import patch
 import pytest
 from requests import RequestException
 
-from dsp_vre_lib.clients import PermissionsClientLive
-from dsp_vre_lib.clients.exceptions import BadCredentialsError
-from dsp_vre_lib.clients.exceptions import DspApiRequestError
-from dsp_vre_lib.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients import PermissionsClientLive
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 
 AUTH = Mock()
 AUTH.get_token = Mock(return_value="tkn")
@@ -17,9 +17,9 @@ AUTH.server = "http://0.0.0.0:3333"
 
 
 class TestGetProjectDoaps:
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.get")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.get")
     def test_success(self, get_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -36,9 +36,9 @@ class TestGetProjectDoaps:
         assert result == [{"id": "doap1"}, {"id": "doap2"}]
         get_mock.assert_called_once()
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.get")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.get")
     def test_forbidden(self, get_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -54,9 +54,9 @@ class TestGetProjectDoaps:
             client.get_project_doaps()
         assert "permission" in str(exc_info.value).lower()
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.get")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.get")
     def test_other_error(self, get_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -73,8 +73,8 @@ class TestGetProjectDoaps:
         assert isinstance(result, ResponseCodeAndText)
         assert result.status_code == 500
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.get")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.get")
     def test_request_exception(self, get_mock: Mock, log_request: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -88,9 +88,9 @@ class TestGetProjectDoaps:
 
 
 class TestDeleteDoap:
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.delete")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.delete")
     def test_success(self, delete_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -104,9 +104,9 @@ class TestDeleteDoap:
         delete_mock.assert_called_once()
         assert result is True
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.delete")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.delete")
     def test_forbidden(self, delete_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -123,9 +123,9 @@ class TestDeleteDoap:
         with pytest.raises(BadCredentialsError, match=expected):
             client.delete_doap("http://test.iri/doap")
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.delete")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.delete")
     def test_other_error(self, delete_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -140,8 +140,8 @@ class TestDeleteDoap:
         result = client.delete_doap("http://test.iri/doap")
         assert isinstance(result, ResponseCodeAndText)
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.delete")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.delete")
     def test_request_exception(self, delete_mock: Mock, log_request: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -154,9 +154,9 @@ class TestDeleteDoap:
 
 
 class TestCreateNewDoap:
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.post")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.post")
     def test_success(self, post_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -170,9 +170,9 @@ class TestCreateNewDoap:
         assert result is True
         post_mock.assert_called_once()
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.post")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.post")
     def test_forbidden(self, post_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -187,9 +187,9 @@ class TestCreateNewDoap:
         with pytest.raises(BadCredentialsError):
             client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_response")
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.post")
+    @patch("dsp_vre.clients.permissions_client_live.log_response")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.post")
     def test_other_error(self, post_mock: Mock, log_request: Mock, log_response: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",
@@ -205,8 +205,8 @@ class TestCreateNewDoap:
         result = client.create_new_doap({"forProject": "http://rdfh.ch/projects/test"})
         assert isinstance(result, ResponseCodeAndText)
 
-    @patch("dsp_vre_lib.clients.permissions_client_live.log_request")
-    @patch("dsp_vre_lib.clients.permissions_client_live.requests.post")
+    @patch("dsp_vre.clients.permissions_client_live.log_request")
+    @patch("dsp_vre.clients.permissions_client_live.requests.post")
     def test_request_exception(self, post_mock: Mock, log_request: Mock) -> None:  # noqa: ARG002
         client = PermissionsClientLive(
             server="http://0.0.0.0:3333",

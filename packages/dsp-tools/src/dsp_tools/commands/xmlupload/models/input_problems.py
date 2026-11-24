@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from enum import auto
 
-from dsp_vre_lib.clients.request_utils import is_server_error
+from dsp_vre.clients.request_utils import is_server_error
 
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"

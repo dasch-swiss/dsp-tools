@@ -52,15 +52,6 @@ class DspIngestAssetClient(AssetClient):
 
 
 @dataclass(frozen=True)
-class BulkIngestedAssetClient(AssetClient):
-    """Client for handling media info, if the assets were bulk ingested previously."""
-
-    def get_bitstream_info(self, file_info: ProcessedFileBitstream, permissions: Permissions | None) -> BitstreamInfo:
-        """Returns the BitstreamInfo of the already ingested file based on the `ProcessedFileValue.value`."""
-        return BitstreamInfo(file_info.value, permissions)
-
-
-@dataclass(frozen=True)
 class UploadClients:
     """Holds all the clients needed for the upload process."""
 

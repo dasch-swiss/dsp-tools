@@ -80,7 +80,7 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(auth, creds, shortcode, imgdir)
 
-    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients.list_client, clients.legal_info_client)
     if config.id2iri_file:
         parsed_resources = use_id2iri_mapping_to_replace_ids(parsed_resources, Path(config.id2iri_file))
 

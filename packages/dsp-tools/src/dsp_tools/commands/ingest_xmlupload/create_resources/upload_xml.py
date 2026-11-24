@@ -21,8 +21,6 @@ from dsp_tools.commands.validate_data.validate_data import validate_parsed_resou
 from dsp_tools.commands.xmlupload.execute_upload import upload_copyright_holders
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
-from dsp_tools.commands.xmlupload.models.upload_clients import BulkIngestedAssetClient
-from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
@@ -90,8 +88,9 @@ def ingest_xmlupload(
         skip_validation=skip_validation,
         skip_ontology_validation=skip_ontology_validation,
     ).with_server_info(server=creds.server, shortcode=shortcode)
-    clients = _get_live_clients(config, auth)
-    parsed_resources, lookups = get_parsed_resources_and_mappers(root, clients)
+    list_client = ListGetClientLive(auth.server, shortcode)
+    legal_info_client = LegalInfoClientLive(creds.server, shortcode, auth)
+    parsed_resources, lookups = get_parsed_resources_and_mappers(root, list_client, legal_info_client)
 
     is_on_prod_like_server = is_prod_like_server(creds.server)
     if not _validation_should_be_skipped(config, is_on_prod_like_server):
@@ -106,7 +105,7 @@ def ingest_xmlupload(
     processed_resources = get_processed_resources(
         parsed_resources, lookups, is_on_prod_like_server, project_default_authorship
     )
-    upload_copyright_holders(processed_resources, clients.legal_info_client)
+    upload_copyright_holders(processed_resources, legal_info_client)
 
     resolver = mint_resource_iris(processed_resources, shortcode)
     files = make_payload_files(config.diagnostics.server_as_foldername, shortcode)
@@ -181,10 +180,3 @@ def _replace_filepaths_with_internal_filename_from_ingest(root: etree._Element, 
         err_msg = ingest_info.execute_error_protocol()
         raise IngestIdForFileNotFoundError(err_msg)
     return root
-
-
-def _get_live_clients(config: UploadConfig, auth: AuthenticationClient) -> UploadClients:
-    ingest_client = BulkIngestedAssetClient()
-    list_client = ListGetClientLive(auth.server, config.shortcode)
-    legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
-    return UploadClients(ingest_client, list_client, legal_info_client)

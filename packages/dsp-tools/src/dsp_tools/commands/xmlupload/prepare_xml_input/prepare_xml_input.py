@@ -8,7 +8,6 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.exceptions import UnableToRetrieveProjectInfoError
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
-from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_processed_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -23,6 +22,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_vre.clients import Connection
 from dsp_vre.clients import ConnectionLive
+from dsp_vre.clients.legal_info_client import LegalInfoClient
 from dsp_vre.clients.list_client import ListGetClient
 from dsp_vre.clients.list_client import ListInfo
 
@@ -30,23 +30,25 @@ LIST_SEPARATOR = "\n-    "
 
 
 def get_parsed_resources_and_mappers(
-    root: etree._Element, clients: UploadClients
+    root: etree._Element, list_client: ListGetClient, legal_info_client: LegalInfoClient
 ) -> tuple[list[ParsedResource], XmlReferenceLookups]:
     logger.debug("Get ParsedResource and XML-Lookups from root")
     sp = get_default_spinner("Parsing XML file for upload.")
     with sp:
-        parsed_resources = get_parsed_resources(root, clients.legal_info_client.server)
-        processed_lookups = _get_xml_reference_lookups(root=root, clients=clients)
+        parsed_resources = get_parsed_resources(root, legal_info_client.server)
+        processed_lookups = _get_xml_reference_lookups(root, list_client, legal_info_client)
         sp.ok("✔")
         return parsed_resources, processed_lookups
 
 
-def _get_xml_reference_lookups(root: etree._Element, clients: UploadClients) -> XmlReferenceLookups:
-    con = ConnectionLive(clients.legal_info_client.server, clients.legal_info_client.auth, log_file=WARNINGS_SAVEPATH)
+def _get_xml_reference_lookups(
+    root: etree._Element, list_client: ListGetClient, legal_info_client: LegalInfoClient
+) -> XmlReferenceLookups:
+    con = ConnectionLive(legal_info_client.server, legal_info_client.auth, log_file=WARNINGS_SAVEPATH)
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = get_permissions_lookup(root, proj_context)
     authorship_lookup = get_authorship_lookup(root)
-    listnode_lookup = _get_list_node_to_iri_lookup(clients.list_client)
+    listnode_lookup = _get_list_node_to_iri_lookup(list_client)
     return XmlReferenceLookups(
         permissions=permissions_lookup,
         listnodes=listnode_lookup,

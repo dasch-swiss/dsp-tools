@@ -42,8 +42,6 @@ TIMEOUT_60 = 60
 # The server saves the whole payload before it answers.
 TIMEOUT_7200 = 60 * 120
 
-PRECONDITION_CODES = frozenset({"project_ontologies_missing", "data_graph_exists"})
-
 
 @dataclass
 class DataImportClientLive(DataImportClient):
@@ -157,7 +155,7 @@ def _error_from_code(error: ApiV3ErrorDetails) -> DspVreLibUserError | None:  # 
             return OnBehalfOfUserNotFoundError(details.get("id", ""), error.message)
         case "on_behalf_of_user_ineligible":
             return OnBehalfOfUserIneligibleError(details.get("id", ""), details.get("reason", ""), error.message)
-        case code if code in PRECONDITION_CODES:
+        case "project_ontologies_missing" | "data_graph_exists" as code:
             return DataImportPreconditionError(code, error.message)
         case "import_running":
             return DataImportRunningError(error.message)

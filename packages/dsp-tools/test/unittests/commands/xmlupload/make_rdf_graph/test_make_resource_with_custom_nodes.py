@@ -77,9 +77,15 @@ def resource() -> ProcessedResource:
 BITSTREAM = BitstreamInfo(internal_file_name="abcdef.jp2")
 
 
-def _node_counter() -> Callable[[], URIRef]:
+def _node_counter(received: list[BNode | URIRef] | None = None) -> Callable[[BNode | URIRef], URIRef]:
     counter = count(1)
-    return lambda: URIRef(f"http://rdfh.ch/9999/res/values/{next(counter)}")
+
+    def make_node(res_node: BNode | URIRef) -> URIRef:
+        if received is not None:
+            received.append(res_node)
+        return URIRef(f"http://rdfh.ch/9999/res/values/{next(counter)}")
+
+    return make_node
 
 
 def _value_node(n: int) -> URIRef:
@@ -154,6 +160,12 @@ def test_passed_value_node_factory_is_used_for_values_and_file_value(
 ) -> None:
     g = create_resource_with_values(resource, BITSTREAM, lookups, res_node=RES_IRI, make_value_node=_node_counter())
     assert isomorphic(g, _expected_graph(RES_IRI))
+
+
+def test_value_node_factory_receives_the_resource_node(resource: ProcessedResource, lookups: IRILookups) -> None:
+    received: list[BNode | URIRef] = []
+    create_resource_with_values(resource, BITSTREAM, lookups, res_node=RES_IRI, make_value_node=_node_counter(received))
+    assert received == [RES_IRI] * (NUM_VALUES + 1)
 
 
 def test_make_values_uses_factory_per_value(resource: ProcessedResource, lookups: IRILookups) -> None:

@@ -58,11 +58,15 @@ type LiteralValueTypesAlias = Union[
 ]
 
 
+def make_blank_node(_res_node: BNode | URIRef) -> BNode:
+    return BNode()
+
+
 def make_values(
     values: list[ProcessedValue],
     res_node: BNode | URIRef,
     lookups: IRILookups,
-    make_value_node: Callable[[], BNode | URIRef] = BNode,
+    make_value_node: Callable[[BNode | URIRef], BNode | URIRef] = make_blank_node,
 ) -> Graph:
     """
     Serialise the values of a resource.
@@ -71,14 +75,14 @@ def make_values(
         values: list of ProcessedValues of the resource
         res_node: node of the resource
         lookups: lookups to resolve IRIs
-        make_value_node: creates the node of each value, a blank node by default
+        make_value_node: creates the node of each value from the node of the resource, a blank node by default
 
     Returns:
         Graph with the values
     """
     properties_graph = Graph()
     for val in values:
-        val_node = make_value_node()
+        val_node = make_value_node(res_node)
         properties_graph += _make_one_value_graph(
             val=val,
             val_node=val_node,

@@ -5,6 +5,7 @@ from typing import TextIO
 
 from rdflib import RDF
 from rdflib import XSD
+from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -60,10 +61,14 @@ def _make_resource_nodes(res: ProcessedResource, lookups: IRILookups) -> list[di
         _get_bitstream_info(res),
         lookups,
         res_node=URIRef(res_iri),
-        make_value_node=lambda: URIRef(make_value_iri(res_iri)),
+        make_value_node=_make_value_node,
     )
     _add_file_value_order(graph)
     return serialise_json(graph)
+
+
+def _make_value_node(res_node: BNode | URIRef) -> URIRef:
+    return URIRef(make_value_iri(str(res_node)))
 
 
 def _get_bitstream_info(res: ProcessedResource) -> BitstreamInfo | None:

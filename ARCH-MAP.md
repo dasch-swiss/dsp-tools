@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-20
+date: 2026-11-24
 ---
 
 # ARCH-MAP.md
@@ -56,12 +56,13 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Paths**: `packages/dsp-vre/src/dsp_vre/clients/**`
 - **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP helpers
-  (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
+  legal-info, mapping, migration, bulk data import, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP
+  helpers (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
-  `BulkIngestClient`, `DspIngestClientLive`, `RequestParameters`, `should_retry_request`, `DspVreBaseError`,
+  `BulkIngestClient`, `DspIngestClientLive`, `DataImportClient`/`DataImportClientLive`,
+  `RequestParameters`, `should_retry_request`, `DspVreBaseError`,
   `DspVreUserError`, `DspVreInternalError`, `notify`
 - **Public interface**: the names re-exported in `clients/__init__.py` (`__all__`), and each domain's
   `Protocol` plus its `*Live` class, imported and instantiated directly by the command that needs it — no
@@ -102,7 +103,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   per-instance). `ConnectionLive.session` is a class-level default `Session()` that all instances share
   until `_renew_session()` replaces it per instance; `__post_init__` and `_renew_session()` both write its
   headers — two writers on a shared mutable default.
-- **Fingerprint**: `af52b2b23e8d`
+- **Fingerprint**: `e576e6c82ac0`
 
 ### create
 
@@ -676,7 +677,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - `just vulture-vre` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
     `.vulture_whitelist.py`. (enforcement: static-analysis, `just vulture` in `lint-code.yml`)
 - **Durable state**: none.
-- **Fingerprint**: `6e70c83f62dc`
+- **Fingerprint**: `ca258e473acb`
 
 ## Cross-cutting concerns
 

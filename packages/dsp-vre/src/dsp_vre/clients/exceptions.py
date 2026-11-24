@@ -110,3 +110,73 @@ class MigrationExportImportInProgressError(DspVreUserError):
     def __init__(self, detail_msg: str) -> None:
         generic_msg = "An export or import is in progress on this server."
         super().__init__(f"{generic_msg} {detail_msg}")
+
+
+class DataImportNotEnabledError(DspVreUserError):
+    """The server has the bulk data import turned off."""
+
+
+class OnBehalfOfUserNotFoundError(DspVreUserError):
+    """The on-behalf-of user of a bulk data import does not exist on the server."""
+
+    def __init__(self, user: str, message: str) -> None:
+        super().__init__(message)
+        self.user = user
+
+
+class OnBehalfOfUserIneligibleError(DspVreUserError):
+    """The on-behalf-of user of a bulk data import is not eligible. `reason` is the code that the server gives."""
+
+    def __init__(self, user: str, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.user = user
+        self.reason = reason
+
+
+class DataImportPayloadTooLargeError(DspVreUserError):
+    """
+    The payload of a bulk data import is larger than the server limit.
+    The sizes are in bytes. They are None if the server did not send them.
+    """
+
+    def __init__(self, size: int | None, max_size: int | None, message: str) -> None:
+        super().__init__(message)
+        self.size = size
+        self.max_size = max_size
+
+
+class DataImportPreconditionError(DspVreUserError):
+    """The project is not in a state that permits a bulk data import. `error_code` is the code that the server gives."""
+
+    def __init__(self, error_code: str, message: str) -> None:
+        super().__init__(message)
+        self.error_code = error_code
+
+
+class DataImportRunningError(DspVreUserError):
+    """Another bulk data import runs on the server, so the server cannot start a bulk data import now."""
+
+
+class DataImportExistsError(DspVreUserError):
+    """A bulk data import task exists for the project. Delete it before the next bulk data import."""
+
+    def __init__(self, import_id: str, project_iri: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id
+        self.project_iri = project_iri
+
+
+class DataImportNotFoundError(DspVreUserError):
+    """The bulk data import task does not exist on the server."""
+
+    def __init__(self, import_id: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id
+
+
+class DataImportInProgressError(DspVreUserError):
+    """The bulk data import task is still in progress, so the server cannot delete it."""
+
+    def __init__(self, import_id: str, message: str) -> None:
+        super().__init__(message)
+        self.import_id = import_id

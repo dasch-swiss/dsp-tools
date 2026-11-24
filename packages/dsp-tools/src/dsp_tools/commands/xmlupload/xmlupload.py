@@ -8,20 +8,12 @@ from lxml import etree
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.ingest import DspIngestClientLive
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.list_client_live import ListGetClientLive
-from dsp_tools.clients.project_client import ProjectClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.validate_data.validate_data import validate_parsed_resources
 from dsp_tools.commands.xmlupload.exceptions import MissingProjectDefaultAuthorshipError
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookups
+from dsp_tools.commands.xmlupload.models.upload_clients import AssetClient
+from dsp_tools.commands.xmlupload.models.upload_clients import DspIngestAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
@@ -38,6 +30,15 @@ from dsp_tools.utils.interactive import prompt_until_valid_answer
 from dsp_tools.utils.replace_id_with_iri import use_id2iri_mapping_to_replace_ids
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.parse_clean_validate_xml import parse_and_clean_xml_file
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import LegalInfoClient
+from dsp_vre.clients import LegalInfoClientLive
+from dsp_vre.clients import ProjectClient
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.ingest import DspIngestClientLive
+from dsp_vre.clients.list_client import ListGetClient
+from dsp_vre.clients.list_client_live import ListGetClientLive
+from dsp_vre.clients.project_client_live import ProjectClientLive
 
 
 def xmlupload(
@@ -213,7 +214,7 @@ def _get_live_clients(
     imgdir: str,
 ) -> UploadClients:
     ingest_client: AssetClient
-    ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
+    ingest_client = DspIngestAssetClient(DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode), imgdir)
     list_client: ListGetClient = ListGetClientLive(auth.server, shortcode)
     legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(

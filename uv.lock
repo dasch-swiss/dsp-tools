@@ -404,6 +404,7 @@ version = "19.3.4"
 source = { editable = "packages/dsp-tools" }
 dependencies = [
     { name = "argparse" },
+    { name = "dsp-vre" },
     { name = "jinja2" },
     { name = "jsonpath-ng" },
     { name = "jsonschema" },
@@ -430,6 +431,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "argparse" },
+    { name = "dsp-vre", editable = "packages/dsp-vre" },
     { name = "jinja2" },
     { name = "jsonpath-ng", specifier = ">=1.12" },
     { name = "jsonschema" },
@@ -457,6 +459,18 @@ requires-dist = [
 name = "dsp-vre"
 version = "0.0.0"
 source = { editable = "packages/dsp-vre" }
+dependencies = [
+    { name = "rdflib" },
+    { name = "regex" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "rdflib" },
+    { name = "regex" },
+    { name = "requests" },
+]
 
 [[package]]
 name = "et-xmlfile"

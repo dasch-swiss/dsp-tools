@@ -16,11 +16,11 @@ from requests import RequestException
 
 from dsp_tools.commands.start_stack.exceptions import FusekiStartUpError
 from dsp_tools.commands.start_stack.exceptions import StartStackInputError
-from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.interactive import prompt_until_valid_answer
-from dsp_tools.utils.request_utils import RequestParameters
-from dsp_tools.utils.request_utils import log_request
-from dsp_tools.utils.request_utils import log_response
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.request_utils import RequestParameters
+from dsp_vre.clients.request_utils import log_request
+from dsp_vre.clients.request_utils import log_response
 
 MAX_FILE_SIZE = 100_000
 MINUTE = 60

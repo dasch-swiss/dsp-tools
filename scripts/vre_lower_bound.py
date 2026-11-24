@@ -1,12 +1,14 @@
 """
-Keeps the lower bound of the dsp-vre dependency of dsp-tools on a released version.
+The only writer of the dsp-vre dependency of dsp-tools (packages/dsp-tools/pyproject.toml).
 
 Subcommands:
-- `raise <version>`: raises the lower bound in packages/dsp-tools/pyproject.toml to <version>.
+- `raise <version>`: raises the lower bound to <version>.
   The release workflow runs it on the dsp-tools release PR, with the latest released dsp-vre version.
 - `check-on-pypi`: fails if the lower bound is not on PyPI. CI runs it on the dsp-tools release PR.
+- `pin <version>`: requires exactly <version>. The dev-release workflow runs it, with the dsp-vre dev version
+  that it publishes from the same commit.
 
-Both do nothing if dsp-tools does not declare dsp-vre.
+`raise` and `check-on-pypi` do nothing if dsp-tools does not declare dsp-vre.
 """
 
 from __future__ import annotations
@@ -37,8 +39,10 @@ def main() -> None:
             raise_lower_bound_in_pyproject(PYPROJECT_PATH, version)
         case ["check-on-pypi"]:
             check_lower_bound_on_pypi(PYPROJECT_PATH)
+        case ["pin", version]:
+            pin_in_pyproject(PYPROJECT_PATH, version)
         case _:
-            sys.exit("usage: vre_lower_bound.py raise <version> | check-on-pypi")
+            sys.exit("usage: vre_lower_bound.py raise <version> | check-on-pypi | pin <version>")
 
 
 def raise_lower_bound(dependency: str, version: str) -> str:
@@ -68,6 +72,19 @@ def raise_lower_bound_in_pyproject(pyproject: Path, version: str) -> None:
         sys.exit(f"The text '\"{dependency}\"' is not in {pyproject}. Change the dependency by hand.")
     pyproject.write_text(text.replace(f'"{dependency}"', f'"{raised}"', 1), encoding="utf-8")
     print(f"{PACKAGE_NAME} dependency: '{dependency}' -> '{raised}'")
+
+
+def pin_in_pyproject(pyproject: Path, version: str) -> None:
+    """Replace the dsp-vre line, as plain text, by an exact pin, so that the formatting and the comments stay."""
+    text = pyproject.read_text(encoding="utf-8")
+    dependency = _find_dependency(text)
+    if dependency is None:
+        sys.exit(f"dsp-tools does not declare {PACKAGE_NAME}: nothing to pin")
+    if f'"{dependency}"' not in text:
+        sys.exit(f"The text '\"{dependency}\"' is not in {pyproject}. Change the dependency by hand.")
+    pinned = f"{PACKAGE_NAME}=={Version(version)}"
+    pyproject.write_text(text.replace(f'"{dependency}"', f'"{pinned}"', 1), encoding="utf-8")
+    print(f"{PACKAGE_NAME} dependency: '{dependency}' -> '{pinned}'")
 
 
 def check_lower_bound_on_pypi(pyproject: Path) -> None:

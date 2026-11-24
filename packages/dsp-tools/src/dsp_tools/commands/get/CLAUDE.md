@@ -49,7 +49,6 @@ Flow:
 But other code imports from `legacy_models/` directly.
 If you change a class in `legacy_models/`, examine these places too:
 
-- `utils/request_utils.py` imports `Context` and `OntoIri` to serialize them to JSON.
 - The top-level `legacy_models/projectContext.py` imports `Group` and `Project`.
   It calls `Project.getAllProjects` and `Group.getAllGroups` on every run of `xmlupload` and `ingest-xmlupload`
   (through `xmlupload/prepare_xml_input/prepare_xml_input.py`).

@@ -2,14 +2,23 @@
 
 name: Publish dev-release to PyPI
 
+# dsp-tools requires dsp-vre. A dsp-tools dev release thus always comes with a dsp-vre dev release
+# from the same commit, and requires exactly that version.
+# Prerequisite: PyPI trusted publishing for the projects dsp-vre and dsp-tools,
+# with this repository and this workflow file as a trusted publisher.
+# See https://docs.pypi.org/trusted-publishers/
+
 on:
   push:
     branches:
       - main
-    # Only a change to dsp-tools makes a dsp-tools dev release.
     paths:
       - packages/dsp-tools/**
+      - packages/dsp-vre/**
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   publish-dev-release-to-pypi:
@@ -29,10 +38,22 @@ jobs:
           enable-cache: true
       - name: Install just
         uses: taiki-e/install-action@just
-      - name: bump version in packages/dsp-tools/pyproject.toml
-        run: uv run scripts/bump_version.py
-      - name: build wheel
-        run: uv build --package dsp-tools
-      - name: publish new version to PyPI
-        # PyPI trusted publishing: no long-lived token. See https://docs.pypi.org/trusted-publishers/
-        run: uv publish --trusted-publishing always
+      - name: bump version in packages/dsp-vre/pyproject.toml
+        run: uv run scripts/bump_version.py dsp-vre
+      - name: bump version in packages/dsp-tools/pyproject.toml, and pin dsp-vre to the version above
+        run: |
+          uv run scripts/bump_version.py dsp-tools
+          vre_version=$(uv version --package dsp-vre --short)
+          uv run scripts/vre_lower_bound.py pin "$vre_version"
+      - name: build wheels
+        run: |
+          uv build --package dsp-vre
+          uv build --package dsp-tools
+      # A PyPI version cannot be re-uploaded, so this is the last reversible moment.
+      - name: check the wheels for correctness
+        run: uvx check-wheel-contents dist/
+      # dsp-vre goes first: the dsp-tools dev release requires it.
+      - name: publish dsp-vre to PyPI
+        run: uv publish --trusted-publishing always "dist/dsp_vre-*"
+      - name: publish dsp-tools to PyPI
+        run: uv publish --trusted-publishing always "dist/dsp_tools-*"

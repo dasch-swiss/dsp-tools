@@ -7,9 +7,6 @@ from uuid import uuid4
 
 import pytest
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.list_client import ListGetClient
-from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.execute_upload import _upload_all_resources
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
@@ -17,6 +14,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedLink
 from dsp_tools.commands.xmlupload.models.processed.values import ProcessedSimpleText
+from dsp_tools.commands.xmlupload.models.upload_clients import AssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -25,7 +23,9 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre.clients.list_client import ListGetClient
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.value_client_live import ValueClientLive
 from test.integration.commands.xmlupload.legal_info_client_mock import LegalInfoClientMockBase
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"

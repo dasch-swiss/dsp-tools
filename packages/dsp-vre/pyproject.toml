@@ -15,7 +15,11 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "rdflib",
+    "regex",
+    "requests",
+]
 
 
 [project.urls]
@@ -30,7 +34,13 @@ build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib"]
-pythonpath = ["src", "test"]
+pythonpath = [".", "src", "test"]
+filterwarnings = [
+    # pytest looks up "_mock_name" on each module attribute, and the rdflib namespace XSD warns about unknown names.
+    "ignore:Code. _mock_name is not defined in namespace XSD:UserWarning",
+    # The rdflib JSON-LD parser uses ConjunctiveGraph internally. This is not in our code.
+    "ignore:ConjunctiveGraph is deprecated:DeprecationWarning:rdflib.plugins.parsers.jsonld",
+]
 
 
 [tool.mypy]
@@ -60,3 +70,10 @@ extend = "../../pyproject.toml"
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 # The dependency goes in one direction only: dsp-tools uses dsp-vre, never the reverse.
 "dsp_tools".msg = "dsp_vre must not import dsp_tools"
+"loguru".msg = "dsp_vre logs with the standard logging module (ADR 0001)"
+
+
+[tool.vulture]
+paths = ["src/dsp_vre", ".vulture_whitelist.py"]
+exclude = ["test/"]
+sort_by_size = true  # sort unused classes and functions by size

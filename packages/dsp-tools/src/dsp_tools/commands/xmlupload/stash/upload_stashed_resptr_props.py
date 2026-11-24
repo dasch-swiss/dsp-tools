@@ -10,7 +10,6 @@ from rdflib import Graph
 from rdflib import URIRef
 from tqdm import tqdm
 
-from dsp_tools.clients.value_client import ValueClient
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_region_preview_value_graph
@@ -19,7 +18,8 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.exceptions import DspToolsRequestError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.value_client import ValueClient
 
 
 def upload_stashed_resptr_props(
@@ -82,7 +82,7 @@ def _upload_stash_item(
     payload = serialise_jsonld_for_value(graph, res_iri)
     try:
         upload_problem = val_client.post_new_value(payload)
-    except DspToolsRequestError as err:
+    except DspApiRequestError as err:
         _log_unable_to_upload_link_value(err.message, stash.res_id, stash.value.prop_iri)
         return False
     if upload_problem:

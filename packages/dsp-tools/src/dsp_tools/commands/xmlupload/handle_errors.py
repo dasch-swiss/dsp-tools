@@ -11,8 +11,8 @@ from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
+from dsp_vre.clients.exceptions import PermanentConnectionError
 
 # The handlers below convert a low-level failure into the exception that determines the exit code:
 # XmlUploadInterruptedError exits with 1, a KeyboardInterrupt with 130. BadCredentialsError also exits

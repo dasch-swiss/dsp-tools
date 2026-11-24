@@ -6,6 +6,8 @@ import pytest
 from dsp_tools.cli import entry_point
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import PermanentConnectionError
 
 
 @pytest.fixture(autouse=True)
@@ -105,3 +107,23 @@ def test_plain_exception_prints_internal_error_with_message(capsys: pytest.Captu
             entry_point.run(["excel2json", "some/path", "out.json"])
     captured = capsys.readouterr()
     assert "unexpected boom" in captured.out
+
+
+def test_vre_user_error_prints_message_without_internal_error_text(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch("dsp_tools.cli.entry_point.call_requested_action", side_effect=BadCredentialsError("wrong password")):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "wrong password" in captured.out
+    assert "internal error" not in captured.out.lower()
+
+
+def test_vre_internal_error_prints_internal_error_message(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch("dsp_tools.cli.entry_point.call_requested_action", side_effect=PermanentConnectionError("conn lost")):
+        with pytest.raises(SystemExit) as exc_info:
+            entry_point.run(["excel2json", "some/path", "out.json"])
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "conn lost" in captured.out
+    assert "internal error" in captured.out.lower()

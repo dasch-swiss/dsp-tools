@@ -1,4 +1,3 @@
-from dsp_tools.clients.exceptions import InvalidInputError
 from dsp_tools.commands.xmlupload.models.input_problems import MultimediaFileNotFoundProblem
 from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
@@ -18,10 +17,6 @@ class MultimediaFileNotFoundError(UserError):
             f"\n   - {'\n   - '.join(image_str)}"
         )
         super().__init__(msg)
-
-
-class InvalidIngestFileNameError(InvalidInputError):
-    """This error is raised if INGEST rejects a file due to its name."""
 
 
 class XmlUploadError(InternalError):

@@ -130,6 +130,8 @@ jobs:
         run: |
           set -euo pipefail
           run_url="https://github.com/$REPO/actions/runs/$RUN_ID"
+          failure="❌ dispatch-dsp-docs-bump failed for DSP=${RELEASE:-unknown} (TOOLS=${TOOLS:-unknown})"
+          text="$failure · <$run_url|view run>"
           curl -fsSL -X POST -H 'Content-Type: application/json' \
-            -d "$(jq -n --arg text "❌ dispatch-dsp-docs-bump failed for DSP=${RELEASE:-unknown} (TOOLS=${TOOLS:-unknown}) · <$run_url|view run>" '{text:$text}')" \
+            -d "$(jq -n --arg text "$text" '{text:$text}')" \
             "$INTERNAL_WEBHOOK"

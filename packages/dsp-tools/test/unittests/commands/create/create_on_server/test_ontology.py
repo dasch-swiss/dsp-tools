@@ -11,7 +11,7 @@ from dsp_tools.commands.create.models.create_problems import UploadProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import PROJECT_IRI
 
 ONTO_1_IRI = "http://0.0.0.0:3333/ontology/9999/onto-1/v2"

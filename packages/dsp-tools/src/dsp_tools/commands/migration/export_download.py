@@ -4,16 +4,11 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ExportImportStatus
-from dsp_tools.clients.migration_clients import MigrationExportClient
-from dsp_tools.clients.migration_clients_live import MigrationExportClientLive
-from dsp_tools.clients.project_client_live import ProjectClientLive
 from dsp_tools.commands.migration.config_file import parse_reference_json
 from dsp_tools.commands.migration.config_file import write_or_update_reference_json
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
+from dsp_tools.commands.migration.exceptions import MigrationExportOnServerError
 from dsp_tools.commands.migration.exceptions import MigrationReferenceInfoIncompleteError
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
@@ -22,6 +17,13 @@ from dsp_tools.error.exceptions import UnreachableCodeError
 from dsp_tools.setup.ansi_colors import BACKGROUND_BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.spinners import get_green_bouncy_ball_spinner
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients import MigrationExportClient
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
+from dsp_vre.clients.exceptions import MigrationExportExistsError
+from dsp_vre.clients.migration_clients_live import MigrationExportClientLive
+from dsp_vre.clients.project_client_live import ProjectClientLive
 
 STATUS_CHECK_SLEEP_TIME = 5
 
@@ -49,7 +51,11 @@ def export_and_download(migration_info: MigrationInfo) -> str:
 
 def _execute_export(client: MigrationExportClient, reference_path: Path, skip_assets: bool) -> tuple[bool, ExportId]:
     logger.debug("Starting Export of Project")
-    export_id = client.post_export(skip_assets)
+    try:
+        export_id = client.post_export(skip_assets)
+    except MigrationExportExistsError as err:
+        logger.exception(err)
+        raise MigrationExportOnServerError(err.message) from None
     logger.info(f"Export ID of project: {export_id.id_}")
     write_or_update_reference_json(reference_path, export_id=export_id, project_iri=client.project_iri)
     return _check_export_progress(client, export_id), export_id

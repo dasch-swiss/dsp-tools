@@ -106,9 +106,20 @@ markdownlint:
 
 
 # Run vulture, dead code analysis
+vulture: vulture-dsp-tools vulture-vre
+
+
+# Run vulture on dsp-tools
 [no-exit-message]
 [working-directory: 'packages/dsp-tools']
-vulture:
+vulture-dsp-tools:
+    uv run vulture
+
+
+# Run vulture on dsp-vre
+[no-exit-message]
+[working-directory: 'packages/dsp-vre']
+vulture-vre:
     uv run vulture
 
 

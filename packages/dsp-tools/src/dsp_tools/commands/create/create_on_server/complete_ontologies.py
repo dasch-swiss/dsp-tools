@@ -1,8 +1,5 @@
 from loguru import logger
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
-from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.communicate_problems import print_problem_collection
 from dsp_tools.commands.create.create_on_server.cardinalities import add_all_cardinalities
 from dsp_tools.commands.create.create_on_server.classes import create_all_classes
@@ -17,6 +14,9 @@ from dsp_tools.commands.create.models.server_project_info import ProjectIriLooku
 from dsp_tools.setup.ansi_colors import BOLD
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import OntologyCreateClient
+from dsp_vre.clients.ontology_create_client_live import OntologyCreateClientLive
 
 
 def create_ontologies(

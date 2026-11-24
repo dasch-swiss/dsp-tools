@@ -3,7 +3,6 @@ import time
 from loguru import logger
 from tqdm import tqdm
 
-from dsp_tools.clients.ontology_clients import OntologyCreateClient
 from dsp_tools.commands.create.models.create_problems import CollectedProblems
 from dsp_tools.commands.create.models.create_problems import CreateProblem
 from dsp_tools.commands.create.models.create_problems import UploadProblem
@@ -11,8 +10,9 @@ from dsp_tools.commands.create.models.create_problems import UploadProblemType
 from dsp_tools.commands.create.models.parsed_ontology import ParsedOntology
 from dsp_tools.commands.create.models.server_project_info import ProjectIriLookup
 from dsp_tools.commands.create.serialisation.ontology import serialise_ontology_graph_for_request
-from dsp_tools.utils.request_utils import ResponseCodeAndText
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre.clients import OntologyCreateClient
+from dsp_vre.clients.request_utils import ResponseCodeAndText
+from dsp_vre.clients.request_utils import should_retry_request
 
 
 def create_all_ontologies(

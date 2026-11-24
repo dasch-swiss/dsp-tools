@@ -5,9 +5,6 @@ from typing import Any
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
-from dsp_tools.clients.connection import Connection
-from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.get.exceptions import InvalidProjectIdentifierError
 from dsp_tools.commands.get.get_permissions import get_default_permissions
 from dsp_tools.commands.get.legacy_models.group import Group
@@ -15,7 +12,11 @@ from dsp_tools.commands.get.legacy_models.listnode import ListNode
 from dsp_tools.commands.get.legacy_models.ontology import Ontology
 from dsp_tools.commands.get.legacy_models.project import Project
 from dsp_tools.commands.get.legacy_models.user import User
-from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import ANY_DSP_ERROR
+from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
+from dsp_vre.clients import Connection
+from dsp_vre.clients import ConnectionLive
+from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
 
 
 def get_project(
@@ -42,11 +43,11 @@ def get_project(
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     try:
         auth.get_token()
-        con = ConnectionLive(creds.server, auth)
+        con = ConnectionLive(creds.server, auth, log_file=WARNINGS_SAVEPATH)
         authenticated = True
-    except BaseError:
+    except ANY_DSP_ERROR:
         warnings.warn("WARNING: Missing or wrong credentials. You won't get sensitive data of this project.")
-        con = ConnectionLive(creds.server)
+        con = ConnectionLive(creds.server, log_file=WARNINGS_SAVEPATH)
         authenticated = False
 
     project = _create_project(con, project_identifier)
@@ -116,7 +117,7 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
         print("Getting users...")
     try:
         users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
-    except BaseError:
+    except ANY_DSP_ERROR:
         return None
     if users is None:
         return None

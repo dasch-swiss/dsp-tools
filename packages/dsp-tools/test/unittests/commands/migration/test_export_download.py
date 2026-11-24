@@ -4,10 +4,9 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ExportImportStatus
 from dsp_tools.commands.migration.exceptions import MigrationDownloadFailureError
 from dsp_tools.commands.migration.exceptions import MigrationExportFailureError
+from dsp_tools.commands.migration.exceptions import MigrationExportOnServerError
 from dsp_tools.commands.migration.export_download import _check_export_progress
 from dsp_tools.commands.migration.export_download import _execute_download
 from dsp_tools.commands.migration.export_download import _execute_export
@@ -15,6 +14,9 @@ from dsp_tools.commands.migration.export_download import export_and_download
 from dsp_tools.commands.migration.models import MigrationConfig
 from dsp_tools.commands.migration.models import MigrationInfo
 from dsp_tools.commands.migration.models import ServerInfo
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients.exceptions import MigrationExportExistsError
 
 # yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
 # this is expected in tests and does not affect behaviour.
@@ -164,6 +166,16 @@ class TestExecuteExport:
         client.get_status.return_value = ExportImportStatus.COMPLETED
         _execute_export(client, reference_path, skip_assets=True)
         client.post_export.assert_called_once_with(True)
+
+    def test_existing_export_raises_error_with_clean_up_hint(self, tmp_path: Path) -> None:
+        client = MagicMock()
+        client.project_iri = PROJECT_IRI
+        client.post_export.side_effect = MigrationExportExistsError()
+        with pytest.raises(
+            MigrationExportOnServerError,
+            match=r"An export for this project already exists.*'uvx dsp-tools migration clean-up'",
+        ):
+            _execute_export(client, tmp_path / "migration-references.json", skip_assets=False)
 
 
 class TestCheckExportProgress:

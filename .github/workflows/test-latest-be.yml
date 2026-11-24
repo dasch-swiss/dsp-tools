@@ -8,7 +8,7 @@ on:
   pull_request:
 
 env:
-  DSP_TOOLS_TESTING: true
+  DSP_VRE_NO_RETRY: true
 
 # Skipped on release-please PRs: no source changes to integrate against a
 # backend. `head_ref` is empty on a schedule event, so the nightly run still

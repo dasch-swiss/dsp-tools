@@ -15,7 +15,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_vre.clients.exceptions import PermanentConnectionError
 
 
 def _make_upload_state(save_location: Path, interrupt_after: int | None = None) -> UploadState:

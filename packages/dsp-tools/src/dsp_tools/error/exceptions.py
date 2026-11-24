@@ -4,6 +4,8 @@ from pathlib import Path
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import LOGGER_SAVEPATH
+from dsp_vre.clients.exceptions import DspVreBaseError
+from dsp_vre.clients.exceptions import DspVreUserError
 
 
 @dataclass
@@ -88,14 +90,6 @@ class UserDirectoryNotFoundError(UserError):
         super().__init__(msg)
 
 
-class PermanentConnectionError(InternalError):
-    """This error is raised when all attempts to reconnect to DSP have failed."""
-
-
-class BadCredentialsError(UserError):
-    """This error is raised when DSP-API doesn't accept the provided credentials."""
-
-
 class NonInteractiveContextCliError(UserError):
     """Used when we require an interactive input, but the process is not running in a context where this is possible."""
 
@@ -109,3 +103,10 @@ class NonInteractiveContextCliError(UserError):
 
 class DaschEmployeeAccountUsedForUploadError(UserError):
     """Class for errors when data is uploaded to a prod-like server with a DaSCH employee account."""
+
+
+# Catch with this tuple, so that errors of dsp-vre are not missed.
+ANY_DSP_ERROR = (BaseError, DspVreBaseError)
+
+# Catch with this tuple, so that user errors of dsp-vre are not missed.
+ANY_USER_ERROR = (UserError, DspVreUserError)

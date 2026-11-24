@@ -13,9 +13,11 @@ runs:
       uses: astral-sh/setup-uv@v9.0.0
       with:
         enable-cache: true
-    - name: Build wheel
+    - name: Build wheels
       run: |
-        echo ########### STEP: BUILD WHEEL ###########
+        echo ########### STEP: BUILD WHEELS ###########
+        # dsp-tools depends on dsp-vre, which is built from the same commit.
+        uv build --package dsp-vre
         uv build --package dsp-tools
       shell: bash
     - name: check the wheel for correctness, in dedicated venv
@@ -23,10 +25,11 @@ runs:
         echo ########### STEP: CHECK WHEEL IN DEDICATED VENV ###########
         uvx check-wheel-contents dist/
       shell: bash
-    - name: Install wheel globally
+    - name: Install wheels globally
       run: |
-        echo ########### STEP: INSTALL WHEEL GLOBALLY ###########
-        find dist -type f -name "*.whl" -exec uv pip install --system {} \;
+        echo ########### STEP: INSTALL WHEELS GLOBALLY ###########
+        # One command for both wheels, so that dsp-tools resolves dsp-vre from dist/ and not from PyPI.
+        uv pip install --system dist/*.whl
       shell: bash
     - name: Install pytest globally
       run: |

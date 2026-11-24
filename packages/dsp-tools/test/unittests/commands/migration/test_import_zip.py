@@ -3,11 +3,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dsp_tools.clients.migration_clients import ExportImportStatus
-from dsp_tools.clients.migration_clients import ImportId
+from dsp_tools.commands.migration.exceptions import MigrationImportOnServerError
 from dsp_tools.commands.migration.import_zip import _check_import_progress
 from dsp_tools.commands.migration.import_zip import execute_import
 from dsp_tools.commands.migration.models import MigrationConfig
+from dsp_vre.clients import ExportImportStatus
+from dsp_vre.clients import ImportId
+from dsp_vre.clients.exceptions import MigrationImportExistsError
 
 # yaspin emits a UserWarning when colour/style params are set but stdout is not a TTY;
 # this is expected in tests and does not affect behaviour.
@@ -34,6 +36,23 @@ class TestExecuteImport:
         success, returned_id = execute_import(client, config)
         assert success is True
         assert returned_id == import_id
+
+    def test_existing_import_raises_error_with_clean_up_hint(self, tmp_path: Path) -> None:
+        (tmp_path / f"export-{SHORTCODE}.zip").touch()
+        config = MigrationConfig(
+            shortcode=SHORTCODE,
+            export_savepath=tmp_path / f"export-{SHORTCODE}.zip",
+            reference_savepath=tmp_path / "migration-references-0099.json",
+            keep_local_export=False,
+            skip_assets=False,
+        )
+        client = MagicMock()
+        client.post_import.side_effect = MigrationImportExistsError()
+        with pytest.raises(
+            MigrationImportOnServerError,
+            match=r"An import for this project already exists.*'uvx dsp-tools migration clean-up'",
+        ):
+            execute_import(client, config)
 
 
 class TestCheckImportProgress:

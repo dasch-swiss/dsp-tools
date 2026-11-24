@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from dsp_tools.clients.migration_clients import ExportId
-from dsp_tools.clients.migration_clients import ImportId
+from dsp_vre.clients import ExportId
+from dsp_vre.clients import ImportId
 
 
 @dataclass

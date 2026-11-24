@@ -17,8 +17,8 @@ from packaging.version import parse
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.cli.utils import get_canonical_server_and_dsp_ingest_url
+from dsp_tools.error.exceptions import ANY_USER_ERROR
 from dsp_tools.error.exceptions import InternalError
-from dsp_tools.error.exceptions import UserError
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.setup.logger_config import logger_config
@@ -71,7 +71,7 @@ def run(args: Sequence[str]) -> None:
     except KeyboardInterrupt:
         logger.info("User interrupted execution")
         sys.exit(130)
-    except UserError as err:
+    except ANY_USER_ERROR as err:
         logger.exception(f"User error: {err.message}")
         print(f"\n{BOLD_RED}Error: {err.message}{RESET_TO_DEFAULT}")
         success = False

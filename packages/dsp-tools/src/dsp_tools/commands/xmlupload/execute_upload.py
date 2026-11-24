@@ -7,12 +7,6 @@ from rdflib import URIRef
 from requests import ReadTimeout
 from tqdm import tqdm
 
-from dsp_tools.clients.ingest import AssetClient
-from dsp_tools.clients.legal_info_client import LegalInfoClient
-from dsp_tools.clients.project_client_live import ProjectClientLive
-from dsp_tools.clients.resource_client import ResourceClient
-from dsp_tools.clients.resource_client_live import ResourceClientLive
-from dsp_tools.clients.value_client_live import ValueClientLive
 from dsp_tools.commands.xmlupload.exceptions import XmlUploadInterruptedError
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt
 from dsp_tools.commands.xmlupload.handle_errors import handle_keyboard_interrupt_during_creation
@@ -29,18 +23,24 @@ from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
 from dsp_tools.commands.xmlupload.models.processed.res import ProcessedResource
+from dsp_tools.commands.xmlupload.models.upload_clients import AssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.error.exceptions import BadCredentialsError
-from dsp_tools.error.exceptions import BaseError
-from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.error.exceptions import ANY_DSP_ERROR
 from dsp_tools.setup.logger_config import WARNINGS_SAVEPATH
-from dsp_tools.utils.exceptions import DspToolsRequestError
-from dsp_tools.utils.request_utils import log_request_failure_and_sleep
-from dsp_tools.utils.request_utils import should_retry_request
+from dsp_vre.clients import LegalInfoClient
+from dsp_vre.clients import ResourceClient
+from dsp_vre.clients.exceptions import BadCredentialsError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import PermanentConnectionError
+from dsp_vre.clients.project_client_live import ProjectClientLive
+from dsp_vre.clients.request_utils import log_request_failure_and_sleep
+from dsp_vre.clients.request_utils import should_retry_request
+from dsp_vre.clients.resource_client_live import ResourceClientLive
+from dsp_vre.clients.value_client_live import ValueClientLive
 
 
 def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
@@ -169,7 +169,7 @@ def _execute_one_resource_upload(
         # The resource stays pending, so that 'resume-xmlupload' retries it once the credentials are fixed.
         raise
     except Exception as err:  # noqa: BLE001 (blind-except)
-        err_msg = err.message if isinstance(err, BaseError) else None
+        err_msg = err.message if isinstance(err, ANY_DSP_ERROR) else None
         inform_about_resource_creation_failure(resource, err_msg)
 
     try:
@@ -196,7 +196,7 @@ def _execute_one_resource_data_upload(
     for retry_counter in range(num_of_retries):
         try:
             creation_result = resource_client.post_resource(resource_dict, bool(media_info))
-        except DspToolsRequestError:
+        except DspApiRequestError:
             # the traceback was already logged when the request exception was converted
             log_request_failure_and_sleep("Connection Error", retry_counter, exc_info=False)
             continue

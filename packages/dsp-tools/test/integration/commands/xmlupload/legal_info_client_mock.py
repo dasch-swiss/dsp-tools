@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.clients.legal_info_client import LegalInfoClient
+from dsp_vre.clients import AuthenticationClient
+from dsp_vre.clients import LegalInfoClient
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 

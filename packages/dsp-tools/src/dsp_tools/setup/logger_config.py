@@ -1,3 +1,5 @@
+import inspect
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
@@ -26,9 +28,50 @@ def _env_var_is_true(name: str) -> bool:
     return str(os.getenv(name)).lower() == "true"
 
 
+class _LoguruInterceptHandler(logging.Handler):
+    """Passes the records of a standard logger to loguru, so that they go into the same log files."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            try:
+                level: str | int = logger.level(record.levelname).name
+            except ValueError:
+                level = record.levelno
+            # The depth skips the frames of the logging module, so that loguru names the code that emitted the record.
+            frame, depth = inspect.currentframe(), 0
+            while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
+                frame = frame.f_back
+                depth += 1
+            logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        except Exception:  # noqa: BLE001
+            self.handleError(record)
+
+
+class _NoticePrintHandler(logging.Handler):
+    """Prints the notices of dsp-vre (for example a retry) on the terminal, with a time stamp."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            # print() looks up sys.stdout at each call, so that the capture of pytest also gets the notices.
+            print(f"{datetime.fromtimestamp(record.created)}: {record.getMessage()}")
+        except Exception:  # noqa: BLE001
+            self.handleError(record)
+
+
+def _replace_handler(logger_name: str, handler: logging.Handler) -> None:
+    """Make the handler the only one of its type on the logger."""
+    target = logging.getLogger(logger_name)
+    for existing in list(target.handlers):
+        if isinstance(existing, type(handler)):
+            target.removeHandler(existing)
+    target.addHandler(handler)
+
+
 def logger_config() -> None:
     """
     This function configures the log files.
+    The records of the package dsp-vre (standard logger "dsp_vre") go into the same sinks.
+    Its notices for the user (logger "dsp_vre.notices") are also printed on the terminal.
     Currently, there are three sinks:
     - timestamp_logging.log in ~/.dsp-tools/logs/ contains the entire stack-trace
     - warnings.log in the cwd only with level warning and higher for the user (no stack-trace)
@@ -41,6 +84,9 @@ def logger_config() -> None:
     """
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
+    logging.getLogger("dsp_vre").setLevel(logging.DEBUG)
+    _replace_handler("dsp_vre", _LoguruInterceptHandler())
+    _replace_handler("dsp_vre.notices", _NoticePrintHandler())
 
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"

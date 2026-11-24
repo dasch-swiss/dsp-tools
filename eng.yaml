@@ -26,8 +26,8 @@ overrides:
   - when: "packages/dsp-tools/src/dsp_tools/cli/**"
     conventions: [packages/dsp-tools/src/dsp_tools/cli/CLAUDE.md]
 
-  - when: "packages/dsp-tools/src/dsp_tools/clients/**"
-    conventions: [packages/dsp-tools/src/dsp_tools/clients/CLAUDE.md]
+  - when: "packages/dsp-vre/src/dsp_vre/clients/**"
+    conventions: [packages/dsp-vre/src/dsp_vre/clients/CLAUDE.md]
     reviewers: ['eng:review:security-reviewer']
 
   - when: "packages/dsp-tools/src/dsp_tools/commands/create/**"

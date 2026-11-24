@@ -3,11 +3,11 @@ from unittest.mock import Mock
 import pytest
 from lxml import etree
 
-from dsp_tools.clients.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.exceptions import InvalidArkError
 from dsp_tools.commands.xmlupload.exceptions import MissingProjectDefaultAuthorshipError
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.xmlupload import _resolve_project_default_authorship
+from dsp_vre.clients import ProjectClient
 
 
 def test_good() -> None:

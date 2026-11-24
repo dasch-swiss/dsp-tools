@@ -14,7 +14,7 @@ from dsp_tools.commands.start_stack.exceptions import StartStackInputError
 from dsp_tools.commands.start_stack.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack.start_stack import StackHandler
 from dsp_tools.commands.start_stack.start_stack import _read_env_var
-from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_vre.clients.exceptions import PermanentConnectionError
 
 
 @pytest.fixture

@@ -5,7 +5,6 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.clients.ontology_create_client_live import OntologyCreateClientLive
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_all_cardinalities_for_one_onto
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_cardinalities_for_one_class
 from dsp_tools.commands.create.create_on_server.cardinalities import _add_one_cardinality
@@ -15,7 +14,8 @@ from dsp_tools.commands.create.models.parsed_ontology import Cardinality
 from dsp_tools.commands.create.models.parsed_ontology import ParsedClassCardinalities
 from dsp_tools.commands.create.models.parsed_ontology import ParsedPropertyCardinality
 from dsp_tools.commands.create.models.server_project_info import CreatedIriCollection
-from dsp_tools.utils.request_utils import ResponseCodeAndText
+from dsp_vre.clients.ontology_create_client_live import OntologyCreateClientLive
+from dsp_vre.clients.request_utils import ResponseCodeAndText
 from test.unittests.commands.create.constants import LAST_MODIFICATION_DATE
 from test.unittests.commands.create.constants import ONTO
 from test.unittests.commands.create.constants import ONTO_IRI

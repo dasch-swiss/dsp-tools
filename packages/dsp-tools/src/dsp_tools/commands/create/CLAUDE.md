@@ -369,7 +369,7 @@ After successful creation:
 
 ## Client Usage
 
-The create command uses several clients (detailed in `src/dsp_tools/clients/CLAUDE.md`):
+The create command uses several clients (detailed in `dsp_vre/clients/CLAUDE.md` of the package `dsp-vre`):
 
 - **`AuthenticationClient`**: Authentication and token management
 - **`OntologyCreateClient`**: Create ontologies, classes, properties, cardinalities

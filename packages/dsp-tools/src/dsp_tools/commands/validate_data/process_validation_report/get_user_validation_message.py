@@ -4,7 +4,6 @@ from dataclasses import astuple
 import pandas as pd
 
 from dsp_tools.cli.args import ValidationSeverity
-from dsp_tools.clients.metadata_client import ExistingResourcesRetrieved
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateFileWarning
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -13,6 +12,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import Severity
 from dsp_tools.commands.validate_data.models.input_problems import SortedProblems
 from dsp_tools.commands.validate_data.models.input_problems import UserPrintMessages
+from dsp_vre.clients import ExistingResourcesRetrieved
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"

@@ -86,13 +86,35 @@ BaseError                                     # Root. Dataclass with message: st
 │   ├── UserFilepathNotFoundError             # Generic: file does not exist.
 │   ├── UserFilepathMustNotExistError         # Generic: file must not already exist.
 │   ├── UserDirectoryNotFoundError            # Generic: directory does not exist.
-│   ├── BadCredentialsError                   # DSP-API rejected credentials.
 │   ├── NonInteractiveContextCliError         # Input is missing, and no terminal can ask for it.
 │   └── DaschEmployeeAccountUsedForUploadError  # Upload to a prod-like server with a DaSCH employee account declined.
 └── InternalError                             # Requires developer assistance. Prints contact info + log file path.
-    ├── UnreachableCodeError                  # Code path that must never execute.
-    └── PermanentConnectionError              # All reconnection attempts failed.
+    └── UnreachableCodeError                  # Code path that must never execute.
 ```
+
+The HTTP clients are in the package `dsp-vre`, which must not import `dsp-tools`.
+Thus `dsp-vre` has its own hierarchy, in `dsp_vre/clients/exceptions.py`:
+
+```text
+DspVreBaseError                            # Root. Dataclass with message: str attribute.
+├── DspVreUserError                        # User can fix this themselves.
+│   ├── BadCredentialsError                   # DSP-API rejected credentials.
+│   ├── InvalidInputError                     # Invalid input for a client.
+│   │   └── InvalidIngestFileNameError        # The ingest server rejects a file name.
+│   └── ProjectNotFoundError, NoIngestFileFoundError, ...
+└── DspVreInternalError                    # Requires developer assistance.
+    ├── PermanentConnectionError              # All reconnection attempts failed.
+    └── DspApiRequestError, FatalNonOkApiResponseCodeError, IngestError
+```
+
+`entry_point.py` shows a `DspVreUserError` like a `UserError`.
+It wraps every other exception, `DspVreInternalError` included, in an `InternalError`.
+Two tuples in `dsp_tools/error/exceptions.py` name both roots:
+
+- `ANY_DSP_ERROR` is `(BaseError, DspVreBaseError)`.
+- `ANY_USER_ERROR` is `(UserError, DspVreUserError)`.
+
+Catch with these tuples wherever a client error can occur.
 
 **Choosing the right class:**
 

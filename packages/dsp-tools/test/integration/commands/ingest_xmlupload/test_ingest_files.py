@@ -4,9 +4,9 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.clients.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import _retrieve_mapping
 from dsp_tools.error.exceptions import UnreachableCodeError
+from dsp_vre.clients import BulkIngestClient
 
 MAPPING_CSV = "original,derivative\nfoo.jpg,0001.jp2\n"
 

@@ -26,7 +26,6 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.get.legacy_models.context import Context
 from dsp_tools.commands.get.legacy_models.helpers import WithId
 from dsp_tools.commands.get.legacy_models.model import Model
@@ -35,6 +34,7 @@ from dsp_tools.commands.get.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.get.legacy_models.resourceclass import ResourceClass
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_vre.clients import Connection
 
 
 class Ontology(Model):

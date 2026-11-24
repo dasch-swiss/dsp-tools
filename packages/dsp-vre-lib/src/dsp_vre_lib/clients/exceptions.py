@@ -154,7 +154,7 @@ class DataImportPreconditionError(DspVreLibUserError):
 
 
 class DataImportRunningError(DspVreLibUserError):
-    """Another import runs on the server."""
+    """Another bulk data import runs on the server."""
 
 
 class DataImportExistsError(DspVreLibUserError):

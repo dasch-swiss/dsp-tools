@@ -105,7 +105,7 @@ def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str,
 def _map_error(err: DspVreUserError, files: PayloadFiles, user: str, shortcode: str) -> Exception:  # noqa: PLR0911
     match err:
         case BadCredentialsError():
-            return SystemAdminRequiredError()
+            return SystemAdminRequiredError("ingest-xmlupload")
         case OnBehalfOfUserNotFoundError():
             return OnBehalfOfUserMissingError(user)
         case OnBehalfOfUserIneligibleError():

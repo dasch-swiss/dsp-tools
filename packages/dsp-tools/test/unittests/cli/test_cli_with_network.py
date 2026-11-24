@@ -568,6 +568,24 @@ class TestIngestUploads:
         )
         ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
 
+    @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
+    @patch("dsp_tools.cli.call_action_with_network.delete_data_import")
+    def test_delete_data_import_localhost(self, delete_data_import: Mock, check_input_dependencies: Mock) -> None:
+        args = "delete-data-import 1234 imp-1".split()
+        entry_point.run(args)
+        creds = ServerCredentials(
+            server="http://0.0.0.0:3333",
+            user="root@example.com",
+            password="test",
+            dsp_ingest_url="http://0.0.0.0:3340",
+        )
+        delete_data_import.assert_called_once_with(shortcode="1234", import_id="imp-1", creds=creds)
+
+    @pytest.mark.parametrize("import_id", ["", ".", "..", "..."])
+    def test_delete_data_import_rejects_invalid_import_id(self, import_id: str) -> None:
+        with pytest.raises(SystemExit):
+            entry_point.run(["delete-data-import", "1234", import_id])
+
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")
     def test_ingest_xmlupload_localhost(self, ingest_xmlupload: Mock, check_docker: Mock) -> None:

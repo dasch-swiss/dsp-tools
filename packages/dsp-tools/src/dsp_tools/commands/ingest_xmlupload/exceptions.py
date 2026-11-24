@@ -62,10 +62,8 @@ def describe_task_left_on_server(shortcode: str, import_id: str, payload: Path, 
 class SystemAdminRequiredError(UserError):
     """The login failed, or the user is not a system admin."""
 
-    def __init__(self) -> None:
-        super().__init__(
-            "The login failed, or the user is not a system admin. Only system admins can run ingest-xmlupload."
-        )
+    def __init__(self, command: str) -> None:
+        super().__init__(f"The login failed, or the user is not a system admin. Only system admins can run {command}.")
 
 
 class OnBehalfOfUserMissingError(UserError):

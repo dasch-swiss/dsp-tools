@@ -15,6 +15,7 @@ from dsp_tools.commands.create.project_validate import validate_project_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_from_project
 from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.delete_data_import import delete_data_import
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
@@ -76,6 +77,11 @@ def call_ingest_files(args: argparse.Namespace) -> bool:
         network_dependencies=[NetworkRequirements(api_url=args.server, ingest_url=args.dsp_ingest_url)]
     )
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
+
+
+def call_delete_data_import(args: argparse.Namespace) -> bool:
+    check_input_dependencies(network_dependencies=[NetworkRequirements(api_url=args.server)])
+    return delete_data_import(shortcode=args.shortcode, import_id=args.import_id, creds=get_creds(args))
 
 
 def call_ingest_xmlupload(args: argparse.Namespace) -> bool:

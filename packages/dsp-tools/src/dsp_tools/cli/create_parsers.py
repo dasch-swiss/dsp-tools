@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 from argparse import ArgumentParser
+from argparse import ArgumentTypeError
 from argparse import _SubParsersAction
 from importlib.metadata import version
 
@@ -58,6 +59,7 @@ def make_parser(
     _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_delete_data_import(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_excel2json(subparsers)
     _add_old_excel2json(subparsers)
@@ -229,6 +231,31 @@ def _add_ingest_files(
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument("shortcode", help="shortcode of the project that the files belong to")
+
+
+def _import_id(value: str) -> str:
+    # requests removes dot segments from a URL, so such an ID would address another path
+    if not value or set(value) == {"."}:
+        raise ArgumentTypeError(f"invalid import ID '{value}': it must not be empty or consist only of dots")
+    return value
+
+
+def _add_delete_data_import(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(
+        name="delete-data-import",
+        help="Delete a bulk data import left on a DSP server (system admins only)",
+    )
+    subparser.set_defaults(action="delete-data-import")
+    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument("shortcode", help="shortcode of the project that the import belongs to")
+    subparser.add_argument("import_id", type=_import_id, help="ID of the bulk data import")
 
 
 def _add_ingest_xmlupload(

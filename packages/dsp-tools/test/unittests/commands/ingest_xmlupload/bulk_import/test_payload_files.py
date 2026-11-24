@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import data_imports_folder
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import make_payload_files
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import write_minted_mapping
 
@@ -27,3 +28,9 @@ def test_write_minted_mapping(tmp_path: Path) -> None:
     target = tmp_path / "map.json"
     write_minted_mapping({"a": "http://rdfh.ch/0001/x"}, target)
     assert json.loads(target.read_text(encoding="utf-8")) == {"a": "http://rdfh.ch/0001/x"}
+
+
+def test_data_imports_folder(tmp_path: Path) -> None:
+    folder = data_imports_folder("localhost")
+    assert folder == tmp_path / ".dsp-tools" / "data-imports" / "localhost"
+    assert folder.is_dir()

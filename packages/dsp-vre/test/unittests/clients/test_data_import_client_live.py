@@ -96,6 +96,7 @@ class TestPostImport:
         assert headers["Content-Type"] == "application/ld+json"
         assert headers["Authorization"] == "Bearer test-token-123"
         assert headers["DSP-Client"] == USER_AGENT
+        assert headers["User-Agent"] == USER_AGENT
 
     def test_body_is_a_file_object(self, client: DataImportClientLive, payload_path: Path) -> None:
         response = _response(HTTPStatus.ACCEPTED, _status_body("in_progress"))
@@ -124,6 +125,7 @@ class TestGetStatus:
         assert result == DataImportStatus(IMPORT_ID, PROJECT_IRI, expected, None)
         assert mock_get.call_args.kwargs["url"] == f"{BASE_URL}/import-123"
         assert mock_get.call_args.kwargs["headers"]["DSP-Client"] == USER_AGENT
+        assert mock_get.call_args.kwargs["headers"]["User-Agent"] == USER_AGENT
 
     def test_failed_status_has_error_message(self, client: DataImportClientLive) -> None:
         response = _response(HTTPStatus.OK, _status_body("failed", "Validation failed."))
@@ -154,6 +156,7 @@ class TestDeleteImport:
             client.delete_import(IMPORT_ID)
         assert mock_delete.call_args.kwargs["url"] == f"{BASE_URL}/import-123"
         assert mock_delete.call_args.kwargs["headers"]["DSP-Client"] == USER_AGENT
+        assert mock_delete.call_args.kwargs["headers"]["User-Agent"] == USER_AGENT
 
 
 class TestErrorMapping:

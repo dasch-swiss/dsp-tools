@@ -102,7 +102,11 @@ class DataImportClientLive(DataImportClient):
         return f"{self._base_url()}/{quote(import_id.id, safe='')}"
 
     def _headers(self) -> dict[str, str]:
-        return {"Authorization": f"Bearer {self.auth.get_token()}", "DSP-Client": USER_AGENT}
+        return {
+            "Authorization": f"Bearer {self.auth.get_token()}",
+            "DSP-Client": USER_AGENT,
+            "User-Agent": USER_AGENT,
+        }
 
 
 def _parse_status(response: Response, url: str) -> DataImportStatus:

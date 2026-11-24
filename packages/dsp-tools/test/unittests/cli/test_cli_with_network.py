@@ -571,7 +571,7 @@ class TestIngestUploads:
     @patch("dsp_tools.cli.call_action_with_network.check_input_dependencies")
     @patch("dsp_tools.cli.call_action_with_network.delete_data_import")
     def test_delete_data_import_localhost(self, delete_data_import: Mock, check_input_dependencies: Mock) -> None:
-        args = "delete-data-import 1234 imp-1".split()
+        args = "delete-data-import 1234 Q2h1bmtfb2ZfMTZfYnl0ZQ".split()
         entry_point.run(args)
         creds = ServerCredentials(
             server="http://0.0.0.0:3333",
@@ -579,12 +579,18 @@ class TestIngestUploads:
             password="test",
             dsp_ingest_url="http://0.0.0.0:3340",
         )
-        delete_data_import.assert_called_once_with(shortcode="1234", import_id="imp-1", creds=creds)
+        delete_data_import.assert_called_once_with(shortcode="1234", import_id="Q2h1bmtfb2ZfMTZfYnl0ZQ", creds=creds)
 
-    @pytest.mark.parametrize("import_id", ["", ".", "..", "..."])
-    def test_delete_data_import_rejects_invalid_import_id(self, import_id: str) -> None:
+    @pytest.mark.parametrize(
+        "import_id",
+        ["", ".", "..", "...", "imp-1", "Q2h1bmtfb2ZfMTZfYnl0ZQ=", "Q2h1bmtfb2ZfMTZfYnl0Z", "Q2h1bmtfb2ZfMTZfYnl0Z+"],
+    )
+    def test_delete_data_import_rejects_invalid_import_id(
+        self, import_id: str, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         with pytest.raises(SystemExit):
             entry_point.run(["delete-data-import", "1234", import_id])
+        assert "invalid import ID" in capsys.readouterr().err
 
     @patch("dsp_tools.cli.utils._check_network_health")
     @patch("dsp_tools.cli.call_action_with_network.ingest_xmlupload")

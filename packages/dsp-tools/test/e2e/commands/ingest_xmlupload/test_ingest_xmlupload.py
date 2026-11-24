@@ -9,6 +9,7 @@ from pytest_unordered import unordered
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.delete_data_import import delete_data_import
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from test.e2e.commands.ingest_xmlupload.utils import util_get_attached_to_user
@@ -82,6 +83,12 @@ def test_ingest_upload(
     _test_upload_step(creds, tmp_folder)
     _test_ingest_step(mapping_file, creds, tmp_folder, container_metadata.artifact_dirs)
     _test_xmlupload_step(creds, home_folder)
+    _test_delete_data_import_step(creds)
+
+
+def _test_delete_data_import_step(creds: ServerCredentials) -> None:
+    # The import task of the previous step is already deleted, so the server reports "not found".
+    assert delete_data_import("0001", "Q2h1bmtfb2ZfMTZfYnl0ZQ", creds)
 
 
 def _test_upload_step(creds: ServerCredentials, tmp_folder: Path) -> None:

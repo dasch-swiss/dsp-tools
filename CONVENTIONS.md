@@ -65,6 +65,8 @@ DSP-API (a remote/local Scala service). Linting: `ruff` (format + check), `mypy`
 
 - All new code is fully type-annotated (mypy runs strict). Run `just mypy`; use `dmypy restart` if it misbehaves.
 - Always use `pathlib.Path`, never `os.path`, and never pass paths around as strings.
+- Use the `regex` package for regular expressions, never the standard-library `re`. This holds for source code and
+  tests. `regex` is a dependency of `dsp-tools`.
 - Use modern Python syntax and patterns.
 
 ### Naming

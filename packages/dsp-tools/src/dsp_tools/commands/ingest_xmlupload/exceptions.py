@@ -17,3 +17,15 @@ class NoFilesUploadedForIngestError(UserError):
             f"{server_message} Before using the 'ingest-files' command, "
             "you must upload some files with the 'upload-files' command."
         )
+
+
+class ForeignShortcodeIriError(UserError):
+    """Resources have a preset IRI that belongs to a different project than the one being uploaded to."""
+
+    def __init__(self, shortcode: str, resource_iris: dict[str, str]) -> None:
+        listing = "\n".join(f"  - Resource ID '{res_id}': {iri}" for res_id, iri in resource_iris.items())
+        super().__init__(
+            f"The following resources have an IRI that does not belong to the project with shortcode '{shortcode}':\n"
+            f"{listing}\n"
+            f"Please correct the ARKs or IRIs of these resources so that they contain the shortcode '{shortcode}'."
+        )

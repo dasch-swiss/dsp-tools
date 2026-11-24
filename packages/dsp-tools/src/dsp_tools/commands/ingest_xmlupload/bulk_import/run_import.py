@@ -135,14 +135,16 @@ def _poll(
         with sp:
             while True:
                 status = client.get_status(import_id)
-                if status.status != DataImportStatusValue.IN_PROGRESS:
-                    if status.status == DataImportStatusValue.COMPLETED:
+                match status.status:
+                    case DataImportStatusValue.IN_PROGRESS:
+                        logger.debug(f"Import in progress, sleep {sleep_time}")
+                        time.sleep(sleep_time)
+                    case DataImportStatusValue.COMPLETED:
                         sp.ok("✔")
-                    else:
+                        return status
+                    case DataImportStatusValue.FAILED:
                         sp.fail("✘")
-                    return status
-                logger.debug(f"Import in progress, sleep {sleep_time}")
-                time.sleep(sleep_time)
+                        return status
     except DspVreBaseError as err:
         logger.exception(err)
         raise BulkImportStatusUnknownError(str(err), shortcode, import_id.id_, files.payload, files.id2iri) from None

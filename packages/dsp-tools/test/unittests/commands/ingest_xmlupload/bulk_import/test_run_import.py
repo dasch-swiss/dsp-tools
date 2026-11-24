@@ -5,16 +5,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from requests.exceptions import ConnectionError as RequestsConnectionError
-from requests.exceptions import Timeout
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import PayloadFiles
 from dsp_tools.commands.ingest_xmlupload.bulk_import.run_import import run_import
-from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportConnectionLostError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportExistsError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportNotEnabledError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportPreconditionError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportRunningError
+from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportStatusUnknownError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserMissingError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserRejectedError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendConnectionLostError
@@ -32,6 +30,8 @@ from dsp_vre.clients.exceptions import DataImportNotEnabledError
 from dsp_vre.clients.exceptions import DataImportPayloadTooLargeError
 from dsp_vre.clients.exceptions import DataImportPreconditionError
 from dsp_vre.clients.exceptions import DataImportRunningError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_vre.clients.exceptions import OnBehalfOfUserIneligibleError
 from dsp_vre.clients.exceptions import OnBehalfOfUserNotFoundError
 
@@ -207,10 +207,9 @@ def test_precondition_names_folder(files: PayloadFiles, tmp_path: Path) -> None:
         _run(client, files, tmp_path)
 
 
-@pytest.mark.parametrize("error", [RequestsConnectionError("x"), Timeout("x")])
-def test_post_connection_error_keeps_files(error: Exception, files: PayloadFiles, tmp_path: Path) -> None:
+def test_post_connection_error_keeps_files(files: PayloadFiles, tmp_path: Path) -> None:
     with pytest.raises(PayloadSendConnectionLostError, match=r"2\.0 MiB\. The default server limit is 250 MiB"):
-        _run(FakeClient(post_error=error), files, tmp_path)
+        _run(FakeClient(post_error=DspApiRequestError("x")), files, tmp_path)
     assert files.payload.exists()
     assert files.id2iri.exists()
 
@@ -234,13 +233,53 @@ def test_poll_keyboard_interrupt(files: PayloadFiles, tmp_path: Path) -> None:
     assert "uvx dsp-tools delete-data-import 0001 imp-1" in message
 
 
-@pytest.mark.parametrize("error", [RequestsConnectionError("x"), Timeout("x")])
-def test_poll_connection_error(error: Exception, files: PayloadFiles, tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "error",
+    [
+        DspApiRequestError("connection lost"),
+        BadCredentialsError("login expired"),
+        FatalNonOkApiResponseCodeError("http://x", 500, "boom"),
+    ],
+)
+def test_poll_status_unknown(error: Exception, files: PayloadFiles, tmp_path: Path) -> None:
     client = FakeClient(statuses=[IN_PROGRESS, error])
-    with pytest.raises(BulkImportConnectionLostError) as exc_info:
+    with pytest.raises(BulkImportStatusUnknownError) as exc_info:
         _run(client, files, tmp_path)
     message = str(exc_info.value)
+    assert message.startswith("The status of the bulk data import could not be read: ")
+    assert str(error) in message
     assert "imp-1" in message
     assert str(files.payload) in message
     assert str(files.id2iri) in message
+    assert "uvx dsp-tools delete-data-import 0001 imp-1" in message
     assert client.deleted == []
+
+
+def test_completed_delete_internal_error(
+    files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    client = FakeClient(statuses=[COMPLETED], delete_error=DspApiRequestError("x"))
+    with patch(WRITE_MAPPING):
+        assert _run(client, files, tmp_path) is True
+    out = capsys.readouterr().out
+    assert "uvx dsp-tools delete-data-import 0001 imp-1" in out
+    assert not files.payload.exists()
+    assert not files.id2iri.exists()
+
+
+def test_failed_delete_internal_error(files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    client = FakeClient(statuses=[FAILED], delete_error=DspApiRequestError("x"))
+    assert _run(client, files, tmp_path) is False
+    assert "uvx dsp-tools delete-data-import 0001 imp-1" in capsys.readouterr().out
+
+
+def test_completed_mapping_not_writable(
+    files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    client = FakeClient(statuses=[COMPLETED])
+    with patch(WRITE_MAPPING, side_effect=OSError("disk full")):
+        assert _run(client, files, tmp_path) is True
+    assert client.deleted == [IMPORT_ID]
+    assert not files.payload.exists()
+    assert files.id2iri.exists()
+    assert str(files.id2iri) in capsys.readouterr().out

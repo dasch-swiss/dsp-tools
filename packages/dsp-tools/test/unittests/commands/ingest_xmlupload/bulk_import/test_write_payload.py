@@ -19,6 +19,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
+from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileIIIFUri
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileMetadata
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileValue
 from dsp_tools.commands.xmlupload.models.processed.res import MigrationMetadata
@@ -147,6 +148,18 @@ def test_bitstream_filename(tmp_path):
     filenames = set(graph.objects(None, KNORA_API.fileValueHasFilename))
     assert {str(f) for f in filenames} == {"internal.jp2"}
     file_node = next(graph.subjects(KNORA_API.fileValueHasFilename, None))
+    assert graph.value(file_node, KNORA_API.valueHasOrder) == Literal(0, datatype=XSD.integer)
+
+
+def test_iiif_uri_file_value_order(tmp_path):
+    file_value = ProcessedFileValue(
+        value=ProcessedFileIIIFUri(value="https://iiif.example.org/img/full/max/0/default.jpg"),
+        value_type=KnoraFileValueType.STILL_IMAGE_IIIF,
+        metadata=META,
+    )
+    target, _ = _write([_resource("a", file_value=file_value)], tmp_path)
+    graph = _parse(target)
+    file_node = next(graph.subjects(KNORA_API.stillImageFileValueHasExternalUrl, None))
     assert graph.value(file_node, KNORA_API.valueHasOrder) == Literal(0, datatype=XSD.integer)
 
 

@@ -109,8 +109,8 @@ def ingest_xmlupload(
 
     resolver = mint_resource_iris(processed_resources, shortcode)
     files = make_payload_files(config.diagnostics.server_as_foldername, shortcode)
-    write_minted_mapping(resolver.lookup, files.id2iri)
     write_payload_file(processed_resources, IRILookups(URIRef(project_iri), resolver), files.payload)
+    write_minted_mapping(resolver.lookup, files.id2iri)
 
     return run_import(
         DataImportClientLive(creds.server, project_iri, auth),

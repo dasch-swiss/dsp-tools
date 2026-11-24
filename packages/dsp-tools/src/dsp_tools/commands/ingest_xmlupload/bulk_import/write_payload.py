@@ -11,6 +11,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import make_value_iri
 from dsp_tools.commands.ingest_xmlupload.exceptions import ResourceIriMissingError
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import FILE_TYPE_TO_RDF_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_json
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
@@ -76,8 +77,11 @@ def _get_bitstream_info(res: ProcessedResource) -> BitstreamInfo | None:
     return None
 
 
+_FILE_VALUE_CLASSES = frozenset(info.knora_type for info in FILE_TYPE_TO_RDF_MAPPER.values())
+
+
 def _add_file_value_order(graph: Graph) -> None:
     # The bulk data import needs `valueHasOrder` on every value. The graph builders omit it on the file value.
     for node, value_type in list(graph.subject_objects(RDF.type)):
-        if str(value_type).endswith("FileValue") and graph.value(node, KNORA_API.valueHasOrder) is None:
+        if value_type in _FILE_VALUE_CLASSES and graph.value(node, KNORA_API.valueHasOrder) is None:
             graph.add((node, KNORA_API.valueHasOrder, Literal(0, datatype=XSD.integer)))

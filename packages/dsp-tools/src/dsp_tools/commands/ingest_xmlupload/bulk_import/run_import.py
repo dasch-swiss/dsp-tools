@@ -1,16 +1,16 @@
 import time
 import warnings
+from typing import Never
 
 from loguru import logger
-from requests.exceptions import ConnectionError as RequestsConnectionError
-from requests.exceptions import Timeout
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import PayloadFiles
-from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportConnectionLostError
+from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import delete_payload_files
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportExistsError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportNotEnabledError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportPreconditionError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportRunningError
+from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportStatusUnknownError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserMissingError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserRejectedError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendConnectionLostError
@@ -31,6 +31,8 @@ from dsp_vre.clients.exceptions import DataImportNotEnabledError
 from dsp_vre.clients.exceptions import DataImportPayloadTooLargeError
 from dsp_vre.clients.exceptions import DataImportPreconditionError
 from dsp_vre.clients.exceptions import DataImportRunningError
+from dsp_vre.clients.exceptions import DspApiRequestError
+from dsp_vre.clients.exceptions import DspVreBaseError
 from dsp_vre.clients.exceptions import DspVreUserError
 from dsp_vre.clients.exceptions import OnBehalfOfUserIneligibleError
 from dsp_vre.clients.exceptions import OnBehalfOfUserNotFoundError
@@ -74,9 +76,10 @@ def run_import(
     return False
 
 
-def _delete_files(files: PayloadFiles) -> None:
-    files.payload.unlink(missing_ok=True)
-    files.id2iri.unlink(missing_ok=True)
+def _reraise_interrupt(msg: str) -> Never:
+    warnings.warn(DspToolsUserWarning(msg))
+    logger.exception(msg)
+    raise KeyboardInterrupt(msg) from None
 
 
 def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str, shortcode: str) -> DataImportId:
@@ -85,9 +88,9 @@ def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str,
     except DspVreUserError as err:
         logger.exception(err)
         mapped = _map_error(err, files, on_behalf_of_user, shortcode)
-        _delete_files(files)
+        delete_payload_files(files)
         raise mapped from None
-    except (RequestsConnectionError, Timeout) as err:
+    except DspApiRequestError as err:
         # The server may hold a task, so the files are kept.
         logger.exception(err)
         raise PayloadSendConnectionLostError(files.payload.stat().st_size) from None
@@ -97,9 +100,7 @@ def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str,
             "The server may hold a task. A new run reports it as an existing import with its ID.\n"
             f"The payload file is kept at: {files.payload}"
         )
-        warnings.warn(DspToolsUserWarning(msg))
-        logger.exception(msg)
-        raise KeyboardInterrupt(msg) from None
+        _reraise_interrupt(msg)
 
 
 def _map_error(err: DspVreUserError, files: PayloadFiles, user: str, shortcode: str) -> Exception:  # noqa: PLR0911
@@ -142,22 +143,20 @@ def _poll(
                     return status
                 logger.debug(f"Import in progress, sleep {sleep_time}")
                 time.sleep(sleep_time)
-    except (RequestsConnectionError, Timeout) as err:
+    except DspVreBaseError as err:
         logger.exception(err)
-        raise BulkImportConnectionLostError(shortcode, import_id.id_, files.payload, files.id2iri) from None
+        raise BulkImportStatusUnknownError(str(err), shortcode, import_id.id_, files.payload, files.id2iri) from None
     except KeyboardInterrupt:
         msg = "The bulk data import was interrupted.\n" + describe_task_left_on_server(
             shortcode, import_id.id_, files.payload, files.id2iri
         )
-        warnings.warn(DspToolsUserWarning(msg))
-        logger.exception(msg)
-        raise KeyboardInterrupt(msg) from None
+        _reraise_interrupt(msg)
 
 
 def _delete_task(client: DataImportClient, import_id: DataImportId, shortcode: str) -> None:
     try:
         client.delete_import(import_id)
-    except DspVreUserError as err:
+    except DspVreBaseError as err:
         logger.exception(err)
         print(
             f"The bulk data import task '{import_id.id_}' could not be deleted from the server. "
@@ -174,9 +173,23 @@ def _on_completed(
     diagnostics: DiagnosticsConfig,
 ) -> None:
     logger.info("Bulk data import completed.")
-    write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)
+    is_mapping_written = _write_mapping(id2iri_mapping, shortcode, diagnostics, files)
     _delete_task(client, import_id, shortcode)
-    _delete_files(files)
+    files.payload.unlink(missing_ok=True)
+    if is_mapping_written:
+        files.id2iri.unlink(missing_ok=True)
+
+
+def _write_mapping(
+    id2iri_mapping: dict[str, str], shortcode: str, diagnostics: DiagnosticsConfig, files: PayloadFiles
+) -> bool:
+    try:
+        write_id2iri_mapping(id2iri_mapping, shortcode, diagnostics)
+    except OSError as err:
+        logger.exception(err)
+        print(f"The mapping of internal IDs to IRIs could not be written. It is kept at: {files.id2iri}")
+        return False
+    return True
 
 
 def _on_failed(

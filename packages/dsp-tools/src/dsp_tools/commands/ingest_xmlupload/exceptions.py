@@ -159,11 +159,11 @@ class BulkImportNotEnabledError(UserError):
         super().__init__("The bulk data import is not enabled on this server.")
 
 
-class BulkImportConnectionLostError(UserError):
-    """The connection to the server was lost while the bulk data import task runs."""
+class BulkImportStatusUnknownError(UserError):
+    """The status of the bulk data import task could not be read, so the task may stay on the server."""
 
-    def __init__(self, shortcode: str, import_id: str, payload: Path, id2iri: Path) -> None:
+    def __init__(self, reason: str, shortcode: str, import_id: str, payload: Path, id2iri: Path) -> None:
         super().__init__(
-            "The connection to the server was lost.\n"
+            f"The status of the bulk data import could not be read: {reason}\n"
             + describe_task_left_on_server(shortcode, import_id, payload, id2iri)
         )

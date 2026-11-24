@@ -35,3 +35,9 @@ def make_payload_files(server_as_foldername: str, shortcode: str) -> PayloadFile
 def write_minted_mapping(id2iri: dict[str, str], target: Path) -> None:
     """Writes the mapping of internal IDs to the minted IRIs."""
     target.write_text(json.dumps(id2iri, ensure_ascii=False, indent=4), encoding="utf-8")
+
+
+def delete_payload_files(files: PayloadFiles) -> None:
+    """Deletes the payload file and the minted mapping of an import."""
+    files.payload.unlink(missing_ok=True)
+    files.id2iri.unlink(missing_ok=True)

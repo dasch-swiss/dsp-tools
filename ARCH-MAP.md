@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-20
+date: 2026-11-24
 ---
 
 # ARCH-MAP.md
@@ -677,7 +677,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - `just vulture-vre-lib` scans the package alone. A name that only dsp-tools or a Protocol uses goes into
     `.vulture_whitelist.py`. (enforcement: static-analysis, `just vulture` in `lint-code.yml`)
 - **Durable state**: none.
-- **Fingerprint**: `e5abb559d5e8`
+- **Fingerprint**: `565425daabb2`
 
 ## Cross-cutting concerns
 

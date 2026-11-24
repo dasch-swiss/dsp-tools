@@ -165,11 +165,11 @@ Publishing is automated with GitHub Actions.
 Please follow the 
 [Pull Request Guidelines](https://docs.dasch.swiss/developers/contribution/#pull-request-guidelines). 
 When merging a pull request into `main`, the `release-please` action will create or update a release PR
-for each changed package (`dsp-tools`, `dsp-vre-lib`).
+for each changed package (`dsp-tools`, `dsp-vre`).
 This PR will follow semantic versioning and update the change log. 
 Once all desired features are merged, the release can be published by merging this release pull request into `main`. 
 This will trigger actions that create a release on GitHub and on PyPI.
-On the `dsp-tools` release PR, the `dsp-vre-lib` lower bound of `dsp-tools` is raised to the latest released version.
+On the `dsp-tools` release PR, the `dsp-vre` lower bound of `dsp-tools` is raised to the latest released version.
 PyPI publishing uses [trusted publishing](https://docs.pypi.org/trusted-publishers/).
 
 During the weekly DSP release train, these two merges happen without human interaction:
@@ -179,7 +179,7 @@ During the weekly DSP release train, these two merges happen without human inter
 - That merge is the only push to `main` that makes `release-please.yml` merge the release PRs, too,
   after verifying that the PR title, `.github/release-please-manifest.json`, and the `pyproject.toml` of the package
   agree on the version.
-  The `dsp-vre-lib` release PR goes first. The `dsp-tools` release PR follows when the new `dsp-vre-lib` is on PyPI.
+  The `dsp-vre` release PR goes first. The `dsp-tools` release PR follows when the new `dsp-vre` is on PyPI.
   Every other push to `main` leaves the release PRs open, as described above.
 
 Both merges are performed by the DaSCH Bot App, 
@@ -232,7 +232,7 @@ Tests can be run in three different ways:
 - Run only the test for a single method: 
   `just dsp-tools-pytest packages/dsp-tools/test/unittests/cli/test_helper_functions.py::test_unsupported_cases`.
 
-For `dsp-vre-lib`, use `just vre-lib-pytest packages/dsp-vre-lib/test/<path>` in the same way.
+For `dsp-vre`, use `just vre-pytest packages/dsp-vre/test/<path>` in the same way.
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.

@@ -1,24 +1,24 @@
 ---
 
-name: Publish dsp-vre-lib release to PyPI
+name: Publish dsp-vre release to PyPI
 
-# Prerequisite: PyPI trusted publishing for the project dsp-vre-lib,
+# Prerequisite: PyPI trusted publishing for the project dsp-vre,
 # with this repository and this workflow file as the trusted publisher.
 # See https://docs.pypi.org/trusted-publishers/
 
 on:
   release:
     types: [published]
-  workflow_dispatch:  # run it on a dsp-vre-lib-vX.Y.Z tag
+  workflow_dispatch:  # run it on a dsp-vre-vX.Y.Z tag
 
 permissions:
   contents: read
 
 jobs:
-  publish-dsp-vre-lib-to-pypi:
+  publish-dsp-vre-to-pypi:
     if: >-
-      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'dsp-vre-lib-v'))
-      || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/dsp-vre-lib-v'))
+      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'dsp-vre-v'))
+      || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/dsp-vre-v'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,7 +34,7 @@ jobs:
         with:
           enable-cache: true
       - name: build wheel and sdist
-        run: uv build --package dsp-vre-lib
+        run: uv build --package dsp-vre
       # A PyPI version cannot be re-uploaded, so this is the last reversible moment.
       - name: check the wheel for correctness
         run: uvx check-wheel-contents dist/

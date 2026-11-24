@@ -3,14 +3,14 @@ status: proposed
 date: 2026-11-11
 ---
 
-# Interface of `create` in `dsp-vre-lib`
+# Interface of `create` in `dsp-vre`
 
 ## Summary
 
-This document proposes the input dataclasses for the `create` operation in `dsp-vre-lib`.
+This document proposes the input dataclasses for the `create` operation in `dsp-vre`.
 For each dataclass, it gives the intent, the code and the related keys of the JSON project file.
 The principles come from the [ADR for the public interface](adr/0001-public-interface.md).
-The steps of `create` are in [dsp-vre-lib-to-tools-map.md](../../../docs/dsp-tools-split/dsp-vre-lib-to-tools-map.md).
+The steps of `create` are in [dsp-vre-to-tools-map.md](../../../docs/dsp-tools-split/dsp-vre-to-tools-map.md).
 The sections follow the order of the domains in the ADR.
 
 ## Design Rules
@@ -81,8 +81,8 @@ result = set_up_project(
 
 The aggregate has these advantages:
 
-- `dsp-vre-lib` knows the order of the steps, not `dsp-tools`.
-- `dsp-vre-lib` checks the references across domains before the first write.
+- `dsp-vre` knows the order of the steps, not `dsp-tools`.
+- `dsp-vre` checks the references across domains before the first write.
 - The call has one progress stream and one result.
 
 An operation for one kind of item fails if the item exists.
@@ -108,7 +108,7 @@ Not in this document:
 `validate()` checks that there is a minimum of one language and no empty string.
 
 Comments are optional, as in `dsp-tools` today.
-If `dsp-tools` wants stricter rules, it checks them before it calls `dsp-vre-lib`.
+If `dsp-tools` wants stricter rules, it checks them before it calls `dsp-vre`.
 
 ```python
 class Language(Enum):
@@ -184,7 +184,7 @@ biblio.prop("hasAuthor")  # PropertyRef(data_model="biblio", name="hasAuthor")
 A vocabulary belongs to the project, thus `VocabularyRef` has no data model.
 A user reference and a group reference are the name only.
 
-`dsp-vre-lib` has no prefixes.
+`dsp-vre` has no prefixes.
 `dsp-tools` uses the `prefixes` of the JSON project file to change prefixed external names into full IRIs.
 
 ## Projects
@@ -248,7 +248,7 @@ class ProjectLegalSettings:
 ### User
 
 `User` is a person who can log in.
-`dsp-vre-lib` always gets a password.
+`dsp-vre` always gets a password.
 If the JSON project file has no password, `dsp-tools` reads it from the environment variable `DSP_USER_PASSWORD`.
 
 ```python
@@ -284,7 +284,7 @@ It is separate from `User`, because a user can exist before the project and be a
 The project is an argument of the function, not a field of the dataclass.
 
 The project role states what the person can do.
-`dsp-vre-lib` then sets the necessary rights on the server.
+`dsp-vre` then sets the necessary rights on the server.
 
 The names of the roles are open for a discussion with product management.
 
@@ -314,7 +314,7 @@ The roles give these rights:
 A user with `READ` can see private data of the project.
 
 DSP-API has no read level.
-Until it has one, `dsp-vre-lib` creates a standardised custom group for `READ` in each project.
+Until it has one, `dsp-vre` creates a standardised custom group for `READ` in each project.
 The fixed group makes the later change to a server level simple.
 The group only works where it is part of the permission.
 Thus, each default permission and each explicit permission must include it,
@@ -329,7 +329,7 @@ also the permissions that `xmlupload`, DSP-APP or the API set.
 | `users[].lang`                    | `User.language`                      |
 | `users[].projects: [":admin"]`    | `ProjectRole.ADMIN`                  |
 | `users[].projects: [":member"]`   | `ProjectRole.WRITE`                  |
-| `users[].projects: ["other:..."]` | Not supported in `dsp-vre-lib`       |
+| `users[].projects: ["other:..."]` | Not supported in `dsp-vre`           |
 | `groups[].name`, `descriptions`   | `Group`: same names                  |
 | `users[].groups`                  | `ProjectMembership.groups`           |
 
@@ -372,8 +372,8 @@ Only `ImageClass`, `VideoClass` and `AudioClass` accept `FileVisibility.LIMITED_
 `part_of` makes the class a part of a compound object, for example a page of a book.
 Only `ImageClass` has `part_of`, because DSP shows a compound object as a sequence of images.
 The target of `part_of` is a `PlainClass`.
-DSP-API accepts any resource as a part and as a target. `dsp-vre-lib` is stricter.
-`dsp-vre-lib` then creates the `isPartOf` link property and the `seqnum` property for the class,
+DSP-API accepts any resource as a part and as a target. `dsp-vre` is stricter.
+`dsp-vre` then creates the `isPartOf` link property and the `seqnum` property for the class,
 and their cardinalities of `1`.
 The naming pattern of these two properties is not decided.
 
@@ -429,7 +429,7 @@ classes.image("Photo", labels=Labels(en="Photo"), file_visibility=FileVisibility
 
 - `LIMITED_VIEW` is only on `ImageClass`, `VideoClass` or `AudioClass`.
 
-`dsp-vre-lib` checks these rules on the complete input:
+`dsp-vre` checks these rules on the complete input:
 
 - The target of `part_of` is a `PlainClass`.
 - Each reference resolves.
@@ -474,7 +474,7 @@ The names of the factories can change after the implementation.
 
 `Property` is a union with one dataclass for each value type.
 The dataclass states the intent, for example a text with many lines.
-`dsp-vre-lib` then selects the correct `knora-api` super-property, value type and GUI element.
+`dsp-vre` then selects the correct `knora-api` super-property, value type and GUI element.
 
 The dataclass replaces the combination of `super`, `object` and `gui_element` in the JSON project file.
 
@@ -537,7 +537,7 @@ properties.link("hasAuthor", target=biblio.cls("Person"), labels=Labels(en="Auth
 properties.vocabulary("hasGenre", vocabulary=VocabularyRef(name="genres"), labels=Labels(en="Genre"))
 ```
 
-`dsp-vre-lib` checks these rules on the complete input:
+`dsp-vre` checks these rules on the complete input:
 
 - The `target` of `LinkToClassWithFileProperty` is a class with a file, or `None`.
 - Each reference resolves.
@@ -628,7 +628,7 @@ For example, a public property on a private class is private.
 `Visibility.PUBLIC` is the default, thus an explicit `PUBLIC` has the same effect.
 
 An explicit value that is less restricted than its parent is a problem.
-`dsp-vre-lib` checks these rules on the complete input:
+`dsp-vre` checks these rules on the complete input:
 
 - A class with `visibility=PRIVATE` has no `file_visibility`. The private class already makes the file private.
 - If `Project.visibility` is `PRIVATE`, no class has `file_visibility` `PUBLIC` or `LIMITED_VIEW`.
@@ -638,7 +638,7 @@ The server applies a DOAP only to data that it creates after the DOAP.
 Thus, a visibility is the default for new data. It does not change data that exists.
 
 A file is a value of the resource, and Sipi uses only the permissions of the file value.
-Thus, for a private class, `dsp-vre-lib` also creates a DOAP for the file value.
+Thus, for a private class, `dsp-vre` also creates a DOAP for the file value.
 The user does not see this DOAP.
 
 `set_visibility` sets the visibility of an item in an existing data model.
@@ -688,7 +688,7 @@ class VocabularyNode:
 
 ## Not Supported
 
-`dsp-vre-lib` does not support these parts of the JSON project file.
+`dsp-vre` does not support these parts of the JSON project file.
 They are the exceptions to the parity rule in the ADR.
 
 | JSON project file                                                       | Reason                                                                     |

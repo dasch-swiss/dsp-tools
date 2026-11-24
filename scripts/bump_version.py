@@ -11,7 +11,7 @@ def main() -> None:
     """Get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml"""
 
     # get the latest dsp-tools release tag from git history (e.g. "v9.0.2"),
-    # ignoring the tags of other packages in the workspace (e.g. "dsp-vre-lib-v0.1.0")
+    # ignoring the tags of other packages in the workspace (e.g. "dsp-vre-v0.1.0")
     latest_tag = _make_sys_call("git describe --tags --abbrev=0 --match v[0-9]*")
 
     new_version = _calculate_new_version(latest_tag)

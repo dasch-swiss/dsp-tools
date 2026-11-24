@@ -16,7 +16,7 @@ resolution-markers = [
 [manifest]
 members = [
     "dsp-tools",
-    "dsp-vre-lib",
+    "dsp-vre",
 ]
 
 [manifest.dependency-groups]
@@ -454,9 +454,9 @@ requires-dist = [
 ]
 
 [[package]]
-name = "dsp-vre-lib"
+name = "dsp-vre"
 version = "0.0.0"
-source = { editable = "packages/dsp-vre-lib" }
+source = { editable = "packages/dsp-vre" }
 
 [[package]]
 name = "et-xmlfile"

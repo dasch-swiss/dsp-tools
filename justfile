@@ -58,7 +58,7 @@ ruff-format-check:
 
 # Check type annotations of all packages
 [no-exit-message]
-mypy: mypy-dsp-tools mypy-vre-lib mypy-scripts
+mypy: mypy-dsp-tools mypy-vre mypy-scripts
 
 
 # Check type annotations of dsp-tools. Autostart mypy daemon if necessary, autoshutdown daemon after 1 day of inactivity
@@ -74,10 +74,10 @@ check-links:
     lychee ./packages/dsp-tools/docs
 
 
-# Check type annotations of dsp-vre-lib
+# Check type annotations of dsp-vre
 [no-exit-message]
-[working-directory: 'packages/dsp-vre-lib']
-mypy-vre-lib:
+[working-directory: 'packages/dsp-vre']
+mypy-vre:
     uv run dmypy run --timeout 86400 -- .
 
 
@@ -119,10 +119,10 @@ unittests *FLAGS:
     uv run pytest test/unittests/ {{FLAGS}}
 
 
-# Run the unit tests of dsp-vre-lib
+# Run the unit tests of dsp-vre
 [no-exit-message]
-[working-directory: 'packages/dsp-vre-lib']
-vre-lib-unittests *FLAGS:
+[working-directory: 'packages/dsp-vre']
+vre-unittests *FLAGS:
     uv run pytest test/unittests/ {{FLAGS}}
 
 
@@ -201,11 +201,11 @@ dsp-tools-pytest *ARGS:
     just _package-pytest dsp-tools "$@"
 
 
-# Run pytest for dsp-vre-lib on the given paths, which can be relative to the repository root or to packages/dsp-vre-lib/
+# Run pytest for dsp-vre on the given paths, which can be relative to the repository root or to packages/dsp-vre/
 [no-exit-message]
 [positional-arguments]
-vre-lib-pytest *ARGS:
-    just _package-pytest dsp-vre-lib "$@"
+vre-pytest *ARGS:
+    just _package-pytest dsp-vre "$@"
 
 
 # Run pytest in packages/PACKAGE/, with the paths in ARGS relative to that folder
@@ -257,7 +257,7 @@ clean:
     -find . -name .pytest_cache -exec rm -rf {} +
     -find . -name .mypy_cache -exec rm -rf {} +
     -cd packages/dsp-tools && uv run dmypy restart
-    -cd packages/dsp-vre-lib && uv run dmypy restart
+    -cd packages/dsp-vre && uv run dmypy restart
     -rm -rf ./*id2iri_mapping*.json ./packages/dsp-tools/*id2iri_mapping*.json
     -rm -rf ./*id2iri_[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*.json ./packages/dsp-tools/*id2iri_[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*.json
     -rm -f ./warnings.log

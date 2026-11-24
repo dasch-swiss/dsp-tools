@@ -40,19 +40,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
-  vre-lib-unittests:
+  vre-unittests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v7
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
-      - name: dsp-vre-lib unittests
-        run: just vre-lib-unittests --cov=dsp_vre_lib --cov-report xml
+      - name: dsp-vre unittests
+        run: just vre-unittests --cov=dsp_vre --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v7
         with:
-          files: packages/dsp-vre-lib/coverage.xml
-          flags: dsp-vre-lib
+          files: packages/dsp-vre/coverage.xml
+          flags: dsp-vre
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true

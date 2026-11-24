@@ -1,8 +1,8 @@
-# Map: `dsp-vre-lib` Domains in `dsp-tools`
+# Map: `dsp-vre` Domains in `dsp-tools`
 
-This document shows which `dsp-tools` command needs which `dsp-vre-lib` domain.
-The domains and capabilities are in the [ADR for `dsp-vre-lib`](../../packages/dsp-vre-lib/docs/adr/0001-public-interface.md).
-The column "Client modules today" names the modules in `src/dsp_tools/clients/` that `dsp-vre-lib` replaces.
+This document shows which `dsp-tools` command needs which `dsp-vre` domain.
+The domains and capabilities are in the [ADR for `dsp-vre`](../../packages/dsp-vre/docs/adr/0001-public-interface.md).
+The column "Client modules today" names the modules in `src/dsp_tools/clients/` that `dsp-vre` replaces.
 
 ## Commands with Server Interaction
 
@@ -35,14 +35,14 @@ The table does not repeat it.
 
 Notes:
 
-- With `dsp-vre-lib`, the four commands `xmlupload`, `upload-files`, `ingest-files` and `ingest-xmlupload`
-  call one capability: create data. `dsp-vre-lib` selects the ingest strategy.
+- With `dsp-vre`, the four commands `xmlupload`, `upload-files`, `ingest-files` and `ingest-xmlupload`
+  call one capability: create data. `dsp-vre` selects the ingest strategy.
 - Each command that changes the server needs the Permissions capability
   "operations that the current user can do", to check the rights before it starts.
 
 ## Commands without Server Interaction
 
-These commands do not use `dsp-vre-lib`:
+These commands do not use `dsp-vre`:
 
 - `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`
 - `old-excel2json`, `old-excel2lists`
@@ -53,7 +53,7 @@ These commands do not use `dsp-vre-lib`:
 
 ## Worked Example: `dsp-tools create`
 
-`dsp-tools create` reads the JSON project file and converts it into `dsp-vre-lib` dataclasses.
+`dsp-tools create` reads the JSON project file and converts it into `dsp-vre` dataclasses.
 It then checks that the current user can create a project (Permissions).
 After that, it calls `set_up_project` one time.
 
@@ -67,4 +67,4 @@ After that, it calls `set_up_project` one time.
 The call has one progress stream and one result.
 The result reports the created items, the skipped items that exist, and the failures (principles 6 and 7).
 The progress mechanism is an open decision in
-[Progress, Reporting and Continuation](../../packages/dsp-vre-lib/docs/adr/0001-public-interface.md#progress-reporting-and-continuation).
+[Progress, Reporting and Continuation](../../packages/dsp-vre/docs/adr/0001-public-interface.md#progress-reporting-and-continuation).

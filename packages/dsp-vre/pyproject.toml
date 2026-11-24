@@ -1,7 +1,7 @@
 [project]
-name = "dsp-vre-lib"
+name = "dsp-vre"
 version = "0.0.0"
-description = "dsp-vre-lib is a Python client library for the DSP-API of a DaSCH Service Platform (DSP) server."
+description = "dsp-vre is a Python client library for the DSP-API of a DaSCH Service Platform (DSP) server."
 authors = [
     { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
 ]
@@ -58,5 +58,5 @@ extend = "../../pyproject.toml"
 
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
-# The dependency goes in one direction only: dsp-tools uses dsp-vre-lib, never the reverse.
-"dsp_tools".msg = "dsp_vre_lib must not import dsp_tools"
+# The dependency goes in one direction only: dsp-tools uses dsp-vre, never the reverse.
+"dsp_tools".msg = "dsp_vre must not import dsp_tools"

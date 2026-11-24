@@ -1,12 +1,12 @@
 """
-Keeps the lower bound of the dsp-vre-lib dependency of dsp-tools on a released version.
+Keeps the lower bound of the dsp-vre dependency of dsp-tools on a released version.
 
 Subcommands:
 - `raise <version>`: raises the lower bound in packages/dsp-tools/pyproject.toml to <version>.
-  The release workflow runs it on the dsp-tools release PR, with the latest released dsp-vre-lib version.
+  The release workflow runs it on the dsp-tools release PR, with the latest released dsp-vre version.
 - `check-on-pypi`: fails if the lower bound is not on PyPI. CI runs it on the dsp-tools release PR.
 
-Both do nothing if dsp-tools does not declare dsp-vre-lib.
+Both do nothing if dsp-tools does not declare dsp-vre.
 """
 
 from __future__ import annotations
@@ -25,8 +25,8 @@ from packaging.utils import canonicalize_name
 from packaging.version import Version
 
 PYPROJECT_PATH = Path("packages/dsp-tools/pyproject.toml")
-PACKAGE_NAME = "dsp-vre-lib"
-PYPI_URL = "https://pypi.org/pypi/dsp-vre-lib/{version}/json"
+PACKAGE_NAME = "dsp-vre"
+PYPI_URL = "https://pypi.org/pypi/dsp-vre/{version}/json"
 # The form `>=X,<Y` (see the set-up document). Other operators make the lower bound unclear.
 ALLOWED_OPERATORS = {">=", "<", "<=", "!="}
 
@@ -38,7 +38,7 @@ def main() -> None:
         case ["check-on-pypi"]:
             check_lower_bound_on_pypi(PYPROJECT_PATH)
         case _:
-            sys.exit("usage: vre_lib_lower_bound.py raise <version> | check-on-pypi")
+            sys.exit("usage: vre_lower_bound.py raise <version> | check-on-pypi")
 
 
 def raise_lower_bound(dependency: str, version: str) -> str:
@@ -57,7 +57,7 @@ def raise_lower_bound(dependency: str, version: str) -> str:
 
 
 def raise_lower_bound_in_pyproject(pyproject: Path, version: str) -> None:
-    """Change only the dsp-vre-lib line, as plain text, so that the formatting and the comments stay."""
+    """Change only the dsp-vre line, as plain text, so that the formatting and the comments stay."""
     text = pyproject.read_text(encoding="utf-8")
     dependency = _find_dependency(text)
     if dependency is None:

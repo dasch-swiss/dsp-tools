@@ -22,7 +22,7 @@ The table does not repeat it.
 | `xmlupload`, `resume-xmlupload`                    | Data         | Create data, continuation state                  | `resource_client`, `value_client`, `ingest`                                   |
 |                                                    | Projects     | Read project, read legal info                    | `project_client`, `legal_info_client`                                         |
 |                                                    | Vocabularies | Read lists                                       | `list_client`                                                                 |
-| `upload-files`, `ingest-files`, `ingest-xmlupload` | Data         | Create data (bulk ingest strategy)               | `bulk_ingest_client`, `ingest`                                                |
+| `upload-files`, `ingest-files`, `ingest-xmlupload` | Data         | Create data (bulk ingest, bulk data import)      | `bulk_ingest_client`, `ingest`, `data_import_client`                          |
 |                                                    | Projects     | Read project, read legal info                    | `project_client`, `legal_info_client`                                         |
 |                                                    | Vocabularies | Read lists                                       | `list_client`                                                                 |
 | `validate-data`                                    | Data         | Validate data                                    | `metadata_client`                                                             |

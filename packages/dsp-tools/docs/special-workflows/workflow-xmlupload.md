@@ -192,7 +192,8 @@ DSP-TOOLS keeps the payload and the `_id2iri.json` file,
 and prints the ID of the import task and the command to delete it.
 An import task blocks further imports of the project until it is deleted.
 Use [`delete-data-import`](#delete-data-import) to delete it.
-`ingest-xmlupload` has no resume: after you deleted the task, run the command again.
+If the task completed, the data is on the server, and the `_id2iri.json` file holds the mapping of internal IDs to IRIs.
+Otherwise, delete the task and run `ingest-xmlupload` again: it has no resume.
 
 
 ### `delete-data-import`

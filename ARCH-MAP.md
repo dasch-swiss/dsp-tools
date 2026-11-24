@@ -14,8 +14,8 @@ arguments and dispatches each subcommand to its own module under `commands/`; co
 (`clients/`, in the workspace package `dsp-vre`, which never imports `dsp_tools`), stateless helpers
 (`utils/`), static schema/shape assets (`resources/`), and a common exception hierarchy (`error/`).
 The two largest workflows are `create`/`get` (JSON project file ↔ server)
-and `xmlupload`/`ingest-xmlupload` (XML data file → server, either in one pass or via a resumable,
-ingest-first pipeline). See `CONTEXT.md` for vocabulary. Several CLAUDE.md files state that
+and `xmlupload`/`ingest-xmlupload` (XML data file → server, either in one pass or via an ingest-first
+pipeline that sends one bulk data import). See `CONTEXT.md` for vocabulary. Several CLAUDE.md files state that
 commands must not import each other and that `utils`/`xmllib` must not import from `commands` —
 this map found confirmed violations of both rules; see Conventions and each component's Boundary rules.
 
@@ -76,7 +76,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `packages/dsp-vre/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
 - **Used by**: `error` (`exceptions.py` imports the two base classes), `create`, `get`, `validate-data`, `xmlupload`,
   `ingest-xmlupload` (incl.
-  resume), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
+  resume and `delete-data-import`), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
   `client_warnings`), `legacy_models` (`projectContext.py` imports `Connection`), `tests`
 - **Boundary rules**:
     - Never imports `dsp_tools`. (enforcement: static-analysis, ruff `TID251` banned-api in
@@ -257,12 +257,12 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Purpose**: Uploads resources described in an XML file to a DSP server in one pass. Pipeline: XML →
   `ParsedResource` (XSD-validated) → `ProcessedResource` → RDF graph → API calls.
 - **Key entities**: `xmlupload()`, `execute_upload()`, `UploadConfig`, `ProcessedResource`,
-  `TYPE_TRANSFORMER_MAPPER`, `RDFPropTypeInfo`, `AssetClient`, `DspIngestAssetClient`,
-  `BulkIngestedAssetClient`
+  `TYPE_TRANSFORMER_MAPPER`, `RDFPropTypeInfo`, `AssetClient`, `DspIngestAssetClient`
 - **Public interface**: `xmlupload.xmlupload()` (CLI entry), plus `execute_upload.execute_upload()` and
-  `upload_config.UploadConfig`, which `ingest-xmlupload` and `resume-xmlupload` call directly (see Boundary
-  rules). `models/upload_clients.py` holds the `AssetClient` implementations: `DspIngestAssetClient` wraps
-  `clients.DspIngestClientLive`; `BulkIngestedAssetClient` serves `ingest-xmlupload` and `resume-xmlupload`.
+  `upload_config.UploadConfig`, which `resume-xmlupload` calls directly (see Boundary rules).
+  `ingest-xmlupload` reuses its preparation, graph-building and copyright-holder code
+  (see ADR 0006). `models/upload_clients.py` holds the `AssetClient` implementations: `DspIngestAssetClient` wraps
+  `clients.DspIngestClientLive`.
 - **Local-context kit**: `CLAUDE.md`, `xmlupload.py`, `execute_upload.py`, `upload_config.py`,
   `prepare_xml_input/prepare_xml_input.py`, `make_rdf_graph/make_values.py`, `models/processed/values.py`
 - **Depends on**: `clients`, `utils` (incl. `dsp_user_account_check`, `data_formats.geolocation_util`),
@@ -300,33 +300,39 @@ this map found confirmed violations of both rules; see Conventions and each comp
 
 - **Paths**: `packages/dsp-tools/src/dsp_tools/commands/ingest_xmlupload/**`,
   `packages/dsp-tools/src/dsp_tools/commands/resume_xmlupload/**`
-- **Purpose**: The split, resumable upload workflow: `upload-files` → `ingest-files` → `ingest-xmlupload`,
-  with `resume-xmlupload` able to resume either an interrupted `xmlupload` or `ingest-xmlupload`.
-- **Key entities**: `upload_files()`, `ingest_files()`, `ingest_xmlupload()`, `resume_xmlupload()`
+- **Purpose**: The split upload workflow: `upload-files` → `ingest-files` → `ingest-xmlupload`. The last step is
+  for system admins and sends the whole project as one bulk data import (client-minted IRIs, one JSON-LD
+  payload file, no resume, no incremental upload; `delete-data-import` removes a task left on the server).
+  `resume-xmlupload` resumes only an interrupted `xmlupload`. See ADR 0006.
+- **Key entities**: `upload_files()`, `ingest_files()`, `ingest_xmlupload()`, `delete_data_import()`,
+  `resume_xmlupload()`
 - **Public interface**: one function per CLI subcommand (`upload_files.upload_files`,
   `ingest_files.ingest_files`, `create_resources.upload_xml.ingest_xmlupload`,
-  `resume_xmlupload.resume_xmlupload.resume_xmlupload`).
+  `resume_xmlupload.resume_xmlupload.resume_xmlupload`, `delete_data_import.delete_data_import`).
 - **Local-context kit**: `upload_files/CLAUDE.md`, `ingest_files/ingest_files.py`,
   `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
-  `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`ingest-xmlupload` builds an `UploadConfig`,
-  `resume-xmlupload` uses one to locate the pickle, and both call `execute_upload()`).
+  `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`resume-xmlupload` uses an `UploadConfig` to locate
+  the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle.
   `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
 - **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, `UploadFailure`, DspIngestClientLive,
-  LegalInfo/List clients), `xmlupload` (execute_upload, models incl. `BulkIngestedAssetClient` and
-  `DspIngestAssetClient`, prepare_xml_input, upload_config — heavy reuse), `validate-data`, `cli` (`cli.args` —
+  LegalInfo/List clients), `xmlupload` (execute_upload, models incl. `DspIngestAssetClient`,
+  prepare_xml_input, make_rdf_graph, upload_config — heavy reuse), `validate-data`, `cli` (`cli.args` —
   inverted, see the `cli` entry), `utils`
   (incl. `dsp_user_account_check`), `setup` (ansi_colors), `error`
 - **Used by**: `cli` (calls each CLI subcommand's function)
 - **Boundary rules**:
     - New ingest step: add a module under the relevant subpackage exposing one public function, wire it into
     `cli/create_parsers.py` + `cli/call_action_with_network.py`, and reuse `commands/xmlupload`'s
-    `UploadState`/`UploadClients`/`execute_upload` rather than duplicating upload logic. (enforcement: review)
+    preparation and graph-building code rather than duplicating it. The imports from `commands/xmlupload/` are
+    accepted: `ingest-xmlupload` is the bulk variant of `xmlupload` (ADR 0006). (enforcement: review)
 - **Durable state**: writes uploaded bitstreams to the dsp-ingest server; writes/reads
   `mapping-<shortcode>.csv` in the working directory (rotated on rewrite; single writer `ingest_files.py`,
   single reader `apply_ingest_id.py`); reads the resumable pickle that `commands/xmlupload` writes (resume
   finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;
   `ingest-xmlupload` writes `UnusedMediaUploaded.csv` / `FilesNotUploaded.csv`
-  (`create_resources/user_information.py`).
+  (`create_resources/user_information.py`); and writes the payload (`.jsonld`), `_id2iri.json` and `_error.txt`
+  files to `~/.dsp-tools/data-imports/<server>/` (`bulk_import/payload_files.py`). On success it removes the
+  payload and `_id2iri.json`, and writes `./id2iri_<shortcode>_<server>_<ts>.json`.
 - **Fingerprint**: `fee03c3282af`
 
 ### other-commands

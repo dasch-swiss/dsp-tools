@@ -133,7 +133,8 @@ and an upload that stops because of a failure (e.g. the server became unreachabl
     We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`.
     We only guarantee this for `uvx dsp-tools xmlupload --interrupt-after`.
 
-This command resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
+This command resumes a previously interrupted `xmlupload`.
+It cannot resume `ingest-xmlupload`, which has no resume.
 
 ```bash
 uvx dsp-tools resume-xmlupload [options]

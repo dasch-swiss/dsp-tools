@@ -15,7 +15,7 @@ These commands are run in controlled environments (local stacks, staging) before
 Developer assistance is acceptable when something goes wrong.
 Errors may escalate with a traceback.
 
-Commands: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `resume-xmlupload`
+Commands: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `delete-data-import`, `resume-xmlupload`
 
 ### Group B — Must be fixable by the user
 

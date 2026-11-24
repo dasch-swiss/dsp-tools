@@ -11,6 +11,8 @@ This new workflow consists of 3 commands:
 - [`ingest-files`](#ingest-files): kick off the ingest process, and retrieve the mapping CSV when it is finished
 - [`ingest-xmlupload`](#ingest-xmlupload): create the resources contained in the XML file, using the mapping CSV
 
+[`delete-data-import`](#delete-data-import) deletes a bulk data import that `ingest-xmlupload` left on the server.
+
 
 ### `upload-files`
 
@@ -97,7 +99,7 @@ On production, use the [project admin account](../production-account.md) of the 
 
 ### `ingest-xmlupload`
 
-This command creates all resources defined in an XML file on a DSP server. 
+This command creates all resources defined in an XML file on a DSP server, as one bulk data import.
 In order for this to work, the files referenced in the XML file 
 must first be uploaded with [`upload-files`](#upload-files),
 and then be ingested with [`ingest-files`](#ingest-files).
@@ -109,44 +111,111 @@ must be present in the current working directory.
 uvx dsp-tools ingest-xmlupload [options] xml_data_file.xml
 ```
 
+!!! Attention
+
+    Only system admins can run `ingest-xmlupload`.
+    The credentials of a project admin or a project member are not enough.
 
 The most frequently used options are:
 
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
-- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) of a system admin
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded. 
-  The command then exits with code `0` and saves its state, 
-  so that the upload can be continued with [`resume-xmlupload`](../data-file/data-file-commands.md#resume-xmlupload).
+- `--on-behalf-of-user` (mandatory): email or username of the user who becomes the creator of the resources.
+  This user must be an active member of the project with create rights, and must not be a system admin.
+  On a production-like server, DSP-TOOLS asks for confirmation 
+  unless the user is `<shortname>@admin.dasch.swiss`.
+- `--skip-validation` (optional): skip the SHACL validation of the data before the import
+- `--no-iiif-uri-validation` (optional): do not validate the IIIF URIs
+- `--skip-ontology-validation` (optional): validate only the data, not the data model
 
 To see all possible options, type `uvx dsp-tools ingest-xmlupload --help`.
-
 
 The defaults are intended for local testing: 
 
 ```bash
-uvx dsp-tools ingest-xmlupload xml_data_file.xml
+uvx dsp-tools ingest-xmlupload --on-behalf-of-user 'user@example.com' xml_data_file.xml
 ```
 
 will create the resources contained in `xml_data_file.xml` on `localhost` for local viewing.
-
-!!! Attention
-
-    `ingest-xmlupload` needs the credentials of a project admin of the project or of a system admin.
-    The credentials of a project member are not enough, even for an XML file without multimedia files.
-    On production, DSP-TOOLS accepts only the project admin account `<shortname>@admin.dasch.swiss`.
 
 In order to create the same resources on the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-uvx dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u '<shortname>@admin.dasch.swiss' -p 'password' xml_data_file.xml
+uvx dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u 'system-admin@example.com' -p 'password' \
+    --on-behalf-of-user '<shortname>@admin.dasch.swiss' xml_data_file.xml
 ```
 
-On production, use the [project admin account](../production-account.md) of the project.
+
+#### Precondition
+
+As of November 2026, DSP-API accepts a bulk data import only if the project holds no data, except list nodes.
+The ontologies of the project must exist.
+Use `ingest-xmlupload` only for the first import of data into a project.
+
+
+#### What Happens
+
+DSP-TOOLS validates the data, then sends all resources to the server in one bulk data import.
+The server creates the resources, values, and files together, or none of them.
+DSP-TOOLS creates the IRIs of the resources and values before it sends the data.
+If a resource has a preset IRI or ARK in the XML file, DSP-TOOLS keeps it. 
+It must belong to the project.
+
+DSP-TOOLS writes these files to `~/.dsp-tools/data-imports/<server>/`:
+
+| File                                 | Content                                                                |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `<shortcode>_<timestamp>.jsonld`     | the data that DSP-TOOLS sends to the server (the payload)              |
+| `<shortcode>_<timestamp>_id2iri.json`| the mapping of internal IDs to IRIs, written before the data is sent   |
+| `<shortcode>_<timestamp>_error.txt`  | the error message of the server, written only if the import fails      |
+
+After a successful import, DSP-TOOLS removes the payload and the `_id2iri.json` file.
+It writes the mapping of internal IDs to IRIs to `id2iri_<shortcode>_<server>_<timestamp>.json` 
+in the current working directory.
+
+
+#### If the Import Fails
+
+If the server reports an error, DSP-TOOLS writes the error message to the `_error.txt` file 
+and deletes the import task on the server.
+The project holds no data after a failed import. 
+Correct the problem and run `ingest-xmlupload` again.
+
+
+#### If the Command Is Interrupted
+
+If you hit `Ctrl + C`, or the connection to the server is lost, 
+the import task can stay on the server, and it can still complete.
+DSP-TOOLS keeps the payload and the `_id2iri.json` file, 
+and prints the ID of the import task and the command to delete it.
+An import task blocks further imports of the project until it is deleted.
+Use [`delete-data-import`](#delete-data-import) to delete it.
+`ingest-xmlupload` has no resume: after you deleted the task, run the command again.
+
+
+### `delete-data-import`
+
+This command deletes a bulk data import task from a DSP server.
+
+```bash
+uvx dsp-tools delete-data-import [options] shortcode import_id
+```
+
+- `shortcode`: the shortcode of the project
+- `import_id`: the ID of the import task, as printed by `ingest-xmlupload`
+- `-s` | `--server`, `-u` | `--user`, `-p` | `--password`: as for `ingest-xmlupload`
+
+Only system admins can run this command.
+It does not delete an import that is still running.
+If the import failed, the command writes its error message to a file in `~/.dsp-tools/data-imports/<server>/`
+before it deletes the task.
 
 
 ## Incremental `xmlupload`
+
+`ingest-xmlupload` has no incremental upload.
 
 When uploading data with the [`xmlupload`](../data-file/data-file-commands.md#xmlupload) command,
 resources can reference each other with an internal ID,

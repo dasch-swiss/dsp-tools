@@ -1,3 +1,4 @@
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 
@@ -29,3 +30,10 @@ class ForeignShortcodeIriError(UserError):
             f"{listing}\n"
             f"Please correct the ARKs or IRIs of these resources so that they contain the shortcode '{shortcode}'."
         )
+
+
+class ResourceIriMissingError(InternalError):
+    """A resource has no IRI when the payload of the bulk data import is written."""
+
+    def __init__(self, res_id: str) -> None:
+        super().__init__(f"The resource '{res_id}' has no IRI.")

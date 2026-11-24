@@ -154,11 +154,11 @@ class DataImportPreconditionError(DspVreUserError):
 
 
 class DataImportRunningError(DspVreUserError):
-    """Another bulk data import runs on the server."""
+    """Another bulk data import runs on the server, so the server cannot start a bulk data import now."""
 
 
 class DataImportExistsError(DspVreUserError):
-    """A bulk data import task exists for the project."""
+    """A bulk data import task exists for the project. Delete it before the next bulk data import."""
 
     def __init__(self, import_id: str, project_iri: str, message: str) -> None:
         super().__init__(message)
@@ -175,7 +175,7 @@ class DataImportNotFoundError(DspVreUserError):
 
 
 class DataImportInProgressError(DspVreUserError):
-    """The bulk data import task is still in progress, and the requested action is not possible."""
+    """The bulk data import task is still in progress, so the server cannot delete it."""
 
     def __init__(self, import_id: str, message: str) -> None:
         super().__init__(message)

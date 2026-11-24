@@ -201,7 +201,10 @@ def post_resource(self, resource_json: dict[str, Any], resource_has_bitstream: b
 2. **Log Request**: Call `log_request(params)` before making the request
 3. **Execute Request**: Use `requests.<method>()` wrapped in try/except.
    Take every argument from the logged `params` (`url=params.url`, `timeout=params.timeout`, ...),
-   so that the log shows the request that was actually sent
+   so that the log shows the request that was actually sent.
+   Exception: pass a streamed file body directly as `data=<file object>`.
+   `RequestParameters` cannot carry a file, and `log_request` must not log the body
+   (example: `DataImportClientLive.post_import`)
 4. **Log Response**: Call `log_response(response)` after receiving response
 5. **Handle Status**: Check response status and raise appropriate exceptions
 

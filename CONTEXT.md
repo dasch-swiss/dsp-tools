@@ -1,6 +1,6 @@
 # DSP-TOOLS
 
-A CLI and library for building a DSP project's data model on a server and bulk-importing data into it. One
+A CLI and library for building a DSP project's data model on a server and uploading data into it. One
 cohesive domain — this file covers the whole repo; there is no per-context split.
 
 ## Language
@@ -64,6 +64,12 @@ server-side step (`ingest-files`) that processes uploaded files and produces a m
 internal filenames, which `ingest-xmlupload` then uses to create the actual resources.
 _Avoid_: using "ingest" and "upload" interchangeably — the split workflow depends on keeping them distinct.
 The plain `xmlupload` command still does both under one roof for simpler cases.
+
+**Bulk data import**:
+A server-side task of the v3 endpoints `/v3/projects/{projectIri}/data-imports` that loads one JSON-LD payload
+into a project, on behalf of a project user. The client is `DataImportClient` in `dsp-vre`.
+_Avoid_: "data import" or "import" alone. A bulk data import is not an **Ingest** (files, `BulkIngestClient`),
+and not a migration import (project transfer between servers, `MigrationImportClient`).
 
 ### Identifiers
 

@@ -12,6 +12,11 @@ class DataImportId:
 
 
 class DataImportStatusValue(Enum):
+    """
+    The status of a bulk data import task.
+    Separate from the migration `ExportImportStatus`, because the two server contracts change independently.
+    """
+
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -32,10 +37,10 @@ class DataImportClient(Protocol):
     auth: AuthenticationClient
 
     def post_import(self, payload_path: Path, on_behalf_of_user: str) -> DataImportId:
-        """Upload a JSON-LD payload file and start the import. The data is attributed to the on-behalf-of user."""
+        """Upload a JSON-LD payload file and start a bulk data import on behalf of a project user."""
 
     def get_status(self, import_id: DataImportId) -> DataImportStatus:
-        """Get the status of an import."""
+        """Get the status of a bulk data import task."""
 
     def delete_import(self, import_id: DataImportId) -> None:
-        """Delete an import after completion or failure."""
+        """Delete a bulk data import task after it completed or failed."""

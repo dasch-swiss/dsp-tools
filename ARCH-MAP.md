@@ -56,7 +56,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Paths**: `packages/dsp-vre/src/dsp_vre/clients/**`
 - **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
   DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, data import, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP
+  legal-info, mapping, migration, bulk data import, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP
   helpers (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,

@@ -13,6 +13,7 @@ from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import mint_resou
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import make_payload_files
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import write_minted_mapping
 from dsp_tools.commands.ingest_xmlupload.bulk_import.run_import import run_import
+from dsp_tools.commands.ingest_xmlupload.bulk_import.write_payload import get_bitstream_infos
 from dsp_tools.commands.ingest_xmlupload.bulk_import.write_payload import write_payload_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
@@ -105,11 +106,12 @@ def ingest_xmlupload(
     processed_resources = get_processed_resources(
         parsed_resources, lookups, is_on_prod_like_server, project_default_authorship
     )
+    bitstream_infos = get_bitstream_infos(processed_resources)
     upload_copyright_holders(processed_resources, legal_info_client)
 
     resolver = mint_resource_iris(processed_resources, shortcode)
     files = make_payload_files(config.diagnostics.server_as_foldername, shortcode)
-    write_payload_file(processed_resources, IRILookups(URIRef(project_iri), resolver), files.payload)
+    write_payload_file(processed_resources, IRILookups(URIRef(project_iri), resolver), bitstream_infos, files.payload)
     write_minted_mapping(resolver.lookup, files.id2iri)
 
     return run_import(

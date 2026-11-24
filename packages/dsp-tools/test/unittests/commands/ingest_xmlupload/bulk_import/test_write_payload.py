@@ -13,7 +13,9 @@ from rdflib import URIRef
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import import write_payload as write_payload_module
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import mint_resource_iris
+from dsp_tools.commands.ingest_xmlupload.bulk_import.write_payload import get_bitstream_infos
 from dsp_tools.commands.ingest_xmlupload.bulk_import.write_payload import write_payload_file
+from dsp_tools.commands.xmlupload.models.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
@@ -57,7 +59,7 @@ def _write(resources: list[ProcessedResource], tmp_path: Path) -> tuple[Path, di
     resolver = mint_resource_iris(resources, SHORTCODE)
     lookups = IRILookups(project_iri=URIRef("http://rdfh.ch/projects/proj"), id_to_iri=resolver)
     target = tmp_path / "payload.jsonld"
-    write_payload_file(resources, lookups, target)
+    write_payload_file(resources, lookups, get_bitstream_infos(resources), target)
     return target, dict(resolver.lookup)
 
 
@@ -159,6 +161,23 @@ def test_iiif_uri_file_value_order(tmp_path):
     graph = _parse(target)
     file_node = next(graph.subjects(KNORA_API.stillImageFileValueHasExternalUrl, None))
     assert graph.value(file_node, KNORA_API.valueHasOrder) == Literal(0, datatype=XSD.integer)
+
+
+def test_get_bitstream_infos_only_for_bitstreams() -> None:
+    bitstream = ProcessedFileValue(
+        value=ProcessedFileBitstream(value="internal.jp2", res_id="a"),
+        value_type=KnoraFileValueType.STILL_IMAGE_FILE,
+        metadata=ProcessedFileMetadata(
+            license_iri="http://rdfh.ch/licenses/cc-by-4.0", copyright_holder="h", authorships=["a"], permissions=None
+        ),
+    )
+    iiif = ProcessedFileValue(
+        value=ProcessedFileIIIFUri(value="https://iiif.example.org/img/full/max/0/default.jpg"),
+        value_type=KnoraFileValueType.STILL_IMAGE_IIIF,
+        metadata=META,
+    )
+    resources = [_resource("a", file_value=bitstream), _resource("b", file_value=iiif), _resource("c")]
+    assert get_bitstream_infos(resources) == {"a": BitstreamInfo("internal.jp2", None)}
 
 
 def test_failure_leaves_no_file(tmp_path, monkeypatch):

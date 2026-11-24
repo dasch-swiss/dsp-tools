@@ -23,7 +23,21 @@ from dsp_tools.utils.rdf_constants import KNORA_API
 _FILE_VALUE_CLASSES = frozenset(info.knora_type for info in FILE_TYPE_TO_RDF_MAPPER.values())
 
 
-def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, target: Path) -> None:
+def get_bitstream_infos(resources: list[ProcessedResource]) -> dict[str, BitstreamInfo]:
+    """Returns the internal filename and the permissions of each resource with a bitstream, by resource ID."""
+    return {
+        res.res_id: BitstreamInfo(res.file_value.value.value, res.file_value.metadata.permissions)
+        for res in resources
+        if res.file_value and isinstance(res.file_value.value, ProcessedFileBitstream)
+    }
+
+
+def write_payload_file(
+    resources: list[ProcessedResource],
+    lookups: IRILookups,
+    bitstream_infos: dict[str, BitstreamInfo],
+    target: Path,
+) -> None:
     """
     Writes all resources as one JSON-LD file: a flat array of expanded node objects, without blank nodes.
     The IRI of every resource must already be in `lookups.id_to_iri`.
@@ -31,6 +45,7 @@ def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, 
     Args:
         resources: the resources of the XML file
         lookups: lookups that contain the minted IRI of every resource
+        bitstream_infos: the bitstream information of each resource with a bitstream, by resource ID
         target: path of the JSON-LD file
     """
     # The file is written to a `.part` file and renamed at the end, so that `target` never holds a partial payload.
@@ -38,14 +53,19 @@ def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, 
     part_file = target.with_suffix(target.suffix + ".part")
     try:
         with part_file.open("w", encoding="utf-8") as file:
-            _write_nodes(resources, lookups, file)
+            _write_nodes(resources, lookups, bitstream_infos, file)
         part_file.replace(target)
     finally:
         part_file.unlink(missing_ok=True)
 
 
-def _write_nodes(resources: list[ProcessedResource], lookups: IRILookups, file: TextIO) -> None:
-    nodes = (node for res in resources for node in _make_resource_nodes(res, lookups))
+def _write_nodes(
+    resources: list[ProcessedResource],
+    lookups: IRILookups,
+    bitstream_infos: dict[str, BitstreamInfo],
+    file: TextIO,
+) -> None:
+    nodes = (node for res in resources for node in _make_resource_nodes(res, lookups, bitstream_infos))
     file.write("[")
     for index, node in enumerate(nodes):
         if index > 0:
@@ -54,11 +74,13 @@ def _write_nodes(resources: list[ProcessedResource], lookups: IRILookups, file: 
     file.write("]")
 
 
-def _make_resource_nodes(res: ProcessedResource, lookups: IRILookups) -> list[dict[str, Any]]:
+def _make_resource_nodes(
+    res: ProcessedResource, lookups: IRILookups, bitstream_infos: dict[str, BitstreamInfo]
+) -> list[dict[str, Any]]:
     res_iri = lookups.id_to_iri.lookup[res.res_id]
     graph = create_resource_with_values(
         res,
-        _get_bitstream_info(res),
+        bitstream_infos.get(res.res_id),
         lookups,
         res_node=URIRef(res_iri),
         make_value_node=_make_value_node,
@@ -69,12 +91,6 @@ def _make_resource_nodes(res: ProcessedResource, lookups: IRILookups) -> list[di
 
 def _make_value_node(res_node: BNode | URIRef) -> URIRef:
     return URIRef(make_value_iri(str(res_node)))
-
-
-def _get_bitstream_info(res: ProcessedResource) -> BitstreamInfo | None:
-    if (file_value := res.file_value) and isinstance(file_value.value, ProcessedFileBitstream):
-        return BitstreamInfo(file_value.value.value, file_value.metadata.permissions)
-    return None
 
 
 def _add_file_value_order(graph: Graph) -> None:

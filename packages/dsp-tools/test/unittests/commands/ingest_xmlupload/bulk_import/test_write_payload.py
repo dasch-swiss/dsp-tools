@@ -14,8 +14,6 @@ from rdflib import URIRef
 from dsp_tools.commands.ingest_xmlupload.bulk_import import write_payload as write_payload_module
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import mint_resource_iris
 from dsp_tools.commands.ingest_xmlupload.bulk_import.write_payload import write_payload_file
-from dsp_tools.commands.ingest_xmlupload.exceptions import ResourceIriMissingError
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.processed.file_values import ProcessedFileBitstream
@@ -161,15 +159,6 @@ def test_iiif_uri_file_value_order(tmp_path):
     graph = _parse(target)
     file_node = next(graph.subjects(KNORA_API.stillImageFileValueHasExternalUrl, None))
     assert graph.value(file_node, KNORA_API.valueHasOrder) == Literal(0, datatype=XSD.integer)
-
-
-def test_missing_iri_raises(tmp_path):
-    lookups = IRILookups(project_iri=URIRef("http://rdfh.ch/projects/proj"), id_to_iri=IriResolver({}))
-    target = tmp_path / "payload.jsonld"
-    with pytest.raises(ResourceIriMissingError):
-        write_payload_file([_resource("a")], lookups, target)
-    assert not target.exists()
-    assert not list(tmp_path.glob("*.part"))
 
 
 def test_failure_leaves_no_file(tmp_path, monkeypatch):

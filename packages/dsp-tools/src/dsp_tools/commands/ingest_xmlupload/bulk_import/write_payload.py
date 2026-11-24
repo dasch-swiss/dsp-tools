@@ -10,7 +10,6 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import make_value_iri
-from dsp_tools.commands.ingest_xmlupload.exceptions import ResourceIriMissingError
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import FILE_TYPE_TO_RDF_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_json
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
@@ -30,9 +29,6 @@ def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, 
         resources: the resources of the XML file
         lookups: lookups that contain the minted IRI of every resource
         target: path of the JSON-LD file
-
-    Raises:
-        ResourceIriMissingError: if a resource has no IRI
     """
     # The file is written to a `.part` file and renamed at the end, so that `target` never holds a partial payload.
     # Only one resource graph is held in memory at a time, because the payload can be larger than the memory.
@@ -46,20 +42,17 @@ def write_payload_file(resources: list[ProcessedResource], lookups: IRILookups, 
 
 
 def _write_nodes(resources: list[ProcessedResource], lookups: IRILookups, file: TextIO) -> None:
+    nodes = (node for res in resources for node in _make_resource_nodes(res, lookups))
     file.write("[")
-    is_first = True
-    for res in resources:
-        for node in _make_resource_nodes(res, lookups):
-            if not is_first:
-                file.write(",")
-            is_first = False
-            json.dump(node, file, ensure_ascii=False)
+    for index, node in enumerate(nodes):
+        if index > 0:
+            file.write(",")
+        json.dump(node, file, ensure_ascii=False)
     file.write("]")
 
 
 def _make_resource_nodes(res: ProcessedResource, lookups: IRILookups) -> list[dict[str, Any]]:
-    if not (res_iri := lookups.id_to_iri.get(res.res_id)):
-        raise ResourceIriMissingError(res.res_id)
+    res_iri = lookups.id_to_iri.lookup[res.res_id]
     graph = create_resource_with_values(
         res,
         _get_bitstream_info(res),

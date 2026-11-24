@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import ClassVar
 
-from dsp_tools.error.exceptions import InternalError
 from dsp_tools.error.exceptions import UserError
 
 MIB = 1024 * 1024
+DEFAULT_SERVER_LIMIT_BYTES = 250 * MIB
 
 
 class InvalidIngestInputFilesError(UserError):
@@ -35,13 +35,6 @@ class ForeignShortcodeIriError(UserError):
             f"{listing}\n"
             f"Please correct the ARKs or IRIs of these resources so that they contain the shortcode '{shortcode}'."
         )
-
-
-class ResourceIriMissingError(InternalError):
-    """A resource has no IRI when the payload of the bulk data import is written."""
-
-    def __init__(self, res_id: str) -> None:
-        super().__init__(f"The resource '{res_id}' has no IRI.")
 
 
 def _delete_command(shortcode: str, import_id: str) -> str:
@@ -87,9 +80,6 @@ class OnBehalfOfUserRejectedError(UserError):
     def __init__(self, user: str, reason: str) -> None:
         explanation = self._REASONS.get(reason, f"cannot be used (reason given by the server: '{reason}').")
         super().__init__(f"The user '{user}' given with '--on-behalf-of-user' {explanation}")
-
-
-DEFAULT_SERVER_LIMIT_BYTES = 250 * MIB
 
 
 def _describe_size(size_bytes: int, max_bytes: int | None) -> str:

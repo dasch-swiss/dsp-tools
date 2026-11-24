@@ -104,6 +104,7 @@ class TestPostImport:
         body = mock_post.call_args.kwargs["data"]
         assert not isinstance(body, bytes)
         assert body.name == str(payload_path)
+        assert body.mode == "rb"
 
 
 class TestGetStatus:
@@ -230,6 +231,14 @@ class TestErrorMapping:
         assert exc_info.value.max_size is None
         assert "Payload Too Large" not in exc_info.value.message
 
+    def test_payload_too_large_without_details(self, client: DataImportClientLive, payload_path: Path) -> None:
+        body = _v3_error("payload_too_large", {})
+        with patch(f"{MODULE}.requests.post", return_value=_response(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, body)):
+            with pytest.raises(DataImportPayloadTooLargeError) as exc_info:
+                client.post_import(payload_path, "user@example.org")
+        assert exc_info.value.size is None
+        assert exc_info.value.max_size is None
+
     def test_import_exists(self, client: DataImportClientLive, payload_path: Path) -> None:
         body = _v3_error("import_exists", {"id": "import-456", "projectIri": PROJECT_IRI})
         with patch(f"{MODULE}.requests.post", return_value=_response(HTTPStatus.CONFLICT, body)):
@@ -245,10 +254,41 @@ class TestErrorMapping:
                 client.get_status(IMPORT_ID)
         assert exc_info.value.import_id == "import-123"
 
-    def test_get_status_forbidden(self, client: DataImportClientLive) -> None:
-        with patch(f"{MODULE}.requests.get", return_value=_response(HTTPStatus.FORBIDDEN)):
-            with pytest.raises(BadCredentialsError):
+    @pytest.mark.parametrize(
+        ("status_code", "body", "expected_error"),
+        [
+            (HTTPStatus.FORBIDDEN, None, BadCredentialsError),
+            (HTTPStatus.NOT_FOUND, _v3_error("project_not_found", {"id": PROJECT_IRI}), ProjectNotFoundError),
+        ],
+    )
+    def test_get_status_error_types(
+        self,
+        client: DataImportClientLive,
+        status_code: int,
+        body: dict[str, Any] | None,
+        expected_error: type[Exception],
+    ) -> None:
+        with patch(f"{MODULE}.requests.get", return_value=_response(status_code, body)):
+            with pytest.raises(expected_error):
                 client.get_status(IMPORT_ID)
+
+    @pytest.mark.parametrize(
+        ("status_code", "body", "expected_error"),
+        [
+            (HTTPStatus.FORBIDDEN, None, BadCredentialsError),
+            (HTTPStatus.NOT_FOUND, _v3_error("project_not_found", {"id": PROJECT_IRI}), ProjectNotFoundError),
+        ],
+    )
+    def test_delete_import_error_types(
+        self,
+        client: DataImportClientLive,
+        status_code: int,
+        body: dict[str, Any] | None,
+        expected_error: type[Exception],
+    ) -> None:
+        with patch(f"{MODULE}.requests.delete", return_value=_response(status_code, body)):
+            with pytest.raises(expected_error):
+                client.delete_import(IMPORT_ID)
 
     def test_delete_import_not_found(self, client: DataImportClientLive) -> None:
         body = _v3_error("import_not_found", {"id": "import-123", "projectIri": PROJECT_IRI})

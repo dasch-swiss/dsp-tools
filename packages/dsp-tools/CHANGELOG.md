@@ -1,5 +1,23 @@
 # Changelog
 
+## [19.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.4...v19.4.0) (2026-11-25)
+
+
+### Enhancements
+
+* reach ingest under /ingest on the API host (DEV-8060) ([#2472](https://github.com/dasch-swiss/dsp-tools/issues/2472)) ([591e4ef](https://github.com/dasch-swiss/dsp-tools/commit/591e4ef25731c4165cd9930206a02d8632d34a74))
+
+
+### Bug Fixes
+
+* **xmlupload:** report IIIF servers that refuse access separately (DEV-7946) ([#2506](https://github.com/dasch-swiss/dsp-tools/issues/2506)) ([654dad1](https://github.com/dasch-swiss/dsp-tools/commit/654dad1b5165cc9a591a3ba6e724ae7fa9b67d43))
+
+
+### Maintenance
+
+* convert the repository into a uv workspace (DEV-7933) ([#2503](https://github.com/dasch-swiss/dsp-tools/issues/2503)) ([d606538](https://github.com/dasch-swiss/dsp-tools/commit/d606538a719abc428c7d65e2480dd12d8d829aca))
+* **dsp-vre:** move the HTTP clients into dsp-vre (DEV-7976) ([#2509](https://github.com/dasch-swiss/dsp-tools/issues/2509)) ([077bb13](https://github.com/dasch-swiss/dsp-tools/commit/077bb1330369db301b5e4a9544fc1cdd2fbda3af))
+
 ## [19.3.4](https://github.com/dasch-swiss/dsp-tools/compare/v19.3.3...v19.3.4) (2026-11-18)
 
 

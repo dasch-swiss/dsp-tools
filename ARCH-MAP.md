@@ -321,7 +321,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     - New ingest step: add a module under the relevant subpackage exposing one public function, wire it into
     `cli/create_parsers.py` + `cli/call_action_with_network.py`, and reuse `commands/xmlupload`'s
     `UploadState`/`UploadClients`/`execute_upload` rather than duplicating upload logic. (enforcement: review)
-- **Durable state**: writes uploaded bitstreams to the dsp-ingest server; writes/reads
+- **Durable state**: writes uploaded bitstreams to ingest under `/ingest/` on the DSP-API server; writes/reads
   `mapping-<shortcode>.csv` in the working directory (rotated on rewrite; single writer `ingest_files.py`,
   single reader `apply_ingest_id.py`); reads the resumable pickle that `commands/xmlupload` writes (resume
   finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;

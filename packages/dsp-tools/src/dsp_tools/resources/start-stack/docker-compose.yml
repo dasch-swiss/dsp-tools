@@ -10,6 +10,7 @@ services:
       - db
     ports:
       - "3333:3333"
+    # The ingest mounts and INGEST_* variables are mirrored in test/e2e/setup_testcontainers/containers.py; change both.
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp

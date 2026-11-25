@@ -54,10 +54,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
 ### clients
 
 - **Paths**: `packages/dsp-vre/src/dsp_vre/clients/**`
-- **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
-  DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, bulk data import, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP
-  helpers (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
+- **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API endpoints,
+  including the ingest routes under `/ingest/`: auth, connection, project, resource, value, list, ontology,
+  permissions, group/user, legal-info, mapping, migration, bulk data import, metadata, ingest.
+  Part of the package `dsp-vre`; the shared HTTP helpers (`request_utils.py`: logging, retries, `USER_AGENT`)
+  live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
@@ -73,7 +74,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Local-context kit**: `CLAUDE.md`, `request_utils.py`, `exceptions.py`, `connection_live.py`,
   `authentication_client_live.py`, `resource_client_live.py`
 - **Depends on**: true-external only: `requests`, `rdflib`, `regex` (declared in
-  `packages/dsp-vre/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
+  `packages/dsp-vre/pyproject.toml`); the DSP-API server, including its ingest routes under `/ingest/`. No `dsp_tools` import.
 - **Used by**: `error` (`exceptions.py` imports the two base classes), `create`, `get`, `validate-data`, `xmlupload`,
   `ingest-xmlupload` (incl.
   resume), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
@@ -94,7 +95,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     callers import from `clients` in `__init__.py`. Older files (`ingest.py`, `bulk_ingest_client.py`,
     `group_user_clients.py`, `migration_clients.py`, `ontology_clients.py`) do not follow the pattern.
     (enforcement: docs-only)
-    - DSP-INGEST answers 401 (not 403) for missing write access, so the ingest clients map both 401 and 403
+    - Ingest answers 401 (not 403) for missing write access, so the ingest clients map both 401 and 403
     to `BadCredentialsError`; every other client handles 401 only in the authentication client.
     (enforcement: docs-only, `clients/CLAUDE.md`)
     - The env var `DSP_VRE_NO_RETRY=true` turns off the retries of `should_retry_request` (set in the CI

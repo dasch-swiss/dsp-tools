@@ -20,7 +20,7 @@ class AssetClient(Protocol):
     def get_bitstream_info(
         self, file_info: ProcessedFileBitstream, permissions: Permissions | None
     ) -> BitstreamInfo | None:
-        """Uploads the file to the ingest server if applicable, and returns the upload results.
+        """Uploads the file to the ingest service if applicable, and returns the upload results.
 
         Args:
             file_info: Information required for ingesting an asset
@@ -30,7 +30,7 @@ class AssetClient(Protocol):
 
 @dataclass
 class DspIngestAssetClient(AssetClient):
-    """Uploads the assets of an XML file to DSP-Ingest."""
+    """Uploads the assets of an XML file to the ingest service."""
 
     ingest_client: DspIngestClientLive
     imgdir: str
@@ -38,7 +38,7 @@ class DspIngestAssetClient(AssetClient):
     def get_bitstream_info(
         self, file_info: ProcessedFileBitstream, permissions: Permissions | None
     ) -> BitstreamInfo | None:
-        """Uploads a file to the ingest server and returns the upload results."""
+        """Uploads a file to the ingest service and returns the upload results."""
         try:
             res = self.ingest_client.ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")

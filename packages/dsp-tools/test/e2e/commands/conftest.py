@@ -19,5 +19,5 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
         "root@example.com",
         "test",
         f"http://0.0.0.0:{container_ports.api}",
-        f"http://0.0.0.0:{container_ports.ingest}",
+        f"http://0.0.0.0:{container_ports.api}/ingest",
     )

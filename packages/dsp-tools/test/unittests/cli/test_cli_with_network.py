@@ -639,7 +639,7 @@ class TestIngestUploads:
             server="http://0.0.0.0:3333",
             user="root@example.com",
             password="test",
-            dsp_ingest_url="http://0.0.0.0:3340",
+            dsp_ingest_url="http://0.0.0.0:3333/ingest",
         )
         ingest_xmlupload.assert_called_once_with(
             xml_file=Path(DATA_XML_PATH),

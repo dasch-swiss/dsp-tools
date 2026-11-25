@@ -457,7 +457,7 @@ requires-dist = [
 
 [[package]]
 name = "dsp-vre"
-version = "0.0.0"
+version = "0.1.0"
 source = { editable = "packages/dsp-vre" }
 dependencies = [
     { name = "rdflib" },

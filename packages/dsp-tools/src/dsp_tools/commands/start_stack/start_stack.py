@@ -396,7 +396,8 @@ class StackHandler:
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
-        compose_str += " up -d"
+        # A stack started by an older DSP-TOOLS can hold containers of services that the compose file no longer has.
+        compose_str += " up -d --remove-orphans"
         logger.debug(f"Running '{compose_str}' ...")
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
@@ -512,7 +513,7 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         subprocess.run(
-            "docker compose --env-file versions.env down --volumes".split(),
+            "docker compose --env-file versions.env down --volumes --remove-orphans".split(),
             cwd=self.__docker_path_of_user,
             check=True,
         )

@@ -23,12 +23,12 @@ def upload_files(
     imgdir: Path = Path.cwd(),
 ) -> bool:
     """
-    Upload all files referenced in an XML file to the ingest server.
+    Upload all files referenced in an XML file to the ingest service.
     This involves no processing/ingesting of the files, just uploading them.
 
     Args:
         xml_file: XML file containing the resources and the references to the files to upload
-        creds: credentials to connect to the ingest server
+        creds: credentials to connect to DSP-API and its ingest service
         imgdir: the bitstreams in the XML file are relative to this directory
 
     Returns:

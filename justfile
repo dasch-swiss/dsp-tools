@@ -275,7 +275,6 @@ clean:
     -rm -f ./packages/dsp-tools/warnings.log
     -rm -rf ./packages/dsp-tools/testdata/e2e/tmp-dsp-ingest/
     -rm -rf ./packages/dsp-tools/testdata/e2e/tmp-dsp-sipi/
-    -rm -rf ./packages/dsp-tools/testdata/e2e/ingest-db/
     -rm -rf ./packages/dsp-tools/testdata/e2e/images/
     -rm -rf ./site
     -rm -f ./mapping-????.csv ./packages/dsp-tools/mapping-????.csv

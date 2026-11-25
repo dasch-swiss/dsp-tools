@@ -75,7 +75,6 @@ tmp/
 
 /packages/dsp-tools/testdata/e2e/tmp-dsp-ingest
 /packages/dsp-tools/testdata/e2e/images
-/packages/dsp-tools/testdata/e2e/ingest-db
 /packages/dsp-tools/testdata/e2e/tmp-dsp-sipi
 /packages/dsp-tools/testdata/e2e/sipi-config
 /packages/dsp-tools/testdata/e2e/sipi-cache

@@ -10,7 +10,7 @@ class IngestIdForFileNotFoundError(UserError):
 
 
 class NoFilesUploadedForIngestError(UserError):
-    """The ingest server has no uploaded files for the project."""
+    """The ingest service has no uploaded files for the project."""
 
     def __init__(self, server_message: str) -> None:
         super().__init__(

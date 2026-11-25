@@ -158,6 +158,11 @@ def test_check_ingest_health_not_healthy_local(mock_get: Mock, caplog: pytest.Lo
     assert exc_info.value.response_text == "Service temporarily unavailable"
     mock_get.assert_called_once_with("http://0.0.0.0:3333/ingest/health", timeout=2)
     assert not caplog.records
+    msg = str(exc_info.value)
+    assert "older than v41.0.0" in msg
+    assert "asset folder or its temp folder" in msg
+    assert "'uvx dsp-tools stop-stack'" in msg
+    assert "'uvx dsp-tools start-stack'" in msg
 
 
 @patch("requests.get")

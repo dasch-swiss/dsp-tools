@@ -62,10 +62,13 @@ class IngestNotReachableError(UserError):
         response_text: str | None = None,
     ) -> None:
         if is_localhost:
+            # The API health check runs first, so a stopped or unhealthy API container does not get here.
             base_msg = (
                 "Cannot connect to the local DSP Ingest service. "
-                "The local DSP-API must be a version that serves ingest under '/ingest/'. "
-                "Please restart the stack with 'uvx dsp-tools start-stack'."
+                "The local DSP-API answers, but its ingest routes under '/ingest/' do not. "
+                "Possible causes: the local DSP-API is older than v41.0.0 and has no ingest routes (status code 404), "
+                "or ingest cannot find its asset folder or its temp folder (status code 503). "
+                "Please run 'uvx dsp-tools stop-stack', then 'uvx dsp-tools start-stack'."
             )
         else:
             base_msg = (

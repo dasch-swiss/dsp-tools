@@ -1,3 +1,10 @@
+"""
+The containers here model the start-stack services in src/dsp_tools/resources/start-stack/docker-compose.yml.
+Some settings differ on purpose (for example, the ports and the JWT issuer).
+When you change an image, an environment variable or a mount here,
+check whether docker-compose.yml needs the same change.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -117,7 +124,6 @@ def _get_api(
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
-        # The ingest settings and mounts below mirror the api service in start-stack/docker-compose.yml; change both.
         .with_env("INGEST_ALLOW_ERASE_PROJECTS", "true")
         .with_env("INGEST_STORAGE_ASSET_DIR", "/opt/images")
         .with_env("INGEST_STORAGE_TEMP_DIR", "/opt/temp")

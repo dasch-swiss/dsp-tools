@@ -1,6 +1,10 @@
 # Image tags are interpolated from versions.env (RELEASE / API / APP / DB),
 # which is the structured source of truth managed by
 # .github/workflows/bump-stack-versions.yml.
+#
+# The e2e testcontainers (test/e2e/setup_testcontainers/containers.py) model these services.
+# Some settings differ on purpose (for example, the ports).
+# When you change an image, an environment variable or a mount here, check whether containers.py needs the same change.
 ---
 services:
   api:
@@ -10,7 +14,6 @@ services:
       - db
     ports:
       - "3333:3333"
-    # The ingest mounts and INGEST_* variables are mirrored in test/e2e/setup_testcontainers/containers.py; change both.
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp

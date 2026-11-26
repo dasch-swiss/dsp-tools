@@ -130,37 +130,6 @@ def test_get_wrong_row_numbers() -> None:
     assert expected_dict == returned_dict
 
 
-def test_find_one_full_cell_in_cols() -> None:
-    required_cols = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
-    original_df = pd.DataFrame(
-        {
-            "label_en": [1, pd.NA, pd.NA, 4],
-            "label_de": [1, pd.NA, 3, 4],
-            "label_fr": [1, pd.NA, 3, pd.NA],
-            "label_it": [1, pd.NA, 3, 4],
-            "label_rm": [pd.NA, pd.NA, 3, 4],
-        }
-    )
-    expected_array = pd.Series([False, True, False, False])
-    returned_array = utl.find_one_full_cell_in_cols(df=original_df, required_columns=required_cols)
-    assert returned_array is not None
-    assert_series_equal(returned_array, expected_array)
-
-
-def test_find_one_full_cell_none() -> None:
-    required_cols = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
-    original_df = pd.DataFrame(
-        {
-            "label_en": [1, 2, 3, 4],
-            "label_de": [1, pd.NA, 3, 4],
-            "label_fr": [1, pd.NA, 3, pd.NA],
-            "label_it": [1, pd.NA, 3, 4],
-            "label_rm": [pd.NA, pd.NA, 3, 4],
-        }
-    )
-    assert not utl.find_one_full_cell_in_cols(df=original_df, required_columns=required_cols)
-
-
 def test_col_must_or_not_empty_based_on_other_col() -> None:
     original_df = pd.DataFrame({"substring": ["1", "2", "3", "4", "5", "6"], "check": [1, pd.NA, 3, 4, pd.NA, 6]})
     assert not utl.col_must_or_not_empty_based_on_other_col(
@@ -319,3 +288,44 @@ def test_check_permissions() -> None:
 
 if __name__ == "__main__":
     pytest.main([__file__])
+
+
+class TestFindUnpairedLabelAndCommentCells:
+    def test_all_paired(self) -> None:
+        df = pd.DataFrame(
+            {
+                "label_en": ["l", "l"],
+                "comment_en": ["c", "c"],
+                "label_de": ["l", pd.NA],
+                "comment_de": ["c", pd.NA],
+            }
+        )
+        assert utl.find_unpaired_label_and_comment_cells(df) == {}
+
+    def test_label_without_comment(self) -> None:
+        df = pd.DataFrame({"label_de": [pd.NA, "l"], "comment_de": [pd.NA, pd.NA]})
+        result = utl.find_unpaired_label_and_comment_cells(df)
+        assert list(result) == ["comment_de"]
+        assert result["comment_de"].tolist() == [False, True]
+
+    def test_comment_without_label(self) -> None:
+        df = pd.DataFrame({"label_fr": [pd.NA, "l"], "comment_fr": ["c", "c"]})
+        result = utl.find_unpaired_label_and_comment_cells(df)
+        assert list(result) == ["label_fr"]
+        assert result["label_fr"].tolist() == [True, False]
+
+    def test_absent_comment_column(self) -> None:
+        df = pd.DataFrame({"label_it": ["l"]})
+        result = utl.find_unpaired_label_and_comment_cells(df)
+        assert list(result) == ["comment_it"]
+        assert result["comment_it"].tolist() == [True]
+
+    def test_absent_label_column(self) -> None:
+        df = pd.DataFrame({"comment_rm": ["c"]})
+        result = utl.find_unpaired_label_and_comment_cells(df)
+        assert list(result) == ["label_rm"]
+        assert result["label_rm"].tolist() == [True]
+
+    def test_ignores_english(self) -> None:
+        df = pd.DataFrame({"label_en": ["l"], "comment_en": [pd.NA]})
+        assert utl.find_unpaired_label_and_comment_cells(df) == {}

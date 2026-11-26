@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -33,6 +36,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         },
                         "cardinalities": [
@@ -49,6 +55,9 @@
                         "labels": {
                             "en": "Minimal Resource with another label"
                         },
+                        "comments": {
+                            "en": "Minimal Resource with another label"
+                        },
                         "cardinalities": [
                             {
                                 "propname": ":hasText",
@@ -61,6 +70,9 @@
                         "name": "anotherResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Another Resource"
+                        },
+                        "comments": {
                             "en": "Another Resource"
                         }
                     }

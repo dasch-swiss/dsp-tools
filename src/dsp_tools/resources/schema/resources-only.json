@@ -14,6 +14,230 @@
             "minProperties": 1,
             "additionalProperties": false
         },
+        "langstring_with_en": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/langstring"
+                },
+                {
+                    "required": [
+                        "en"
+                    ]
+                }
+            ]
+        },
+        "matching_label_and_comment_languages": {
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "de"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "de"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "de"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "de"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "fr"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "fr"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "fr"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "fr"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "it"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "it"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "it"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "it"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "rm"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "rm"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "comments": {
+                                "required": [
+                                    "rm"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "comments"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "labels": {
+                                "required": [
+                                    "rm"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "labels"
+                        ]
+                    }
+                }
+            ]
+        },
         "ncname": {
             "type": "string",
             "pattern": "^[a-zA-Z_][\\w.-]*$",
@@ -76,10 +300,10 @@
                     "$ref": "#/definitions/super_resource_as_string_or_array"
                 },
                 "labels": {
-                    "$ref": "#/definitions/langstring"
+                    "$ref": "#/definitions/langstring_with_en"
                 },
                 "comments": {
-                    "$ref": "#/definitions/langstring"
+                    "$ref": "#/definitions/langstring_with_en"
                 },
                 "cardinalities": {
                     "type": "array",
@@ -92,9 +316,15 @@
             "required": [
                 "name",
                 "super",
-                "labels"
+                "labels",
+                "comments"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "$ref": "#/definitions/matching_label_and_comment_languages"
+                }
+            ]
         },
         "cardinality": {
             "type": "object",

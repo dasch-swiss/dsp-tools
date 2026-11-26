@@ -90,13 +90,13 @@ The following fields are mandatory:
 
 - `name`
 - `labels`
+- `comments`
 - `super`
 - `object`
 - `gui_element`
 
 The following fields are optional:
 
-- `comments` 
 - `subject`
 - `gui_attributes`
 
@@ -119,12 +119,9 @@ A resource object needs to have the following fields:
 
 - `name`
 - `labels`
+- `comments`
 - `super`
 - `cardinalities`*
-
-The following field is optional:
-
-- `comments` 
 
 A detailed description of `resources` can be found [below](#the-resource-object).
 
@@ -147,6 +144,11 @@ but in most cases it doesn't make sense to omit them.)
     "en": "School ID",
     "de": "ID der Schule",
     "fr": "ID de l'école"
+  },
+  "comments": {
+    "en": "The identifier of the school",
+    "de": "Die Kennung der Schule",
+    "fr": "L'identifiant de l'école"
   },
   "gui_element": "SimpleText"
 }
@@ -176,17 +178,20 @@ By convention, property names start with a lower case letter.
 
 Collection of `labels` for the property as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+The `labels` must contain `en`.
+`labels` and `comments` must have the same languages.
+For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 
 
 
 ### Property: `comments`
 
-(optional)
+(required)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags. Currently, `de`, `en`, `fr`, `it`, and `rm` are supported. 
-The `comments` element is optional.
+The `comments` must contain `en`, and they must have the same languages as the [`labels`](#property-label).
 
 
 
@@ -900,6 +905,9 @@ By convention, resource names start with an upper case letter.
 
 Collection of `labels` for the resource as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+The `labels` must contain `en`.
+`labels` and `comments` must have the same languages.
+For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 
 
 ### Resource: `super`
@@ -979,10 +987,10 @@ If this is not the case then no properties can be used with this class.)
 
 ### Resource: `comments`
 
-(optional)
+(required)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
-The `comments` element is optional.
+The `comments` must contain `en`, and they must have the same languages as the [`labels`](#resource-labels).

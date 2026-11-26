@@ -32,7 +32,7 @@ from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
-from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols
+from dsp_tools.commands.excel2json.utils import find_unpaired_label_and_comment_cells
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
@@ -191,11 +191,9 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
 
 
 def _check_missing_values_in_row(df: pd.DataFrame) -> MissingValuesProblem | None:
-    required_values = ["name", "super", "object", "gui_element"]
+    required_values = ["name", "super", "object", "gui_element", "label_en", "comment_en"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
-    missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
-    if missing_labels is not None:
-        missing_dict.update({"label": missing_labels})
+    missing_dict.update(find_unpaired_label_and_comment_cells(df))
     missing_gui_attributes = _check_compliance_gui_attributes(df=df)
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)

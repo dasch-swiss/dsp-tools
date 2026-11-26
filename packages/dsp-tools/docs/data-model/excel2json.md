@@ -259,9 +259,10 @@ The expected columns are:
 - [`name`](./json-project/ontologies.md#resource-name)
   (mandatory): Unique identifier for the resource class
 - [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#resource-labels) 
-  (one language mandatory): Label of the resource class that will be displayed in DSP-APP. Should be rather short.
+  (`label_en` mandatory): Label of the resource class that will be displayed in DSP-APP. Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#resource-comments)
-  (optional): Description of the resource class. Can be longer than the label.
+  (`comment_en` mandatory): Description of the resource class. Can be longer than the label.
+  Each language that has a label must also have a comment, and the reverse.
 - [`super`](./json-project/ontologies.md#resource-super)
   (mandatory): The type of this resource class, 
   i.e. the base resource class/classes that this resource class is derived from.
@@ -327,10 +328,11 @@ The expected columns are:
 - [`name`](./json-project/ontologies.md#property-name)
   (mandatory): Unique identifier for the property
 - [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-label):
-  (one language mandatory): Label of the property that will be displayed in DSP-APP. 
+  (`label_en` mandatory): Label of the property that will be displayed in DSP-APP. 
   Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments)
-  (optional): Description of the property. Can be longer than the label.
+  (`comment_en` mandatory): Description of the property. Can be longer than the label.
+  Each language that has a label must also have a comment, and the reverse.
 - [`super`](./json-project/ontologies.md#property-super) 
   (mandatory): The type of this property, i.e. the base property/properties that this property is derived from.
   Must be one of the values listed in the documentation.

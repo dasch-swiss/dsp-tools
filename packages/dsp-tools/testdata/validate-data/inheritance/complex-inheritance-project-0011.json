@@ -26,6 +26,9 @@
             "labels": {
               "en": "Text 0"
             },
+            "comments": {
+              "en": "Text 0"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -35,6 +38,9 @@
             ],
             "object": "TextValue",
             "labels": {
+              "en": "Text 1"
+            },
+            "comments": {
               "en": "Text 1"
             },
             "gui_element": "SimpleText"
@@ -48,6 +54,9 @@
             "labels": {
               "en": "Text 2"
             },
+            "comments": {
+              "en": "Text 2"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -57,6 +66,9 @@
             ],
             "object": "TextValue",
             "labels": {
+              "en": "Other Text"
+            },
+            "comments": {
               "en": "Other Text"
             },
             "gui_element": "SimpleText"
@@ -70,6 +82,9 @@
             "labels": {
               "en": "Link"
             },
+            "comments": {
+              "en": "Link"
+            },
             "gui_element": "Searchbox"
           }
         ],
@@ -78,6 +93,9 @@
             "name": "Resource0",
             "super": "Resource",
             "labels": {
+              "en": "Resource0"
+            },
+            "comments": {
               "en": "Resource0"
             },
             "cardinalities": [
@@ -92,6 +110,9 @@
             "name": "ResourceSubCls1",
             "super": ":Resource0",
             "labels": {
+              "en": "ResourceSubCls1"
+            },
+            "comments": {
               "en": "ResourceSubCls1"
             },
             "cardinalities": [
@@ -113,6 +134,9 @@
             "labels": {
               "en": "ResourceSubCls2"
             },
+            "comments": {
+              "en": "ResourceSubCls2"
+            },
             "cardinalities": [
               {
                 "propname": ":hasTextSubProp2",
@@ -125,6 +149,9 @@
             "name": "ResourceUnrelated",
             "super": "Resource",
             "labels": {
+              "en": "ResourceUnrelated"
+            },
+            "comments": {
               "en": "ResourceUnrelated"
             },
             "cardinalities": [
@@ -141,6 +168,9 @@
             "labels": {
               "en": "Super for Link Prop"
             },
+            "comments": {
+              "en": "Super for Link Prop"
+            },
             "cardinalities": [
               {
                 "propname": ":hasLink",
@@ -153,6 +183,9 @@
             "name": "SubClassLinkProp",
             "super": ":SuperClassLinkProp",
             "labels": {
+              "en": "Sub for Link Prop"
+            },
+            "comments": {
               "en": "Sub for Link Prop"
             }
           }

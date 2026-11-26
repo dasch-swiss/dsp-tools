@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
@@ -272,7 +273,7 @@ def test_extract_default_permissions_overrule() -> None:
 
 class TestValidateClassesExcelSheet:
     def test_missing_sheet(self) -> None:
-        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"], "label_en": ["label"], "comment_en": ["comment"]})
         res = e2j._validate_classes_excel_sheet(test_df, {"other", "name"})
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
@@ -281,14 +282,32 @@ class TestValidateClassesExcelSheet:
         assert missing_sheet.missing_names == {"other"}
 
     def test_good_no_sheets(self) -> None:
-        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"], "label_en": ["label"], "comment_en": ["comment"]})
         res = e2j._validate_classes_excel_sheet(test_df, set())
         assert not res
 
     def test_good_with_sheet(self) -> None:
-        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"], "label_en": ["label"], "comment_en": ["comment"]})
         res = e2j._validate_classes_excel_sheet(test_df, {"name"})
         assert not res
+
+    def test_unpaired_label_and_comment(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "name": ["name_1", "name_2"],
+                "super": ["super", "super"],
+                "label_en": ["label", "label"],
+                "comment_en": ["comment", "comment"],
+                "label_de": ["Bezeichnung", pd.NA],
+                "comment_fr": [pd.NA, "commentaire"],
+            }
+        )
+        res = e2j._validate_classes_excel_sheet(test_df, set())
+        assert isinstance(res, ExcelSheetProblem)
+        assert res.problems == [
+            PositionInExcel(column="comment_de", row=2),
+            PositionInExcel(column="label_fr", row=3),
+        ]
 
 
 if __name__ == "__main__":

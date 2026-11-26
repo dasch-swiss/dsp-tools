@@ -26,6 +26,9 @@
             "labels": {
               "en": "is part of"
             },
+            "comments": {
+              "en": "is part of"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -35,6 +38,9 @@
             ],
             "object": "Resource",
             "labels": {
+              "en": "link"
+            },
+            "comments": {
               "en": "link"
             },
             "gui_element": "Searchbox"
@@ -48,6 +54,9 @@
             "labels": {
               "en": "Test Seqnum"
             },
+            "comments": {
+              "en": "Test Seqnum"
+            },
             "gui_element": "SimpleText"
           }
         ],
@@ -57,12 +66,18 @@
             "super": "Resource",
             "labels": {
               "en": "Resource"
+            },
+            "comments": {
+              "en": "Resource"
             }
           },
           {
             "name": "ResourceWithPotentialCircularReference",
             "super": "Resource",
             "labels": {
+              "en": "ResourceWithPotentialCircularReference"
+            },
+            "comments": {
               "en": "ResourceWithPotentialCircularReference"
             },
             "cardinalities": [
@@ -77,6 +92,9 @@
             "name": "ImageWithKnoraProp_ErroneousCards",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "ImageWithKnoraProp_ErroneousCards"
+            },
+            "comments": {
               "en": "ImageWithKnoraProp_ErroneousCards"
             },
             "cardinalities": [
@@ -98,6 +116,9 @@
             "labels": {
               "en": "ImageWithKnoraProp_MissingIsPartOf"
             },
+            "comments": {
+              "en": "ImageWithKnoraProp_MissingIsPartOf"
+            },
             "cardinalities": [
               {
                 "propname": "seqnum",
@@ -112,6 +133,9 @@
             "labels": {
               "en": "ImageWithKnoraProp_MissingSeqnum"
             },
+            "comments": {
+              "en": "ImageWithKnoraProp_MissingSeqnum"
+            },
             "cardinalities": [
               {
                 "propname": "isPartOf",
@@ -124,6 +148,9 @@
             "name": "ImageWithKnoraProp_MixedValidCards",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "ImageWithKnoraProp_MixedValidCards"
+            },
+            "comments": {
               "en": "ImageWithKnoraProp_MixedValidCards"
             },
             "cardinalities": [
@@ -145,6 +172,9 @@
             "labels": {
               "en": "ImageWithKnoraProp_AllGood"
             },
+            "comments": {
+              "en": "ImageWithKnoraProp_AllGood"
+            },
             "cardinalities": [
               {
                 "propname": "isPartOf",
@@ -162,6 +192,9 @@
             "name": "ImageWithSubProp_ErroneousCards",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "ImageWithSubProp_ErroneousCards"
+            },
+            "comments": {
               "en": "ImageWithSubProp_ErroneousCards"
             },
             "cardinalities": [
@@ -183,6 +216,9 @@
             "labels": {
               "en": "ImageWithSubProp_MissingIsPartOf"
             },
+            "comments": {
+              "en": "ImageWithSubProp_MissingIsPartOf"
+            },
             "cardinalities": [
               {
                 "propname": ":testSeqnum",
@@ -197,6 +233,9 @@
             "labels": {
               "en": "ImageWithSubProp_MissingSeqnum"
             },
+            "comments": {
+              "en": "ImageWithSubProp_MissingSeqnum"
+            },
             "cardinalities": [
               {
                 "propname": ":testIsPartOf",
@@ -209,6 +248,9 @@
             "name": "ImageWithSubProp_MixedValidCards",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "ImageWithSubProp_MixedValidCards"
+            },
+            "comments": {
               "en": "ImageWithSubProp_MixedValidCards"
             },
             "cardinalities": [

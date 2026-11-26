@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "Text with another label"
                         },
+                        "comments": {
+                            "en": "Text with another label"
+                        },
                         "gui_element": "Richtext"
                     },
                     {
@@ -34,6 +37,9 @@
                         ],
                         "object": "IntValue",
                         "labels": {
+                            "en": "Int"
+                        },
+                        "comments": {
                             "en": "Int"
                         },
                         "gui_element": "SimpleText"
@@ -47,6 +53,9 @@
                         "labels": {
                             "en": "Int with another label"
                         },
+                        "comments": {
+                            "en": "Int with another label"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -55,6 +64,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         }
                     }

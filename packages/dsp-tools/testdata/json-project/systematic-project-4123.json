@@ -35,7 +35,10 @@
                 "testonto:TestThing2",
                 "testonto:hasTextChild2"
             ],
-            "limited_view": ["testonto:AudioThing", "testonto:MovieThing"]
+            "limited_view": [
+                "testonto:AudioThing",
+                "testonto:MovieThing"
+            ]
         },
         "groups": [
             {
@@ -218,6 +221,10 @@
                             "en": "Text",
                             "rm": "hasTextChild2 in Rumantsch"
                         },
+                        "comments": {
+                            "en": "Text",
+                            "rm": "hasTextChild2 in Rumantsch"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -227,6 +234,9 @@
                         ],
                         "object": "TextValue",
                         "labels": {
+                            "en": "Text"
+                        },
+                        "comments": {
                             "en": "Text"
                         },
                         "gui_element": "SimpleText"
@@ -240,7 +250,9 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasSimpleText",
+                            "de": "Properties können Kommentare haben",
+                            "rm": "Property with a Rumantsch comment"
                         },
                         "comments": {
                             "en": "properties can optionally have comments",
@@ -258,6 +270,9 @@
                         "labels": {
                             "en": "hasRichtext"
                         },
+                        "comments": {
+                            "en": "hasRichtext"
+                        },
                         "gui_element": "Richtext"
                     },
                     {
@@ -267,6 +282,9 @@
                         ],
                         "object": "TextValue",
                         "labels": {
+                            "en": "hasTextArea"
+                        },
+                        "comments": {
                             "en": "hasTextArea"
                         },
                         "gui_element": "Textarea"
@@ -280,6 +298,9 @@
                         "labels": {
                             "en": "URI"
                         },
+                        "comments": {
+                            "en": "URI"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -289,6 +310,9 @@
                         ],
                         "object": "BooleanValue",
                         "labels": {
+                            "en": "Boolean value"
+                        },
+                        "comments": {
                             "en": "Boolean value"
                         },
                         "gui_element": "Checkbox"
@@ -302,6 +326,9 @@
                         "labels": {
                             "en": "Date"
                         },
+                        "comments": {
+                            "en": "Date"
+                        },
                         "gui_element": "Date"
                     },
                     {
@@ -311,6 +338,9 @@
                         ],
                         "object": "TimeValue",
                         "labels": {
+                            "en": "Time"
+                        },
+                        "comments": {
                             "en": "Time"
                         },
                         "gui_element": "TimeStamp"
@@ -324,6 +354,9 @@
                         "labels": {
                             "en": "Integer"
                         },
+                        "comments": {
+                            "en": "Integer"
+                        },
                         "gui_element": "Spinbox"
                     },
                     {
@@ -333,6 +366,9 @@
                         ],
                         "object": "DecimalValue",
                         "labels": {
+                            "en": "Decimal number"
+                        },
+                        "comments": {
                             "en": "Decimal number"
                         },
                         "gui_element": "Spinbox"
@@ -346,6 +382,9 @@
                         "labels": {
                             "en": "Geoname"
                         },
+                        "comments": {
+                            "en": "Geoname"
+                        },
                         "gui_element": "Geonames"
                     },
                     {
@@ -355,6 +394,9 @@
                         ],
                         "object": "GeolocationValue",
                         "labels": {
+                            "en": "Geolocation"
+                        },
+                        "comments": {
                             "en": "Geolocation"
                         },
                         "gui_element": "Geolocation"
@@ -368,6 +410,9 @@
                         "labels": {
                             "en": "Color"
                         },
+                        "comments": {
+                            "en": "Color"
+                        },
                         "gui_element": "Colorpicker"
                     },
                     {
@@ -377,6 +422,9 @@
                         ],
                         "object": "ListValue",
                         "labels": {
+                            "en": "List element"
+                        },
+                        "comments": {
                             "en": "List element"
                         },
                         "gui_element": "List",
@@ -393,6 +441,9 @@
                         "labels": {
                             "en": "hasTestThing2"
                         },
+                        "comments": {
+                            "en": "hasTestThing2"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -402,6 +453,9 @@
                         ],
                         "object": ":TestThing",
                         "labels": {
+                            "en": "hasTestThing"
+                        },
+                        "comments": {
                             "en": "hasTestThing"
                         },
                         "gui_element": "Searchbox"
@@ -415,6 +469,9 @@
                         "labels": {
                             "en": "hasResource"
                         },
+                        "comments": {
+                            "en": "hasResource"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -424,6 +481,9 @@
                         ],
                         "object": "Region",
                         "labels": {
+                            "en": "hasRegion"
+                        },
+                        "comments": {
                             "en": "hasRegion"
                         },
                         "gui_element": "Searchbox"
@@ -437,6 +497,9 @@
                         "labels": {
                             "en": "hasRegionPreview"
                         },
+                        "comments": {
+                            "en": "hasRegionPreview"
+                        },
                         "gui_element": "RegionPreview"
                     },
                     {
@@ -446,6 +509,9 @@
                         ],
                         "object": "Representation",
                         "labels": {
+                            "en": "hasRepresentation"
+                        },
+                        "comments": {
                             "en": "hasRepresentation"
                         },
                         "gui_element": "Searchbox"
@@ -459,6 +525,9 @@
                         "labels": {
                             "en": "hasMovingImageRepresentation"
                         },
+                        "comments": {
+                            "en": "hasMovingImageRepresentation"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -470,6 +539,9 @@
                         "labels": {
                             "en": "Page number"
                         },
+                        "comments": {
+                            "en": "Page number"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -479,6 +551,9 @@
                         ],
                         "object": ":CompoundThing",
                         "labels": {
+                            "en": "is part of"
+                        },
+                        "comments": {
                             "en": "is part of"
                         },
                         "gui_element": "Searchbox"
@@ -493,6 +568,10 @@
                             "externalOnto:thing"
                         ],
                         "labels": {
+                            "en": "TestThing",
+                            "rm": "TestThing in Rumantsch"
+                        },
+                        "comments": {
                             "en": "TestThing",
                             "rm": "TestThing in Rumantsch"
                         },
@@ -600,6 +679,9 @@
                         "labels": {
                             "en": "TestThing2Child2"
                         },
+                        "comments": {
+                            "en": "TestThing2Child2"
+                        },
                         "cardinalities": [
                             {
                                 "propname": ":hasTextChild2",
@@ -614,6 +696,9 @@
                         "labels": {
                             "en": "TestThing2Child1"
                         },
+                        "comments": {
+                            "en": "TestThing2Child1"
+                        },
                         "cardinalities": [
                             {
                                 "propname": ":hasTextChild1",
@@ -626,6 +711,9 @@
                         "name": "TestThing2",
                         "super": "Resource",
                         "labels": {
+                            "en": "Another Test Thing"
+                        },
+                        "comments": {
                             "en": "Another Test Thing"
                         },
                         "cardinalities": [
@@ -645,7 +733,8 @@
                         "name": "CompoundThing",
                         "super": "Resource",
                         "labels": {
-                            "en": "A Compound Thing"
+                            "en": "A Compound Thing",
+                            "rm": "Rumantsch comment of resource 'CompoundThing'"
                         },
                         "comments": {
                             "en": "A thing for testing compound things.",
@@ -689,7 +778,8 @@
                             "de": "Ein Audioding"
                         },
                         "comments": {
-                            "en": "An audio thing for testing audio things."
+                            "en": "An audio thing for testing audio things.",
+                            "de": "Ein Audioding"
                         },
                         "cardinalities": [
                             {
@@ -818,6 +908,9 @@
                         ],
                         "labels": {
                             "en": "Thing whose superclass is referenced with prefixed onto name"
+                        },
+                        "comments": {
+                            "en": "Thing whose superclass is referenced with prefixed onto name"
                         }
                     }
                 ]
@@ -835,6 +928,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -846,7 +942,8 @@
                             "http://xmlns.com/foaf/0.1/#term_name"
                         ],
                         "labels": {
-                            "en": "Test thing for permissions without object"
+                            "en": "Test thing for permissions without object",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
                         },
                         "comments": {
                             "en": "A thing to test permission related things",
@@ -869,7 +966,8 @@
                         "name": "ImageThingPermissions",
                         "super": "StillImageRepresentation",
                         "labels": {
-                            "en": "Test thing for permissions with object"
+                            "en": "Test thing for permissions with object",
+                            "de": "Ein Ding um Permissionsdinge zu testen."
                         },
                         "comments": {
                             "en": "A thing to test permission related things",

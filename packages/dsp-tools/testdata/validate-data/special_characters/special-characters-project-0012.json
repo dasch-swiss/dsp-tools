@@ -62,6 +62,9 @@
             "labels": {
               "en": "Test List"
             },
+            "comments": {
+              "en": "Test List"
+            },
             "gui_element": "List",
             "gui_attributes": {
               "hlist": "list \\ ' space"
@@ -76,6 +79,9 @@
             "labels": {
               "en": "Test SimpleText"
             },
+            "comments": {
+              "en": "Test SimpleText"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -85,6 +91,9 @@
             ],
             "object": "TextValue",
             "labels": {
+              "en": "Test Richtext"
+            },
+            "comments": {
               "en": "Test Richtext"
             },
             "gui_element": "Richtext"
@@ -98,6 +107,9 @@
             "labels": {
               "en": "Test Geoname"
             },
+            "comments": {
+              "en": "Test Geoname"
+            },
             "gui_element": "Geonames"
           }
         ],
@@ -106,6 +118,9 @@
             "name": "ClassWithEverything",
             "super": "Resource",
             "labels": {
+              "en": "Resource with every property"
+            },
+            "comments": {
               "en": "Resource with every property"
             },
             "cardinalities": [

@@ -37,22 +37,22 @@ def test_rename_deprecated_lang_cols() -> None:
 def test_do_property_excel_compliance_all_good() -> None:
     original_df = pd.DataFrame(
         {
-            "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6"],
-            "label_en": ["label_en_1", "label_en_2", pd.NA, pd.NA, "label_en_5", pd.NA],
-            "label_de": ["label_de_1", pd.NA, "label_de_3", pd.NA, pd.NA, pd.NA],
-            "label_fr": ["label_fr_1", pd.NA, pd.NA, "label_fr_4", pd.NA, pd.NA],
-            "label_it": ["label_it_1", pd.NA, pd.NA, pd.NA, "label_it_5", pd.NA],
-            "label_rm": ["label_rm_1", pd.NA, pd.NA, pd.NA, pd.NA, "label_rm_6"],
-            "comment_en": ["comment_en_1", "comment_en_2", pd.NA, pd.NA, "comment_en_5", pd.NA],
-            "comment_de": ["comment_de_1", pd.NA, "comment_de_3", pd.NA, pd.NA, pd.NA],
-            "comment_fr": ["comment_fr_1", pd.NA, pd.NA, "comment_fr_4", pd.NA, pd.NA],
-            "comment_it": ["comment_it_1", pd.NA, pd.NA, pd.NA, "comment_it_5", pd.NA],
-            "comment_rm": ["comment_rm_1", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-            "super": ["super_1", "super_2", "super_3", "super_4.1, super_4.2, super_4.3", "super_5", "super_6"],
-            "subject": ["subject_1", "subject_2", "subject_3", "subject_4", "subject_5", "subject_6"],
-            "object": ["object_1", "object_2", "object_3", "object_4", "object_5", "object_6"],
-            "gui_element": ["Simple", "Searchbox", "Date", "Searchbox", "List", "Searchbox"],
-            "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, "hlist: languages", pd.NA],
+            "name": ["name_1", "name_2", "name_3"],
+            "label_en": ["label_en_1", "label_en_2", "label_en_3"],
+            "label_de": ["label_de_1", pd.NA, "label_de_3"],
+            "label_fr": ["label_fr_1", pd.NA, pd.NA],
+            "label_it": ["label_it_1", pd.NA, pd.NA],
+            "label_rm": ["label_rm_1", pd.NA, pd.NA],
+            "comment_en": ["comment_en_1", "comment_en_2", "comment_en_3"],
+            "comment_de": ["comment_de_1", pd.NA, "comment_de_3"],
+            "comment_fr": ["comment_fr_1", pd.NA, pd.NA],
+            "comment_it": ["comment_it_1", pd.NA, pd.NA],
+            "comment_rm": ["comment_rm_1", pd.NA, pd.NA],
+            "super": ["super_1", "super_2.1, super_2.2", "super_3"],
+            "subject": ["subject_1", "subject_2", "subject_3"],
+            "object": ["object_1", "object_2", "object_3"],
+            "gui_element": ["Simple", "Searchbox", "List"],
+            "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
         }
     )
 
@@ -62,56 +62,35 @@ def test_do_property_excel_compliance_all_good() -> None:
 def test_do_property_excel_compliance_problems() -> None:
     original_df = pd.DataFrame(
         {
-            "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6", "name_7", pd.NA],
-            "label_en": ["label_en_1", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-            "label_de": [pd.NA, pd.NA, "label_de_3", pd.NA, pd.NA, pd.NA, pd.NA, "label_de_8"],
-            "label_fr": [pd.NA, pd.NA, pd.NA, "label_fr_4", pd.NA, pd.NA, pd.NA, pd.NA],
-            "label_it": [pd.NA, pd.NA, pd.NA, pd.NA, "label_it_5", pd.NA, pd.NA, pd.NA],
-            "label_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "label_rm_6", pd.NA, pd.NA],
-            "comment_en": ["comment_en_1", pd.NA, "comment_en_3", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-            "comment_de": [pd.NA, pd.NA, pd.NA, "comment_de_4", pd.NA, pd.NA, pd.NA, pd.NA],
-            "comment_fr": [pd.NA, pd.NA, pd.NA, pd.NA, "comment_fr_5", pd.NA, pd.NA, pd.NA],
-            "comment_it": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "comment_it_6", pd.NA, pd.NA],
-            "comment_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "comment_rm_7", pd.NA],
-            "super": [
-                pd.NA,
-                "super_2",
-                pd.NA,
-                "super_4.1, super_4.2, super_4.3",
-                "super_5",
-                "super_6",
-                "super_7",
-                pd.NA,
-            ],
-            "subject": [
-                "subject_1",
-                "subject_2",
-                "subject_3",
-                "subject_4",
-                "subject_5",
-                "subject_6",
-                "subject_7",
-                pd.NA,
-            ],
-            "object": ["object_1", "object_2", "object_3", pd.NA, "object_5", "object_6", "object_7", pd.NA],
-            "gui_element": ["Simple", "Searchbox", "Date", "Date", pd.NA, "List", pd.NA, pd.NA],
-            "gui_attributes": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6", pd.NA],
+            "label_en": ["l", pd.NA, "l", "l", "l", "l", "l"],
+            "label_de": [pd.NA, pd.NA, "label_de_3", pd.NA, pd.NA, pd.NA, pd.NA],
+            "label_fr": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "label_it": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "label_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "comment_en": ["c", pd.NA, "c", "c", "c", "c", "c"],
+            "comment_de": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "comment_fr": [pd.NA, pd.NA, pd.NA, "comment_fr_4", pd.NA, pd.NA, pd.NA],
+            "comment_it": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "comment_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "super": [pd.NA, "super_2", "super_3", "super_4", "super_5", "super_6", "super_7"],
+            "subject": ["subject_1", "subject_2", "subject_3", "subject_4", "subject_5", "subject_6", "subject_7"],
+            "object": ["object_1", "object_2", "object_3", pd.NA, "object_5", "object_6", "object_7"],
+            "gui_element": ["Simple", "Simple", "Simple", "Simple", pd.NA, "List", "Simple"],
+            "gui_attributes": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     expected_msg = regex.escape(
         "The Excel file 'properties.xlsx' contains the following problems:\n\n"
         "At the following locations, mandatory values are missing:\n"
-        "    - Column 'name' | Row 9\n"
+        "    - Column 'name' | Row 8\n"
         "    - Column 'super' | Row 2\n"
-        "    - Column 'super' | Row 4\n"
-        "    - Column 'super' | Row 9\n"
         "    - Column 'object' | Row 5\n"
-        "    - Column 'object' | Row 9\n"
         "    - Column 'gui_element' | Row 6\n"
-        "    - Column 'gui_element' | Row 8\n"
-        "    - Column 'gui_element' | Row 9\n"
-        "    - Column 'label' | Row 3\n"
-        "    - Column 'label' | Row 8\n"
+        "    - Column 'label_en' | Row 3\n"
+        "    - Column 'comment_en' | Row 3\n"
+        "    - Column 'comment_de' | Row 4\n"
+        "    - Column 'label_fr' | Row 5\n"
         "    - Column 'gui_attributes' | Row 7"
     )
     with pytest.raises(InvalidFileFormatError, match=expected_msg):
@@ -204,7 +183,7 @@ def test_row2prop_geolocation_produces_valid_json() -> None:
             "label_fr": [pd.NA],
             "label_it": [pd.NA],
             "label_rm": [pd.NA],
-            "comment_en": [pd.NA],
+            "comment_en": ["Findspot of the object"],
             "comment_de": [pd.NA],
             "comment_fr": [pd.NA],
             "comment_it": [pd.NA],

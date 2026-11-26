@@ -259,25 +259,30 @@ def get_comments(df_row: pd.Series[Any]) -> LanguageDict | None:
     return LanguageDict(comments) if comments else None
 
 
-def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[bool] | None:
+def find_unpaired_label_and_comment_cells(df: pd.DataFrame) -> dict[str, pd.Series[bool]]:
     """
-    This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
-    A pd.Series with boolean values is returned, True if any rows do not have a value in at least one column
+    For each non-English language, a label and a comment must both be filled or both be empty.
+    An absent column counts as empty.
+    English is not checked here, because "label_en" and "comment_en" are required columns.
 
     Args:
-        df: The pd.DataFrame which should be checked
-        required_columns: A list of column names where at least one cell per row must have a value
+        df: pd.DataFrame with "label_[language tag]" and "comment_[language tag]" columns
 
     Returns:
-        None if there is no problem or a pd.Series if there is a problem in a row
+        The names of the columns that must be filled, with a pd.Series that is True for each empty cell to fill.
+        An empty dictionary if all labels and comments are paired.
     """
-    # The series has True if the cell is empty
-    # In order to combine more than two arrays, we need to reduce the arrays, which takes a tuple
-    result_arrays = tuple(df[col].isnull() for col in required_columns)
-    # If all are True logical_and returns True otherwise False
-    combined_array = np.logical_and.reduce(result_arrays).astype(bool)
-    # if any of the values are True, it is turned into a pd.Series
-    return pd.Series(combined_array) if any(combined_array) else None
+    empty = pd.Series([True] * len(df), index=df.index)
+    unpaired: dict[str, pd.Series[bool]] = {}
+    for lang in [x for x in languages if x != "en"]:
+        label_col, comment_col = f"label_{lang}", f"comment_{lang}"
+        label_empty = df[label_col].isnull() if label_col in df.columns else empty
+        comment_empty = df[comment_col].isnull() if comment_col in df.columns else empty
+        if (missing_comment := comment_empty & ~label_empty).any():
+            unpaired[comment_col] = missing_comment
+        if (missing_label := label_empty & ~comment_empty).any():
+            unpaired[label_col] = missing_label
+    return unpaired
 
 
 def col_must_or_not_empty_based_on_other_col(

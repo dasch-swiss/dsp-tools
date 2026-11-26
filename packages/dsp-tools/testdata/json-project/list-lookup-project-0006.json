@@ -102,6 +102,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -111,6 +114,9 @@
                         ],
                         "object": "ListValue",
                         "labels": {
+                            "en": "List element"
+                        },
+                        "comments": {
                             "en": "List element"
                         },
                         "gui_element": "List",
@@ -124,6 +130,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         }
                     }
@@ -142,6 +151,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -151,6 +163,9 @@
                         ],
                         "object": "ListValue",
                         "labels": {
+                            "en": "List element"
+                        },
+                        "comments": {
                             "en": "List element"
                         },
                         "gui_element": "List",
@@ -167,6 +182,9 @@
                         "labels": {
                             "en": "List element"
                         },
+                        "comments": {
+                            "en": "List element"
+                        },
                         "gui_element": "List",
                         "gui_attributes": {
                             "hlist": "list2"
@@ -178,6 +196,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         }
                     }

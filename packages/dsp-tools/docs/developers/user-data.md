@@ -6,12 +6,15 @@ DSP-TOOLS saves user data in the user's home directory,
 in the folder `.dsp-tools`. 
 Here is an overview of its structure:
 
-| file/folder                         | command using it | description                                                                                |
-| :---------------------------------- | :--------------- | :----------------------------------------------------------------------------------------- |
-| xmluploads/(server)/resumable/*.pkl | `xmlupload`      | Upload state of interrupted xmluploads                                                     |
-| start-stack                         | `start-stack`    | files necessary to startup Docker containers (*)                                           |
-| rosetta                             | `rosetta`        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts) |
-| logging.log, logging.log.1, ...     | several ones     | These two grow up to a predefined size, then the oldest log files are deleted              |
+| file/folder                         | command using it                                 | description                                                                                                                 |
+| :---------------------------------- | :----------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| xmluploads/(server)/resumable/*.pkl | `xmlupload`                                      | Upload state of interrupted xmluploads                                                                                      |
+| data-imports/(server)/              | `ingest-xmlupload`, `delete-data-import`         | Payload (`_payload.jsonld`), mapping of IDs to IRIs (`_id2iri.json`) and error message (`_error.txt`) of a bulk data import |
+| id2iri/                             | `xmlupload`, `ingest-xmlupload`                  | Copy of the mapping of internal IDs to IRIs after a successful upload                                                       |
+| validate-data/                      | `validate-data`, `xmlupload`, `ingest-xmlupload` | Temporary files of the SHACL validation                                                                                     |
+| start-stack                         | `start-stack`                                    | files necessary to startup Docker containers (*)                                                                            |
+| rosetta                             | `rosetta`                                        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts)                                  |
+| logging.log, logging.log.1, ...     | several ones                                     | These two grow up to a predefined size, then the oldest log files are deleted                                               |
 
 
 (*) Docker is normally not able to access files stored in the `site-packages` of a Python installation.

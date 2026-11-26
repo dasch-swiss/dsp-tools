@@ -174,11 +174,11 @@ It must belong to the project.
 
 DSP-TOOLS writes these files to `~/.dsp-tools/data-imports/<server>/`:
 
-| File                                 | Content                                                                |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| `<shortcode>_<timestamp>_payload.jsonld` | the data that DSP-TOOLS sends to the server (the payload)              |
-| `<shortcode>_<timestamp>_id2iri.json`| the mapping of internal IDs to IRIs, written before the data is sent   |
-| `<shortcode>_<import_id>_error.txt`  | the error message of the server, written only if the import fails      |
+| File                                     | Content                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------- |
+| `<shortcode>_<timestamp>_payload.jsonld` | the data that DSP-TOOLS sends to the server (the payload)            |
+| `<shortcode>_<timestamp>_id2iri.json`    | the mapping of internal IDs to IRIs, written before the data is sent |
+| `<shortcode>_<import_id>_error.txt`      | the error message of the server, written only if the import fails    |
 
 After a successful import, DSP-TOOLS removes the payload and the `_id2iri.json` file.
 It writes the mapping of internal IDs to IRIs to `id2iri_<shortcode>_<server>_<timestamp>.json` 

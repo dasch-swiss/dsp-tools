@@ -16,6 +16,7 @@ from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportStatusUnkno
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserMissingError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserRejectedError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendConnectionLostError
+from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendServerError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadTooLargeError
 from dsp_tools.commands.ingest_xmlupload.exceptions import SystemAdminRequiredError
 from dsp_tools.commands.ingest_xmlupload.exceptions import delete_command
@@ -37,6 +38,7 @@ from dsp_vre.clients.exceptions import DataImportRunningError
 from dsp_vre.clients.exceptions import DspApiRequestError
 from dsp_vre.clients.exceptions import DspVreBaseError
 from dsp_vre.clients.exceptions import DspVreUserError
+from dsp_vre.clients.exceptions import FatalNonOkApiResponseCodeError
 from dsp_vre.clients.exceptions import OnBehalfOfUserIneligibleError
 from dsp_vre.clients.exceptions import OnBehalfOfUserNotFoundError
 
@@ -97,6 +99,10 @@ def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str,
         # The server may still process the import, so the files are kept.
         logger.exception(err)
         raise PayloadSendConnectionLostError(files.payload.stat().st_size) from None
+    except FatalNonOkApiResponseCodeError as err:
+        # A gateway timeout does not mean that the server dropped the import, so the files are kept.
+        logger.exception(err)
+        raise PayloadSendServerError(str(err), files.payload, files.id2iri) from None
     except KeyboardInterrupt:
         msg = (
             "The bulk data import was interrupted during the upload of the payload. "

@@ -16,6 +16,7 @@ from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportStatusUnkno
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserMissingError
 from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserRejectedError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendConnectionLostError
+from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendServerError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadTooLargeError
 from dsp_tools.commands.ingest_xmlupload.exceptions import SystemAdminRequiredError
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
@@ -207,6 +208,20 @@ def test_post_connection_error_keeps_files(files: PayloadFiles, tmp_path: Path) 
         match=r"during the upload of the payload.+The size of your bulk data import is 2\.0 MiB",
     ):
         _run(FakeClient(post_error=DspApiRequestError("x")), files, tmp_path)
+    assert files.payload.exists()
+    assert files.id2iri.exists()
+
+
+@pytest.mark.parametrize("status_code", [500, 502, 504])
+def test_post_server_error_keeps_files(status_code: int, files: PayloadFiles, tmp_path: Path) -> None:
+    error = FatalNonOkApiResponseCodeError("http://x", status_code, "gateway")
+    with pytest.raises(PayloadSendServerError) as exc_info:
+        _run(FakeClient(post_error=error), files, tmp_path)
+    message = str(exc_info.value)
+    assert f"Status code: {status_code}" in message
+    assert "The server may still process this bulk data import. A new run reports it with its ID." in message
+    assert str(files.payload) in message
+    assert str(files.id2iri) in message
     assert files.payload.exists()
     assert files.id2iri.exists()
 

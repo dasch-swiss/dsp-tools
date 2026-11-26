@@ -112,6 +112,18 @@ class PayloadSendConnectionLostError(UserError):
         )
 
 
+class PayloadSendServerError(UserError):
+    """The server answered the upload of the payload with an unexpected error, for example a gateway timeout."""
+
+    def __init__(self, reason: str, payload: Path, id2iri: Path) -> None:
+        super().__init__(
+            f"The server answered the upload of the payload with an error:\n{reason}\n"
+            "The server may still process this bulk data import. A new run reports it with its ID.\n"
+            f"The payload file is kept at: {payload}\n"
+            f"The mapping of internal IDs to IRIs is kept at: {id2iri}"
+        )
+
+
 class BulkImportExistsError(UserError):
     """A bulk data import task exists for the project."""
 

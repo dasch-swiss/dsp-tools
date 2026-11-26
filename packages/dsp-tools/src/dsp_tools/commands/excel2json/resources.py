@@ -28,13 +28,13 @@ from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_permissions
+from dsp_tools.commands.excel2json.utils import check_unpaired_label_and_comment_cells
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
+from dsp_tools.commands.excel2json.utils import languages
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.problems import Problem
-
-languages = ["en", "de", "fr", "it", "rm"]
 
 
 def excel2resources(
@@ -109,7 +109,7 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     problems: list[Problem] = []
-    required_cols = ["name", "super"]
+    required_cols = ["name", "super", "comment_en", "label_en"]
     if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
         # If this condition is not fulfilled the following tests will produce KeyErrors
         return ExcelSheetProblem("classes", [missing_cols])
@@ -118,6 +118,8 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
         problems.append(ResourceSheetNotListedProblem(sheet_names - names_listed))
     if missing_values := find_missing_required_values(classes_df, required_cols):
         problems.extend(missing_values)
+    if unpaired_prob := check_unpaired_label_and_comment_cells(classes_df):
+        problems.append(unpaired_prob)
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
     if problems:
@@ -149,12 +151,10 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
     classes_df = add_optional_columns(
         classes_df,
         {
-            "label_en",
             "label_de",
             "label_fr",
             "label_it",
             "label_rm",
-            "comment_en",
             "comment_de",
             "comment_fr",
             "comment_it",

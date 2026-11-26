@@ -7,7 +7,9 @@
     "descriptions": {
       "en": "A project to test limited view"
     },
-    "keywords": ["limited-view"],
+    "keywords": [
+      "limited-view"
+    ],
     "default_permissions": "public",
     "default_permissions_overrule": {
       "limited_view": "all"
@@ -19,9 +21,14 @@
         "properties": [
           {
             "name": "hasText",
-            "super": ["hasValue"],
+            "super": [
+              "hasValue"
+            ],
             "object": "TextValue",
             "labels": {
+              "en": "Text"
+            },
+            "comments": {
               "en": "Text"
             },
             "gui_element": "SimpleText"
@@ -32,6 +39,9 @@
             "name": "Image1",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "Image1"
+            },
+            "comments": {
               "en": "Image1"
             },
             "cardinalities": [
@@ -47,6 +57,9 @@
             "labels": {
               "en": "Image2"
             },
+            "comments": {
+              "en": "Image2"
+            },
             "cardinalities": [
               {
                 "propname": ":hasText",
@@ -58,6 +71,9 @@
             "name": "NormalThing",
             "super": "Resource",
             "labels": {
+              "en": "NormalThing"
+            },
+            "comments": {
               "en": "NormalThing"
             },
             "cardinalities": [

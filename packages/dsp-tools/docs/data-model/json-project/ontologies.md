@@ -90,13 +90,13 @@ The following fields are mandatory:
 
 - `name`
 - `labels`
+- `comments`
 - `super`
 - `object`
 - `gui_element`
 
 The following fields are optional:
 
-- `comments` 
 - `subject`
 - `gui_attributes`
 
@@ -119,12 +119,9 @@ A resource object needs to have the following fields:
 
 - `name`
 - `labels`
+- `comments`
 - `super`
 - `cardinalities`*
-
-The following field is optional:
-
-- `comments` 
 
 A detailed description of `resources` can be found [below](#the-resource-object).
 
@@ -147,6 +144,11 @@ but in most cases it doesn't make sense to omit them.)
     "en": "School ID",
     "de": "ID der Schule",
     "fr": "ID de l'école"
+  },
+  "comments": {
+    "en": "The identifier of the school",
+    "de": "Die Kennung der Schule",
+    "fr": "L'identifiant de l'école"
   },
   "gui_element": "SimpleText"
 }
@@ -176,17 +178,21 @@ By convention, property names start with a lower case letter.
 
 Collection of `labels` for the property as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+The `labels` must contain `en`.
+Each label and each comment must contain at least one character that is not whitespace.
+`labels` and `comments` must have the same languages.
+For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 
 
 
 ### Property: `comments`
 
-(optional)
+(required)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags. Currently, `de`, `en`, `fr`, `it`, and `rm` are supported. 
-The `comments` element is optional.
+The `comments` must contain `en`, and they must have the same languages as the [`labels`](#property-label).
 
 
 
@@ -287,6 +293,9 @@ Example:
   "labels": {
     "en": "Boolean value"
   },
+  "comments": {
+    "en": "A yes/no value"
+  },
   "gui_element": "Checkbox"
 }
 ```
@@ -314,6 +323,9 @@ Example:
   "object": "ColorValue",
   "labels": {
     "en": "Color"
+  },
+  "comments": {
+    "en": "The color of the object"
   },
   "gui_element": "Colorpicker"
 }
@@ -343,6 +355,9 @@ Example:
   "labels": {
     "en": "Date"
   },
+  "comments": {
+    "en": "The date of the event"
+  },
   "gui_element": "Date"
 }
 ```
@@ -371,6 +386,9 @@ Example:
   "object": "DecimalValue",
   "labels": {
     "en": "Decimal number"
+  },
+  "comments": {
+    "en": "A decimal number"
   },
   "gui_element": "SimpleText"
 }
@@ -404,6 +422,9 @@ Example:
   "labels": {
     "en": "Findspot"
   },
+  "comments": {
+    "en": "The place where the object was found"
+  },
   "gui_element": "Geolocation"
 }
 ```
@@ -432,6 +453,9 @@ Example:
   "object": "GeonameValue",
   "labels": {
     "en": "Geoname"
+  },
+  "comments": {
+    "en": "A place, identified by its Geonames ID"
   },
   "gui_element": "Geonames"
 }
@@ -462,6 +486,9 @@ Example:
   "object": "IntValue",
   "labels": {
     "en": "Integer"
+  },
+  "comments": {
+    "en": "A whole number"
   },
   "gui_element": "Spinbox"
 }
@@ -495,6 +522,9 @@ Example:
   "labels": {
     "en": "List element"
   },
+  "comments": {
+    "en": "An element of a list"
+  },
   "gui_element": "List",
   "gui_attributes": {
     "hlist": "treelistroot"
@@ -527,6 +557,9 @@ Example:
     "object": "RegionPreviewValue",
     "labels": {
         "en": "hasRegionPreview"
+    },
+    "comments": {
+      "en": "A preview of the region"
     },
     "gui_element": "RegionPreview"
 }
@@ -583,6 +616,9 @@ Example:
   "labels": {
     "en": "Title"
   },
+  "comments": {
+    "en": "The title of the picture"
+  },
   "gui_element": "SimpleText"
 }
 ```
@@ -607,6 +643,11 @@ Example:
       "de": "Kommentar",
       "en": "Comment",
       "fr": "Commentaire"
+    },
+    "comments": {
+      "de": "Ein Kommentar zur Ressource",
+      "en": "A comment on the resource",
+      "fr": "Un commentaire sur la ressource"
     },
     "gui_element": "Richtext"
 }
@@ -636,6 +677,9 @@ Example:
   "labels": {
     "en": "Time"
   },
+  "comments": {
+    "en": "A point in time"
+  },
   "gui_element": "TimeStamp"
 }
 ```
@@ -662,6 +706,9 @@ Example:
   "object": "UriValue",
   "labels": {
     "en": "URI"
+  },
+  "comments": {
+    "en": "A link to a web page"
   },
   "gui_element": "SimpleText"
 }
@@ -708,6 +755,9 @@ Example:
   "labels": {
     "en": "Another thing"
   },
+  "comments": {
+    "en": "A link to another thing"
+  },
   "gui_element": "Searchbox"
 }
 ```
@@ -738,6 +788,9 @@ Example:
     "object": "Representation",
     "labels": {
         "en": "Represented by"
+    },
+    "comments": {
+      "en": "The representation of this resource"
     },
         "gui_element": "Searchbox"
     }
@@ -774,6 +827,7 @@ Example:
         "super": ["isPartOf"],
         "object": ":Book",
         "labels": {"en": "is part of"},
+        "comments": {"en": "The book that this page is part of"},
         "gui_element": "Searchbox"
     },
     {
@@ -781,6 +835,7 @@ Example:
         "super": ["seqnum"],
         "object": "IntValue",
         "labels": {"en": "has page number"},
+        "comments": {"en": "The position of the page in the book"},
         "gui_element": "SimpleText"
     }
 ],
@@ -788,6 +843,7 @@ Example:
     {
         "name": "Page",
         "labels": {"en": "Page using properties derived from 'isPartOf' and 'seqnum'"},
+        "comments": {"en": "A page of a book, with its own subproperties of 'isPartOf' and 'seqnum'"},
         "super": "StillImageRepresentation",
         "cardinalities": [
             {
@@ -803,6 +859,7 @@ Example:
     {
         "name": "MinimalisticPage",
         "labels": {"en": "Page using 'isPartOf' and 'seqnum' directly"},
+        "comments": {"en": "A page of a book, with the base properties 'isPartOf' and 'seqnum'"},
         "super": "StillImageRepresentation",
         "cardinalities": [
             {
@@ -900,6 +957,10 @@ By convention, resource names start with an upper case letter.
 
 Collection of `labels` for the resource as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+The `labels` must contain `en`.
+Each label and each comment must contain at least one character that is not whitespace.
+`labels` and `comments` must have the same languages.
+For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 
 
 ### Resource: `super`
@@ -979,10 +1040,10 @@ If this is not the case then no properties can be used with this class.)
 
 ### Resource: `comments`
 
-(optional)
+(required)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
 Comments with language tags
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
-The `comments` element is optional.
+The `comments` must contain `en`, and they must have the same languages as the [`labels`](#resource-labels).

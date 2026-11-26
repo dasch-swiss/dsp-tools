@@ -137,6 +137,9 @@
                         "labels": {
                             "en": "Test Boolean"
                         },
+                        "comments": {
+                            "en": "Test Boolean"
+                        },
                         "gui_element": "Checkbox"
                     },
                     {
@@ -146,6 +149,9 @@
                         ],
                         "object": "ColorValue",
                         "labels": {
+                            "en": "Test Color"
+                        },
+                        "comments": {
                             "en": "Test Color"
                         },
                         "gui_element": "Colorpicker"
@@ -173,6 +179,9 @@
                         "labels": {
                             "en": "Test Decimal"
                         },
+                        "comments": {
+                            "en": "Test Decimal"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -182,6 +191,9 @@
                         ],
                         "object": "DecimalValue",
                         "labels": {
+                            "en": "Test Decimal"
+                        },
+                        "comments": {
                             "en": "Test Decimal"
                         },
                         "gui_element": "Spinbox"
@@ -195,6 +207,9 @@
                         "labels": {
                             "en": "Test Geoname"
                         },
+                        "comments": {
+                            "en": "Test Geoname"
+                        },
                         "gui_element": "Geonames"
                     },
                     {
@@ -204,6 +219,9 @@
                         ],
                         "object": "IntValue",
                         "labels": {
+                            "en": "Test Integer"
+                        },
+                        "comments": {
                             "en": "Test Integer"
                         },
                         "gui_element": "SimpleText"
@@ -217,6 +235,9 @@
                         "labels": {
                             "en": "Test Integer"
                         },
+                        "comments": {
+                            "en": "Test Integer"
+                        },
                         "gui_element": "Spinbox"
                     },
                     {
@@ -226,6 +247,9 @@
                         ],
                         "object": "ListValue",
                         "labels": {
+                            "en": "Test List"
+                        },
+                        "comments": {
                             "en": "Test List"
                         },
                         "gui_element": "List",
@@ -242,6 +266,9 @@
                         "labels": {
                             "en": "Test SimpleText"
                         },
+                        "comments": {
+                            "en": "Test SimpleText"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -251,6 +278,9 @@
                         ],
                         "object": "TextValue",
                         "labels": {
+                            "en": "Test Textarea"
+                        },
+                        "comments": {
                             "en": "Test Textarea"
                         },
                         "gui_element": "Textarea"
@@ -264,6 +294,9 @@
                         "labels": {
                             "en": "Test Richtext"
                         },
+                        "comments": {
+                            "en": "Test Richtext"
+                        },
                         "gui_element": "Richtext"
                     },
                     {
@@ -273,6 +306,9 @@
                         ],
                         "object": "TimeValue",
                         "labels": {
+                            "en": "Test Time"
+                        },
+                        "comments": {
                             "en": "Test Time"
                         },
                         "gui_element": "TimeStamp"
@@ -286,6 +322,9 @@
                         "labels": {
                             "en": "Test URI"
                         },
+                        "comments": {
+                            "en": "Test URI"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -297,6 +336,9 @@
                         "labels": {
                             "en": "In-built Comment"
                         },
+                        "comments": {
+                            "en": "In-built Comment"
+                        },
                         "gui_element": "Richtext"
                     },
                     {
@@ -306,6 +348,9 @@
                         ],
                         "object": ":ClassMixedCard",
                         "labels": {
+                            "en": "testHasLinkToClassMixedCard"
+                        },
+                        "comments": {
                             "en": "testHasLinkToClassMixedCard"
                         },
                         "gui_element": "Searchbox"
@@ -320,6 +365,9 @@
                         "labels": {
                             "en": "testHasLinkTo"
                         },
+                        "comments": {
+                            "en": "testHasLinkTo"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -329,6 +377,9 @@
                         ],
                         "object": "Resource",
                         "labels": {
+                            "en": "testHasLinkTo"
+                        },
+                        "comments": {
                             "en": "testHasLinkTo"
                         },
                         "gui_element": "Searchbox"
@@ -342,6 +393,9 @@
                         "labels": {
                             "en": "Represented by"
                         },
+                        "comments": {
+                            "en": "Represented by"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -351,6 +405,9 @@
                         ],
                         "object": ":TestStillImageRepresentation",
                         "labels": {
+                            "en": "is part of"
+                        },
+                        "comments": {
                             "en": "is part of"
                         },
                         "gui_element": "Searchbox"
@@ -364,6 +421,9 @@
                         "labels": {
                             "en": "Test Seqnum"
                         },
+                        "comments": {
+                            "en": "Test Seqnum"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -372,6 +432,9 @@
                         "name": "ClassWithEverything",
                         "super": "Resource",
                         "labels": {
+                            "en": "Resource with every property"
+                        },
+                        "comments": {
                             "en": "Resource with every property"
                         },
                         "cardinalities": [
@@ -473,6 +536,9 @@
                         "labels": {
                             "en": "Resource with One Cardinality and no gui order"
                         },
+                        "comments": {
+                            "en": "Resource with One Cardinality and no gui order"
+                        },
                         "cardinalities": [
                             {
                                 "propname": ":testBoolean",
@@ -490,6 +556,9 @@
                         "labels": {
                             "en": "Subclass Resource"
                         },
+                        "comments": {
+                            "en": "Subclass Resource"
+                        },
                         "cardinalities": [
                             {
                                 "propname": ":testSimpleText",
@@ -502,6 +571,9 @@
                         "name": "ClassMixedCard",
                         "super": "Resource",
                         "labels": {
+                            "en": "Resource with all cardinality options"
+                        },
+                        "comments": {
                             "en": "Resource with all cardinality options"
                         },
                         "cardinalities": [
@@ -532,12 +604,18 @@
                         "super": "ArchiveRepresentation",
                         "labels": {
                             "en": "ArchiveRepresentation"
+                        },
+                        "comments": {
+                            "en": "ArchiveRepresentation"
                         }
                     },
                     {
                         "name": "TestAudioRepresentation",
                         "super": "AudioRepresentation",
                         "labels": {
+                            "en": "AudioRepresentation"
+                        },
+                        "comments": {
                             "en": "AudioRepresentation"
                         }
                     },
@@ -546,12 +624,18 @@
                         "super": "DocumentRepresentation",
                         "labels": {
                             "en": "DocumentRepresentation"
+                        },
+                        "comments": {
+                            "en": "DocumentRepresentation"
                         }
                     },
                     {
                         "name": "TestMovingImageRepresentation",
                         "super": "MovingImageRepresentation",
                         "labels": {
+                            "en": "MovingImageRepresentation"
+                        },
+                        "comments": {
                             "en": "MovingImageRepresentation"
                         }
                     },
@@ -560,12 +644,18 @@
                         "super": "StillImageRepresentation",
                         "labels": {
                             "en": "StillImageRepresentation"
+                        },
+                        "comments": {
+                            "en": "StillImageRepresentation"
                         }
                     },
                     {
                         "name": "TestTextRepresentation",
                         "super": "TextRepresentation",
                         "labels": {
+                            "en": "TextRepresentation"
+                        },
+                        "comments": {
                             "en": "TextRepresentation"
                         }
                     }
@@ -584,6 +674,9 @@
                         "labels": {
                             "en": "Test Boolean of the second onto"
                         },
+                        "comments": {
+                            "en": "Test Boolean of the second onto"
+                        },
                         "gui_element": "Checkbox"
                     }
                 ],
@@ -592,6 +685,9 @@
                         "name": "SecondOntoClass",
                         "super": "Resource",
                         "labels": {
+                            "en": "Resource"
+                        },
+                        "comments": {
                             "en": "Resource"
                         },
                         "cardinalities": [
@@ -623,6 +719,9 @@
                         "labels": {
                             "en": "Target is any Representation"
                         },
+                        "comments": {
+                            "en": "Target is any Representation"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -632,6 +731,9 @@
                         ],
                         "object": "StillImageRepresentation",
                         "labels": {
+                            "en": "Target must be a StillImageRepresentation"
+                        },
+                        "comments": {
                             "en": "Target must be a StillImageRepresentation"
                         },
                         "gui_element": "Searchbox"
@@ -645,6 +747,9 @@
                         "labels": {
                             "en": "is part of"
                         },
+                        "comments": {
+                            "en": "is part of"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -656,6 +761,9 @@
                         "labels": {
                             "en": "has sequence Number"
                         },
+                        "comments": {
+                            "en": "has sequence Number"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -664,6 +772,9 @@
                         "name": "TestNormalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Resource"
+                        },
+                        "comments": {
                             "en": "Resource"
                         },
                         "cardinalities": [
@@ -685,6 +796,9 @@
                         "labels": {
                             "en": "StillImageRepresentation with knora-api:seqnum"
                         },
+                        "comments": {
+                            "en": "StillImageRepresentation with knora-api:seqnum"
+                        },
                         "cardinalities": [
                             {
                                 "propname": "isPartOf",
@@ -700,6 +814,9 @@
                         "name": "TestStillImageRepresentationWithInheritedSeqnum",
                         "super": "StillImageRepresentation",
                         "labels": {
+                            "en": "StillImageRepresentation using sub-properties of seqnum"
+                        },
+                        "comments": {
                             "en": "StillImageRepresentation using sub-properties of seqnum"
                         },
                         "cardinalities": [

@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "hasSimpleText"
                         },
+                        "comments": {
+                            "en": "hasSimpleText"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -34,6 +37,9 @@
                         ],
                         "object": "TextValue",
                         "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "comments": {
                             "en": "hasRichtext"
                         },
                         "gui_element": "Richtext"
@@ -46,6 +52,9 @@
                             "Resource"
                         ],
                         "labels": {
+                            "en": "TestThing"
+                        },
+                        "comments": {
                             "en": "TestThing"
                         },
                         "cardinalities": [

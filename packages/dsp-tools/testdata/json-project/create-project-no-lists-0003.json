@@ -36,6 +36,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -44,6 +47,9 @@
                         "name": "OneResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "OneResource"
+                        },
+                        "comments": {
                             "en": "OneResource"
                         }
                     }

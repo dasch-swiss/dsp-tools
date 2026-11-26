@@ -41,8 +41,13 @@
         ],
         "default_permissions": "public",
         "default_permissions_overrule": {
-            "private": ["test-name:Alias", "test-name:hasAnthroponym"],
-            "limited_view": ["test-name:Image"]
+            "private": [
+                "test-name:Alias",
+                "test-name:hasAnthroponym"
+            ],
+            "limited_view": [
+                "test-name:Image"
+            ]
         },
         "users": [
             {
@@ -290,11 +295,15 @@
                         ],
                         "object": ":GenericAnthroponym",
                         "labels": {
-                            "en": "only English"
+                            "de": "only English",
+                            "en": "only English",
+                            "fr": "only English",
+                            "it": "only English",
+                            "rm": "only English"
                         },
                         "comments": {
-                            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
                             "de": "Ich hatte bereits mehrere Grundstücke besichtigt, als eines Tages der Notar, der mir die notwendigen Anweisungen für eine meiner Erkundungen gegeben hatte, zu mir sagte:",
+                            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
                             "fr": "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me donnait des indications nécessaires pour une de mes explorations, me dit :",
                             "it": "Avevo già visto diverse proprietà quando un giorno il notaio,",
                             "rm": "Rumantsch"
@@ -309,11 +318,15 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "de": "only German"
+                            "de": "only German",
+                            "en": "only German",
+                            "fr": "only German",
+                            "it": "only German",
+                            "rm": "only German"
                         },
                         "comments": {
-                            "en": "A strange chance put me in possession of this journal.",
                             "de": "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+                            "en": "A strange chance put me in possession of this journal.",
                             "fr": "Un étrange hasard m'a mis en possession de ce journal.",
                             "it": "Uno strano caso mi mise in possesso di questo diario.",
                             "rm": "Rumantsch"
@@ -328,11 +341,15 @@
                         "object": "ListValue",
                         "subject": ":Person",
                         "labels": {
-                            "fr": "only French"
+                            "de": "only French",
+                            "en": "only French",
+                            "fr": "only French",
+                            "it": "only French",
+                            "rm": "only French"
                         },
                         "comments": {
-                            "en": "I know nothing of it whatever; but if you would like to see it, monsieur, here are the precise directions how to find it.",
                             "de": "Ich weiß nichts davon, aber wenn Sie es sehen möchten, Monsieur, finden Sie hier die genaue Wegbeschreibung.",
+                            "en": "I know nothing of it whatever; but if you would like to see it, monsieur, here are the precise directions how to find it.",
                             "fr": "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les indications précises pour la trouver.",
                             "it": "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
                             "rm": "Rumantsch"
@@ -349,11 +366,15 @@
                         ],
                         "object": "ListValue",
                         "labels": {
-                            "it": "only Italian"
+                            "de": "only Italian",
+                            "en": "only Italian",
+                            "fr": "only Italian",
+                            "it": "only Italian",
+                            "rm": "only Italian"
                         },
                         "comments": {
-                            "en": "You will have to arrange the affair with the curé of the village of ——.\"",
                             "de": "Sie werden die Angelegenheit mit dem Pfarrer des Dorfes -- regeln müssen.\"",
+                            "en": "You will have to arrange the affair with the curé of the village of ——.\"",
                             "fr": "Vous devrez arranger l'affaire avec le curé du village de --.\"",
                             "it": "Dovrete organizzare l'affare con il curato del villaggio di --\".",
                             "rm": "Rumantsch"
@@ -370,11 +391,15 @@
                         ],
                         "object": ":Titles",
                         "labels": {
+                            "de": "only Romansh",
+                            "en": "only Romansh",
+                            "fr": "only Romansh",
+                            "it": "only Romansh",
                             "rm": "only Romansh"
                         },
                         "comments": {
-                            "en": "A strange chance put me in possession of this journal.",
                             "de": "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+                            "en": "A strange chance put me in possession of this journal.",
                             "fr": "Un étrange hasard m'a mis en possession de ce journal.",
                             "it": "Uno strano caso mi mise in possesso di questo diario.",
                             "rm": "Rumantsch"
@@ -393,7 +418,9 @@
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "only English"
+                            "en": "only English",
+                            "fr": "statut",
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "List",
                         "gui_attributes": {
@@ -408,12 +435,16 @@
                         "object": "IntValue",
                         "subject": ":Person",
                         "labels": {
+                            "de": "age",
                             "en": "age",
                             "fr": "Âge",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "de": "only German"
+                            "de": "only German",
+                            "en": "age",
+                            "fr": "Âge",
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "Spinbox"
                     },
@@ -429,7 +460,9 @@
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "fr": "only French"
+                            "en": "birth date",
+                            "fr": "only French",
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "Date"
                     },
@@ -440,10 +473,13 @@
                         ],
                         "object": "Representation",
                         "labels": {
+                            "de": "hat eine Multimediadatei",
                             "en": "has a multimedia file",
-                            "de": "hat eine Multimediadatei"
+                            "rm": "has a multimedia file"
                         },
                         "comments": {
+                            "de": "hat eine Multimediadatei",
+                            "en": "has a multimedia file",
                             "rm": "only Rumantsch"
                         },
                         "gui_element": "Searchbox"
@@ -460,6 +496,11 @@
                             "fr": "Commentaire",
                             "rm": "Rumantsch"
                         },
+                        "comments": {
+                            "en": "remark",
+                            "fr": "Commentaire",
+                            "rm": "Rumantsch"
+                        },
                         "gui_element": "Textarea"
                     },
                     {
@@ -469,13 +510,15 @@
                         ],
                         "object": "DateValue",
                         "labels": {
+                            "de": "terminus post quem",
                             "en": "terminus post quem",
                             "fr": "terminus post quem",
+                            "it": "terminus post quem",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
                             "de": "Ich hatte bereits mehrere Grundstücke besichtigt, als eines Tages der Notar, der mir die notwendigen Anweisungen für eine meiner Erkundungen gegeben hatte, zu mir sagte:",
+                            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
                             "fr": "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me donnait des indications nécessaires pour une de mes explorations, me dit :",
                             "it": "Avevo già visto diverse proprietà quando un giorno il notaio,",
                             "rm": "Rumantsch"
@@ -489,15 +532,15 @@
                         ],
                         "object": "UriValue",
                         "labels": {
-                            "en": "GND",
                             "de": "GND",
+                            "en": "GND",
                             "fr": "GND",
                             "it": "GND",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "Gemeinsame Normdatei",
                             "de": "Gemeinsame Normdatei",
+                            "en": "Gemeinsame Normdatei",
                             "fr": "Gemeinsame Normdatei",
                             "it": "Gemeinsame Normdatei",
                             "rm": "Rumantsch"
@@ -511,13 +554,14 @@
                         ],
                         "object": "ColorValue",
                         "labels": {
-                            "en": "Color",
                             "de": "Farbe",
+                            "en": "Color",
                             "rm": "Rumantsch"
                         },
                         "comments": {
+                            "de": "Farbe",
                             "en": "Color",
-                            "de": "Farbe"
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "Colorpicker"
                     },
@@ -528,15 +572,16 @@
                         ],
                         "object": "DecimalValue",
                         "labels": {
-                            "en": "Decimal number",
                             "de": "Dezimalzahl",
+                            "en": "Decimal number",
                             "fr": "Chiffre décimale",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "Decimal number",
                             "de": "Dezimalzahl",
-                            "fr": "Chiffre décimale"
+                            "en": "Decimal number",
+                            "fr": "Chiffre décimale",
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "Spinbox"
                     },
@@ -547,15 +592,16 @@
                         ],
                         "object": "TimeValue",
                         "labels": {
-                            "en": "Time",
                             "de": "Zeit",
+                            "en": "Time",
                             "fr": "Temps",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "Time",
                             "de": "Zeit",
-                            "fr": "Temps"
+                            "en": "Time",
+                            "fr": "Temps",
+                            "rm": "Rumantsch"
                         },
                         "gui_element": "TimeStamp"
                     },
@@ -566,12 +612,12 @@
                         ],
                         "object": "BooleanValue",
                         "labels": {
-                            "en": "Boolean value",
-                            "de": "Bool'sche Variable"
+                            "de": "Bool'sche Variable",
+                            "en": "Boolean value"
                         },
                         "comments": {
-                            "en": "Boolean value",
-                            "de": "Bool'sche Variable"
+                            "de": "Bool'sche Variable",
+                            "en": "Boolean value"
                         },
                         "gui_element": "Checkbox"
                     },
@@ -582,12 +628,12 @@
                         ],
                         "object": "GeonameValue",
                         "labels": {
-                            "en": "Geoname link",
-                            "de": "Link zu Geonames"
+                            "de": "Link zu Geonames",
+                            "en": "Geoname link"
                         },
                         "comments": {
-                            "en": "Geoname link",
-                            "de": "Link zu Geonames"
+                            "de": "Link zu Geonames",
+                            "en": "Geoname link"
                         },
                         "gui_element": "Geonames"
                     },
@@ -599,12 +645,12 @@
                         "object": ":Documents",
                         "subject": ":Image",
                         "labels": {
-                            "en": "is part of a document",
-                            "de": "ist Teil eines Dokuments"
+                            "de": "ist Teil eines Dokuments",
+                            "en": "is part of a document"
                         },
                         "comments": {
-                            "en": "is part of a document",
-                            "de": "ist Teil eines Dokuments"
+                            "de": "ist Teil eines Dokuments",
+                            "en": "is part of a document"
                         },
                         "gui_element": "Searchbox"
                     },
@@ -615,6 +661,9 @@
                         ],
                         "object": "Region",
                         "labels": {
+                            "en": "Links to a region of an image"
+                        },
+                        "comments": {
                             "en": "Links to a region of an image"
                         },
                         "gui_element": "Searchbox"
@@ -628,6 +677,9 @@
                         "labels": {
                             "en": "link to image"
                         },
+                        "comments": {
+                            "en": "link to image"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -637,6 +689,9 @@
                         ],
                         "object": "Resource",
                         "labels": {
+                            "en": "hasLinkToResource"
+                        },
+                        "comments": {
                             "en": "hasLinkToResource"
                         },
                         "gui_element": "Searchbox"
@@ -650,6 +705,9 @@
                         "labels": {
                             "en": "hasLinkToArchiveRepresentation"
                         },
+                        "comments": {
+                            "en": "hasLinkToArchiveRepresentation"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -659,6 +717,9 @@
                         ],
                         "object": "MovingImageRepresentation",
                         "labels": {
+                            "en": "hasLinkToMovingImageRepesentation"
+                        },
+                        "comments": {
                             "en": "hasLinkToMovingImageRepesentation"
                         },
                         "gui_element": "Searchbox"
@@ -672,6 +733,9 @@
                         "labels": {
                             "en": "hasLinkToAudioRepesentation"
                         },
+                        "comments": {
+                            "en": "hasLinkToAudioRepesentation"
+                        },
                         "gui_element": "Searchbox"
                     }
                 ],
@@ -683,15 +747,15 @@
                             "dcterms:fantasy"
                         ],
                         "labels": {
-                            "en": "Owner",
                             "de": "Eigentümer",
+                            "en": "Owner",
                             "fr": "Propriétaire",
                             "it": "Proprietario",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "A strange chance put me in possession of this journal.",
                             "de": "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+                            "en": "A strange chance put me in possession of this journal.",
                             "fr": "Un étrange hasard m'a mis en possession de ce journal.",
                             "it": "Uno strano caso mi mise in possesso di questo diario.",
                             "rm": "Rumantsch"
@@ -780,14 +844,18 @@
                             "Resource"
                         ],
                         "labels": {
-                            "en": "Title",
                             "de": "Titel",
+                            "en": "Title",
                             "fr": "Titre",
                             "it": "Titolo",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "en": "Only English"
+                            "de": "Titel",
+                            "en": "Only English",
+                            "fr": "Titre",
+                            "it": "Titolo",
+                            "rm": "Rumantsch"
                         },
                         "cardinalities": [
                             {
@@ -848,14 +916,18 @@
                             "Resource"
                         ],
                         "labels": {
-                            "en": "Generic anthroponym",
                             "de": "Allgemeines Anthroponym",
+                            "en": "Generic anthroponym",
                             "fr": "Anthroponyme générique",
                             "it": "Antroponimo generico",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "de": "Only German"
+                            "de": "Only German",
+                            "en": "Generic anthroponym",
+                            "fr": "Anthroponyme générique",
+                            "it": "Antroponimo generico",
+                            "rm": "Rumantsch"
                         },
                         "cardinalities": [
                             {
@@ -971,14 +1043,18 @@
                             "Resource"
                         ],
                         "labels": {
-                            "en": "Family member",
                             "de": "Familienmitglied",
+                            "en": "Family member",
                             "fr": "Membre de la famille",
                             "it": "Membro della famiglia",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "fr": "Only French"
+                            "de": "Familienmitglied",
+                            "en": "Family member",
+                            "fr": "Only French",
+                            "it": "Membro della famiglia",
+                            "rm": "Rumantsch"
                         },
                         "cardinalities": [
                             {
@@ -1064,14 +1140,18 @@
                             "Resource"
                         ],
                         "labels": {
-                            "en": "Mentioned person",
                             "de": "Erwähnte Person",
+                            "en": "Mentioned person",
                             "fr": "Personne mentionnée",
                             "it": "Persona menzionata",
                             "rm": "Rumantsch"
                         },
                         "comments": {
-                            "it": "Only Italian"
+                            "de": "Erwähnte Person",
+                            "en": "Mentioned person",
+                            "fr": "Personne mentionnée",
+                            "it": "Only Italian",
+                            "rm": "Rumantsch"
                         },
                         "cardinalities": [
                             {
@@ -1152,13 +1232,17 @@
                             "Resource"
                         ],
                         "labels": {
-                            "en": "Alias",
                             "de": "Alias",
+                            "en": "Alias",
                             "fr": "Alias",
                             "it": "Alias",
                             "rm": "Rumantsch"
                         },
                         "comments": {
+                            "de": "Alias",
+                            "en": "Alias",
+                            "fr": "Alias",
+                            "it": "Alias",
                             "rm": "Only Romansh"
                         },
                         "cardinalities": [
@@ -1191,11 +1275,12 @@
                             "dcterms:image"
                         ],
                         "labels": {
+                            "de": "Only English",
                             "en": "Only English"
                         },
                         "comments": {
-                            "en": "Image",
-                            "de": "Bild"
+                            "de": "Bild",
+                            "en": "Image"
                         },
                         "cardinalities": [
                             {
@@ -1221,11 +1306,12 @@
                             "MovingImageRepresentation"
                         ],
                         "labels": {
-                            "de": "Only German"
+                            "de": "Only German",
+                            "en": "Only German"
                         },
                         "comments": {
-                            "en": "Video",
-                            "de": "Video"
+                            "de": "Video",
+                            "en": "Video"
                         },
                         "cardinalities": [
                             {
@@ -1241,11 +1327,14 @@
                             "AudioRepresentation"
                         ],
                         "labels": {
+                            "de": "Only French",
+                            "en": "Only French",
                             "fr": "Only French"
                         },
                         "comments": {
+                            "de": "Audio",
                             "en": "Audio",
-                            "de": "Audio"
+                            "fr": "Only French"
                         },
                         "cardinalities": [
                             {
@@ -1261,11 +1350,14 @@
                             "ArchiveRepresentation"
                         ],
                         "labels": {
+                            "de": "Only Italian",
+                            "en": "Only Italian",
                             "it": "Only Italian"
                         },
                         "comments": {
+                            "de": "ZIP",
                             "en": "ZIP",
-                            "de": "ZIP"
+                            "it": "Only Italian"
                         },
                         "cardinalities": [
                             {
@@ -1281,11 +1373,14 @@
                             "DocumentRepresentation"
                         ],
                         "labels": {
+                            "de": "Only Rumantsch",
+                            "en": "Only Rumantsch",
                             "rm": "Only Rumantsch"
                         },
                         "comments": {
+                            "de": "PDF-Dokument",
                             "en": "PDF Document",
-                            "de": "PDF-Dokument"
+                            "rm": "Only Rumantsch"
                         },
                         "cardinalities": [
                             {

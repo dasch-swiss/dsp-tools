@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "hasSimpleText"
                         },
+                        "comments": {
+                            "en": "hasSimpleText"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -35,6 +38,9 @@
                             "Resource"
                         ],
                         "labels": {
+                            "en": "UndefinedPropInCardinality"
+                        },
+                        "comments": {
                             "en": "UndefinedPropInCardinality"
                         },
                         "cardinalities": [
@@ -54,6 +60,9 @@
                             "Resource"
                         ],
                         "labels": {
+                            "en": "DuplicateCardinality"
+                        },
+                        "comments": {
                             "en": "DuplicateCardinality"
                         },
                         "cardinalities": [

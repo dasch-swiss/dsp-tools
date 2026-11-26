@@ -31,15 +31,15 @@ from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_permissions
 from dsp_tools.commands.excel2json.utils import check_required_values
+from dsp_tools.commands.excel2json.utils import check_unpaired_label_and_comment_cells
 from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
-from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
+from dsp_tools.commands.excel2json.utils import languages
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.problems import Problem
 
-languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
 
 
@@ -70,12 +70,10 @@ def excel2properties(
 
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
     optional_col_set = {
-        "label_en",
         "label_de",
         "label_fr",
         "label_it",
         "label_rm",
-        "comment_en",
         "comment_de",
         "comment_fr",
         "comment_it",
@@ -170,6 +168,8 @@ def _rename_deprecated_hlist(df: pd.DataFrame) -> pd.DataFrame:
 def _do_property_excel_compliance(df: pd.DataFrame) -> None:
     required_columns = {
         "name",
+        "comment_en",
+        "label_en",
         "super",
         "object",
         "gui_element",
@@ -182,6 +182,8 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
         problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
         problems.append(missing_vals_check)
+    if unpaired_prob := check_unpaired_label_and_comment_cells(df):
+        problems.append(unpaired_prob)
     if permissions_prob := check_permissions(df=df, allowed_vals=["private"]):
         problems.append(permissions_prob)
     if any(problems):
@@ -191,11 +193,8 @@ def _do_property_excel_compliance(df: pd.DataFrame) -> None:
 
 
 def _check_missing_values_in_row(df: pd.DataFrame) -> MissingValuesProblem | None:
-    required_values = ["name", "super", "object", "gui_element"]
+    required_values = ["name", "super", "object", "gui_element", "label_en", "comment_en"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
-    missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
-    if missing_labels is not None:
-        missing_dict.update({"label": missing_labels})
     missing_gui_attributes = _check_compliance_gui_attributes(df=df)
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)

@@ -50,6 +50,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -58,6 +61,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         }
                     }

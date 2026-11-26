@@ -61,10 +61,10 @@ def test_labels() -> None:
             "Mentioned person",
             "Alias",
             "Only English",
-            "",
-            "",
-            "",
-            "",
+            "Only German",
+            "Only French",
+            "Only Italian",
+            "Only Rumantsch",
             "Class Without Cardinalities",
         ],
         "rm": [
@@ -88,7 +88,7 @@ def test_labels() -> None:
 
 
 def test_image_labels() -> None:
-    expected_labels_of_image = {"en": "Only English"}
+    expected_labels_of_image = {"en": "Only English", "de": "Only English"}
     res_labels_of_image = jsonpath_ng.ext.parser.parse('$[?name="Image"].labels').find(output_from_method)[0].value
     assert res_labels_of_image == expected_labels_of_image
 
@@ -97,11 +97,11 @@ def test_comments() -> None:
     expected_comments = {
         "comment_de": [
             "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
-            "",
+            "Titel",
             "Only German",
-            "",
-            "",
-            "",
+            "Familienmitglied",
+            "Erwähnte Person",
+            "Alias",
             "Bild",
             "Video",
             "Audio",
@@ -111,14 +111,14 @@ def test_comments() -> None:
         ],
         "comment_fr": [
             "Un étrange hasard m'a mis en possession de ce journal.",
+            "Titre",
+            "Anthroponyme générique",
+            "Only French",
+            "Personne mentionnée",
+            "Alias",
             "",
             "",
             "Only French",
-            "",
-            "",
-            "",
-            "",
-            "",
             "",
             "",
             "",

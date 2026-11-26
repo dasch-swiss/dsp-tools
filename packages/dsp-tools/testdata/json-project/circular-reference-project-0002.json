@@ -26,6 +26,9 @@
                         "labels": {
                             "en": "hasRichtext"
                         },
+                        "comments": {
+                            "en": "hasRichtext"
+                        },
                         "gui_element": "Richtext"
                     },
                     {
@@ -35,6 +38,9 @@
                         ],
                         "object": "Resource",
                         "labels": {
+                            "en": "hasResource"
+                        },
+                        "comments": {
                             "en": "hasResource"
                         },
                         "gui_element": "Searchbox"
@@ -48,6 +54,9 @@
                         "labels": {
                             "en": "hasResource"
                         },
+                        "comments": {
+                            "en": "hasResource"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -57,6 +66,9 @@
                         ],
                         "object": "Resource",
                         "labels": {
+                            "en": "hasResource"
+                        },
+                        "comments": {
                             "en": "hasResource"
                         },
                         "gui_element": "Searchbox"
@@ -70,6 +82,9 @@
                         "labels": {
                             "en": "hasResource"
                         },
+                        "comments": {
+                            "en": "hasResource"
+                        },
                         "gui_element": "Searchbox"
                     },
                     {
@@ -79,6 +94,9 @@
                         ],
                         "object": "Resource",
                         "labels": {
+                            "en": "hasResource"
+                        },
+                        "comments": {
                             "en": "hasResource"
                         },
                         "gui_element": "Searchbox"
@@ -92,6 +110,9 @@
                         "labels": {
                             "en": "hasSimpleText"
                         },
+                        "comments": {
+                            "en": "hasSimpleText"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -102,6 +123,10 @@
                             "Resource"
                         ],
                         "labels": {
+                            "en": "TestThing",
+                            "rm": "TestThing in Rumantsch"
+                        },
+                        "comments": {
                             "en": "TestThing",
                             "rm": "TestThing in Rumantsch"
                         },

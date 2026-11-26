@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -34,12 +37,18 @@
                         "super": "StillImageRepresentation",
                         "labels": {
                             "en": "Image Resource"
+                        },
+                        "comments": {
+                            "en": "Image Resource"
                         }
                     },
                     {
                         "name": "PDFResource",
                         "super": "DocumentRepresentation",
                         "labels": {
+                            "en": "PDF Resource"
+                        },
+                        "comments": {
                             "en": "PDF Resource"
                         }
                     }

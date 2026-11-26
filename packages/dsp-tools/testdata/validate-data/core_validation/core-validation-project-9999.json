@@ -83,6 +83,9 @@
             "labels": {
               "en": "Test Boolean"
             },
+            "comments": {
+              "en": "Test Boolean"
+            },
             "gui_element": "Checkbox"
           },
           {
@@ -94,6 +97,9 @@
             "labels": {
               "en": "Test Color"
             },
+            "comments": {
+              "en": "Test Color"
+            },
             "gui_element": "Colorpicker"
           },
           {
@@ -103,6 +109,9 @@
             ],
             "object": "DateValue",
             "labels": {
+              "en": "Super Property Date"
+            },
+            "comments": {
               "en": "Super Property Date"
             },
             "gui_element": "Date"
@@ -117,6 +126,9 @@
             "labels": {
               "en": "Sub Property Date 1"
             },
+            "comments": {
+              "en": "Sub Property Date 1"
+            },
             "gui_element": "Date"
           },
           {
@@ -127,6 +139,9 @@
             ],
             "object": "DateValue",
             "labels": {
+              "en": "Sub Property Date 2"
+            },
+            "comments": {
               "en": "Sub Property Date 2"
             },
             "gui_element": "Date"
@@ -140,6 +155,9 @@
             "labels": {
               "en": "Test Decimal"
             },
+            "comments": {
+              "en": "Test Decimal"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -149,6 +167,9 @@
             ],
             "object": "DecimalValue",
             "labels": {
+              "en": "Test Decimal"
+            },
+            "comments": {
               "en": "Test Decimal"
             },
             "gui_element": "Spinbox",
@@ -166,6 +187,9 @@
             "labels": {
               "en": "Test Geoname"
             },
+            "comments": {
+              "en": "Test Geoname"
+            },
             "gui_element": "Geonames"
           },
           {
@@ -175,6 +199,9 @@
             ],
             "object": "GeolocationValue",
             "labels": {
+              "en": "Test Geolocation"
+            },
+            "comments": {
               "en": "Test Geolocation"
             },
             "gui_element": "Geolocation"
@@ -188,6 +215,9 @@
             "labels": {
               "en": "Test Integer"
             },
+            "comments": {
+              "en": "Test Integer"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -197,6 +227,9 @@
             ],
             "object": "IntValue",
             "labels": {
+              "en": "Test Integer"
+            },
+            "comments": {
               "en": "Test Integer"
             },
             "gui_element": "Spinbox",
@@ -214,6 +247,9 @@
             "labels": {
               "en": "Test List"
             },
+            "comments": {
+              "en": "Test List"
+            },
             "gui_element": "List",
             "gui_attributes": {
               "hlist": "firstList"
@@ -228,6 +264,9 @@
             "labels": {
               "en": "Test SimpleText"
             },
+            "comments": {
+              "en": "Test SimpleText"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -237,6 +276,9 @@
             ],
             "object": "TextValue",
             "labels": {
+              "en": "Test Textarea"
+            },
+            "comments": {
               "en": "Test Textarea"
             },
             "gui_element": "Textarea"
@@ -250,6 +292,9 @@
             "labels": {
               "en": "Test Richtext"
             },
+            "comments": {
+              "en": "Test Richtext"
+            },
             "gui_element": "Richtext"
           },
           {
@@ -259,6 +304,9 @@
             ],
             "object": "TimeValue",
             "labels": {
+              "en": "Test Time"
+            },
+            "comments": {
               "en": "Test Time"
             },
             "gui_element": "TimeStamp"
@@ -272,6 +320,9 @@
             "labels": {
               "en": "Test URI"
             },
+            "comments": {
+              "en": "Test URI"
+            },
             "gui_element": "SimpleText"
           },
           {
@@ -281,6 +332,9 @@
             ],
             "object": "TextValue",
             "labels": {
+              "en": "In-built Comment"
+            },
+            "comments": {
               "en": "In-built Comment"
             },
             "gui_element": "Richtext"
@@ -294,6 +348,9 @@
             "labels": {
               "en": "Test In-built hasLinkTo"
             },
+            "comments": {
+              "en": "Test In-built hasLinkTo"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -303,6 +360,9 @@
             ],
             "object": ":CardOneResource",
             "labels": {
+              "en": "Super-class"
+            },
+            "comments": {
               "en": "Super-class"
             },
             "gui_element": "Searchbox"
@@ -316,6 +376,9 @@
             "labels": {
               "en": "Test region preview"
             },
+            "comments": {
+              "en": "Test region preview"
+            },
             "gui_element": "RegionPreview"
           },
           {
@@ -325,6 +388,9 @@
             ],
             "object": "Representation",
             "labels": {
+              "en": "Represented by"
+            },
+            "comments": {
               "en": "Represented by"
             },
             "gui_element": "Searchbox"
@@ -338,6 +404,9 @@
             "labels": {
               "en": "is part of"
             },
+            "comments": {
+              "en": "is part of"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -349,6 +418,9 @@
             "labels": {
               "en": "Test Seqnum"
             },
+            "comments": {
+              "en": "Test Seqnum"
+            },
             "gui_element": "SimpleText"
           }
         ],
@@ -357,6 +429,9 @@
             "name": "ClassWithEverything",
             "super": "Resource",
             "labels": {
+              "en": "Resource with every property"
+            },
+            "comments": {
               "en": "Resource with every property"
             },
             "cardinalities": [
@@ -473,6 +548,9 @@
             "labels": {
               "en": "Resource with One Cardinality"
             },
+            "comments": {
+              "en": "Resource with One Cardinality"
+            },
             "cardinalities": [
               {
                 "propname": ":testBoolean",
@@ -485,6 +563,9 @@
             "name": "ClassInheritedCardinality",
             "super": ":CardOneResource",
             "labels": {
+              "en": "Subclass Resource"
+            },
+            "comments": {
               "en": "Subclass Resource"
             },
             "cardinalities": [
@@ -501,6 +582,9 @@
             "labels": {
               "en": "Subclass Resource that overwrites inherited cardinality"
             },
+            "comments": {
+              "en": "Subclass Resource that overwrites inherited cardinality"
+            },
             "cardinalities": [
               {
                 "propname": ":testBoolean",
@@ -513,6 +597,9 @@
             "name": "ClassMixedCard",
             "super": "Resource",
             "labels": {
+              "en": "Resource with all cardinality options"
+            },
+            "comments": {
               "en": "Resource with all cardinality options"
             },
             "cardinalities": [
@@ -543,12 +630,18 @@
             "super": "ArchiveRepresentation",
             "labels": {
               "en": "ArchiveRepresentation"
+            },
+            "comments": {
+              "en": "ArchiveRepresentation"
             }
           },
           {
             "name": "TestAudioRepresentation",
             "super": "AudioRepresentation",
             "labels": {
+              "en": "AudioRepresentation"
+            },
+            "comments": {
               "en": "AudioRepresentation"
             }
           },
@@ -557,12 +650,18 @@
             "super": "DocumentRepresentation",
             "labels": {
               "en": "DocumentRepresentation"
+            },
+            "comments": {
+              "en": "DocumentRepresentation"
             }
           },
           {
             "name": "TestMovingImageRepresentation",
             "super": "MovingImageRepresentation",
             "labels": {
+              "en": "MovingImageRepresentation"
+            },
+            "comments": {
               "en": "MovingImageRepresentation"
             }
           },
@@ -571,12 +670,18 @@
             "super": "StillImageRepresentation",
             "labels": {
               "en": "StillImageRepresentation"
+            },
+            "comments": {
+              "en": "StillImageRepresentation"
             }
           },
           {
             "name": "TestTextRepresentation",
             "super": "TextRepresentation",
             "labels": {
+              "en": "TextRepresentation"
+            },
+            "comments": {
               "en": "TextRepresentation"
             }
           }
@@ -595,6 +700,9 @@
             "labels": {
               "en": "Test Boolean of the second onto"
             },
+            "comments": {
+              "en": "Test Boolean of the second onto"
+            },
             "gui_element": "Checkbox"
           }
         ],
@@ -603,6 +711,9 @@
             "name": "SecondOntoClass",
             "super": "Resource",
             "labels": {
+              "en": "Resource"
+            },
+            "comments": {
               "en": "Resource"
             },
             "cardinalities": [
@@ -634,6 +745,9 @@
             "labels": {
               "en": "Target is any Representation"
             },
+            "comments": {
+              "en": "Target is any Representation"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -643,6 +757,9 @@
             ],
             "object": "StillImageRepresentation",
             "labels": {
+              "en": "Target must be a StillImageRepresentation"
+            },
+            "comments": {
               "en": "Target must be a StillImageRepresentation"
             },
             "gui_element": "Searchbox"
@@ -656,6 +773,9 @@
             "labels": {
               "en": "is part of"
             },
+            "comments": {
+              "en": "is part of"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -667,6 +787,9 @@
             "labels": {
               "en": "has sequence Number"
             },
+            "comments": {
+              "en": "has sequence Number"
+            },
             "gui_element": "SimpleText"
           }
         ],
@@ -675,6 +798,9 @@
             "name": "TestNormalResource",
             "super": "Resource",
             "labels": {
+              "en": "Resource"
+            },
+            "comments": {
               "en": "Resource"
             },
             "cardinalities": [
@@ -696,6 +822,9 @@
             "labels": {
               "en": "StillImageRepresentation with knora-api:seqnum"
             },
+            "comments": {
+              "en": "StillImageRepresentation with knora-api:seqnum"
+            },
             "cardinalities": [
               {
                 "propname": "isPartOf",
@@ -711,6 +840,9 @@
             "name": "TestStillImageRepresentationWithInheritedSeqnum",
             "super": "StillImageRepresentation",
             "labels": {
+              "en": "StillImageRepresentation using sub-properties of seqnum"
+            },
+            "comments": {
               "en": "StillImageRepresentation using sub-properties of seqnum"
             },
             "cardinalities": [

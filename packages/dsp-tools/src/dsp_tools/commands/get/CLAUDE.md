@@ -10,6 +10,10 @@ In both cases, `default_permissions` contains an explanatory text instead of `pu
 
 These texts are intended. Do not replace them with a guessed value.
 
+The output also fails the JSON schema of `create` if a resource or a property on the server
+has no English label or comment, or has a label in a language without a comment in that language, or the reverse.
+The server does not enforce these rules. `get` writes what it reads and does not validate its output.
+
 ## Entry point
 
 `get_project(project_identifier, outfile_path, creds, verbose)` in `get.py`.

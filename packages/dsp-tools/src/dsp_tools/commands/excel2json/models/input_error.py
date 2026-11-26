@@ -118,6 +118,26 @@ class MissingValuesProblem:
 
 
 @dataclass(frozen=True)
+class UnpairedLabelAndCommentProblem:
+    """This class contains the empty cells of labels without a comment, or comments without a label."""
+
+    locations: list[PositionInExcel]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        locs = [str(x) for x in self.locations]
+        return (
+            "A label and a comment in the same language must both be filled or both be empty. "
+            f"At the following locations, the cell is empty:{list_separator}{list_separator.join(locs)}"
+        )
+
+
+@dataclass(frozen=True)
 class RequiredColumnMissingProblem:
     """This class contains information if a required column is missing."""
 

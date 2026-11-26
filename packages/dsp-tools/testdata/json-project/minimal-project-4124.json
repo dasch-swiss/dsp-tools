@@ -25,6 +25,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -36,6 +39,9 @@
                         "labels": {
                             "en": "Other Text"
                         },
+                        "comments": {
+                            "en": "Other Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -44,6 +50,9 @@
                         "name": "minimalResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Minimal Resource"
+                        },
+                        "comments": {
                             "en": "Minimal Resource"
                         },
                         "cardinalities": [
@@ -57,6 +66,9 @@
                         "name": "otherResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Other Resource"
+                        },
+                        "comments": {
                             "en": "Other Resource"
                         },
                         "cardinalities": [

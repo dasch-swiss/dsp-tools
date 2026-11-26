@@ -54,6 +54,9 @@
                         "labels": {
                             "en": "Text"
                         },
+                        "comments": {
+                            "en": "Text"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -62,6 +65,9 @@
                         "name": "ImageResource",
                         "super": "StillImageRepresentation",
                         "labels": {
+                            "en": "Image Resource"
+                        },
+                        "comments": {
                             "en": "Image Resource"
                         },
                         "cardinalities": [
@@ -86,12 +92,18 @@
                         "super": "MovingImageRepresentation",
                         "labels": {
                             "en": "Movie Resource"
+                        },
+                        "comments": {
+                            "en": "Movie Resource"
                         }
                     },
                     {
                         "name": "AudioResource",
                         "super": "AudioRepresentation",
                         "labels": {
+                            "en": "Audio Resource"
+                        },
+                        "comments": {
                             "en": "Audio Resource"
                         }
                     },
@@ -101,11 +113,14 @@
                         "labels": {
                             "en": "Resource with a property from second ontology"
                         },
+                        "comments": {
+                            "en": "Resource with a property from second ontology"
+                        },
                         "cardinalities": [
-                          {
-                              "propname": "second-onto:defaultPermissionsProp",
-                              "cardinality": "0-1"
-                          }
+                            {
+                                "propname": "second-onto:defaultPermissionsProp",
+                                "cardinality": "0-1"
+                            }
                         ]
                     }
                 ]
@@ -123,6 +138,9 @@
                         "labels": {
                             "en": "TextValue with default permissions (i.e. public)"
                         },
+                        "comments": {
+                            "en": "TextValue with default permissions (i.e. public)"
+                        },
                         "gui_element": "SimpleText"
                     },
                     {
@@ -134,6 +152,9 @@
                         "labels": {
                             "en": "TextValue with private permissions"
                         },
+                        "comments": {
+                            "en": "TextValue with private permissions"
+                        },
                         "gui_element": "SimpleText"
                     }
                 ],
@@ -142,6 +163,9 @@
                         "name": "DefaultPermissionsResource",
                         "super": "Resource",
                         "labels": {
+                            "en": "Resource with default permissions (i.e. public)"
+                        },
+                        "comments": {
                             "en": "Resource with default permissions (i.e. public)"
                         },
                         "cardinalities": [
@@ -161,15 +185,18 @@
                         "labels": {
                             "en": "Resource with private permissions"
                         },
+                        "comments": {
+                            "en": "Resource with private permissions"
+                        },
                         "cardinalities": [
-                          {
-                              "propname": ":defaultPermissionsProp",
-                              "cardinality": "0-1"
-                          },
-                          {
-                              "propname": ":privateProp",
-                              "cardinality": "0-1"
-                          }
+                            {
+                                "propname": ":defaultPermissionsProp",
+                                "cardinality": "0-1"
+                            },
+                            {
+                                "propname": ":privateProp",
+                                "cardinality": "0-1"
+                            }
                         ]
                     },
                     {
@@ -178,11 +205,14 @@
                         "labels": {
                             "en": "Resource with a property from first ontology"
                         },
+                        "comments": {
+                            "en": "Resource with a property from first ontology"
+                        },
                         "cardinalities": [
-                          {
-                              "propname": "e2e-testonto:hasText",
-                              "cardinality": "0-1"
-                          }
+                            {
+                                "propname": "e2e-testonto:hasText",
+                                "cardinality": "0-1"
+                            }
                         ]
                     }
                 ]

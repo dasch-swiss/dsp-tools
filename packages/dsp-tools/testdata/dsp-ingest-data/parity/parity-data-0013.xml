@@ -60,4 +60,13 @@
         </bitstream>
     </resource>
 
+    <!-- Without legal info: on test servers, DSP-TOOLS fills in placeholders. -->
+    <resource label="Image without legal info" restype=":ParityImage" id="image_no_legal_info">
+        <bitstream>Bilder Projekt 2024/Côté gauche/Bild C (3).jpg</bitstream>
+    </resource>
+
+    <resource label="IIIF URI without legal info" restype=":ParityImage" id="iiif_uri_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+    </resource>
+
 </knora>

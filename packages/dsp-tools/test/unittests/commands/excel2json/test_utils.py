@@ -286,10 +286,6 @@ def test_check_permissions() -> None:
     assert second_problem.allowed_vals == ALLOWED_VALUES
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
-
-
 class TestFindUnpairedLabelAndCommentCells:
     def test_all_paired(self) -> None:
         df = pd.DataFrame(
@@ -329,3 +325,7 @@ class TestFindUnpairedLabelAndCommentCells:
     def test_ignores_english(self) -> None:
         df = pd.DataFrame({"label_en": ["l"], "comment_en": [pd.NA]})
         assert utl.find_unpaired_label_and_comment_cells(df) == {}
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

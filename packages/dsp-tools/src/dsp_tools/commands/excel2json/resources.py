@@ -109,7 +109,7 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     problems: list[Problem] = []
-    required_cols = ["name", "super"]
+    required_cols = ["name", "super", "comment_en", "label_en"]
     if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
         # If this condition is not fulfilled the following tests will produce KeyErrors
         return ExcelSheetProblem("classes", [missing_cols])
@@ -149,12 +149,10 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
     classes_df = add_optional_columns(
         classes_df,
         {
-            "label_en",
             "label_de",
             "label_fr",
             "label_it",
             "label_rm",
-            "comment_en",
             "comment_de",
             "comment_fr",
             "comment_it",

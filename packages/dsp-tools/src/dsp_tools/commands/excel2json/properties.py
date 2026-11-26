@@ -70,12 +70,10 @@ def excel2properties(
 
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
     optional_col_set = {
-        "label_en",
         "label_de",
         "label_fr",
         "label_it",
         "label_rm",
-        "comment_en",
         "comment_de",
         "comment_fr",
         "comment_it",
@@ -170,6 +168,8 @@ def _rename_deprecated_hlist(df: pd.DataFrame) -> pd.DataFrame:
 def _do_property_excel_compliance(df: pd.DataFrame) -> None:
     required_columns = {
         "name",
+        "comment_en",
+        "label_en",
         "super",
         "object",
         "gui_element",

@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-24
+date: 2026-11-26
 ---
 
 # ARCH-MAP.md
@@ -313,10 +313,10 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Local-context kit**: `upload_files/CLAUDE.md`, `ingest_files/ingest_files.py`,
   `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
   `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`resume-xmlupload` uses an `UploadConfig` to locate
-  the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle.
+  the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle, `bulk_import/report_failure.py` reports a failed import.
   `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
 - **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, `UploadFailure`, DspIngestClientLive,
-  LegalInfo/List clients), `xmlupload` (execute_upload, models incl. `DspIngestAssetClient`,
+  DataImportClientLive, LegalInfo/List/Project clients), `xmlupload` (execute_upload, models incl. `DspIngestAssetClient`,
   prepare_xml_input, make_rdf_graph, upload_config — heavy reuse), `validate-data`, `cli` (`cli.args` —
   inverted, see the `cli` entry), `utils`
   (incl. `dsp_user_account_check`), `setup` (ansi_colors), `error`
@@ -331,10 +331,10 @@ this map found confirmed violations of both rules; see Conventions and each comp
   single reader `apply_ingest_id.py`); reads the resumable pickle that `commands/xmlupload` writes (resume
   finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;
   `ingest-xmlupload` writes `UnusedMediaUploaded.csv` / `FilesNotUploaded.csv`
-  (`create_resources/user_information.py`); and writes the payload (`.jsonld`), `_id2iri.json` and `_error.txt`
-  files to `~/.dsp-tools/data-imports/<server>/` (`bulk_import/payload_files.py`). On success it removes the
+  (`create_resources/user_information.py`); and writes the payload (`_payload.jsonld`), `_id2iri.json` and `<shortcode>_<import_id>_error.txt`
+  files to `~/.dsp-tools/data-imports/<server>/` (paths from `bulk_import/payload_files.py`). On success it removes the
   payload and `_id2iri.json`, and writes `./id2iri_<shortcode>_<server>_<ts>.json`.
-- **Fingerprint**: `fee03c3282af`
+- **Fingerprint**: `37055484cf0b`
 
 ### other-commands
 
@@ -513,8 +513,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Purpose**: The mkdocs-served, user-facing documentation site — distinct from the agent-facing
   `CLAUDE.md`/`CONVENTIONS.md`/`REVIEW.md` at the repo root, which this component does not include.
   The ADRs are in `docs/adr/` at the repository root, outside the mkdocs `docs_dir`, because ADRs are a
-  lightweight, git-native decision log for the whole repository, not a site page. The five ADRs
-  (0001–0005) have no index page; `CONVENTIONS.md` and `REVIEW.md` reference them.
+  lightweight, git-native decision log for the whole repository, not a site page. The six ADRs
+  (0001–0006) have no index page; `CONVENTIONS.md` and `REVIEW.md` reference them.
 - **Key entities**: mkdocs nav sections — Overview, User Guides, Running a Local Stack, Data Modelling, Data
   for Mass-Upload, Advanced Workflows, Information for developers, Changelog
 - **Public interface**: the rendered site's nav tree, defined in `mkdocs.yml`, and its page/anchor URLs on
@@ -546,7 +546,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `027897b6afc2`
+- **Fingerprint**: `0ebd9b85d50a`
 
 ### tests
 

@@ -314,7 +314,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
   `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
   `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`resume-xmlupload` uses an `UploadConfig` to locate
   the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle,
-  `bulk_import/report_failure.py` reports a failed import.
+  `bulk_import/report_failure.py` reports a failed import,
+  `bulk_import/check_legal_info.py` stops the import before any server write if a file has no legal info.
   `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
 - **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, `UploadFailure`, DspIngestClientLive,
   DataImportClientLive, LegalInfo/List/Project clients), `xmlupload` (execute_upload, models incl. `DspIngestAssetClient`,
@@ -335,7 +336,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (`create_resources/user_information.py`); and writes the payload (`_payload.jsonld`), `_id2iri.json` and `<shortcode>_<import_id>_error.txt`
   files to `~/.dsp-tools/data-imports/<server>/` (paths from `bulk_import/payload_files.py`). On success it removes the
   payload and `_id2iri.json`, and writes `./id2iri_<shortcode>_<server>_<ts>.json`.
-- **Fingerprint**: `37055484cf0b`
+- **Fingerprint**: `ccacf7d449fd`
 
 ### other-commands
 
@@ -547,7 +548,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `0ebd9b85d50a`
+- **Fingerprint**: `15c12e99d4b5`
 
 ### tests
 

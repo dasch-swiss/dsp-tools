@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
+from dsp_tools.commands.excel2json.models.input_error import UnpairedLabelAndCommentProblem
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
@@ -305,8 +306,9 @@ class TestValidateClassesExcelSheet:
         res = e2j._validate_classes_excel_sheet(test_df, set())
         assert isinstance(res, ExcelSheetProblem)
         assert res.problems == [
-            PositionInExcel(column="comment_de", row=2),
-            PositionInExcel(column="label_fr", row=3),
+            UnpairedLabelAndCommentProblem(
+                [PositionInExcel(column="comment_de", row=2), PositionInExcel(column="label_fr", row=3)]
+            )
         ]
 
 

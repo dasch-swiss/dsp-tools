@@ -28,11 +28,10 @@ from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_permissions
+from dsp_tools.commands.excel2json.utils import check_unpaired_label_and_comment_cells
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
-from dsp_tools.commands.excel2json.utils import find_unpaired_label_and_comment_cells
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
-from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.problems import Problem
 
@@ -120,9 +119,8 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
         problems.append(ResourceSheetNotListedProblem(sheet_names - names_listed))
     if missing_values := find_missing_required_values(classes_df, required_cols):
         problems.extend(missing_values)
-    if unpaired := find_unpaired_label_and_comment_cells(classes_df):
-        unpaired_rows = get_wrong_row_numbers(unpaired)
-        problems.extend(PositionInExcel(column=col, row=row) for col, rows in unpaired_rows.items() for row in rows)
+    if unpaired_prob := check_unpaired_label_and_comment_cells(classes_df):
+        problems.append(unpaired_prob)
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
     if problems:

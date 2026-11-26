@@ -18,6 +18,7 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidPermissionsO
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.input_error import UnpairedLabelAndCommentProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
@@ -283,6 +284,24 @@ def find_unpaired_label_and_comment_cells(df: pd.DataFrame) -> dict[str, pd.Seri
         if (missing_label := label_empty & ~comment_empty).any():
             unpaired[label_col] = missing_label
     return unpaired
+
+
+def check_unpaired_label_and_comment_cells(df: pd.DataFrame) -> UnpairedLabelAndCommentProblem | None:
+    """
+    Checks that each non-English label has a comment in the same language, and the reverse.
+
+    Args:
+        df: pd.DataFrame with "label_[language tag]" and "comment_[language tag]" columns
+
+    Returns:
+        The problem with the positions of the empty cells, or None if all labels and comments are paired
+    """
+    if not (unpaired := find_unpaired_label_and_comment_cells(df)):
+        return None
+    rows_per_column = get_wrong_row_numbers(unpaired)
+    return UnpairedLabelAndCommentProblem(
+        [PositionInExcel(column=col, row=row) for col, rows in rows_per_column.items() for row in rows]
+    )
 
 
 def col_must_or_not_empty_based_on_other_col(

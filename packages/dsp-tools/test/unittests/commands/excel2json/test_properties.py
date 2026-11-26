@@ -89,9 +89,12 @@ def test_do_property_excel_compliance_problems() -> None:
         "    - Column 'gui_element' | Row 6\n"
         "    - Column 'label_en' | Row 3\n"
         "    - Column 'comment_en' | Row 3\n"
-        "    - Column 'comment_de' | Row 4\n"
-        "    - Column 'label_fr' | Row 5\n"
         "    - Column 'gui_attributes' | Row 7"
+        "\n----------------------------\n"
+        "A label and a comment in the same language must both be filled or both be empty. "
+        "At the following locations, the cell is empty:\n"
+        "    - Column 'comment_de' | Row 4\n"
+        "    - Column 'label_fr' | Row 5"
     )
     with pytest.raises(InvalidFileFormatError, match=expected_msg):
         e2j._do_property_excel_compliance(original_df)

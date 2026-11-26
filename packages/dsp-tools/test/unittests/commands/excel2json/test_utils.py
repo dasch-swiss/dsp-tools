@@ -17,6 +17,8 @@ from pytest_unordered import unordered
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.exceptions import InvalidFileFormatError
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.models.input_error import UnpairedLabelAndCommentProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
 
 
@@ -325,6 +327,25 @@ class TestFindUnpairedLabelAndCommentCells:
     def test_ignores_english(self) -> None:
         df = pd.DataFrame({"label_en": ["l"], "comment_en": [pd.NA]})
         assert utl.find_unpaired_label_and_comment_cells(df) == {}
+
+
+class TestCheckUnpairedLabelAndCommentCells:
+    def test_all_paired(self) -> None:
+        df = pd.DataFrame({"label_de": ["l", pd.NA], "comment_de": ["c", pd.NA]})
+        assert utl.check_unpaired_label_and_comment_cells(df) is None
+
+    def test_unpaired(self) -> None:
+        df = pd.DataFrame({"label_de": ["l", pd.NA], "comment_de": [pd.NA, pd.NA], "comment_fr": [pd.NA, "c"]})
+        result = utl.check_unpaired_label_and_comment_cells(df)
+        assert result == UnpairedLabelAndCommentProblem(
+            [PositionInExcel(column="comment_de", row=2), PositionInExcel(column="label_fr", row=3)]
+        )
+        assert result.execute_error_protocol() == (
+            "A label and a comment in the same language must both be filled or both be empty. "
+            "At the following locations, the cell is empty:\n"
+            "    - Column 'comment_de' | Row 2\n"
+            "    - Column 'label_fr' | Row 3"
+        )
 
 
 if __name__ == "__main__":

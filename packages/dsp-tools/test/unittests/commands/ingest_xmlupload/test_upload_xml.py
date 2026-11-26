@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import _make_config
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import _validation_should_be_skipped
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -12,6 +13,20 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 MODULE = "dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml"
 LOCAL_SERVER = "http://0.0.0.0:3333"
 PROMPT_TARGET = f"{MODULE}.prompt_until_valid_answer"
+
+
+def test_make_config_creates_no_resume_folder(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    config = _make_config(
+        LOCAL_SERVER, "0001", skip_validation=True, skip_iiif_validation=True, skip_ontology_validation=True
+    )
+    assert config.server == LOCAL_SERVER
+    assert config.shortcode == "0001"
+    assert config.diagnostics.server_as_foldername == "localhost"
+    assert config.skip_validation
+    assert config.skip_iiif_validation
+    assert config.skip_ontology_validation
+    assert not (tmp_path / ".dsp-tools").exists()
 
 
 class TestValidationShouldBeSkipped:

@@ -25,7 +25,9 @@ from dsp_tools.commands.xmlupload.models.lookup_models import XmlReferenceLookup
 from dsp_tools.commands.xmlupload.prepare_xml_input.get_processed_resources import get_processed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_parsed_resources_and_mappers
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_iiif_uris
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import transform_server_url_to_foldername
 from dsp_tools.commands.xmlupload.xmlupload import resolve_project_default_authorship
 from dsp_tools.setup.ansi_colors import BOLD_RED
 from dsp_tools.setup.ansi_colors import RESET_TO_DEFAULT
@@ -84,11 +86,13 @@ def ingest_xmlupload(
     )
     project_default_authorship = resolve_project_default_authorship(root, project_client, shortcode)
 
-    config = UploadConfig(
-        skip_iiif_validation=skip_iiif_validation,
+    config = _make_config(
+        creds.server,
+        shortcode,
         skip_validation=skip_validation,
+        skip_iiif_validation=skip_iiif_validation,
         skip_ontology_validation=skip_ontology_validation,
-    ).with_server_info(server=creds.server, shortcode=shortcode)
+    )
     list_client = ListGetClientLive(auth.server, shortcode)
     legal_info_client = LegalInfoClientLive(creds.server, shortcode, auth)
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, list_client, legal_info_client)
@@ -121,6 +125,25 @@ def ingest_xmlupload(
         shortcode,
         resolver.lookup,
         config.diagnostics,
+    )
+
+
+def _make_config(
+    server: str,
+    shortcode: str,
+    *,
+    skip_validation: bool,
+    skip_iiif_validation: bool,
+    skip_ontology_validation: bool,
+) -> UploadConfig:
+    # UploadConfig.with_server_info() would create the resume folder of xmlupload, which ingest-xmlupload does not use.
+    return UploadConfig(
+        server=server,
+        shortcode=shortcode,
+        diagnostics=DiagnosticsConfig(server_as_foldername=transform_server_url_to_foldername(server)),
+        skip_validation=skip_validation,
+        skip_iiif_validation=skip_iiif_validation,
+        skip_ontology_validation=skip_ontology_validation,
     )
 
 

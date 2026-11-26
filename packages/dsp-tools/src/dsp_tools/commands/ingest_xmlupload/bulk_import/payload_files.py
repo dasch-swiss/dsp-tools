@@ -13,7 +13,7 @@ class PayloadFiles:
     error: Path
 
 
-def data_imports_folder(server_as_foldername: str) -> Path:
+def get_or_create_data_imports_folder(server_as_foldername: str) -> Path:
     """Returns the folder of the data imports of a server, and creates it if it is missing."""
     folder = Path.home() / ".dsp-tools" / "data-imports" / server_as_foldername
     folder.mkdir(parents=True, exist_ok=True)
@@ -22,13 +22,13 @@ def data_imports_folder(server_as_foldername: str) -> Path:
 
 def make_payload_files(server_as_foldername: str, shortcode: str) -> PayloadFiles:
     """Creates the folder of the data imports of a server and returns the file paths for a new import."""
-    folder = data_imports_folder(server_as_foldername)
+    folder = get_or_create_data_imports_folder(server_as_foldername)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    payload = folder / f"{shortcode}_{timestamp}.jsonld"
+    base = f"{shortcode}_{timestamp}"
     return PayloadFiles(
-        payload=payload,
-        id2iri=payload.with_name(f"{payload.stem}_id2iri.json"),
-        error=payload.with_name(f"{payload.stem}_error.txt"),
+        payload=folder / f"{base}_payload.jsonld",
+        id2iri=folder / f"{base}_id2iri.json",
+        error=folder / f"{base}_error.txt",
     )
 
 

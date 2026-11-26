@@ -3,7 +3,7 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import data_imports_folder
+from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import get_or_create_data_imports_folder
 from dsp_tools.commands.ingest_xmlupload.exceptions import SystemAdminRequiredError
 from dsp_tools.commands.xmlupload.upload_config import transform_server_url_to_foldername
 from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
@@ -39,7 +39,7 @@ def delete_data_import(shortcode: str, import_id: str, creds: ServerCredentials)
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     project_iri = ProjectClientLive(creds.server, auth).get_project_iri(shortcode)
     client = DataImportClientLive(creds.server, project_iri, auth)
-    error_folder = data_imports_folder(transform_server_url_to_foldername(creds.server))
+    error_folder = get_or_create_data_imports_folder(transform_server_url_to_foldername(creds.server))
     return _delete(client, shortcode, import_id, error_folder)
 
 

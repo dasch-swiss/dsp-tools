@@ -42,7 +42,7 @@ def mint_resource_iris(resources: list[ProcessedResource], shortcode: str) -> Ir
     for res in resources:
         if res.migration_metadata and res.migration_metadata.iri_str:
             iri = res.migration_metadata.iri_str
-            if not _has_shortcode(iri, shortcode):
+            if not _has_project_shortcode(iri, shortcode):
                 foreign[res.res_id] = iri
         else:
             iri = make_resource_iri(shortcode)
@@ -52,7 +52,7 @@ def mint_resource_iris(resources: list[ProcessedResource], shortcode: str) -> Ir
     return resolver
 
 
-def _has_shortcode(resource_iri: str, shortcode: str) -> bool:
+def _has_project_shortcode(resource_iri: str, shortcode: str) -> bool:
     # dsp-api compares shortcodes case-insensitively, but does not check that a preset IRI belongs to the project.
     if not resource_iri.startswith(_RESOURCE_IRI_PREFIX):
         return False

@@ -12,12 +12,11 @@ TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)
 class ExternalContainerPorts:
     fuseki: int
     sipi: int
-    ingest: int
     api: int
 
 
 def get_ports() -> ExternalContainerPorts:
-    num_of_ports_needed = 4
+    num_of_ports_needed = 3
     port_window: list[int] = []
     for port in itertools.count(1025):
         if len(port_window) == num_of_ports_needed:
@@ -42,5 +41,4 @@ def _reserve_port(port: int) -> bool:
 def release_ports(ports: ExternalContainerPorts) -> None:
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.fuseki)).unlink()
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.sipi)).unlink()
-    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.ingest)).unlink()
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api)).unlink()

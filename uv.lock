@@ -400,7 +400,7 @@ wheels = [
 
 [[package]]
 name = "dsp-tools"
-version = "19.3.4"
+version = "19.4.0"
 source = { editable = "packages/dsp-tools" }
 dependencies = [
     { name = "argparse" },
@@ -457,7 +457,7 @@ requires-dist = [
 
 [[package]]
 name = "dsp-vre"
-version = "0.0.0"
+version = "0.1.0"
 source = { editable = "packages/dsp-vre" }
 dependencies = [
     { name = "rdflib" },

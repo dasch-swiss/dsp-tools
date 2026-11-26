@@ -10,7 +10,7 @@ on:
         required: true
         type: string
       api:
-        description: 'DSP-API / Sipi / Ingest version, e.g. v35.3.0'
+        description: 'DSP-API / Sipi version, e.g. v35.3.0'
         required: true
         type: string
       app:

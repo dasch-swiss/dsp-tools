@@ -396,7 +396,10 @@ class StackHandler:
             compose_str += " -f docker-compose.override.yml"
         if self.__stack_configuration.custom_host is not None:
             compose_str += " -f docker-compose.override-host.yml"
-        compose_str += " up -d"
+        # Temporary: --remove-orphans removes the dsp-ingest container that a stack of an older DSP-TOOLS still holds.
+        # DSP-API serves ingest itself since v41.0.0 (DEV-8060).
+        # Remove the flag here and in stop_stack() after the migration period, when no such stacks are left.
+        compose_str += " up -d --remove-orphans"
         logger.debug(f"Running '{compose_str}' ...")
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
@@ -511,8 +514,11 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
+        # Temporary: --remove-orphans removes the dsp-ingest container that a stack of an older DSP-TOOLS still holds.
+        # DSP-API serves ingest itself since v41.0.0 (DEV-8060).
+        # Remove the flag here and in _start_remaining_docker_containers() after the migration period.
         subprocess.run(
-            "docker compose --env-file versions.env down --volumes".split(),
+            "docker compose --env-file versions.env down --volumes --remove-orphans".split(),
             cwd=self.__docker_path_of_user,
             check=True,
         )

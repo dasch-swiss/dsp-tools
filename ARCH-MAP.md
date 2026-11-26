@@ -54,10 +54,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
 ### clients
 
 - **Paths**: `packages/dsp-vre/src/dsp_vre/clients/**`
-- **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API and
-  DSP-INGEST endpoints: auth, connection, project, resource, value, list, ontology, permissions, group/user,
-  legal-info, mapping, migration, bulk data import, metadata, ingest. Part of the package `dsp-vre`; the shared HTTP
-  helpers (`request_utils.py`: logging, retries, `USER_AGENT`) live here too.
+- **Purpose**: Generic HTTP clients (a `Protocol` + a `*Live` implementation per domain) for DSP-API endpoints,
+  including the ingest routes under `/ingest/`: auth, connection, project, resource, value, list, ontology,
+  permissions, group/user, legal-info, mapping, migration, bulk data import, metadata, ingest.
+  Part of the package `dsp-vre`; the shared HTTP helpers (`request_utils.py`: logging, retries, `USER_AGENT`)
+  live here too.
 - **Key entities**: `AuthenticationClient`/`AuthenticationClientLive`, `Connection`/`ConnectionLive`,
   `ResourceClient`/`ResourceClientLive`, `ProjectClient`/`ProjectClientLive`, `GroupClient`/`GroupClientLive`,
   `UserClient`/`UserClientLive`, `OntologyGetClient`/`OntologyCreateClient`, `LegalInfoClient`,
@@ -73,7 +74,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Local-context kit**: `CLAUDE.md`, `request_utils.py`, `exceptions.py`, `connection_live.py`,
   `authentication_client_live.py`, `resource_client_live.py`
 - **Depends on**: true-external only: `requests`, `rdflib`, `regex` (declared in
-  `packages/dsp-vre/pyproject.toml`); the DSP-API and DSP-INGEST servers. No `dsp_tools` import.
+  `packages/dsp-vre/pyproject.toml`); the DSP-API server, including its ingest routes under `/ingest/`. No `dsp_tools` import.
 - **Used by**: `error` (`exceptions.py` imports the two base classes), `create`, `get`, `validate-data`, `xmlupload`,
   `ingest-xmlupload` (incl.
   resume and `delete-data-import`), `other-commands` (mapping, migration, start_stack), `setup` (`warnings_config.py` imports
@@ -94,7 +95,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     callers import from `clients` in `__init__.py`. Older files (`ingest.py`, `bulk_ingest_client.py`,
     `group_user_clients.py`, `migration_clients.py`, `ontology_clients.py`) do not follow the pattern.
     (enforcement: docs-only)
-    - DSP-INGEST answers 401 (not 403) for missing write access, so the ingest clients map both 401 and 403
+    - Ingest answers 401 (not 403) for missing write access, so the ingest clients map both 401 and 403
     to `BadCredentialsError`; every other client handles 401 only in the authentication client.
     (enforcement: docs-only, `clients/CLAUDE.md`)
     - The env var `DSP_VRE_NO_RETRY=true` turns off the retries of `should_retry_request` (set in the CI
@@ -328,7 +329,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     `cli/create_parsers.py` + `cli/call_action_with_network.py`, and reuse `commands/xmlupload`'s
     preparation and graph-building code rather than duplicating it. The imports from `commands/xmlupload/` are
     accepted: `ingest-xmlupload` is the bulk variant of `xmlupload` (ADR 0006). (enforcement: review)
-- **Durable state**: writes uploaded bitstreams to the dsp-ingest server; writes/reads
+- **Durable state**: writes uploaded bitstreams to ingest under `/ingest/` on the DSP-API server; writes/reads
   `mapping-<shortcode>.csv` in the working directory (rotated on rewrite; single writer `ingest_files.py`,
   single reader `apply_ingest_id.py`); reads the resumable pickle that `commands/xmlupload` writes (resume
   finds its path through `UploadConfig`); writes optional failure-report CSVs past a threshold;
@@ -336,7 +337,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
   (`create_resources/user_information.py`); and writes the payload (`_payload.jsonld`), `_id2iri.json` and `<shortcode>_<import_id>_error.txt`
   files to `~/.dsp-tools/data-imports/<server>/` (paths from `bulk_import/payload_files.py`). On success it removes the
   payload and `_id2iri.json`, and writes `./id2iri_<shortcode>_<server>_<ts>.json`.
-- **Fingerprint**: `ccacf7d449fd`
+- **Fingerprint**: `55e01817ce9b`
 
 ### other-commands
 
@@ -548,7 +549,7 @@ this map found confirmed violations of both rules; see Conventions and each comp
     column style per table. (enforcement: static-analysis)
 - **Durable state**: none in this repo — the combined site is published from the separate
   `dasch-swiss/dsp-docs` repo, which dsp-tools' release workflow notifies on release.
-- **Fingerprint**: `15c12e99d4b5`
+- **Fingerprint**: `49b72badc57d`
 
 ### tests
 

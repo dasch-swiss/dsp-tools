@@ -119,7 +119,7 @@ DspVreBaseError                            # Root. Dataclass with message: str a
 ├── DspVreUserError                        # User can fix this themselves.
 │   ├── BadCredentialsError                   # DSP-API rejected credentials.
 │   ├── InvalidInputError                     # Invalid input for a client.
-│   │   └── InvalidIngestFileNameError        # The ingest server rejects a file name.
+│   │   └── InvalidIngestFileNameError        # The ingest service rejects a file name.
 │   └── ProjectNotFoundError, NoIngestFileFoundError, ...
 └── DspVreInternalError                    # Requires developer assistance.
     ├── PermanentConnectionError              # All reconnection attempts failed.

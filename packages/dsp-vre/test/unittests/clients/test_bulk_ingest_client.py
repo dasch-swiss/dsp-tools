@@ -15,7 +15,7 @@ from dsp_vre.clients.exceptions import NoIngestFileFoundError
 from dsp_vre.clients.exceptions import PermanentConnectionError
 from test.unittests.clients.authentication_client_mock import AuthenticationClientMockBase
 
-DSP_INGEST_URL = "https://example.com"
+DSP_INGEST_URL = "https://example.com/ingest"
 SHORTCODE = "0001"
 
 

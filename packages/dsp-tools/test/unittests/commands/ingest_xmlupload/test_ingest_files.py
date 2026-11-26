@@ -8,7 +8,9 @@ from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest
 from dsp_vre.clients.exceptions import NoIngestFileFoundError
 
 MODULE = "dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files"
-CREDS = ServerCredentials(server="http://0.0.0.0:3333", user="u", password="p", dsp_ingest_url="http://0.0.0.0:3340")
+CREDS = ServerCredentials(
+    server="http://0.0.0.0:3333", user="u", password="p", dsp_ingest_url="http://0.0.0.0:3333/ingest"
+)
 
 
 def test_no_uploaded_files_raises_error_with_upload_files_hint() -> None:

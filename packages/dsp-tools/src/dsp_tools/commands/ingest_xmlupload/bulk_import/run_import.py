@@ -91,13 +91,13 @@ def _post(client: DataImportClient, files: PayloadFiles, on_behalf_of_user: str,
         delete_payload_files(files)
         raise mapped from None
     except DspApiRequestError as err:
-        # The server may hold a task, so the files are kept.
+        # The server may still process the import, so the files are kept.
         logger.exception(err)
         raise PayloadSendConnectionLostError(files.payload.stat().st_size) from None
     except KeyboardInterrupt:
         msg = (
-            "The bulk data import was interrupted while the payload was sent. "
-            "The server may hold a task. A new run reports it as an existing import with its ID.\n"
+            "The bulk data import was interrupted during the upload of the payload. "
+            "The server may still process this bulk data import. A new run reports it with its ID.\n"
             f"The payload file is kept at: {files.payload}"
         )
         _reraise_interrupt(msg)
@@ -137,7 +137,7 @@ def _poll(
                 status = client.get_status(import_id)
                 match status.status:
                     case DataImportStatusValue.IN_PROGRESS:
-                        logger.debug(f"Import in progress, sleep {sleep_time}")
+                        logger.debug(f"Import in progress, sleep {sleep_time} seconds")
                         time.sleep(sleep_time)
                     case DataImportStatusValue.COMPLETED:
                         sp.ok("✔")
@@ -161,7 +161,7 @@ def _delete_task(client: DataImportClient, import_id: DataImportId, shortcode: s
     except DspVreBaseError as err:
         logger.exception(err)
         print(
-            f"The bulk data import task '{import_id.id_}' could not be deleted from the server. "
+            f"The bulk data import '{import_id.id_}' could not be deleted from the server. "
             f"Remove it with: uvx dsp-tools delete-data-import {shortcode} {import_id.id_}"
         )
 

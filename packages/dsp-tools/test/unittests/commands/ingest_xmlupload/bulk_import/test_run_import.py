@@ -198,14 +198,23 @@ def test_precondition_names_folder(files: PayloadFiles, tmp_path: Path) -> None:
 
 
 def test_post_connection_error_keeps_files(files: PayloadFiles, tmp_path: Path) -> None:
-    with pytest.raises(PayloadSendConnectionLostError, match=r"2\.0 MiB\. The default server limit is 250 MiB"):
+    with pytest.raises(
+        PayloadSendConnectionLostError,
+        match=r"during the upload of the payload.+The size of your bulk data import is 2\.0 MiB",
+    ):
         _run(FakeClient(post_error=DspApiRequestError("x")), files, tmp_path)
     assert files.payload.exists()
     assert files.id2iri.exists()
 
 
 def test_post_keyboard_interrupt(files: PayloadFiles, tmp_path: Path) -> None:
-    with pytest.warns(DspToolsUserWarning, match="may hold a task"), pytest.raises(KeyboardInterrupt):
+    with (
+        pytest.warns(
+            DspToolsUserWarning,
+            match="during the upload of the payload. The server may still process this bulk data import",
+        ),
+        pytest.raises(KeyboardInterrupt),
+    ):
         _run(FakeClient(post_error=KeyboardInterrupt()), files, tmp_path)
     assert files.payload.exists()
     assert files.id2iri.exists()

@@ -47,7 +47,7 @@ def describe_task_left_on_server(shortcode: str, import_id: str, payload: Path, 
         f"The bulk data import with the ID '{import_id}' stays on the server, and may still complete.\n"
         f"The payload file is kept at: {payload}\n"
         f"The mapping of internal IDs to IRIs is kept at: {id2iri}\n"
-        f"The task blocks further imports of this project until you remove it with: "
+        f"This bulk data import blocks further imports of this project until you remove it with: "
         f"{_delete_command(shortcode, import_id)}"
     )
 
@@ -87,7 +87,7 @@ def _describe_size(size_bytes: int, max_bytes: int | None) -> str:
         limit = f"The default server limit is {DEFAULT_SERVER_LIMIT_BYTES / MIB:.0f} MiB."
     else:
         limit = f"The server accepts at most {max_bytes / MIB:.0f} MiB."
-    return f"The payload of the bulk data import is {size_bytes / MIB:.1f} MiB. {limit}"
+    return f"The size of your bulk data import is {size_bytes / MIB:.1f} MiB. {limit}"
 
 
 class PayloadTooLargeError(UserError):
@@ -100,14 +100,15 @@ class PayloadTooLargeError(UserError):
 
 
 class PayloadSendConnectionLostError(UserError):
-    """The connection to the server ended while the payload was sent."""
+    """The connection to the server ended during the upload of the payload."""
 
     def __init__(self, size_bytes: int) -> None:
         super().__init__(
-            "The connection to the server ended while the payload was sent. "
+            "The connection to the server ended during the upload of the payload. "
             "The server closes the connection if the payload is too large. "
             f"{_describe_size(size_bytes, None)}\n"
-            "If the payload is smaller, the server may hold an import task: a new run reports it with its ID."
+            "If the payload is smaller, the server may still process this bulk data import. "
+            "A new run reports it with its ID."
         )
 
 

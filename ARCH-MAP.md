@@ -1,7 +1,7 @@
 ---
 dune_map: true
 schema_version: 2
-date: 2026-11-24
+date: 2026-11-26
 ---
 
 # ARCH-MAP.md
@@ -188,12 +188,14 @@ this map found confirmed violations of both rules; see Conventions and each comp
   lists/resources/properties section. Six CLI entry points: `excel2json`, `old-excel2json`, `excel2lists`,
   `old-excel2lists`, `excel2resources`, `excel2properties`.
 - **Key entities**: `excel2json()`, `old_excel2json()`, `excel2lists()`, `excel2resources()`,
-  `excel2properties()`, `_sort_project_dict()`, `ordered_keys`
+  `excel2properties()`, `_sort_project_dict()`, `ordered_keys`, `check_unpaired_label_and_comment_cells()`,
+  `UnpairedLabelAndCommentProblem`
 - **Public interface**: one top-level function per file (`project.excel2json`/`old_excel2json`,
   `lists/make_lists.excel2lists`, `old_lists.old_excel2lists`, `resources.excel2resources`,
   `properties.excel2properties`), plus `old_lists.validate_lists_section_from_project`, which `cli` calls for
   `create --lists-only --validate-only`.
-- **Local-context kit**: `CLAUDE.md`, `project.py`, `json_header.py`, `resources.py`, `lists/make_lists.py`
+- **Local-context kit**: `CLAUDE.md`, `project.py`, `json_header.py`, `resources.py`, `properties.py`, `utils.py`,
+  `lists/make_lists.py`
 - **Depends on**: `utils` (data_formats, json_parsing), `resources/schema` (properties-only.json,
   resources-only.json, lists-only.json), `error`. No `cli` and no other command.
 - **Used by**: `mapping/parse_excel.py` (reach-in, see Boundary rules), `cli`
@@ -209,9 +211,14 @@ this map found confirmed violations of both rules; see Conventions and each comp
     carries permission overrules (as resources and properties do). It is wired by hand into
     `_create_project_json()` and `_old_create_project_json()`, and its key goes into `ordered_keys`.
     (enforcement: review)
+    - Label and comment rules: the Excel checks (`label_en`/`comment_en` required, each non-English label paired
+    with a comment, and the reverse) repeat the rule that the schema definitions `langstring_with_en` and
+    `matching_label_and_comment_languages` own. The schema stays the authority: it also validates the output.
+    `test/unittests/json_schema/test_labels_and_comments.py` fails if `languages` in `utils.py` and the
+    languages of the schema rule differ. (enforcement: static-analysis)
 - **Durable state**: reads `.xlsx` files from a user folder; each CLI entry point writes its own JSON output
   file at the path the user gives (one writer per output file, no shared state).
-- **Fingerprint**: `382be67462f1`
+- **Fingerprint**: `b1b6dff66dbc`
 
 ### validate-data
 

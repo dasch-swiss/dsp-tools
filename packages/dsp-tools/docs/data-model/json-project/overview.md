@@ -182,6 +182,7 @@ The longname is a string that provides the full name of the project.
 
 The description is represented as a collection of strings with language tags
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+Each text must contain at least one character that is not whitespace.
 
 
 
@@ -339,6 +340,7 @@ A project specific group definition has the following elements:
 - _descriptions_ (mandatory): description of the group with language tags in the form 
   `"descriptions": {"<lang>": "<string>", ...}` 
   (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
+  Each text must contain at least one character that is not whitespace.
 - _selfjoin_ (optional): true if users are allowed to join the group themselves, 
   false (default) if a `ProjectAdmin` has to add them
 - _status_ (optional): true (default) if the group is active, false if the group is inactive
@@ -451,6 +453,8 @@ A node of a list may have the following elements:
 - `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
   `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, `en`, `de`, `fr`, `it`, and `rm` are supported.
 - `nodes` (optional): Array of sub-nodes.
+
+In `labels` and `comments`, each text must contain at least one character that is not whitespace.
 
 Example of a "lists" section that contains the two lists "color" and "category":
 

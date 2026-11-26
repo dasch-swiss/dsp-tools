@@ -8,7 +8,8 @@
             "type": "object",
             "patternProperties": {
                 "^(en|de|fr|it|rm)$": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S"
                 }
             },
             "minProperties": 1,

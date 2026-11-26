@@ -153,3 +153,45 @@ def test_excel2json_languages_equal_schema_languages() -> None:
     }
     excel_languages = {lang for lang in excel2json_languages if lang != "en"}
     assert excel_languages == schema_languages
+
+
+ALL_SCHEMA_FILES = ["project.json", "resources-only.json", "properties-only.json", "lists-only.json"]
+
+
+@pytest.mark.parametrize("file_name", ALL_SCHEMA_FILES)
+@pytest.mark.parametrize("value", [" ", "", "\t\n"])
+def test_langstring_rejects_whitespace_only(file_name: str, value: str) -> None:
+    validator = _validator_for_definition(file_name, "langstring")
+    assert list(validator.iter_errors({"de": value}))
+
+
+@pytest.mark.parametrize("file_name", ALL_SCHEMA_FILES)
+def test_langstring_accepts_surrounding_whitespace(file_name: str) -> None:
+    validator = _validator_for_definition(file_name, "langstring")
+    assert not list(validator.iter_errors({"de": " Text "}))
+
+
+@pytest.mark.parametrize(
+    ("file_name", "definition", "instance"),
+    [
+        pytest.param("project.json", "node", {"name": "n", "labels": {"en": " "}}, id="project-node-label"),
+        pytest.param(
+            "project.json",
+            "node",
+            {"name": "n", "labels": {"en": "l"}, "comments": {"en": ""}},
+            id="project-node-comment",
+        ),
+        pytest.param("lists-only.json", "node", {"name": "n", "labels": {"en": " "}}, id="lists-only-node-label"),
+        pytest.param("project.json", "group", {"name": "g", "descriptions": {"en": " "}}, id="group-description"),
+    ],
+)
+def test_whitespace_only_rejected_outside_classes_and_properties(
+    file_name: str, definition: str, instance: dict[str, Any]
+) -> None:
+    validator = _validator_for_definition(file_name, definition)
+    assert list(validator.iter_errors(instance))
+
+
+def test_lists_only_langstring_equals_project_schema() -> None:
+    project_langstring = _load_schema("project.json")["definitions"]["langstring"]
+    assert _load_schema("lists-only.json")["definitions"]["langstring"] == project_langstring

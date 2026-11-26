@@ -9,6 +9,7 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.cli.args import ValidateDataConfig
 from dsp_tools.cli.args import ValidationSeverity
+from dsp_tools.commands.ingest_xmlupload.bulk_import.check_legal_info import check_legal_info_is_complete
 from dsp_tools.commands.ingest_xmlupload.bulk_import.mint_iris import mint_resource_iris
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import make_payload_files
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import write_minted_mapping
@@ -96,6 +97,7 @@ def ingest_xmlupload(
     list_client = ListGetClientLive(auth.server, shortcode)
     legal_info_client = LegalInfoClientLive(creds.server, shortcode, auth)
     parsed_resources, lookups = get_parsed_resources_and_mappers(root, list_client, legal_info_client)
+    check_legal_info_is_complete(parsed_resources)
 
     is_on_prod_like_server = is_prod_like_server(creds.server)
     if not _validation_should_be_skipped(config, is_on_prod_like_server):

@@ -52,6 +52,19 @@ def describe_task_left_on_server(shortcode: str, import_id: str, payload: Path, 
     )
 
 
+class LegalInfoMissingError(UserError):
+    """Files without legal info cannot be sent as bulk data import."""
+
+    def __init__(self, res_ids: list[str]) -> None:
+        listing = "\n".join(f"  - {res_id}" for res_id in res_ids)
+        super().__init__(
+            "The bulk data import requires a license, a copyright holder and an authorship for every file. "
+            f"The files of these resources miss at least one of them:\n{listing}\n"
+            "Add the legal info to the XML file and run 'ingest-xmlupload' again, or use 'xmlupload'. "
+            "Nothing was sent to the server."
+        )
+
+
 class SystemAdminRequiredError(UserError):
     """The login failed, or the user is not a system admin."""
 

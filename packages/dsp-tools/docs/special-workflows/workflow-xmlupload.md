@@ -171,6 +171,8 @@ DSP-TOOLS validates the data, then sends all resources to the server in one bulk
 The server creates the resources, values, and files together, or none of them.
 If a resource has a preset IRI or ARK in the XML file, DSP-TOOLS keeps it. 
 It must belong to the project.
+Every file needs a license, a copyright holder and an authorship, also on test servers.
+If one of them is missing, DSP-TOOLS stops before it sends anything to the server.
 
 DSP-TOOLS writes these files to `~/.dsp-tools/data-imports/<server>/`:
 

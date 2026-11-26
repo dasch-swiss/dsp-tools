@@ -12,7 +12,7 @@ from dsp_tools.utils.rdf_constants import KNORA_API
 
 def make_abstract_file_value_graph(
     file_value: AbstractFileValue,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
 ) -> Graph:
     g = _add_metadata(val_node, file_value.metadata)
@@ -22,7 +22,7 @@ def make_abstract_file_value_graph(
     return g
 
 
-def _add_metadata(val_node: BNode, metadata: FileValueMetadata) -> Graph:
+def _add_metadata(val_node: BNode | URIRef, metadata: FileValueMetadata) -> Graph:
     g = Graph()
     g.add((val_node, KNORA_API.hasLicense, URIRef(metadata.license_iri)))
     g.add((val_node, KNORA_API.hasCopyrightHolder, Literal(metadata.copyright_holder, datatype=XSD.string)))

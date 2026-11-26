@@ -3,7 +3,9 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.error.exceptions import DaschEmployeeAccountUsedForUploadError
+from dsp_tools.error.exceptions import OnBehalfOfUserNotProjectAdminAccountError
 from dsp_tools.utils.dsp_user_account_check import check_for_dsp_employee_account_email_for_data_upload
+from dsp_tools.utils.dsp_user_account_check import check_on_behalf_of_user_for_data_import
 from dsp_tools.utils.dsp_user_account_check import dsp_admin_account_email
 from dsp_tools.utils.dsp_user_account_check import is_dsp_employee_account_email
 
@@ -57,3 +59,33 @@ def test_check_for_data_upload_employee_account_prod_non_interactive(capsys: pyt
         with pytest.raises(DaschEmployeeAccountUsedForUploadError, match="DaSCH employee account"):
             check_for_dsp_employee_account_email_for_data_upload(EMPLOYEE_EMAIL, PROD_SERVER)
     assert "aborting upload" in capsys.readouterr().out
+
+
+def test_check_on_behalf_of_user_matching_account_prod() -> None:
+    with patch(PROMPT_TARGET, side_effect=AssertionError("must not prompt")):
+        check_on_behalf_of_user_for_data_import("my-proj@admin.dasch.swiss", "my-proj", PROD_SERVER)
+
+
+def test_check_on_behalf_of_user_other_user_local() -> None:
+    with patch(PROMPT_TARGET, side_effect=AssertionError("must not prompt")):
+        check_on_behalf_of_user_for_data_import("someone@example.com", "my-proj", LOCAL_SERVER)
+
+
+def test_check_on_behalf_of_user_other_user_prod_confirmed() -> None:
+    with patch(PROMPT_TARGET, return_value="yes"):
+        check_on_behalf_of_user_for_data_import("someone@example.com", "my-proj", PROD_SERVER)
+
+
+def test_check_on_behalf_of_user_other_user_prod_declined() -> None:
+    with patch(PROMPT_TARGET, return_value="no"):
+        with pytest.raises(OnBehalfOfUserNotProjectAdminAccountError, match=r"my-proj@admin\.dasch\.swiss"):
+            check_on_behalf_of_user_for_data_import("someone@example.com", "my-proj", PROD_SERVER)
+
+
+def test_check_on_behalf_of_user_other_user_prod_non_interactive(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch("dsp_tools.utils.interactive.stdin_is_interactive", return_value=False):
+        with pytest.raises(OnBehalfOfUserNotProjectAdminAccountError):
+            check_on_behalf_of_user_for_data_import("someone@example.com", "my-proj", PROD_SERVER)
+    out = capsys.readouterr().out
+    assert "--on-behalf-of-user" in out
+    assert "my-proj@admin.dasch.swiss" in out

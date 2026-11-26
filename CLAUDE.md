@@ -20,8 +20,9 @@ The CLI commands (user docs: `packages/dsp-tools/docs/index.md` and the pages it
 | `get`                                                               | Reads a project from a server and writes it into a JSON file.                      |
 | `validate-data`                                                     | Validates an XML data file against the ontology on the server (SHACL).             |
 | `xmlupload`                                                         | Uploads the data and the multimedia files of an XML file to a server.              |
-| `upload-files`, `ingest-files`, `ingest-xmlupload`                  | The same as `xmlupload`, split into three steps.                                   |
-| `resume-xmlupload`                                                  | Resumes an interrupted `xmlupload` or `ingest-xmlupload`.                          |
+| `upload-files`, `ingest-files`, `ingest-xmlupload`                  | The same as `xmlupload`, in three steps. The last one is a bulk data import.       |
+| `delete-data-import`                                                | Deletes a bulk data import task that `ingest-xmlupload` left on a server.          |
+| `resume-xmlupload`                                                  | Resumes an interrupted `xmlupload`.                                                |
 | `excel2json`, `excel2lists`, `excel2resources`, `excel2properties`  | Create a JSON project file, or one of its sections, from Excel files.              |
 | `old-excel2json`, `old-excel2lists`                                 | The same as `excel2json` and `excel2lists`, with an older Excel format for lists.  |
 | `id2iri`                                                            | Replaces internal IDs in an XML file with IRIs, from a JSON mapping file.          |

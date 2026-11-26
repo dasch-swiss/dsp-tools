@@ -61,15 +61,23 @@ in a second pass once every resource exists.
 **Upload** vs **Ingest**:
 Upload moves raw files to the server (`upload-files`) without processing them. Ingest is the separate, later
 server-side step (`ingest-files`) that processes uploaded files and produces a mapping from original paths to
-internal filenames, which `ingest-xmlupload` then uses to create the actual resources.
+internal filenames, which `ingest-xmlupload` then uses to create the actual resources in one bulk data import.
 _Avoid_: using "ingest" and "upload" interchangeably — the split workflow depends on keeping them distinct.
 The plain `xmlupload` command still does both under one roof for simpler cases.
 
 **Bulk data import**:
 A server-side task of the v3 endpoints `/v3/projects/{projectIri}/data-imports` that loads one JSON-LD payload
 into a project, on behalf of a project user. The client is `DataImportClient` in `dsp-vre`.
+`ingest-xmlupload` sends one bulk data import; `delete-data-import` removes a task left on the server.
 _Avoid_: "data import" or "import" alone. A bulk data import is not an **Ingest** (files, `BulkIngestClient`),
 and not a migration import (project transfer between servers, `MigrationImportClient`).
+
+**On-behalf-of user**:
+The project user who becomes the creator of the data of a **Bulk data import**, set with
+`ingest-xmlupload --on-behalf-of-user`. The system admin who runs the command is not the creator:
+only a system admin can start a bulk data import, but the data must belong to a person of the project.
+The role of this user in the project decides the default permissions of the data. It must not be a system admin.
+On a prod-like server, the user is `<shortname>@admin.dasch.swiss` unless the system admin confirms otherwise.
 
 ### Identifiers
 
@@ -120,7 +128,7 @@ separate `authorship-id` attributes, one on `<resource>` and one on `<bitstream>
 **Group A command**:
 A CLI command safe to fail fast with a traceback, because users run it first on localhost or a test
 server, where they can consult the developers or infra before the production run: `create`, `get`,
-`xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `resume-xmlupload`.
+`xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `delete-data-import`, `resume-xmlupload`.
 
 **Group B command**:
 A CLI command, or `xmllib`, that must aggregate every problem it finds into one user-facing report rather
@@ -139,7 +147,8 @@ interrupt that workflow to consult a developer: the `excel2json` family, `id2iri
 - A **DOAP** supplies the default **Permission** for a resource or value unless the XML gives one explicitly.
 - A resource is created by exactly one of two independent workflows: the single `xmlupload` command
   (**Upload**, **Ingest**, and resource creation together), or the split `upload-files` → `ingest-files` →
-  `ingest-xmlupload` sequence (the same three steps, run and resumable independently).
+  `ingest-xmlupload` sequence (the same three steps, run independently; the last step is system-admin only,
+  sends one **Bulk data import**, and cannot be resumed).
 - A **Stash** exists only for the duration of an `xmlupload` run, holding values whose target
   **Resource instance** does not exist yet.
 

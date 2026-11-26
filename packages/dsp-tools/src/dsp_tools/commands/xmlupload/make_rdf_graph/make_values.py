@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Union
 
 from rdflib import RDF
@@ -57,7 +58,16 @@ type LiteralValueTypesAlias = Union[
 ]
 
 
-def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
+def make_blank_node(_res_node: BNode | URIRef) -> BNode:
+    return BNode()
+
+
+def make_values(
+    values: list[ProcessedValue],
+    res_node: BNode | URIRef,
+    lookups: IRILookups,
+    make_value_node: Callable[[BNode | URIRef], BNode | URIRef] = make_blank_node,
+) -> Graph:
     """
     Serialise the values of a resource.
 
@@ -65,13 +75,14 @@ def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups:
         values: list of ProcessedValues of the resource
         res_node: node of the resource
         lookups: lookups to resolve IRIs
+        make_value_node: creates the node of each value from the node of the resource, a blank node by default
 
     Returns:
         Graph with the values
     """
     properties_graph = Graph()
     for val in values:
-        val_node = BNode()
+        val_node = make_value_node(res_node)
         properties_graph += _make_one_value_graph(
             val=val,
             val_node=val_node,
@@ -83,7 +94,7 @@ def make_values(values: list[ProcessedValue], res_node: BNode | URIRef, lookups:
 
 def _make_one_value_graph(  # noqa: PLR0911 (too many return statements)
     val: ProcessedValue,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     iri_lookups: IRILookups,
 ) -> Graph:
@@ -182,7 +193,7 @@ def _add_metadata_triples(
 
 def _make_value_graph_with_literal_object(
     val: LiteralValueTypesAlias,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
 ) -> Graph:
@@ -193,7 +204,7 @@ def _make_value_graph_with_literal_object(
 
 def _make_list_value_graph(
     val: ProcessedList,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
@@ -242,7 +253,7 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
 
 def _make_date_value_graph(
     val: ProcessedDate,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
 ) -> Graph:
     date = val.value
@@ -257,7 +268,7 @@ def _make_date_value_graph(
     return g
 
 
-def _make_single_date_graph(val_node: BNode, date: SingleDate, start_end: StartEnd) -> Graph:
+def _make_single_date_graph(val_node: BNode | URIRef, date: SingleDate, start_end: StartEnd) -> Graph:
     def get_prop(precision: DayMonthYearEra) -> URIRef:
         return KNORA_API[f"dateValueHas{start_end.value}{precision.value}"]
 
@@ -275,7 +286,7 @@ def _make_single_date_graph(val_node: BNode, date: SingleDate, start_end: StartE
 
 def _make_interval_value_graph(
     val: ProcessedInterval,
-    val_node: BNode,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
 ) -> Graph:
     g = _add_metadata_triples(val_node, val.permissions, val.comment, val.value_order)

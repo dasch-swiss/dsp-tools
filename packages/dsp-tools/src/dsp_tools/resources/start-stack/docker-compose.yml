@@ -32,6 +32,7 @@ services:
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
       - ALLOW_ERASE_PROJECTS=true
+      - ALLOW_PROJECT_DATA_IMPORT=true
       # Ingest's own erase gate; ALLOW_ERASE_PROJECTS above does not reach the /ingest routes.
       - INGEST_ALLOW_ERASE_PROJECTS=true
       - INGEST_STORAGE_ASSET_DIR=/opt/images

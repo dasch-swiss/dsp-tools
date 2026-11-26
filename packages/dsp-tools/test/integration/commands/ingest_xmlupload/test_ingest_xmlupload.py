@@ -10,6 +10,8 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import inge
 from dsp_tools.commands.ingest_xmlupload.exceptions import IngestIdForFileNotFoundError
 from dsp_tools.error.exceptions import UserFilepathNotFoundError
 
+ON_BEHALF_OF_USER = "my-proj@admin.dasch.swiss"
+
 
 @pytest.fixture(autouse=True)
 def _retrieve_mapping_file() -> Iterator[None]:
@@ -41,13 +43,19 @@ def test_ingest_xmlupload(creds: ServerCredentials) -> None:
         "    - Resource ID: 'GoodGirlImage' | Filepath: 'images/GoodGirl.jpg'"
     )
     with pytest.raises(IngestIdForFileNotFoundError, match=expected_msg):
-        ingest_xmlupload(xml_file=Path("testdata/dsp-ingest-data/dsp-ingest.xml"), creds=creds)
+        ingest_xmlupload(
+            xml_file=Path("testdata/dsp-ingest-data/dsp-ingest.xml"), creds=creds, on_behalf_of_user=ON_BEHALF_OF_USER
+        )
 
 
 def test_ingest_xmlupload_no_mapping(creds: ServerCredentials) -> None:
     expected_msg = regex.escape("No mapping CSV file was found at mapping-00A5.csv.")
     with pytest.raises(UserFilepathNotFoundError, match=expected_msg):
-        ingest_xmlupload(xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"), creds=creds)
+        ingest_xmlupload(
+            xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"),
+            creds=creds,
+            on_behalf_of_user=ON_BEHALF_OF_USER,
+        )
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.exceptions import InvalidArkError
 from dsp_tools.commands.xmlupload.exceptions import MissingProjectDefaultAuthorshipError
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.commands.xmlupload.xmlupload import _resolve_project_default_authorship
+from dsp_tools.commands.xmlupload.xmlupload import resolve_project_default_authorship
 from dsp_vre.clients import ProjectClient
 
 
@@ -49,21 +49,21 @@ class TestResolveProjectDefaultAuthorship:
     def test_marker_absent_returns_none(self) -> None:
         root = etree.Element("knora", attrib={"shortcode": "0001"})
         client = Mock(spec=ProjectClient)
-        assert _resolve_project_default_authorship(root, client, "0001") is None
+        assert resolve_project_default_authorship(root, client, "0001") is None
         client.get_default_data_authorship.assert_not_called()
 
     def test_marker_present_returns_project_default(self) -> None:
         root = etree.Element("knora", attrib={"use-project-default-resource-authorship": "true"})
         client = Mock(spec=ProjectClient)
         client.get_default_data_authorship.return_value = ["Daisy Duck"]
-        assert _resolve_project_default_authorship(root, client, "0001") == ["Daisy Duck"]
+        assert resolve_project_default_authorship(root, client, "0001") == ["Daisy Duck"]
 
     def test_marker_present_but_no_default_aborts(self) -> None:
         root = etree.Element("knora", attrib={"use-project-default-resource-authorship": "true"})
         client = Mock(spec=ProjectClient)
         client.get_default_data_authorship.return_value = []
         with pytest.raises(MissingProjectDefaultAuthorshipError):
-            _resolve_project_default_authorship(root, client, "0001")
+            resolve_project_default_authorship(root, client, "0001")
 
 
 if __name__ == "__main__":

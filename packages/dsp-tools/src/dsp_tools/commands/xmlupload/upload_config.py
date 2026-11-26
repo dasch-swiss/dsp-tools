@@ -11,7 +11,7 @@ from loguru import logger
 from dsp_tools.cli.args import ValidationSeverity
 
 
-def _transform_server_url_to_foldername(server: str) -> str:
+def transform_server_url_to_foldername(server: str) -> str:
     """
     Take the server URL and transform it so that it can be used as foldername.
 
@@ -45,7 +45,6 @@ class DiagnosticsConfig:
 class UploadConfig:
     """Configuration for the upload process."""
 
-    media_previously_uploaded: bool = False
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
@@ -64,7 +63,7 @@ class UploadConfig:
         shortcode: str,
     ) -> UploadConfig:
         """Create a new UploadConfig with the given server."""
-        server_as_foldername = _transform_server_url_to_foldername(server)
+        server_as_foldername = transform_server_url_to_foldername(server)
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / "resumable/latest.pkl"
         save_location.parent.mkdir(parents=True, exist_ok=True)
         logger.info(f"{save_location=:}")

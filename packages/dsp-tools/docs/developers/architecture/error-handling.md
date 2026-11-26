@@ -15,7 +15,7 @@ These commands are run in controlled environments (local stacks, staging) before
 Developer assistance is acceptable when something goes wrong.
 Errors may escalate with a traceback.
 
-Commands: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `resume-xmlupload`
+Commands: `create`, `get`, `xmlupload`, `upload-files`, `ingest-files`, `ingest-xmlupload`, `delete-data-import`, `resume-xmlupload`
 
 ### Group B — Must be fixable by the user
 
@@ -74,6 +74,24 @@ def run(sheets: list[Sheet]) -> None:
         raise InvalidInputError(msg)
 ```
 
+### Long error output
+
+Some error output is too long for the console.
+Then the command writes it to a file, but the console still shows:
+
+1. A summary of the cause, for example the first lines of the message.
+2. The path of the file.
+3. The next step for the user.
+
+Do not write an empty file. If there is no message, say so on the console.
+
+Cases:
+
+- `validate-data` writes the validation problems to a CSV file next to the XML file.
+- `ingest-xmlupload` and `delete-data-import` write the error message of a failed bulk data import
+  to `~/.dsp-tools/data-imports/<server>/<shortcode>_<import_id>_error.txt`.
+  `delete-data-import` has no input file, so the file is not next to the XML file.
+
 ## Exception Hierarchy
 
 The base classes are in `src/dsp_tools/error/exceptions.py`.
@@ -87,7 +105,8 @@ BaseError                                     # Root. Dataclass with message: st
 │   ├── UserFilepathMustNotExistError         # Generic: file must not already exist.
 │   ├── UserDirectoryNotFoundError            # Generic: directory does not exist.
 │   ├── NonInteractiveContextCliError         # Input is missing, and no terminal can ask for it.
-│   └── DaschEmployeeAccountUsedForUploadError  # Upload to a prod-like server with a DaSCH employee account declined.
+│   ├── DaschEmployeeAccountUsedForUploadError  # Upload to a prod-like server with a DaSCH employee account declined.
+│   └── OnBehalfOfUserNotProjectAdminAccountError  # Bulk import on behalf of another account declined.
 └── InternalError                             # Requires developer assistance. Prints contact info + log file path.
     └── UnreachableCodeError                  # Code path that must never execute.
 ```

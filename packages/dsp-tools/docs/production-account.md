@@ -71,8 +71,10 @@ After `create`, DaSCH uses the project admin account for these commands:
 - [`resume-xmlupload`](./data-file/data-file-commands.md#resume-xmlupload)
 - [`upload-files`](./special-workflows/workflow-xmlupload.md#upload-files)
 - [`ingest-files`](./special-workflows/workflow-xmlupload.md#ingest-files)
-- [`ingest-xmlupload`](./special-workflows/workflow-xmlupload.md#ingest-xmlupload)
 - [`mapping update`](./data-model/data-model-cli.md#mapping-update).
+
+[`ingest-xmlupload`](./special-workflows/workflow-xmlupload.md#ingest-xmlupload) does not use the project admin account.
+A system admin runs it, with `--on-behalf-of-user '<shortname>@admin.dasch.swiss'`.
 
 
 ## Authorship of the Data

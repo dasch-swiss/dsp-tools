@@ -13,6 +13,7 @@ from dsp_tools.cli.call_action_files_only import call_old_excel2json
 from dsp_tools.cli.call_action_files_only import call_old_excel2lists
 from dsp_tools.cli.call_action_files_only import call_update_legal
 from dsp_tools.cli.call_action_with_network import call_create
+from dsp_tools.cli.call_action_with_network import call_delete_data_import
 from dsp_tools.cli.call_action_with_network import call_get
 from dsp_tools.cli.call_action_with_network import call_ingest_files
 from dsp_tools.cli.call_action_with_network import call_ingest_xmlupload
@@ -69,6 +70,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912,PL
             result = call_ingest_files(args)
         case "ingest-xmlupload":
             result = call_ingest_xmlupload(args)
+        case "delete-data-import":
+            result = call_delete_data_import(args)
         # commands that do not require docker
         case "excel2json":
             result = call_excel2json(args)

@@ -81,6 +81,35 @@ class TestProjectGetIri:
                 project_client.get_project_iri("0001")
 
 
+class TestGetProjectShortname:
+    def test_success(self, project_client: ProjectClientLive) -> None:
+        mock_response = Mock(status_code=200, ok=True, headers={})
+        mock_response.json.return_value = {"project": {"id": "http://rdfh.ch/projects/0001", "shortname": "test-proj"}}
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response) as mock_get:
+            result = project_client.get_project_shortname("0001")
+        assert result == "test-proj"
+        assert mock_get.call_args[0][0] == f"{project_client.server}/admin/projects/shortcode/0001"
+
+    def test_not_found(self, project_client: ProjectClientLive) -> None:
+        mock_response = Mock(status_code=404, ok=False, headers={}, text="")
+        mock_response.json.return_value = {}
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
+            with pytest.raises(ProjectNotFoundError):
+                project_client.get_project_shortname("9999")
+
+    def test_timeout(self, project_client: ProjectClientLive) -> None:
+        with patch("dsp_vre.clients.project_client_live.requests.get", side_effect=requests.ReadTimeout("Timeout")):
+            with pytest.raises(DspApiRequestError):
+                project_client.get_project_shortname("0001")
+
+    def test_other_error(self, project_client: ProjectClientLive) -> None:
+        mock_response = Mock(status_code=500, ok=False, headers={}, text="Internal Server Error")
+        mock_response.json.return_value = {}
+        with patch("dsp_vre.clients.project_client_live.requests.get", return_value=mock_response):
+            with pytest.raises(FatalNonOkApiResponseCodeError):
+                project_client.get_project_shortname("0001")
+
+
 class TestGetDefaultDataAuthorship:
     def test_present(self, project_client: ProjectClientLive) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})

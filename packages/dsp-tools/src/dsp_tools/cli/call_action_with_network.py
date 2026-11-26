@@ -15,6 +15,7 @@ from dsp_tools.commands.create.project_validate import validate_project_only
 from dsp_tools.commands.excel2json.old_lists import validate_lists_section_from_project
 from dsp_tools.commands.get.get import get_project
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.delete_data_import import delete_data_import
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.mapping.config_file import parse_mapping_config
@@ -78,28 +79,26 @@ def call_ingest_files(args: argparse.Namespace) -> bool:
     return ingest_files(creds=get_creds(args), shortcode=args.shortcode)
 
 
+def call_delete_data_import(args: argparse.Namespace) -> bool:
+    check_input_dependencies(network_dependencies=[NetworkRequirements(api_url=args.server)])
+    return delete_data_import(shortcode=args.shortcode, import_id=args.import_id, creds=get_creds(args))
+
+
 def call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     xml_path = Path(args.xml_file)
-    required_files = [xml_path]
-    id2iri_file = args.id2iri_file
-    if id2iri_file:
-        required_files.append(Path(id2iri_file))
     always_requires_docker = False if args.skip_validation else True
     network_requirements = NetworkRequirements(
         args.server, always_requires_docker=always_requires_docker, ingest_url=args.dsp_ingest_url
     )
-    path_deps = PathDependencies(required_files)
+    path_deps = PathDependencies([xml_path])
     check_input_dependencies(path_deps, [network_requirements])
 
-    interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     return ingest_xmlupload(
         xml_file=xml_path,
         creds=get_creds(args),
-        interrupt_after=interrupt_after,
+        on_behalf_of_user=args.on_behalf_of_user,
         skip_validation=args.skip_validation,
         skip_ontology_validation=args.skip_ontology_validation,
-        id2iri_file=id2iri_file,
-        do_not_request_resource_metadata_from_db=args.do_not_request_resource_metadata_from_db,
         skip_iiif_validation=args.no_iiif_uri_validation,
     )
 

@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="0013"
+       default-ontology="parity-onto">
+
+    <authorship id="authorship_1">
+        <author>Johannes Nussbaum</author>
+    </authorship>
+
+    <resource label="Simple values" restype=":ParityThing" id="simple_values">
+        <text-prop name=":hasText">
+            <text encoding="utf8">first text</text>
+            <text encoding="utf8" comment="a comment">second text</text>
+        </text-prop>
+        <integer-prop name=":hasInt">
+            <integer>4711</integer>
+        </integer-prop>
+        <decimal-prop name=":hasDecimal">
+            <decimal>2.718281828459</decimal>
+        </decimal-prop>
+        <boolean-prop name=":hasBool">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <date-prop name=":hasDate">
+            <date>GREGORIAN:1848-01:1849-02</date>
+        </date-prop>
+        <uri-prop name=":hasUri">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+        <list-prop list="parity-list" name=":hasListItem">
+            <list>node-1</list>
+            <list>node-2</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Richtext with link" restype=":ParityThing" id="richtext_with_link">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Text with <a class="salsah-link" href="IRI:simple_values:IRI">a link</a> and <strong>bold</strong>.</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Cycle A" restype=":ParityThing" id="cycle_a">
+        <resptr-prop name=":hasLink">
+            <resptr>cycle_b</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Cycle B" restype=":ParityThing" id="cycle_b">
+        <resptr-prop name=":hasLink">
+            <resptr>cycle_a</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Image" restype=":ParityImage" id="image">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0" copyright-holder="DaSCH" authorship-id="authorship_1">
+            Bilder Projekt 2024/Côté gauche/Bild A (1).jpg
+        </bitstream>
+    </resource>
+
+</knora>

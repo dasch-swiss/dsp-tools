@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import datetime as dt
 from argparse import ArgumentParser
+from argparse import ArgumentTypeError
 from argparse import _SubParsersAction
 from importlib.metadata import version
+
+import regex
 
 # help texts
 username_text = "username (e-mail) used for authentication with the DSP-API"
@@ -58,6 +61,7 @@ def make_parser(
     _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_delete_data_import(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_excel2json(subparsers)
     _add_old_excel2json(subparsers)
@@ -231,6 +235,34 @@ def _add_ingest_files(
     subparser.add_argument("shortcode", help="shortcode of the project that the files belong to")
 
 
+def _import_id(value: str) -> str:
+    # dsp-api import IDs are Base64url UUIDs without padding. The check also keeps out an ID made only of dots,
+    # which requests would remove from the URL, so the request would address another path.
+    if not regex.fullmatch(r"[A-Za-z0-9_-]{22}", value):
+        raise ArgumentTypeError(
+            f"invalid import ID '{value}': it must be the 22-character ID that ingest-xmlupload printed"
+        )
+    return value
+
+
+def _add_delete_data_import(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(
+        name="delete-data-import",
+        help="Delete a bulk data import left on a DSP server (system admins only)",
+    )
+    subparser.set_defaults(action="delete-data-import")
+    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument("shortcode", help="shortcode of the project that the import belongs to")
+    subparser.add_argument("import_id", type=_import_id, help="ID of the bulk data import")
+
+
 def _add_ingest_xmlupload(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
@@ -239,13 +271,17 @@ def _add_ingest_xmlupload(
 ) -> None:
     subparser = subparsers.add_parser(
         name="ingest-xmlupload",
-        help="For internal use only: create resources with files already uploaded through dsp-ingest",
+        help="For system admins: create resources with files already uploaded through dsp-ingest",
     )
     subparser.set_defaults(action="ingest-xmlupload")
     subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
+    subparser.add_argument(
+        "--on-behalf-of-user",
+        required=True,
+        help="email or username of the user who becomes the creator of the resources",
+    )
     subparser.add_argument("xml_file", help="path to XML file containing the data")
     subparser.add_argument("--skip-validation", action="store_true", help="Skip the SHACL schema validation")
     subparser.add_argument(
@@ -259,20 +295,6 @@ def _add_ingest_xmlupload(
         help=(
             "don't validate the data model itself, only the data. "
             "This is intended for projects that are already on the production server"
-        ),
-    )
-    subparser.add_argument(
-        "--id2iri-file",
-        help=(
-            "replaces internal IDs of an XML file (links and stand-off links inside richtext) "
-            "by IRIs provided in this mapping file"
-        ),
-    )
-    subparser.add_argument(
-        "--do-not-request-resource-metadata-from-db",
-        action="store_true",
-        help=(
-            "Do not request IRIs of existing resources from the db (references to existing resources won't be checked)"
         ),
     )
 

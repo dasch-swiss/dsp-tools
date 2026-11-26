@@ -9,8 +9,11 @@ from pytest_unordered import unordered
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.create.create import create
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.delete_data_import import delete_data_import
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
+from test.e2e.commands.ingest_xmlupload.utils import util_get_attached_to_user
+from test.e2e.commands.ingest_xmlupload.utils import util_get_user_iri
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.containers import ContainerMetadata
 from test.e2e.setup_testcontainers.setup import get_containers
@@ -20,6 +23,7 @@ XML_FILE = Path("e2e-ingest-0001.xml")
 MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")
 MULTIMEDIA_FILE_2 = Path("Bilder Projekt 2024/Côté gauche/Dokument B (2).pdf")
 SHORTCODE = "0001"
+ON_BEHALF_OF_USER = "import.member@test.org"
 EXIT_IF_EXISTS = True
 
 
@@ -45,6 +49,12 @@ def creds(container_metadata: ContainerMetadata) -> ServerCredentials:
 
 
 @pytest.fixture
+def home_folder(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    return tmp_path
+
+
+@pytest.fixture
 def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     with monkeypatch.context() as m:
         m.chdir(CWD)
@@ -64,11 +74,21 @@ def _create_project_0001(creds: ServerCredentials) -> None:
 
 @pytest.mark.usefixtures("_create_project_0001")
 def test_ingest_upload(
-    mapping_file: Path, creds: ServerCredentials, container_metadata: ContainerMetadata, tmp_folder: Path
+    mapping_file: Path,
+    home_folder: Path,
+    creds: ServerCredentials,
+    container_metadata: ContainerMetadata,
+    tmp_folder: Path,
 ) -> None:
     _test_upload_step(creds, tmp_folder)
     _test_ingest_step(mapping_file, creds, tmp_folder, container_metadata.artifact_dirs)
-    _test_xmlupload_step(creds)
+    _test_xmlupload_step(creds, home_folder)
+    _test_delete_data_import_step(creds)
+
+
+def _test_delete_data_import_step(creds: ServerCredentials) -> None:
+    # The import task of the previous step is already deleted, so the server reports "not found".
+    assert delete_data_import("0001", "Q2h1bmtfb2ZfMTZfYnl0ZQ", creds)
 
 
 def _test_upload_step(creds: ServerCredentials, tmp_folder: Path) -> None:
@@ -92,10 +112,13 @@ def _test_ingest_step(
     assert df["original"].tolist() == unordered([str(MULTIMEDIA_FILE_1), str(MULTIMEDIA_FILE_2)])
 
 
-def _test_xmlupload_step(creds: ServerCredentials) -> None:
-    success = ingest_xmlupload(XML_FILE, creds)
+def _test_xmlupload_step(creds: ServerCredentials, home_folder: Path) -> None:
+    success = ingest_xmlupload(XML_FILE, creds, on_behalf_of_user=ON_BEHALF_OF_USER)
     assert success
     id2iri_file = list(Path.cwd().glob(f"id2iri_{SHORTCODE}_localhost*.json"))[-1]  # choose the most recent one
     id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
     assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
     assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())
+    assert not [f for f in (home_folder / ".dsp-tools" / "data-imports").rglob("*") if f.is_file()]
+    member_iri = util_get_user_iri(ON_BEHALF_OF_USER, creds)
+    assert all(util_get_attached_to_user(iri, creds) == member_iri for iri in id2iri_mapping.values())

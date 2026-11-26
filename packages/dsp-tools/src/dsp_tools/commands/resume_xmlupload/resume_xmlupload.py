@@ -6,7 +6,6 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.execute_upload import execute_upload
 from dsp_tools.commands.xmlupload.models.upload_clients import AssetClient
-from dsp_tools.commands.xmlupload.models.upload_clients import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import DspIngestAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -43,13 +42,9 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
 
     auth = AuthenticationClientLive(server, creds.user, creds.password)
 
-    ingest_client: AssetClient
-    if upload_state.config.media_previously_uploaded:
-        ingest_client = BulkIngestedAssetClient()
-    else:
-        ingest_client = DspIngestAssetClient(
-            DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode), "."
-        )
+    ingest_client: AssetClient = DspIngestAssetClient(
+        DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode), "."
+    )
 
     list_client: ListGetClient = ListGetClientLive(auth.server, upload_state.config.shortcode)
     legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)

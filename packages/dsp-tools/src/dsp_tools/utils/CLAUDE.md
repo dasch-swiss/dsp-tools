@@ -154,7 +154,10 @@ of the package `dsp-vre`. They are not in these utilities.
 - Check the account of an upload (`check_for_dsp_employee_account_email_for_data_upload`):
   on a prod-like server, a DaSCH employee account (`@dasch.swiss`) must confirm the upload.
   In non-interactive mode, the upload stops. Other accounts and other servers pass without a check.
-- Used by: create (email builder), xmlupload and ingest-xmlupload (upload check)
+- Check the `--on-behalf-of-user` of a bulk data import (`check_on_behalf_of_user_for_data_import`):
+  on a prod-like server, any user other than the project admin account must be confirmed.
+  In non-interactive mode, the import stops.
+- Used by: create (email builder), xmlupload (upload check), ingest-xmlupload (on-behalf-of check)
 
 ## Error Handling
 
@@ -169,6 +172,8 @@ of the package `dsp-vre`. They are not in these utilities.
 
 **Commands should NEVER import from other commands.**
 If two commands need the same functionality, that functionality belongs in utils.
+The one accepted exception is `ingest_xmlupload` → `xmlupload` (ADR 0006 at the repository root,
+`docs/adr/0006-ingest-xmlupload-uses-bulk-data-import.md`). Do not extend it to other commands.
 
 This architecture prevents tight coupling and makes commands independent, testable, and maintainable.
 

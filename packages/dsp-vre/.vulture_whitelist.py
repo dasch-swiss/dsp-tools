@@ -50,6 +50,7 @@ _.get_licenses_of_a_project
 _.get_ontologies
 _.get_project_doaps
 _.get_project_iri
+_.get_project_shortname
 _.get_resource
 _.get_resource_metadata
 _.get_status

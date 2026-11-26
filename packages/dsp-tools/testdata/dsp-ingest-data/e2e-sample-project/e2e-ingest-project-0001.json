@@ -11,6 +11,19 @@
             "e2e-test-projec-keyword"
         ],
         "default_permissions": "public",
+        "users": [
+            {
+                "username": "importMember",
+                "email": "import.member@test.org",
+                "givenName": "Import",
+                "familyName": "Member",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":member"
+                ]
+            }
+        ],
         "ontologies": [
             {
                 "name": "e2e-ingest-onto",

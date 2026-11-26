@@ -71,6 +71,16 @@ and writes it into a JSON file.
 This JSON file can then be used
 to create the same project on another DSP server.
 
+`get` does not validate the JSON file.
+`create` rejects a file in which a resource or a property:
+
+- Has no English label or no English comment.
+- Has a label in a language, for example `de`, but no comment in that language, or the reverse.
+
+For the rules, see [the property `labels`](./json-project/ontologies.md#property-label).
+A project on a server can contain such resources or properties.
+Add the missing labels and comments before you use the file with `create`.
+
 ```bash
 uvx dsp-tools get [options] project_definition.json
 ```

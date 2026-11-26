@@ -292,6 +292,9 @@ Example:
   "labels": {
     "en": "Boolean value"
   },
+  "comments": {
+    "en": "A yes/no value"
+  },
   "gui_element": "Checkbox"
 }
 ```
@@ -319,6 +322,9 @@ Example:
   "object": "ColorValue",
   "labels": {
     "en": "Color"
+  },
+  "comments": {
+    "en": "The color of the object"
   },
   "gui_element": "Colorpicker"
 }
@@ -348,6 +354,9 @@ Example:
   "labels": {
     "en": "Date"
   },
+  "comments": {
+    "en": "The date of the event"
+  },
   "gui_element": "Date"
 }
 ```
@@ -376,6 +385,9 @@ Example:
   "object": "DecimalValue",
   "labels": {
     "en": "Decimal number"
+  },
+  "comments": {
+    "en": "A decimal number"
   },
   "gui_element": "SimpleText"
 }
@@ -409,6 +421,9 @@ Example:
   "labels": {
     "en": "Findspot"
   },
+  "comments": {
+    "en": "The place where the object was found"
+  },
   "gui_element": "Geolocation"
 }
 ```
@@ -437,6 +452,9 @@ Example:
   "object": "GeonameValue",
   "labels": {
     "en": "Geoname"
+  },
+  "comments": {
+    "en": "A place, identified by its Geonames ID"
   },
   "gui_element": "Geonames"
 }
@@ -467,6 +485,9 @@ Example:
   "object": "IntValue",
   "labels": {
     "en": "Integer"
+  },
+  "comments": {
+    "en": "A whole number"
   },
   "gui_element": "Spinbox"
 }
@@ -500,6 +521,9 @@ Example:
   "labels": {
     "en": "List element"
   },
+  "comments": {
+    "en": "An element of a list"
+  },
   "gui_element": "List",
   "gui_attributes": {
     "hlist": "treelistroot"
@@ -532,6 +556,9 @@ Example:
     "object": "RegionPreviewValue",
     "labels": {
         "en": "hasRegionPreview"
+    },
+    "comments": {
+      "en": "A preview of the region"
     },
     "gui_element": "RegionPreview"
 }
@@ -588,6 +615,9 @@ Example:
   "labels": {
     "en": "Title"
   },
+  "comments": {
+    "en": "The title of the picture"
+  },
   "gui_element": "SimpleText"
 }
 ```
@@ -612,6 +642,11 @@ Example:
       "de": "Kommentar",
       "en": "Comment",
       "fr": "Commentaire"
+    },
+    "comments": {
+      "de": "Ein Kommentar zur Ressource",
+      "en": "A comment on the resource",
+      "fr": "Un commentaire sur la ressource"
     },
     "gui_element": "Richtext"
 }
@@ -641,6 +676,9 @@ Example:
   "labels": {
     "en": "Time"
   },
+  "comments": {
+    "en": "A point in time"
+  },
   "gui_element": "TimeStamp"
 }
 ```
@@ -667,6 +705,9 @@ Example:
   "object": "UriValue",
   "labels": {
     "en": "URI"
+  },
+  "comments": {
+    "en": "A link to a web page"
   },
   "gui_element": "SimpleText"
 }
@@ -713,6 +754,9 @@ Example:
   "labels": {
     "en": "Another thing"
   },
+  "comments": {
+    "en": "A link to another thing"
+  },
   "gui_element": "Searchbox"
 }
 ```
@@ -743,6 +787,9 @@ Example:
     "object": "Representation",
     "labels": {
         "en": "Represented by"
+    },
+    "comments": {
+      "en": "The representation of this resource"
     },
         "gui_element": "Searchbox"
     }

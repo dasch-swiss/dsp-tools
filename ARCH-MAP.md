@@ -215,10 +215,11 @@ this map found confirmed violations of both rules; see Conventions and each comp
     with a comment, and the reverse) repeat the rule that the schema definitions `langstring_with_en` and
     `matching_label_and_comment_languages` own. The schema stays the authority: it also validates the output.
     `test/unittests/json_schema/test_labels_and_comments.py` fails if `languages` in `utils.py` and the
-    languages of the schema rule differ. (enforcement: static-analysis)
+    languages of the schema rule differ (enforcement: static-analysis). That `en` is required and that the
+    languages pair is not cross-checked against the schema (enforcement: review).
 - **Durable state**: reads `.xlsx` files from a user folder; each CLI entry point writes its own JSON output
   file at the path the user gives (one writer per output file, no shared state).
-- **Fingerprint**: `b1b6dff66dbc`
+- **Fingerprint**: `9c8fc7e1b4f6`
 
 ### validate-data
 

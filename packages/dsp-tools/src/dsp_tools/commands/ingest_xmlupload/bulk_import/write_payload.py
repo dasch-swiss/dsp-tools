@@ -70,7 +70,7 @@ def _write_nodes(
     for index, node in enumerate(nodes):
         if index > 0:
             file.write(",")
-        json.dump(node, file, ensure_ascii=False)
+        json.dump(node, file, ensure_ascii=False, separators=(",", ":"))
     file.write("]")
 
 

@@ -79,6 +79,12 @@ def test_file_is_one_list_without_blank_nodes(tmp_path):
     assert not list(tmp_path.glob("*.part"))
 
 
+def test_payload_is_compact(tmp_path):
+    target, _ = _write([_resource("a", [_link("b")]), _resource("b")], tmp_path)
+    text = target.read_text(encoding="utf-8")
+    assert text == json.dumps(json.loads(text), ensure_ascii=False, separators=(",", ":"))
+
+
 def test_zero_resources(tmp_path):
     target, _ = _write([], tmp_path)
     assert json.loads(target.read_text(encoding="utf-8")) == []

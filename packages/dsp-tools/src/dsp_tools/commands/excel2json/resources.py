@@ -32,10 +32,9 @@ from dsp_tools.commands.excel2json.utils import check_unpaired_label_and_comment
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
+from dsp_tools.commands.excel2json.utils import languages
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.problems import Problem
-
-languages = ["en", "de", "fr", "it", "rm"]
 
 
 def excel2resources(

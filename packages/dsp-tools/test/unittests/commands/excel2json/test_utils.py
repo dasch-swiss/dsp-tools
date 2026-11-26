@@ -298,35 +298,35 @@ class TestFindUnpairedLabelAndCommentCells:
                 "comment_de": ["c", pd.NA],
             }
         )
-        assert utl.find_unpaired_label_and_comment_cells(df) == {}
+        assert utl._find_unpaired_label_and_comment_cells(df) == {}
 
     def test_label_without_comment(self) -> None:
         df = pd.DataFrame({"label_de": [pd.NA, "l"], "comment_de": [pd.NA, pd.NA]})
-        result = utl.find_unpaired_label_and_comment_cells(df)
+        result = utl._find_unpaired_label_and_comment_cells(df)
         assert list(result) == ["comment_de"]
         assert result["comment_de"].tolist() == [False, True]
 
     def test_comment_without_label(self) -> None:
         df = pd.DataFrame({"label_fr": [pd.NA, "l"], "comment_fr": ["c", "c"]})
-        result = utl.find_unpaired_label_and_comment_cells(df)
+        result = utl._find_unpaired_label_and_comment_cells(df)
         assert list(result) == ["label_fr"]
         assert result["label_fr"].tolist() == [True, False]
 
     def test_absent_comment_column(self) -> None:
         df = pd.DataFrame({"label_it": ["l"]})
-        result = utl.find_unpaired_label_and_comment_cells(df)
+        result = utl._find_unpaired_label_and_comment_cells(df)
         assert list(result) == ["comment_it"]
         assert result["comment_it"].tolist() == [True]
 
     def test_absent_label_column(self) -> None:
         df = pd.DataFrame({"comment_rm": ["c"]})
-        result = utl.find_unpaired_label_and_comment_cells(df)
+        result = utl._find_unpaired_label_and_comment_cells(df)
         assert list(result) == ["label_rm"]
         assert result["label_rm"].tolist() == [True]
 
     def test_ignores_english(self) -> None:
         df = pd.DataFrame({"label_en": ["l"], "comment_en": [pd.NA]})
-        assert utl.find_unpaired_label_and_comment_cells(df) == {}
+        assert utl._find_unpaired_label_and_comment_cells(df) == {}
 
 
 class TestCheckUnpairedLabelAndCommentCells:

@@ -36,10 +36,10 @@ from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_o
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
+from dsp_tools.commands.excel2json.utils import languages
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.problems import Problem
 
-languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
 
 

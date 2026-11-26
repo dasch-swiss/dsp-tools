@@ -260,7 +260,7 @@ def get_comments(df_row: pd.Series[Any]) -> LanguageDict | None:
     return LanguageDict(comments) if comments else None
 
 
-def find_unpaired_label_and_comment_cells(df: pd.DataFrame) -> dict[str, pd.Series[bool]]:
+def _find_unpaired_label_and_comment_cells(df: pd.DataFrame) -> dict[str, pd.Series[bool]]:
     """
     For each non-English language, a label and a comment must both be filled or both be empty.
     An absent column counts as empty.
@@ -296,7 +296,7 @@ def check_unpaired_label_and_comment_cells(df: pd.DataFrame) -> UnpairedLabelAnd
     Returns:
         The problem with the positions of the empty cells, or None if all labels and comments are paired
     """
-    if not (unpaired := find_unpaired_label_and_comment_cells(df)):
+    if not (unpaired := _find_unpaired_label_and_comment_cells(df)):
         return None
     rows_per_column = get_wrong_row_numbers(unpaired)
     return UnpairedLabelAndCommentProblem(

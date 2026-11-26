@@ -10,7 +10,6 @@ class PayloadFiles:
 
     payload: Path
     id2iri: Path
-    error: Path
 
 
 def get_or_create_data_imports_folder(server_as_foldername: str) -> Path:
@@ -28,8 +27,12 @@ def make_payload_files(server_as_foldername: str, shortcode: str) -> PayloadFile
     return PayloadFiles(
         payload=folder / f"{base}_payload.jsonld",
         id2iri=folder / f"{base}_id2iri.json",
-        error=folder / f"{base}_error.txt",
     )
+
+
+def error_file(folder: Path, shortcode: str, import_id: str) -> Path:
+    """Returns the path of the file for the error message of a failed bulk data import."""
+    return folder / f"{shortcode}_{import_id}_error.txt"
 
 
 def write_minted_mapping(id2iri: dict[str, str], target: Path) -> None:

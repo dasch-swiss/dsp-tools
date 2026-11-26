@@ -10,4 +10,5 @@ at the repository root).
   Other modules take a `PayloadFiles` and do not build paths themselves.
 - `run_import.py` owns the task lifecycle: post, poll, and the handling of `completed` and `failed`.
   `../delete_data_import.py` deletes a task that a run left on the server.
+- `report_failure.py` tells the user why an import failed. `run_import.py` and `../delete_data_import.py` use it.
 - There is no resume and no incremental import. A new run creates new IRIs.

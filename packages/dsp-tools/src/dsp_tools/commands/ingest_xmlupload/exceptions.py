@@ -37,7 +37,7 @@ class ForeignShortcodeIriError(UserError):
         )
 
 
-def _delete_command(shortcode: str, import_id: str) -> str:
+def delete_command(shortcode: str, import_id: str) -> str:
     return f"uvx dsp-tools delete-data-import {shortcode} {import_id}"
 
 
@@ -48,7 +48,7 @@ def describe_task_left_on_server(shortcode: str, import_id: str, payload: Path, 
         f"The payload file is kept at: {payload}\n"
         f"The mapping of internal IDs to IRIs is kept at: {id2iri}\n"
         f"This bulk data import blocks further imports of this project until you remove it with: "
-        f"{_delete_command(shortcode, import_id)}"
+        f"{delete_command(shortcode, import_id)}"
     )
 
 
@@ -118,7 +118,7 @@ class BulkImportExistsError(UserError):
     def __init__(self, shortcode: str, import_id: str) -> None:
         super().__init__(
             f"A bulk data import already exists for the project '{shortcode}' (import ID '{import_id}'). "
-            f"It was not deleted. Remove it with: {_delete_command(shortcode, import_id)}"
+            f"It was not deleted. Remove it with: {delete_command(shortcode, import_id)}"
         )
 
 

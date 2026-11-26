@@ -178,7 +178,7 @@ DSP-TOOLS writes these files to `~/.dsp-tools/data-imports/<server>/`:
 | ------------------------------------ | ---------------------------------------------------------------------- |
 | `<shortcode>_<timestamp>_payload.jsonld` | the data that DSP-TOOLS sends to the server (the payload)              |
 | `<shortcode>_<timestamp>_id2iri.json`| the mapping of internal IDs to IRIs, written before the data is sent   |
-| `<shortcode>_<timestamp>_error.txt`  | the error message of the server, written only if the import fails      |
+| `<shortcode>_<import_id>_error.txt`  | the error message of the server, written only if the import fails      |
 
 After a successful import, DSP-TOOLS removes the payload and the `_id2iri.json` file.
 It writes the mapping of internal IDs to IRIs to `id2iri_<shortcode>_<server>_<timestamp>.json` 
@@ -187,8 +187,10 @@ in the current working directory.
 
 #### If the Import Fails
 
-If the server reports an error, DSP-TOOLS writes the error message to the `_error.txt` file 
+If the server reports an error, DSP-TOOLS prints the first lines of the error message, 
+writes the full message to the `_error.txt` file, 
 and deletes the import task on the server.
+If the server sends no error message, DSP-TOOLS writes no file.
 The payload and the `_id2iri.json` file stay in the folder.
 The project holds no data after a failed import. 
 Correct the problem and run `ingest-xmlupload` again.
@@ -220,7 +222,8 @@ uvx dsp-tools delete-data-import [options] shortcode import_id
 
 Only system admins can run this command.
 It does not delete an import that is still running.
-If the import failed, the command writes its error message to `<shortcode>_<import_id>_error.txt`
+If the import failed, the command prints the first lines of the error message,
+and writes the full message to `<shortcode>_<import_id>_error.txt`
 in `~/.dsp-tools/data-imports/<server>/` before it deletes the task.
 
 

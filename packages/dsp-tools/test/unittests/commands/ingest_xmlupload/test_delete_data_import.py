@@ -59,6 +59,14 @@ def test_failed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert "was deleted" in out
 
 
+def test_failed_without_message(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    client = FakeClient(_status(DataImportStatusValue.FAILED, None))
+    assert _run(client, "0001", IMPORT_ID, tmp_path) is True
+    assert not list(tmp_path.iterdir())
+    assert client.deleted == [DataImportId(IMPORT_ID)]
+    assert "The server sent no error message." in capsys.readouterr().out
+
+
 def test_completed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     client = FakeClient(_status(DataImportStatusValue.COMPLETED))
     assert _run(client, "0001", IMPORT_ID, tmp_path) is True

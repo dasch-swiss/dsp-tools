@@ -80,7 +80,7 @@ class FakeClient:
 
 @pytest.fixture
 def files(tmp_path: Path) -> PayloadFiles:
-    result = PayloadFiles(tmp_path / "p.jsonld", tmp_path / "p_id2iri.json", tmp_path / "p_error.txt")
+    result = PayloadFiles(tmp_path / "p_payload.jsonld", tmp_path / "p_id2iri.json")
     result.payload.write_bytes(b"x" * 2 * MIB)
     result.id2iri.write_text("{}", encoding="utf-8")
     return result
@@ -121,8 +121,12 @@ def test_completed_delete_fails(files: PayloadFiles, tmp_path: Path, capsys: pyt
 def test_failed(files: PayloadFiles, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     client = FakeClient(statuses=[FAILED])
     assert _run(client, files, tmp_path) is False
-    assert files.error.read_text(encoding="utf-8") == "bad data"
-    assert str(files.error) in capsys.readouterr().out
+    error_file = tmp_path / "0001_imp-1_error.txt"
+    assert error_file.read_text(encoding="utf-8") == "bad data"
+    out = capsys.readouterr().out
+    assert str(error_file) in out
+    assert f"The payload file is kept at: {files.payload}" in out
+    assert f"The mapping of internal IDs to IRIs is kept at: {files.id2iri}" in out
     assert client.deleted == [IMPORT_ID]
     assert files.payload.exists()
     assert files.id2iri.exists()

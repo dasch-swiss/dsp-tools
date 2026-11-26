@@ -3,7 +3,9 @@ from pathlib import Path
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import error_file
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import get_or_create_data_imports_folder
+from dsp_tools.commands.ingest_xmlupload.bulk_import.report_failure import report_failed_import
 from dsp_tools.commands.ingest_xmlupload.exceptions import SystemAdminRequiredError
 from dsp_tools.commands.xmlupload.upload_config import transform_server_url_to_foldername
 from dsp_vre.clients.authentication_client_live import AuthenticationClientLive
@@ -22,7 +24,7 @@ COMMAND = "delete-data-import"
 def delete_data_import(shortcode: str, import_id: str, creds: ServerCredentials) -> bool:
     """
     Deletes a bulk data import task from the server.
-    A failed import's error message is written to the data imports folder first.
+    The error message of a failed import is reported first.
 
     Args:
         shortcode: shortcode of the project
@@ -51,7 +53,7 @@ def _delete(client: DataImportClient, shortcode: str, import_id: str, error_fold
             _print_in_progress(import_id)
             return False
         if status.status == DataImportStatusValue.FAILED:
-            _write_error_message(status.error_message, shortcode, import_id, error_folder)
+            report_failed_import(status.error_message, error_file(error_folder, shortcode, import_id))
         client.delete_import(data_import_id)
     except DataImportNotFoundError as err:
         logger.exception(err)
@@ -70,9 +72,3 @@ def _delete(client: DataImportClient, shortcode: str, import_id: str, error_fold
 
 def _print_in_progress(import_id: str) -> None:
     print(f"The bulk data import '{import_id}' is still running. A running import cannot be deleted.")
-
-
-def _write_error_message(error_message: str | None, shortcode: str, import_id: str, error_folder: Path) -> None:
-    target = error_folder / f"{shortcode}_{import_id}_error.txt"
-    target.write_text(error_message or "", encoding="utf-8")
-    print(f"The bulk data import failed. The error message was written to {target}")

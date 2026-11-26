@@ -6,6 +6,8 @@ from loguru import logger
 
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import PayloadFiles
 from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import delete_payload_files
+from dsp_tools.commands.ingest_xmlupload.bulk_import.payload_files import error_file
+from dsp_tools.commands.ingest_xmlupload.bulk_import.report_failure import report_failed_import
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportExistsError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportNotEnabledError
 from dsp_tools.commands.ingest_xmlupload.exceptions import BulkImportPreconditionError
@@ -16,6 +18,7 @@ from dsp_tools.commands.ingest_xmlupload.exceptions import OnBehalfOfUserRejecte
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadSendConnectionLostError
 from dsp_tools.commands.ingest_xmlupload.exceptions import PayloadTooLargeError
 from dsp_tools.commands.ingest_xmlupload.exceptions import SystemAdminRequiredError
+from dsp_tools.commands.ingest_xmlupload.exceptions import delete_command
 from dsp_tools.commands.ingest_xmlupload.exceptions import describe_task_left_on_server
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
@@ -162,7 +165,7 @@ def _delete_task(client: DataImportClient, import_id: DataImportId, shortcode: s
         logger.exception(err)
         print(
             f"The bulk data import '{import_id.id_}' could not be deleted from the server. "
-            f"Remove it with: uvx dsp-tools delete-data-import {shortcode} {import_id.id_}"
+            f"Remove it with: {delete_command(shortcode, import_id.id_)}"
         )
 
 
@@ -189,7 +192,10 @@ def _on_failed(
 ) -> None:
     logger.error(f"Bulk data import failed: {error_message}")
     try:
-        files.error.write_text(error_message or "", encoding="utf-8")
-        print(f"The bulk data import failed. The error message was written to {files.error}")
+        report_failed_import(error_message, error_file(files.payload.parent, shortcode, import_id.id_))
+        print(
+            f"The payload file is kept at: {files.payload}\n"
+            f"The mapping of internal IDs to IRIs is kept at: {files.id2iri}"
+        )
     finally:
         _delete_task(client, import_id, shortcode)

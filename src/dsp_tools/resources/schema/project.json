@@ -23,6 +23,13 @@
                     "required": [
                         "en"
                     ]
+                },
+                {
+                    "patternProperties": {
+                        "^(en|de|fr|it|rm)$": {
+                            "pattern": "\\S"
+                        }
+                    }
                 }
             ]
         },

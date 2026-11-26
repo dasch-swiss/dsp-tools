@@ -179,6 +179,7 @@ By convention, property names start with a lower case letter.
 Collection of `labels` for the property as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 The `labels` must contain `en`.
+Each label and each comment must contain at least one character that is not whitespace.
 `labels` and `comments` must have the same languages.
 For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 
@@ -957,6 +958,7 @@ By convention, resource names start with an upper case letter.
 Collection of `labels` for the resource as strings with language tag 
 (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 The `labels` must contain `en`.
+Each label and each comment must contain at least one character that is not whitespace.
 `labels` and `comments` must have the same languages.
 For example, if there is a `de` label, there must also be a `de` comment, and the reverse.
 

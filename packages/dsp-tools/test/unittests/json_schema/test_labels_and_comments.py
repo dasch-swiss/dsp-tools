@@ -58,6 +58,7 @@ PROPERTY_VALIDATORS = [
 VALID_LANGUAGES = [
     pytest.param({"en": "label"}, {"en": "comment"}, id="en-only"),
     pytest.param({"en": "l", "de": "l", "fr": "l"}, {"en": "c", "de": "c", "fr": "c"}, id="en-de-fr"),
+    pytest.param({"en": " label "}, {"en": "comment"}, id="surrounding-whitespace"),
     pytest.param(
         {"en": "l", "de": "l", "fr": "l", "it": "l", "rm": "l"},
         {"en": "c", "de": "c", "fr": "c", "it": "c", "rm": "c"},
@@ -79,6 +80,9 @@ INVALID_LANGUAGES = [
     pytest.param({"en": "l", "rm": "l"}, {"en": "comment"}, id="rm-label-without-rm-comment"),
     pytest.param({"en": "label"}, {"en": "c", "rm": "c"}, id="rm-comment-without-rm-label"),
     pytest.param({"en": "l", "rm": "l"}, {"en": "c", "de": "c"}, id="rm-label-and-de-comment"),
+    pytest.param({"en": " "}, {"en": "comment"}, id="en-label-only-whitespace"),
+    pytest.param({"en": "label"}, {"en": ""}, id="en-comment-empty"),
+    pytest.param({"en": "l", "de": "l"}, {"en": "c", "de": "\t\n"}, id="de-comment-only-whitespace"),
 ]
 
 

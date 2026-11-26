@@ -5,6 +5,8 @@ from typing import Any
 import jsonschema
 import pytest
 
+from dsp_tools.commands.excel2json.utils import languages as excel2json_languages
+
 
 def _load_schema(file_name: str) -> dict[str, Any]:
     with (
@@ -71,7 +73,11 @@ INVALID_LANGUAGES = [
     pytest.param({"en": "l", "de": "l"}, {"en": "comment"}, id="de-label-without-de-comment"),
     pytest.param({"en": "label"}, {"en": "c", "de": "c"}, id="de-comment-without-de-label"),
     pytest.param({"en": "l", "fr": "l"}, {"en": "comment"}, id="fr-label-without-fr-comment"),
+    pytest.param({"en": "label"}, {"en": "c", "fr": "c"}, id="fr-comment-without-fr-label"),
+    pytest.param({"en": "l", "it": "l"}, {"en": "comment"}, id="it-label-without-it-comment"),
     pytest.param({"en": "label"}, {"en": "c", "it": "c"}, id="it-comment-without-it-label"),
+    pytest.param({"en": "l", "rm": "l"}, {"en": "comment"}, id="rm-label-without-rm-comment"),
+    pytest.param({"en": "label"}, {"en": "c", "rm": "c"}, id="rm-comment-without-rm-label"),
     pytest.param({"en": "l", "rm": "l"}, {"en": "c", "de": "c"}, id="rm-label-and-de-comment"),
 ]
 
@@ -122,3 +128,24 @@ def test_property_invalid(
 def test_list_node_keeps_rules(node: dict[str, Any]) -> None:
     validator = _validator_for_definition("project.json", "node")
     assert not list(validator.iter_errors(node))
+
+
+SHARED_DEFINITIONS = ["langstring", "langstring_with_en", "matching_label_and_comment_languages"]
+
+
+@pytest.mark.parametrize("file_name", ["resources-only.json", "properties-only.json"])
+@pytest.mark.parametrize("definition", SHARED_DEFINITIONS)
+def test_shared_definitions_equal_project_schema(file_name: str, definition: str) -> None:
+    project_definition = _load_schema("project.json")["definitions"][definition]
+    assert _load_schema(file_name)["definitions"][definition] == project_definition, (
+        f"'{definition}' in '{file_name}' differs from 'project.json'"
+    )
+
+
+def test_excel2json_languages_equal_schema_languages() -> None:
+    rules = _load_schema("project.json")["definitions"]["matching_label_and_comment_languages"]["allOf"]
+    schema_languages = {
+        lang for rule in rules for constraint in rule["if"]["properties"].values() for lang in constraint["required"]
+    }
+    excel_languages = {lang for lang in excel2json_languages if lang != "en"}
+    assert excel_languages == schema_languages

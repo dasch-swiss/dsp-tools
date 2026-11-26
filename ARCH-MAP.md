@@ -313,7 +313,8 @@ this map found confirmed violations of both rules; see Conventions and each comp
 - **Local-context kit**: `upload_files/CLAUDE.md`, `ingest_files/ingest_files.py`,
   `create_resources/upload_xml.py`, `resume_xmlupload/resume_xmlupload.py`, and from `xmlupload`:
   `CLAUDE.md`, `upload_config.py`, `execute_upload.py` (`resume-xmlupload` uses an `UploadConfig` to locate
-  the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle, `bulk_import/report_failure.py` reports a failed import.
+  the pickle and calls `execute_upload()`). `bulk_import/run_import.py` holds the task lifecycle,
+  `bulk_import/report_failure.py` reports a failed import.
   `upload_files/upload_files.py` is left out: `upload_files/CLAUDE.md` describes its flow.
 - **Depends on**: `clients` (AuthenticationClientLive, BulkIngestClient, `UploadFailure`, DspIngestClientLive,
   DataImportClientLive, LegalInfo/List/Project clients), `xmlupload` (execute_upload, models incl. `DspIngestAssetClient`,

@@ -826,6 +826,7 @@ Example:
         "super": ["isPartOf"],
         "object": ":Book",
         "labels": {"en": "is part of"},
+        "comments": {"en": "The book that this page is part of"},
         "gui_element": "Searchbox"
     },
     {
@@ -833,6 +834,7 @@ Example:
         "super": ["seqnum"],
         "object": "IntValue",
         "labels": {"en": "has page number"},
+        "comments": {"en": "The position of the page in the book"},
         "gui_element": "SimpleText"
     }
 ],
@@ -840,6 +842,7 @@ Example:
     {
         "name": "Page",
         "labels": {"en": "Page using properties derived from 'isPartOf' and 'seqnum'"},
+        "comments": {"en": "A page of a book, with its own subproperties of 'isPartOf' and 'seqnum'"},
         "super": "StillImageRepresentation",
         "cardinalities": [
             {
@@ -855,6 +858,7 @@ Example:
     {
         "name": "MinimalisticPage",
         "labels": {"en": "Page using 'isPartOf' and 'seqnum' directly"},
+        "comments": {"en": "A page of a book, with the base properties 'isPartOf' and 'seqnum'"},
         "super": "StillImageRepresentation",
         "cardinalities": [
             {
